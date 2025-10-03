@@ -21,7 +21,7 @@
 
   <!-- Step 1: date e orari -->
   <div id="step1">
-    <p>Inserisci la data e l'orario di partenza e arrivo per verificare la disponibilità.</p>
+    <p>Inserisci data e orario di partenza e arrivo per verificare la disponibilità.</p>
     <label for="data_partenza">Data e ora di partenza</label>
     <input type="datetime-local" id="data_partenza" name="data_partenza" />
     <label for="data_arrivo">Data e ora di arrivo</label>
@@ -33,7 +33,6 @@
   <div id="step2">
     <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
     <select id="scelta_pulmino" name="scelta_pulmino">
-      <option value="">-- Seleziona un pulmino --</option>
     </select>
     <button onclick="vaiStep3()">Continua</button>
   </div>
@@ -52,22 +51,21 @@
     <button onclick="mostraFormGoogle()">Continua al modulo di prenotazione</button>
   </div>
 
-  <!-- Container per iframe Google Form -->
   <div id="container_iframe"></div>
 
   <script>
     const pulmini = [
-      { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)" },
-      { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)" },
-      { id: "peugeot", nome: "Peugeot Expert Tepee" }
+      { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
+      { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
+      { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
     ];
     let prenotazioni = [];
 
-    // Questi dati simulano la lettura dal foglio, sostituisci con API se vuoi
+    // Sostituisci con caricamento vero da Google Sheet via API
     prenotazioni = [
-      ["Pulmino", "Nome", "Cognome", "Giorno inizio noleggio", "Ora inizio noleggio", "Giorno fine noleggio", "Ora fine noleggio"],
-      ["Fiat Ducato (Passo lungo)", "", "", "2025-10-04", "13:00", "2025-10-05", "12:00"],
-      // ... piu prenotazioni qui
+      ["Pulmino", "Nome", "Cognome", "Giorno inizio noleggio", "Ora inizio noleggio", "Giorno fine noleggio", "Ora fine noleggio", "Targa"],
+      ["Fiat Ducato (Passo lungo)", "", "", "2025-10-04", "13:00", "2025-10-05", "12:00", "EC787NM"],
+      // altre prenotazioni...
     ];
 
     function controllaDisponibilita() {
@@ -77,21 +75,23 @@
         alert('Inserisci date e orari validi.');
         return;
       }
+
       const disponibili = pulmini.filter(pulmino => {
         return !prenotazioni.some(row => {
           if (row[0] === "Pulmino") return false;
-          if (row[0] !== pulmino.nome) return false;
-          const sheetStart = (row[3] && row[4]) ? (row[3] + "T" + row[4]) : "";
-          const sheetEnd   = (row[5] && row[6]) ? (row[5] + "T" + row[6]) : "";
-          if (!sheetStart || !sheetEnd) return false;
-          return (partenza < sheetEnd && arrivo > sheetStart);
+          if (row[7] !== pulmino.targa) return false;
+          const startPren = (row[3] && row[4]) ? (row[3] + "T" + row[4]) : "";
+          const endPren = (row[5] && row[6]) ? (row[5] + "T" + row[6]) : "";
+          if (!startPren || !endPren) return false;
+          return (partenza < endPren && arrivo > startPren);
         });
       });
+
       const select = document.getElementById('scelta_pulmino');
       select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
         disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
       if (disponibili.length === 0) {
-        alert('Nessun pulmino disponibile nella fascia selezionata!');
+        alert('Nessun pulmino disponibile per la fascia selezionata!');
         return;
       }
       document.getElementById('step1').style.display = 'none';
@@ -143,7 +143,6 @@
       }
     }
 
-    // Usa gli entry ID del tuo modulo Google Form qui
     function mostraFormGoogle() {
       const data_partenza = document.getElementById('data_partenza').value.split('T')[0];
       const ora_partenza = document.getElementById('data_partenza').value.split('T')[1];
@@ -163,7 +162,7 @@
       document.getElementById('step3').style.display = 'none';
       const container = document.getElementById('container_iframe');
       container.style.display = 'block';
-      container.innerHTML = `<iframe src="${urlModulo}" width="100%" height="1200" frameborder="0" marginheight="0" marginwidth="0">Caricamento…</iframe>`;
+      container.innerHTML = `<iframe src="${urlModulo}" width="100%" height="1200" frameborder="0" marginheight="0" marginwidth="0"></iframe>`;
     }
   </script>
 
