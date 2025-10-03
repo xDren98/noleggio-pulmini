@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Noleggio Pulmini</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    h1 { text-align: center; color: #004080; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, button { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
+    button { background-color: #004080; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #003060; }
+    #step2, #step3 { display: none; }
+    .autista { border: 1px solid #ccc; padding: 10px; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+  <h1>Noleggio Pulmini</h1>
+
+  <!-- Step 1: date e orari -->
+  <div id="step1">
+    <p>Inserisci la data e l'orario di partenza e arrivo per verificare la disponibilità.</p>
+    <label for="data_partenza">Data e ora di partenza</label>
+    <input type="datetime-local" id="data_partenza" name="data_partenza" />
+    <label for="data_arrivo">Data e ora di arrivo</label>
+    <input type="datetime-local" id="data_arrivo" name="data_arrivo" />
+    <button onclick="controllaDisponibilita()">Verifica Disponibilità</button>
+  </div>
+
+  <!-- Step 2: selezione pulmino -->
+  <div id="step2">
+    <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
+    <select id="scelta_pulmino" name="scelta_pulmino">
+      <option value="">-- Seleziona un pulmino --</option>
+      <option value="ducato_lungo">Fiat Ducato (Passo lungo)</option>
+      <option value="ducato_corto">Fiat Ducato (Passo corto)</option>
+      <option value="peugeot">Peugeot Expert Tepee</option>
+    </select>
+    <button onclick="vaiStep3()">Continua</button>
+  </div>
+
+  <!-- Step 3: modulo autisti -->
+  <div id="step3">
+    <label for="num_autisti">Numero autisti (max 3):</label>
+    <select id="num_autisti" onchange="mostraModuliAutisti()">
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+    <div id="autisti_container"></div>
+    <label for="cellulare">Cellulare di riferimento</label>
+    <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
+    <button onclick="inviaDati()">Invia prenotazione</button>
+  </div>
+
+  <script>
+    function controllaDisponibilita() {
+      const partenza = document.getElementById('data_partenza').value;
+      const arrivo = document.getElementById('data_arrivo').value;
+      if (!partenza || !arrivo || partenza >= arrivo) {
+        alert('Inserisci date e orari validi.');
+        return;
+      }
+      alert('Disponibilità verificata!');
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+    }
+
+    function vaiStep3() {
+      const pulmino = document.getElementById('scelta_pulmino').value;
+      if (!pulmino) {
+        alert('Seleziona un pulmino.');
+        return;
+      }
+      alert(`Hai scelto: ${pulmino}. Inserisci ora i dati degli autisti.`);
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step3').style.display = 'block';
+      mostraModuliAutisti();
+    }
+
+    function mostraModuliAutisti() {
+      const container = document.getElementById('autisti_container');
+      const num = parseInt(document.getElementById('num_autisti').value);
+      container.innerHTML = '';
+      for (let i = 1; i <= num; i++) {
+        container.innerHTML += `
+          <div class="autista">
+            <h3>Autista ${i}</h3>
+            <label>Nome</label>
+            <input type="text" id="nome_${i}" required />
+            <label>Cognome</label>
+            <input type="text" id="cognome_${i}" required />
+            <label>Data di nascita</label>
+            <input type="date" id="data_nascita_${i}" required />
+            <label>Luogo di nascita</label>
+            <input type="text" id="luogo_nascita_${i}" required />
+            <label>Comune di residenza</label>
+            <input type="text" id="comune_residenza_${i}" required />
+            <label>Via di residenza</label>
+            <input type="text" id="via_residenza_${i}" required />
+            <label>Civico di residenza</label>
+            <input type="text" id="civico_residenza_${i}" required />
+            <label>Codice fiscale</label>
+            <input type="text" id="codice_fiscale_${i}" required />
+            <label>Numero patente</label>
+            <input type="text" id="numero_patente_${i}" required />
+            <label>Data inizio validità patente</label>
+            <input type="date" id="inizio_validita_patente_${i}" required />
+            <label>Data fine validità patente</label>
+            <input type="date" id="fine_validita_patente_${i}" required />
+          </div>`;
+      }
+    }
+
+    function inviaDati() {
+      const num = parseInt(document.getElementById('num_autisti').value);
+      const cellulare = document.getElementById('cellulare').value.trim();
+      if (!cellulare) {
+        alert('Inserisci il numero di cellulare di riferimento.');
+        return;
+      }
+      let dati = {
+        data_partenza: document.getElementById('data_partenza').value,
+        data_arrivo: document.getElementById('data_arrivo').value,
+        pulmino: document.getElementById('scelta_pulmino').value,
+        autisti: [],
+        cellulare: cellulare
+      };
+      for (let i = 1; i <= num; i++) {
+        let autista = {
+          nome: document.getElementById('nome_' + i).value.trim(),
+          cognome: document.getElementById('cognome_' + i).value.trim(),
+          data_nascita: document.getElementById('data_nascita_' + i).value,
+          luogo_nascita: document.getElementById('luogo_nascita_' + i).value.trim(),
+          comune_residenza: document.getElementById('comune_residenza_' + i).value.trim(),
+          via_residenza: document.getElementById('via_residenza_' + i).value.trim(),
+          civico_residenza: document.getElementById('civico_residenza_' + i).value.trim(),
+          codice_fiscale: document.getElementById('codice_fiscale_' + i).value.trim(),
+          numero_patente: document.getElementById('numero_patente_' + i).value.trim(),
+          inizio_validita_patente: document.getElementById('inizio_validita_patente_' + i).value,
+          fine_validita_patente: document.getElementById('fine_validita_patente_' + i).value
+        };
+        if (Object.values(autista).some(x => !x)) {
+          alert('Compila tutti i campi per ogni autista.');
+          return;
+        }
+        dati.autisti.push(autista);
+      }
+      console.log('Dati prenotazione:', dati);
+      alert('Prenotazione inviata! (demo solo console)');
+      // Qui in futuro invieremo i dati a backend o Google Sheets
+    }
+  </script>
+
+</body>
+</html>
