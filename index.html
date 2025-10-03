@@ -14,7 +14,7 @@
     #step2, #step3, #container_iframe { display: none; }
     .autista { border: 1px solid #ccc; padding: 10px; margin-top: 15px; }
     .telefono-info { text-align:center; margin-top:15px; font-size:1.1em; }
-    #chiamaBtn {
+    #chiamaContinuaBtn {
       display: block;
       margin: 0 auto 28px auto;
       font-size: 1.15em;
@@ -27,7 +27,11 @@
       cursor: pointer;
       border: none;
     }
-    #chiamaBtn:hover {
+    #chiamaContinuaBtn:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+    #chiamaContinuaBtn:hover:enabled {
       background: #e0a800;
     }
     #disponibili_box {
@@ -39,10 +43,6 @@
       margin-bottom: 20px;
       font-size: 1.2em;
       border-radius: 5px;
-    }
-    #continuaBtn:disabled {
-      background: #666;
-      cursor: not-allowed;
     }
     @media screen and (max-width: 600px) {
       body {
@@ -57,7 +57,7 @@
       button {
         width: 100%;
       }
-      #chiamaBtn {
+      #chiamaContinuaBtn {
         width: 100% !important;
         font-size: 1.3em !important;
         padding: 16px !important;
@@ -128,14 +128,13 @@
     Pulmini disponibili: <span id="num_disponibili">?</span>
   </div>
   
-  <button id="chiamaBtn" onclick="chiamaPerPrezzo()">
-    Chiama ora per info prezzo: 328 6589618
-  </button>
-
   <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
   <select id="scelta_pulmino" name="scelta_pulmino"></select>
 
-  <button id="continuaBtn" onclick="vaiStep3()" disabled>Continua</button>
+  <button id="chiamaContinuaBtn" onclick="chiamaEContinua()" disabled>
+    Chiama per continuare la prenotazione: 328 6589618
+  </button>
+
   <button onclick="goBack()">Indietro</button>
   <button onclick="goHome()">HOME</button>
 </div>
@@ -159,7 +158,7 @@
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  console.log("Noleggio Pulmini - Script Version V 5.0");
+  console.log("Noleggio Pulmini - Script Version V 5.1");
 
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -254,6 +253,30 @@
     }
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
+
+    // Disabilita il tasto chiamata fino alla selezione pulmino
+    document.getElementById('chiamaContinuaBtn').disabled = true;
+  }
+
+  // Abilita il tasto chiamata solo se è stato selezionato un pulmino
+  document.getElementById('scelta_pulmino').addEventListener('change', function() {
+    const btn = document.getElementById('chiamaContinuaBtn');
+    btn.disabled = !this.value;
+  });
+
+  function chiamaEContinua() {
+    const pulminoSelezionato = document.getElementById('scelta_pulmino').value;
+    if (!pulminoSelezionato) {
+      alert('Seleziona un pulmino prima di chiamare.');
+      return;
+    }
+    // Avvia chiamata
+    window.location.href = "tel:3286589618";
+
+    // Attendi mezzo secondo e passa allo step 3
+    setTimeout(() => {
+      vaiStep3();
+    }, 500);
   }
 
   function vaiStep3() {
@@ -299,11 +322,6 @@
           <input type="date" id="fine_validita_patente_${i}" required />
         </div>`;
     }
-  }
-
-  function chiamaPerPrezzo() {
-    document.getElementById('continuaBtn').disabled = false;
-    window.location.href = "tel:3286589618";
   }
 
   function mostraFormGoogle() {
