@@ -58,7 +58,7 @@
   ];
   let prenotazioni = [];
 
-  const API_KEY = 'AIzaSyDHnvZXL1xJ4ySPQZGbEdOg7Gc9sqP3oc8';
+  const API_KEY = 'AIzaSyCxz6r2f6ZfsPv5tlHNLj5F7_LfWuyww9U';
   const SPREADSHEET_ID = '1VAUJNVwxX8OLrkQVJP7IEGrqLIrDjJjrhfr7ABVqtns';
   const RANGE = 'Foglio1!A:H';
 
@@ -163,21 +163,6 @@
   }
 
   function mostraFormGoogle() {
-    // Dati autista 1
-    const nome1 = document.getElementById('nome_1').value;
-    const cognome1 = document.getElementById('cognome_1').value;
-    const data_nascita1 = document.getElementById('data_nascita_1').value;
-    const luogo_nascita1 = document.getElementById('luogo_nascita_1').value;
-    const cf1 = document.getElementById('codice_fiscale_1').value;
-    const comune_residenza1 = document.getElementById('comune_residenza_1').value;
-    const via_residenza1 = document.getElementById('via_residenza_1').value;
-    const civico_residenza1 = document.getElementById('civico_residenza_1').value;
-    const numero_patente1 = document.getElementById('numero_patente_1').value;
-    const inizio_validita_patente1 = document.getElementById('inizio_validita_patente_1').value;
-    const fine_validita_patente1 = document.getElementById('fine_validita_patente_1').value;
-
-    // Dati autista 2, 3 possono essere aggiunti in modo simile
-
     const data_partenza = document.getElementById('data_partenza').value.split('T')[0];
     const ora_inizio = document.getElementById('data_partenza').value.split('T')[1];
     const data_arrivo = document.getElementById('data_arrivo').value.split('T')[0];
@@ -187,24 +172,75 @@
     const targa = pulminoObj ? pulminoObj.targa : "";
     const data_contratto = new Date().toISOString().split('T')[0];
 
-    const urlModulo = `https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url`
-      + `&entry.550823113=${encodeURIComponent(nome1)}`
-      + `&entry.766463607=${encodeURIComponent(data_nascita1)}`
-      + `&entry.1735522613=${encodeURIComponent(luogo_nascita1)}`
-      + `&entry.36844075=${encodeURIComponent(cf1)}`
-      + `&entry.913323396=${encodeURIComponent(comune_residenza1)}`
-      + `&entry.1329485765=${encodeURIComponent(via_residenza1)}`
-      + `&entry.1349864501=${encodeURIComponent(civico_residenza1)}`
-      + `&entry.1885490374=${encodeURIComponent(numero_patente1)}`
-      + `&entry.525872521=${encodeURIComponent(inizio_validita_patente1)}`
-      + `&entry.1864189410=${encodeURIComponent(fine_validita_patente1)}`
-      + `&entry.1578287722=${encodeURIComponent(targa)}`
+    const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
+
+    const num = parseInt(document.getElementById('num_autisti').value);
+
+    // CAMPI ENTRY per i 3 autisti max
+    const entry = [
+      // Autista 1
+      {
+        nome: '550823113',
+        data_nascita: '766463607',
+        luogo_nascita: '1735522613',
+        cf: '36844075',
+        comune_residenza: '913323396',
+        via_residenza: '1329485765',
+        civico_residenza: '1349864501',
+        numero_patente: '1885490374',
+        inizio_patente: '525872521',
+        fine_patente: '1864189410'
+      },
+      // Autista 2
+      {
+        nome: '1236551634',
+        data_nascita: '503259772',
+        luogo_nascita: '1977818551',
+        cf: '1883324084',
+        comune_residenza: '2118103863',
+        via_residenza: '805763990',
+        civico_residenza: '568892376',
+        numero_patente: '124831667',
+        inizio_patente: '657885946',
+        fine_patente: '850104184'
+      },
+      // Autista 3
+      {
+        nome: '3164128',
+        data_nascita: '1896520037',
+        luogo_nascita: '1923148193',
+        cf: '2061435678',
+        comune_residenza: '767994785',
+        via_residenza: '1335171224',
+        civico_residenza: '1926018707',
+        numero_patente: '1750806014',
+        inizio_patente: '1084842503',
+        fine_patente: '965705170'
+      }
+    ];
+
+    let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url"
       + `&entry.257199041=${encodeURIComponent(ora_inizio)}`
       + `&entry.917923685=${encodeURIComponent(ora_fine)}`
+      + `&entry.1578287722=${encodeURIComponent(targa)}`
       + `&entry.1499256988=${encodeURIComponent(data_partenza)}`
       + `&entry.517585546=${encodeURIComponent(data_arrivo)}`
-      + `&entry.1888774437=${encodeURIComponent(document.getElementById('cellulare').value)}`
+      + `&entry.1888774437=${cellulare}`
       + `&entry.925984482=${encodeURIComponent(data_contratto)}`;
+
+    // Campi per ogni autista
+    for (let i = 0; i < num; i++) {
+      urlModulo += `&entry.${entry[i].nome}=${encodeURIComponent(document.getElementById('nome_' + (i+1)).value)}`
+      + `&entry.${entry[i].data_nascita}=${encodeURIComponent(document.getElementById('data_nascita_' + (i+1)).value)}`
+      + `&entry.${entry[i].luogo_nascita}=${encodeURIComponent(document.getElementById('luogo_nascita_' + (i+1)).value)}`
+      + `&entry.${entry[i].cf}=${encodeURIComponent(document.getElementById('codice_fiscale_' + (i+1)).value)}`
+      + `&entry.${entry[i].comune_residenza}=${encodeURIComponent(document.getElementById('comune_residenza_' + (i+1)).value)}`
+      + `&entry.${entry[i].via_residenza}=${encodeURIComponent(document.getElementById('via_residenza_' + (i+1)).value)}`
+      + `&entry.${entry[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_' + (i+1)).value)}`
+      + `&entry.${entry[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_' + (i+1)).value)}`
+      + `&entry.${entry[i].inizio_patente}=${encodeURIComponent(document.getElementById('inizio_validita_patente_' + (i+1)).value)}`
+      + `&entry.${entry[i].fine_patente}=${encodeURIComponent(document.getElementById('fine_validita_patente_' + (i+1)).value)}`;
+    }
 
     document.getElementById('step3').style.display = 'none';
     const container = document.getElementById('container_iframe');
