@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Noleggio Pulmini</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
     h1 { text-align: center; color: #004080; }
     label { display: block; margin-top: 10px; font-weight: bold; }
     input, select, button { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
@@ -21,10 +21,45 @@
 
 <div id="step1">
   <p>Inserisci data e orario di partenza e arrivo per verificare disponibilità.</p>
-  <label for="data_partenza">Data e ora di partenza</label>
-  <input type="datetime-local" id="data_partenza" name="data_partenza" />
-  <label for="data_arrivo">Data e ora di arrivo</label>
-  <input type="datetime-local" id="data_arrivo" name="data_arrivo" />
+
+  <label for="data_partenza">Data di partenza</label>
+  <input type="date" id="data_partenza" name="data_partenza" />
+
+  <label for="ora_partenza">Ora di partenza</label>
+  <select id="ora_partenza" name="ora_partenza">
+    <option value="00:00">00:00</option><option value="01:00">01:00</option>
+    <option value="02:00">02:00</option><option value="03:00">03:00</option>
+    <option value="04:00">04:00</option><option value="05:00">05:00</option>
+    <option value="06:00">06:00</option><option value="07:00">07:00</option>
+    <option value="08:00">08:00</option><option value="09:00">09:00</option>
+    <option value="10:00">10:00</option><option value="11:00">11:00</option>
+    <option value="12:00">12:00</option><option value="13:00">13:00</option>
+    <option value="14:00">14:00</option><option value="15:00">15:00</option>
+    <option value="16:00">16:00</option><option value="17:00">17:00</option>
+    <option value="18:00">18:00</option><option value="19:00">19:00</option>
+    <option value="20:00">20:00</option><option value="21:00">21:00</option>
+    <option value="22:00">22:00</option><option value="23:00">23:00</option>
+  </select>
+
+  <label for="data_arrivo">Data di arrivo</label>
+  <input type="date" id="data_arrivo" name="data_arrivo" />
+
+  <label for="ora_arrivo">Ora di arrivo</label>
+  <select id="ora_arrivo" name="ora_arrivo">
+    <option value="00:00">00:00</option><option value="01:00">01:00</option>
+    <option value="02:00">02:00</option><option value="03:00">03:00</option>
+    <option value="04:00">04:00</option><option value="05:00">05:00</option>
+    <option value="06:00">06:00</option><option value="07:00">07:00</option>
+    <option value="08:00">08:00</option><option value="09:00">09:00</option>
+    <option value="10:00">10:00</option><option value="11:00">11:00</option>
+    <option value="12:00">12:00</option><option value="13:00">13:00</option>
+    <option value="14:00">14:00</option><option value="15:00">15:00</option>
+    <option value="16:00">16:00</option><option value="17:00">17:00</option>
+    <option value="18:00">18:00</option><option value="19:00">19:00</option>
+    <option value="20:00">20:00</option><option value="21:00">21:00</option>
+    <option value="22:00">22:00</option><option value="23:00">23:00</option>
+  </select>
+
   <button onclick="controllaDisponibilita()">Verifica Disponibilità</button>
 </div>
 
@@ -95,19 +130,27 @@
       const parts = giorno.split('/');
       dataISO = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
     }
-    return new Date(`${dataISO}T${ora.substring(0,5)}`);
+    return new Date(`${dataISO}T${ora}`);
   }
 
   function controllaDisponibilita() {
-    const partenza = document.getElementById('data_partenza').value;
-    const arrivo = document.getElementById('data_arrivo').value;
-    if (!partenza || !arrivo || partenza >= arrivo) {
-      alert('Inserisci date e orari validi.');
+    const dataPartenza = document.getElementById('data_partenza').value;
+    const oraPartenza = document.getElementById('ora_partenza').value;
+    const dataArrivo = document.getElementById('data_arrivo').value;
+    const oraArrivo = document.getElementById('ora_arrivo').value;
+
+    if (!dataPartenza || !oraPartenza || !dataArrivo || !oraArrivo) {
+      alert('Inserisci data e ora validi.');
       return;
     }
 
-    const partenzaDate = new Date(partenza);
-    const arrivoDate = new Date(arrivo);
+    const partenzaDate = new Date(`${dataPartenza}T${oraPartenza}`);
+    const arrivoDate = new Date(`${dataArrivo}T${oraArrivo}`);
+
+    if (partenzaDate >= arrivoDate) {
+      alert('L\'ora di arrivo deve essere successiva a quella di partenza.');
+      return;
+    }
 
     // Rimuove la riga header nel foglio (row con Nome)
     const rows = prenotazioni.filter(row => row[1] !== 'Nome');
@@ -121,7 +164,6 @@
 
         if (!startPrenDate || !endPrenDate) return false;
 
-        // Controllo sovrapposizione intervalli (se sovrappongono, pulmino non disponibile)
         return (startPrenDate < arrivoDate && endPrenDate > partenzaDate);
       });
     });
@@ -182,7 +224,7 @@
     }
   }
 
-  // Funzione mostraFormGoogle lasciata invariata
+  // La funzione mostraFormGoogle resta come già definita in precedenza
 
 </script>
 
