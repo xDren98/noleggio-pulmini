@@ -27,11 +27,11 @@
       cursor: pointer;
       border: none;
     }
-    #chiamaContinuaBtn:disabled, #btnIstruzioniContinua:disabled {
+    #chiamaContinuaBtn:disabled, #btnIstruzioniContinua:disabled, #btnApriModulo:disabled {
       background: #666;
       cursor: not-allowed;
     }
-    #chiamaContinuaBtn:hover:enabled, #btnIstruzioniContinua:hover:enabled {
+    #chiamaContinuaBtn:hover:enabled, #btnIstruzioniContinua:hover:enabled, #btnApriModulo:hover:enabled {
       background: #e0a800;
     }
     #disponibili_box {
@@ -57,7 +57,7 @@
       button {
         width: 100%;
       }
-      #chiamaContinuaBtn, #btnIstruzioniContinua {
+      #chiamaContinuaBtn, #btnIstruzioniContinua, #btnApriModulo {
         width: 100% !important;
         font-size: 1.3em !important;
         padding: 16px !important;
@@ -152,10 +152,9 @@
       <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
     </ol>
     <p id="avviso_leggimi" style="color: darkred; font-weight: bold;">Leggi attentamente prima di procedere!</p>
-    <p>Sarai reindirizzato al modulo precompilato in una nuova finestra tra <span id="countdown_timer">5</span> secondi...</p>
   </div>
 
-  <button id="btnApriModulo" onclick="apriModuloPrecompilato()" disabled>Continua</button>
+  <button id="btnApriModulo" disabled>Controlla e invia i tuoi dati (10)</button>
   
   <button onclick="goBack()">Indietro</button>
   <button onclick="goHome()">HOME</button>
@@ -165,7 +164,7 @@
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  console.log("Noleggio Pulmini - Script Version V 6.0");
+  console.log("Noleggio Pulmini - Script Version V 6.1");
 
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -298,14 +297,17 @@
 
     const btnContinua = document.getElementById('btnApriModulo');
     btnContinua.disabled = true;
-    let countdown = 5;
+
+    let countdown = 10;
+    btnContinua.textContent = `Controlla e invia i tuoi dati (${countdown})`;
 
     const timer = setInterval(() => {
       countdown--;
-      document.getElementById('countdown_timer').textContent = countdown;
+      btnContinua.textContent = `Controlla e invia i tuoi dati (${countdown})`;
       if (countdown === 0) {
         clearInterval(timer);
         btnContinua.disabled = false;
+        btnContinua.textContent = "Controlla e invia i tuoi dati";
       }
     }, 1000);
   }
