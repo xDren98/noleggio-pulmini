@@ -109,30 +109,20 @@
     const partenzaDate = new Date(partenza);
     const arrivoDate = new Date(arrivo);
 
-    // Salta riga header se presente (colonna Nome)
+    // Rimuove la riga header nel foglio (row con Nome)
     const rows = prenotazioni.filter(row => row[1] !== 'Nome');
 
     const disponibili = pulmini.filter(pulmino => {
       return !rows.some(row => {
-        // Targa colonna 12 (L, row[11])
         if (row[11] !== pulmino.targa) return false;
 
-        const startPrenDate = composeJSDate(row[14], row[12]); // Giorno inizio/Ora inizio
-        const endPrenDate   = composeJSDate(row[15], row[13]); // Giorno fine/Ora fine
-
-        // Debug
-        // console.log({
-        //   targa: row[11],
-        //   giorno_inizio: row[14],
-        //   ora_inizio: row[12],
-        //   giorno_fine: row[15],
-        //   ora_fine: row[13],
-        //   startPrenDate,
-        //   endPrenDate
-        // });
+        const startPrenDate = composeJSDate(row[14], row[12]);
+        const endPrenDate = composeJSDate(row[15], row[13]);
 
         if (!startPrenDate || !endPrenDate) return false;
-        return (partenzaDate < endPrenDate && arrivoDate > startPrenDate);
+
+        // Controllo sovrapposizione intervalli (se sovrappongono, pulmino non disponibile)
+        return (startPrenDate < arrivoDate && endPrenDate > partenzaDate);
       });
     });
 
@@ -192,7 +182,7 @@
     }
   }
 
-  // ...qui resta la funzione mostraFormGoogle già pronta...
+  // Funzione mostraFormGoogle lasciata invariata
 
 </script>
 
