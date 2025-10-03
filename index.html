@@ -3,81 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Noleggio Pulmini</title>
+  <title>Imbriani Noleggio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
-    h1 { text-align: center; color: #004080; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select, button { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
-    button { background-color: #004080; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #003060; }
-    #step2, #step3, #step4, #container_iframe { display: none; }
-    .autista { border: 1px solid #ccc; padding: 10px; margin-top: 15px; }
-    .telefono-info { text-align:center; margin-top:15px; font-size:1.1em; }
-    #chiamaContinuaBtn {
-      display: block;
-      margin: 0 auto 28px auto;
+    body {
+      font-family: 'Poppins', sans-serif;
+      max-width: 900px;
+      margin: 30px auto;
+      background: #f9faff;
+      color: #1A3E5C;
+      padding: 0 15px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 2.8em;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+      color: #1A3E5C;
+    }
+    header p.slogan {
+      font-weight: 500;
       font-size: 1.15em;
-      padding: 12px 0;
-      width: 80%;
-      background: #ffc107;
-      color: black;
-      border-radius: 5px;
-      font-weight: bold;
+      color: #FF7500;
+      margin-top: 0;
+      letter-spacing: 1px;
+    }
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: 600;
+    }
+    input, select, button {
+      padding: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      font-size: 1.1em;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #FF7500;
+      box-shadow: 0 0 10px 1px rgba(255,117,0,0.3);
+    }
+    button {
+      background-color: #FF7500;
+      color: white;
+      font-weight: 700;
       cursor: pointer;
+      border-radius: 12px;
+      margin-top: 24px;
+      transition: background-color 0.4s ease, box-shadow 0.3s ease;
       border: none;
     }
-    #chiamaContinuaBtn:disabled, #btnApriModulo:disabled, #btnIstruzioniContinua:disabled {
-      background: #666;
-      cursor: not-allowed;
+    button:hover:not(:disabled) {
+      background-color: #e06100;
+      box-shadow: 0 5px 15px rgba(224,97,0,0.5);
     }
-    #chiamaContinuaBtn:hover:enabled, #btnApriModulo:hover:enabled, #btnIstruzioniContinua:hover:enabled {
-      background: #e0a800;
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      box-shadow: none;
     }
     #disponibili_box {
-      background: #28a745;
+      background: #26a65b;
       color: white;
-      font-weight: bold;
-      padding: 10px;
+      font-weight: 700;
+      font-size: 1.3em;
+      padding: 15px;
       text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.2em;
-      border-radius: 5px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      box-shadow: 0 3px 10px rgba(38,166,91,0.5);
     }
-    @media screen and (max-width: 600px) {
+    #istruzioni_modulo {
+      background: white;
+      border: 2px solid #FF7500;
+      padding: 20px 25px;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      color: #1a3e5c;
+      box-shadow: 0 3px 14px rgba(255,117,0,.3);
+    }
+    #istruzioni_modulo p#avviso_leggimi {
+      color: #FF7500;
+      font-weight: 700;
+      font-size: 1.2em;
+      margin-top: 0.6em;
+      margin-bottom: 0;
+      letter-spacing: 1.1px;
+    }
+    .autista {
+      background: white;
+      border-radius: 12px;
+      border: 1.8px solid #ccc;
+      box-shadow: 0 2px 8px rgba(26,62,92,0.1);
+      padding: 18px 24px;
+      margin-top: 20px;
+      transition: border-color 0.3s ease;
+    }
+    .autista:hover {
+      border-color: #FF7500;
+      box-shadow: 0 0 20px rgba(255,117,0,0.3);
+    }
+    h3 {
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #1a3e5c;
+      border-bottom: 1.8px solid #FF7500;
+      padding-bottom: 5px;
+    }
+    /* Responsive */
+    @media screen and (max-width: 700px) {
       body {
-        margin: 10px;
-        font-size: 1.1em;
+        max-width: 100%;
+        padding: 15px;
       }
-      input, select, button {
-        font-size: 1.2em;
-        padding: 12px;
-        margin-top: 10px;
-      }
-      button {
-        width: 100%;
-      }
-      #chiamaContinuaBtn, #btnApriModulo, #btnIstruzioniContinua {
-        width: 100% !important;
-        font-size: 1.3em !important;
-        padding: 16px !important;
+      header h1 {
+        font-size: 2.2em;
       }
       #disponibili_box {
-        font-size: 1.4em;
+        font-size: 1.1em;
+        padding: 12px;
+      }
+      button {
+        font-size: 1.2em;
         padding: 14px;
       }
-      #container_iframe iframe {
-        height: 1600px !important;
-      }
-      label {
-        margin-top: 14px;
+      input, select {
+        font-size: 1.2em;
+        padding: 14px;
       }
     }
   </style>
 </head>
 <body>
 
-<h1>Noleggio Pulmini</h1>
+<header>
+  <h1>Imbriani Noleggio</h1>
+  <p class="slogan">Dividi i costi moltiplica il divertimento</p>
+</header>
 
 <div id="step1">
   <p>Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</p>
@@ -345,7 +415,6 @@
     }
   }
 
-  // Qui assegniamo l'evento al bottone in modo sicuro per evitare errori di scope
   window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnApriModulo').addEventListener('click', apriModuloPrecompilato);
   });
