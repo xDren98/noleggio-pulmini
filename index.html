@@ -80,24 +80,17 @@
 <h1>Noleggio Pulmini</h1>
 
 <div id="step1">
-  <p>Inserisci data e orario di partenza e arrivo per verificare disponibilità.</p>
-  <label for="data_partenza">Data di partenza</label>
+  <p>Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</p>
+  <label for="data_partenza">Data di ritiro</label>
   <input type="date" id="data_partenza" name="data_partenza" />
 
-  <label for="ora_partenza">Ora di partenza</label>
+  <label for="ora_partenza">Ora di ritiro</label>
   <select id="ora_partenza" name="ora_partenza">
-    <option value="00:00">00:00</option><option value="01:00">01:00</option>
-    <option value="02:00">02:00</option><option value="03:00">03:00</option>
-    <option value="04:00">04:00</option><option value="05:00">05:00</option>
-    <option value="06:00">06:00</option><option value="07:00">07:00</option>
-    <option value="08:00">08:00</option><option value="09:00">09:00</option>
-    <option value="10:00">10:00</option><option value="11:00">11:00</option>
-    <option value="12:00">12:00</option><option value="13:00">13:00</option>
-    <option value="14:00">14:00</option><option value="15:00">15:00</option>
-    <option value="16:00">16:00</option><option value="17:00">17:00</option>
-    <option value="18:00">18:00</option><option value="19:00">19:00</option>
-    <option value="20:00">20:00</option><option value="21:00">21:00</option>
-    <option value="22:00">22:00</option><option value="23:00">23:00</option>
+    <option value="08:00">08:00</option>
+    <option value="12:00">12:00</option>
+    <option value="16:00">16:00</option>
+    <option value="20:00">20:00</option>
+    <option value="24:00">24:00</option>
   </select>
 
   <label for="data_arrivo">Data di arrivo</label>
@@ -105,18 +98,11 @@
 
   <label for="ora_arrivo">Ora di arrivo</label>
   <select id="ora_arrivo" name="ora_arrivo">
-    <option value="00:00">00:00</option><option value="01:00">01:00</option>
-    <option value="02:00">02:00</option><option value="03:00">03:00</option>
-    <option value="04:00">04:00</option><option value="05:00">05:00</option>
-    <option value="06:00">06:00</option><option value="07:00">07:00</option>
-    <option value="08:00">08:00</option><option value="09:00">09:00</option>
-    <option value="10:00">10:00</option><option value="11:00">11:00</option>
-    <option value="12:00">12:00</option><option value="13:00">13:00</option>
-    <option value="14:00">14:00</option><option value="15:00">15:00</option>
-    <option value="16:00">16:00</option><option value="17:00">17:00</option>
-    <option value="18:00">18:00</option><option value="19:00">19:00</option>
-    <option value="20:00">20:00</option><option value="21:00">21:00</option>
-    <option value="22:00">22:00</option><option value="23:00">23:00</option>
+    <option value="08:00">08:00</option>
+    <option value="12:00">12:00</option>
+    <option value="16:00">16:00</option>
+    <option value="20:00">20:00</option>
+    <option value="24:00">24:00</option>
   </select>
 
   <button onclick="controllaDisponibilita()">Verifica Disponibilità</button>
@@ -158,7 +144,7 @@
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  console.log("Noleggio Pulmini - Script Version V 5.1");
+  console.log("Noleggio Pulmini - Script Version V 5.2");
 
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -208,21 +194,21 @@
   }
 
   function controllaDisponibilita() {
-    const dataPartenza = document.getElementById('data_partenza').value;
-    const oraPartenza = document.getElementById('ora_partenza').value;
+    const dataRitiro = document.getElementById('data_partenza').value;
+    const oraRitiro = document.getElementById('ora_partenza').value;
     const dataArrivo = document.getElementById('data_arrivo').value;
     const oraArrivo = document.getElementById('ora_arrivo').value;
 
-    if (!dataPartenza || !oraPartenza || !dataArrivo || !oraArrivo) {
+    if (!dataRitiro || !oraRitiro || !dataArrivo || !oraArrivo) {
       alert('Inserisci data e ora validi.');
       return;
     }
 
-    const partenzaDate = new Date(`${dataPartenza}T${oraPartenza}`);
+    const ritiroDate = new Date(`${dataRitiro}T${oraRitiro}`);
     const arrivoDate = new Date(`${dataArrivo}T${oraArrivo}`);
 
-    if (partenzaDate >= arrivoDate) {
-      alert('L\'ora di arrivo deve essere successiva a quella di partenza.');
+    if (ritiroDate >= arrivoDate) {
+      alert('L\'ora di arrivo deve essere successiva a quella di ritiro.');
       return;
     }
 
@@ -237,7 +223,7 @@
 
         if (!startPrenDate || !endPrenDate) return false;
 
-        return (startPrenDate < arrivoDate && endPrenDate > partenzaDate);
+        return (startPrenDate < arrivoDate && endPrenDate > ritiroDate);
       });
     });
 
@@ -326,10 +312,10 @@
 
   function mostraFormGoogle() {
     const num = parseInt(document.getElementById('num_autisti').value);
-    const data_partenza = document.getElementById('data_partenza').value;
-    const ora_partenza = document.getElementById('ora_partenza').value;
-    const data_arrivo = document.getElementById('data_arrivo').value;
-    const ora_arrivo = document.getElementById('ora_arrivo').value;
+    const dataRitiro = document.getElementById('data_partenza').value;
+    const oraRitiro = document.getElementById('ora_partenza').value;
+    const dataArrivo = document.getElementById('data_arrivo').value;
+    const oraArrivo = document.getElementById('ora_arrivo').value;
     const pulminoId = document.getElementById('scelta_pulmino').value;
     const pulminoObj = pulmini.find(p => p.id === pulminoId);
     const targa = pulminoObj ? pulminoObj.targa : "";
@@ -376,11 +362,11 @@
     ];
 
     let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url"
-      + `&entry.257199041=${encodeURIComponent(ora_partenza)}`
-      + `&entry.917923685=${encodeURIComponent(ora_arrivo)}`
+      + `&entry.257199041=${encodeURIComponent(oraRitiro)}`
+      + `&entry.917923685=${encodeURIComponent(oraArrivo)}`
       + `&entry.1578287722=${encodeURIComponent(targa)}`
-      + `&entry.1499256988=${encodeURIComponent(data_partenza)}`
-      + `&entry.517585546=${encodeURIComponent(data_arrivo)}`
+      + `&entry.1499256988=${encodeURIComponent(dataRitiro)}`
+      + `&entry.517585546=${encodeURIComponent(dataArrivo)}`
       + `&entry.1888774437=${cellulare}`
       + `&entry.925984482=${encodeURIComponent(data_contratto)}`;
 
