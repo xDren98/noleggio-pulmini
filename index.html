@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Imbriani Noleggio</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -13,6 +14,7 @@
       background: #f9faff;
       color: #1A3E5C;
       padding: 0 15px;
+      overflow-x: hidden;
     }
     header {
       text-align: center;
@@ -33,9 +35,16 @@
       letter-spacing: 1px;
     }
     label {
-      display: block;
+      display: flex;
+      align-items: center;
       margin-top: 14px;
       font-weight: 600;
+      gap: 8px;
+      font-size: 1em;
+    }
+    .material-icons {
+      font-size: 22px;
+      color: #FF7500;
     }
     input, select, button {
       padding: 12px;
@@ -49,26 +58,29 @@
     input:focus, select:focus {
       outline: none;
       border-color: #FF7500;
-      box-shadow: 0 0 10px 1px rgba(255,117,0,0.3);
+      box-shadow: 0 0 12px 1.5px rgba(255,117,0,0.4);
     }
     button {
       background-color: #FF7500;
       color: white;
       font-weight: 700;
       cursor: pointer;
-      border-radius: 12px;
+      border-radius: 14px;
       margin-top: 24px;
-      transition: background-color 0.4s ease, box-shadow 0.3s ease;
+      transition: background-color 0.4s ease, box-shadow 0.3s ease, transform 0.2s ease;
       border: none;
+      user-select: none;
     }
     button:hover:not(:disabled) {
       background-color: #e06100;
-      box-shadow: 0 5px 15px rgba(224,97,0,0.5);
+      box-shadow: 0 5px 18px rgba(224, 97, 0, 0.6);
+      transform: translateY(-2px);
     }
     button:disabled {
       background-color: #ccc;
       cursor: not-allowed;
       box-shadow: none;
+      transform: none;
     }
     #disponibili_box {
       background: #26a65b;
@@ -88,7 +100,9 @@
       margin-bottom: 20px;
       border-radius: 15px;
       color: #1a3e5c;
-      box-shadow: 0 3px 14px rgba(255,117,0,.3);
+      box-shadow: 0 3px 14px rgba(255,117,0,0.35);
+      font-size: 1em;
+      user-select: none;
     }
     #istruzioni_modulo p#avviso_leggimi {
       color: #FF7500;
@@ -102,14 +116,14 @@
       background: white;
       border-radius: 12px;
       border: 1.8px solid #ccc;
-      box-shadow: 0 2px 8px rgba(26,62,92,0.1);
+      box-shadow: 0 2px 8px rgba(26, 62, 92, 0.1);
       padding: 18px 24px;
       margin-top: 20px;
-      transition: border-color 0.3s ease;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
     .autista:hover {
       border-color: #FF7500;
-      box-shadow: 0 0 20px rgba(255,117,0,0.3);
+      box-shadow: 0 0 20px rgba(255, 117, 0, 0.4);
     }
     h3 {
       font-weight: 600;
@@ -117,6 +131,21 @@
       color: #1a3e5c;
       border-bottom: 1.8px solid #FF7500;
       padding-bottom: 5px;
+    }
+    /* Transitions for step fade */
+    .step {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      height: 0; /* Hide by default */
+      overflow: hidden;
+    }
+    .step.active {
+      opacity: 1;
+      transform: translateY(0);
+      height: auto;
+      overflow: visible;
+      margin-bottom: 30px;
     }
     /* Responsive */
     @media screen and (max-width: 700px) {
@@ -128,7 +157,7 @@
         font-size: 2.2em;
       }
       #disponibili_box {
-        font-size: 1.1em;
+        font-size: 1.15em;
         padding: 12px;
       }
       button {
@@ -138,6 +167,12 @@
       input, select {
         font-size: 1.2em;
         padding: 14px;
+      }
+      label {
+        font-size: 1.1em;
+      }
+      .material-icons {
+        font-size: 20px;
       }
     }
   </style>
@@ -149,12 +184,13 @@
   <p class="slogan">Dividi i costi moltiplica il divertimento</p>
 </header>
 
-<div id="step1">
-  <p>Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</p>
-  <label for="data_partenza">Data di ritiro</label>
+<!-- Step 1 -->
+<div id="step1" class="step active">
+  <p><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</p>
+  <label for="data_partenza"><span class="material-icons">calendar_month</span> Data di ritiro</label>
   <input type="date" id="data_partenza" name="data_partenza" />
 
-  <label for="ora_partenza">Ora di ritiro</label>
+  <label for="ora_partenza"><span class="material-icons">access_time</span> Ora di ritiro</label>
   <select id="ora_partenza" name="ora_partenza">
     <option value="08:00">08:00</option>
     <option value="12:00">12:00</option>
@@ -163,10 +199,10 @@
     <option value="24:00">24:00</option>
   </select>
 
-  <label for="data_arrivo">Data di arrivo</label>
+  <label for="data_arrivo"><span class="material-icons">calendar_month</span> Data di arrivo</label>
   <input type="date" id="data_arrivo" name="data_arrivo" />
 
-  <label for="ora_arrivo">Ora di arrivo</label>
+  <label for="ora_arrivo"><span class="material-icons">access_time</span> Ora di arrivo</label>
   <select id="ora_arrivo" name="ora_arrivo">
     <option value="08:00">08:00</option>
     <option value="12:00">12:00</option>
@@ -175,45 +211,46 @@
     <option value="24:00">24:00</option>
   </select>
 
-  <button onclick="controllaDisponibilita()">Verifica Disponibilità</button>
-  <button onclick="goHome()">HOME</button>
+  <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
+  <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
 </div>
 
-<div id="step2">
+<!-- Step 2 -->
+<div id="step2" class="step">
   <div id="disponibili_box">
     Pulmini disponibili: <span id="num_disponibili">?</span>
   </div>
   
-  <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
+  <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
   <select id="scelta_pulmino" name="scelta_pulmino"></select>
 
-  <button id="chiamaContinuaBtn" onclick="chiamaEContinua()" disabled>
-    Chiama per continuare la prenotazione: 328 6589618
-  </button>
+  <button id="chiamaContinuaBtn" onclick="chiamaEContinua()" disabled><span class="material-icons">call</span> Chiama per continuare la prenotazione: 328 6589618</button>
 
-  <button onclick="goBack()">Indietro</button>
-  <button onclick="goHome()">HOME</button>
+  <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+  <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
 </div>
 
-<div id="step3">
-  <label for="num_autisti">Numero autisti (max 3):</label>
+<!-- Step 3 -->
+<div id="step3" class="step">
+  <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
   <select id="num_autisti" onchange="mostraModuliAutisti()">
     <option value="1" selected>1</option>
     <option value="2">2</option>
     <option value="3">3</option>
   </select>
   <div id="autisti_container"></div>
-  <label for="cellulare">Cellulare di riferimento</label>
+  <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
   <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
 
-  <button id="btnIstruzioniContinua" onclick="vaiStep4()">Continua</button>
+  <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
   
-  <button onclick="goBack()">Indietro</button>
-  <button onclick="goHome()">HOME</button>
+  <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+  <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
 </div>
 
-<div id="step4">
-  <div id="istruzioni_modulo" style="background:#e7f3ff; border: 1px solid #a7c1e7; padding: 10px; margin-bottom: 15px; border-radius: 5px; color: #004080; font-size: 0.95em;">
+<!-- Step 4 -->
+<div id="step4" class="step">
+  <div id="istruzioni_modulo">
     <strong>Istruzioni per il completamento della prenotazione:</strong>
     <ol>
       <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
@@ -221,20 +258,20 @@
       <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
       <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
     </ol>
-    <p id="avviso_leggimi" style="color: darkred; font-weight: bold;">Leggi attentamente prima di procedere!</p>
+    <p id="avviso_leggimi">Leggi attentamente prima di procedere!</p>
   </div>
 
   <button id="btnApriModulo" disabled>Controlla e invia i tuoi dati (10)</button>
   
-  <button onclick="goBack()">Indietro</button>
-  <button onclick="goHome()">HOME</button>
+  <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+  <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
 </div>
 
 <div id="container_iframe"></div>
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  console.log("Noleggio Pulmini - Script Version V 6.3");
+  console.log("Noleggio Pulmini - Script Version V 7.0");
 
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -271,6 +308,18 @@
 
   window.onload = function() {
     loadSheetsApi();
+  }
+
+  // Utilità per fade in e out degli step
+  function showStep(stepId) {
+    const allSteps = document.querySelectorAll('.step');
+    allSteps.forEach(step => {
+      if (step.id === stepId) {
+        step.classList.add('active');
+      } else {
+        step.classList.remove('active');
+      }
+    });
   }
 
   function composeJSDate(giorno, ora) {
@@ -327,9 +376,7 @@
       alert('Nessun pulmino disponibile per la fascia selezionata!');
       return;
     }
-    document.getElementById('step1').style.display = 'none';
-    document.getElementById('step2').style.display = 'block';
-
+    showStep('step2');
     document.getElementById('chiamaContinuaBtn').disabled = true;
   }
 
@@ -356,15 +403,12 @@
       alert('Seleziona un pulmino.');
       return;
     }
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step3').style.display = 'block';
+    showStep('step3');
     mostraModuliAutisti();
   }
 
   function vaiStep4() {
-    document.getElementById('step3').style.display = 'none';
-    document.getElementById('step4').style.display = 'block';
-
+    showStep('step4');
     const btnContinua = document.getElementById('btnApriModulo');
     btnContinua.disabled = true;
     let countdown = 10;
