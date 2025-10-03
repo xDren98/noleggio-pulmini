@@ -58,9 +58,9 @@
   <script>
     const API_KEY = 'AIzaSyDHnvZXL1xJ4ySPQZGbEdOg7Gc9sqP3oc8';
     const SPREADSHEET_ID = '1rW0g3Hf_LQI0Mgr_8cC4gzV5BsyI8GFYpXUV_UYiXNY';
-    const RANGE = 'Foglio1!A:H'; // Modifica se il foglio ha nome diverso
+    const RANGE = 'Foglio1!A:H';
+    const URL_WEBAPP = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec';
 
-    // Lista pulmini
     const pulmini = [
       { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)" },
       { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)" },
@@ -68,7 +68,6 @@
     ];
     let prenotazioni = [];
 
-    // Funzione aggiornata: leggi prenotazioni, verifica disponibilità
     function controllaDisponibilita() {
       const partenza = document.getElementById('data_partenza').value;
       const arrivo = document.getElementById('data_arrivo').value;
@@ -76,21 +75,17 @@
         alert('Inserisci date e orari validi.');
         return;
       }
-      // Filtra pulmini liberi
       const disponibili = pulmini.filter(pulmino => {
         return !prenotazioni.some(row => {
           if (row[0] === "Pulmino") return false;
           if (row[0] !== pulmino.nome) return false;
-          // Costruisci orari completi da foglio
           const sheetStart = (row[3] && row[4]) ? (row[3] + "T" + row[4]) : "";
           const sheetEnd   = (row[5] && row[6]) ? (row[5] + "T" + row[6]) : "";
           if (!sheetStart || !sheetEnd) return false;
-          // Sovrapposizioni
           return (partenza < sheetEnd && arrivo > sheetStart);
         });
       });
 
-      // Aggiorna select con solo disponibili
       const select = document.getElementById('scelta_pulmino');
       select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
         disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
@@ -102,7 +97,6 @@
       document.getElementById('step2').style.display = 'block';
     }
 
-    // Carica prenotazioni alla partenza
     function loadSheetsApi() {
       gapi.load('client', initClient);
     }
@@ -128,7 +122,6 @@
       loadSheetsApi();
     }
 
-    // --- Step 2/Step 3 identico alla versione precedente ---
     function vaiStep3() {
       const pulmino = document.getElementById('scelta_pulmino').value;
       if (!pulmino) {
@@ -192,18 +185,18 @@
         cellulare: cellulare
       };
 
-      fetch('https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec', {
+      fetch(URL_WEBAPP, {
         method: 'POST',
         body: JSON.stringify(dati),
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        mode: 'cors'
       })
       .then(response => response.json())
       .then(data => {
         if(data.result === 'success') {
           alert("Prenotazione salvata con successo!");
-          // eventualmente reset o reindirizza pagina
         } else {
           alert("Errore durante il salvataggio, riprova.");
         }
