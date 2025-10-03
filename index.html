@@ -88,6 +88,16 @@
     loadSheetsApi();
   }
 
+  function composeJSDate(giorno, ora) {
+    if (!giorno || !ora) return null;
+    let dataISO = giorno;
+    if (giorno.includes('/')) {
+      const parts = giorno.split('/');
+      dataISO = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+    }
+    return new Date(`${dataISO}T${ora.substring(0,5)}`);
+  }
+
   function controllaDisponibilita() {
     const partenza = document.getElementById('data_partenza').value;
     const arrivo = document.getElementById('data_arrivo').value;
@@ -96,19 +106,33 @@
       return;
     }
 
-    // Skip intestazioni se presenti (se la prima riga contiene "Nome" o altri titoli)
+    const partenzaDate = new Date(partenza);
+    const arrivoDate = new Date(arrivo);
+
+    // Salta riga header se presente (colonna Nome)
     const rows = prenotazioni.filter(row => row[1] !== 'Nome');
 
     const disponibili = pulmini.filter(pulmino => {
       return !rows.some(row => {
-        // Targa è colonna 12 (L, row[11])
+        // Targa colonna 12 (L, row[11])
         if (row[11] !== pulmino.targa) return false;
-        // Giorno inizio colonna 15 (O, row[14]), ora inizio colonna 13 (M, row[12])
-        // Giorno fine colonna 16 (P, row[15]), ora fine colonna 14 (N, row[13])
-        const startPren = (row[14] && row[12]) ? (row[14] + "T" + row[12]) : "";
-        const endPren   = (row[15] && row[13]) ? (row[15] + "T" + row[13]) : "";
-        if (!startPren || !endPren) return false;
-        return (partenza < endPren && arrivo > startPren);
+
+        const startPrenDate = composeJSDate(row[14], row[12]); // Giorno inizio/Ora inizio
+        const endPrenDate   = composeJSDate(row[15], row[13]); // Giorno fine/Ora fine
+
+        // Debug
+        // console.log({
+        //   targa: row[11],
+        //   giorno_inizio: row[14],
+        //   ora_inizio: row[12],
+        //   giorno_fine: row[15],
+        //   ora_fine: row[13],
+        //   startPrenDate,
+        //   endPrenDate
+        // });
+
+        if (!startPrenDate || !endPrenDate) return false;
+        return (partenzaDate < endPrenDate && arrivoDate > startPrenDate);
       });
     });
 
@@ -168,7 +192,7 @@
     }
   }
 
-  // ...mostraFormGoogle qui rimane invariato...
+  // ...qui resta la funzione mostraFormGoogle già pronta...
 
 </script>
 
