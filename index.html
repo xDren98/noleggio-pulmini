@@ -34,9 +34,7 @@
     <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
     <select id="scelta_pulmino" name="scelta_pulmino">
       <option value="">-- Seleziona un pulmino --</option>
-      <option value="ducato_lungo">Fiat Ducato (Passo lungo)</option>
-      <option value="ducato_corto">Fiat Ducato (Passo corto)</option>
-      <option value="peugeot">Peugeot Expert Tepee</option>
+      <!-- Opzioni aggiunte via codice -->
     </select>
     <button onclick="vaiStep3()">Continua</button>
   </div>
@@ -62,6 +60,49 @@
     const SPREADSHEET_ID = '1rW0g3Hf_LQI0Mgr_8cC4gzV5BsyI8GFYpXUV_UYiXNY';
     const RANGE = 'Foglio1!A:H'; // Modifica se il foglio ha nome diverso
 
+    // Lista pulmini
+    const pulmini = [
+      { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)" },
+      { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)" },
+      { id: "peugeot", nome: "Peugeot Expert Tepee" }
+    ];
+    let prenotazioni = [];
+
+    // Funzione aggiornata: leggi prenotazioni, verifica disponibilità
+    function controllaDisponibilita() {
+      const partenza = document.getElementById('data_partenza').value;
+      const arrivo = document.getElementById('data_arrivo').value;
+      if (!partenza || !arrivo || partenza >= arrivo) {
+        alert('Inserisci date e orari validi.');
+        return;
+      }
+      // Filtra pulmini liberi
+      const disponibili = pulmini.filter(pulmino => {
+        return !prenotazioni.some(row => {
+          if (row[0] === "Pulmino") return false;
+          if (row[0] !== pulmino.nome) return false;
+          // Costruisci orari completi da foglio
+          const sheetStart = (row[3] && row[4]) ? (row[3] + "T" + row[4]) : "";
+          const sheetEnd   = (row[5] && row[6]) ? (row[5] + "T" + row[6]) : "";
+          if (!sheetStart || !sheetEnd) return false;
+          // Sovrapposizioni
+          return (partenza < sheetEnd && arrivo > sheetStart);
+        });
+      });
+
+      // Aggiorna select con solo disponibili
+      const select = document.getElementById('scelta_pulmino');
+      select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
+        disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+      if (disponibili.length === 0) {
+        alert('Nessun pulmino disponibile nella fascia selezionata!');
+        return;
+      }
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+    }
+
+    // Carica prenotazioni alla partenza
     function loadSheetsApi() {
       gapi.load('client', initClient);
     }
@@ -71,15 +112,13 @@
         'apiKey': API_KEY,
         'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
       }).then(function () {
-        // Esempio: leggi dati all'avvio
         return gapi.client.sheets.spreadsheets.values.get({
           spreadsheetId: SPREADSHEET_ID,
           range: RANGE,
         });
       }).then(function (response) {
-        const data = response.result.values;
-        console.log('Dati foglio:', data);
-        // Puoi usare data per disponibilità
+        prenotazioni = response.result.values || [];
+        console.log('Dati foglio:', prenotazioni);
       }, function (error) {
         console.error('Errore API:', error);
       });
@@ -89,26 +128,13 @@
       loadSheetsApi();
     }
 
-    // Il resto del codice di logica/step resta invariato (già incluso sopra)
-    function controllaDisponibilita() {
-      const partenza = document.getElementById('data_partenza').value;
-      const arrivo = document.getElementById('data_arrivo').value;
-      if (!partenza || !arrivo || partenza >= arrivo) {
-        alert('Inserisci date e orari validi.');
-        return;
-      }
-      alert('Disponibilità verificata!');
-      document.getElementById('step1').style.display = 'none';
-      document.getElementById('step2').style.display = 'block';
-    }
-
+    // --- Step 2/Step 3 identico alla versione precedente ---
     function vaiStep3() {
       const pulmino = document.getElementById('scelta_pulmino').value;
       if (!pulmino) {
         alert('Seleziona un pulmino.');
         return;
       }
-      alert(`Hai scelto: ${pulmino}. Inserisci ora i dati degli autisti.`);
       document.getElementById('step2').style.display = 'none';
       document.getElementById('step3').style.display = 'block';
       mostraModuliAutisti();
@@ -183,8 +209,8 @@
         dati.autisti.push(autista);
       }
       console.log('Dati prenotazione:', dati);
-      alert('Prenotazione inviata! (demo solo console)');
-      // Qui in futuro invieremo i dati a backend o Google Sheets
+      alert('Prenotazione inviata! (demo solo console al momento)');
+      // Qui in futuro invierai i dati al backend o Google Sheet
     }
   </script>
 
