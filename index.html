@@ -14,6 +14,36 @@
     #step2, #step3, #container_iframe { display: none; }
     .autista { border: 1px solid #ccc; padding: 10px; margin-top: 15px; }
     .telefono-info { text-align:center; margin-top:15px; font-size:1.1em; }
+    #chiamaBtn {
+      display: block;
+      margin: 0 auto 28px auto;
+      font-size: 1.15em;
+      padding: 12px 0;
+      width: 80%;
+      background: #ffc107;
+      color: black;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    #chiamaBtn:hover {
+      background: #e0a800;
+    }
+    #disponibili_box {
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      padding: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      border-radius: 5px;
+    }
+    #continuaBtn:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -65,14 +95,20 @@
 </div>
 
 <div id="step2">
+  <div id="disponibili_box">
+    Pulmini disponibili: <span id="num_disponibili">?</span>
+  </div>
+  
+  <button id="chiamaBtn" onclick="chiamaPerPrezzo()">
+    Chiama ora per info prezzo: 328 6589618
+  </button>
+
   <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
   <select id="scelta_pulmino" name="scelta_pulmino"></select>
-  <button onclick="vaiStep3()">Continua</button>
+
+  <button id="continuaBtn" onclick="vaiStep3()" disabled>Continua</button>
   <button onclick="goBack()">Indietro</button>
   <button onclick="goHome()">HOME</button>
-  <p class="telefono-info">
-    Per informazioni sul prezzo chiama il <a href="tel:3286589618">328 6589618</a>
-  </p>
 </div>
 
 <div id="step3">
@@ -94,7 +130,7 @@
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  console.log("Noleggio Pulmini - Script Version V 3.0");
+  console.log("Noleggio Pulmini - Script Version 4.0");
 
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -180,6 +216,9 @@
     const select = document.getElementById('scelta_pulmino');
     select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
       disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+
+    document.getElementById('num_disponibili').textContent = disponibili.length;
+
     if (disponibili.length === 0) {
       alert('Nessun pulmino disponibile per la fascia selezionata!');
       return;
@@ -233,6 +272,11 @@
     }
   }
 
+  function chiamaPerPrezzo() {
+    document.getElementById('continuaBtn').disabled = false;
+    window.location.href = "tel:3286589618";
+  }
+
   function mostraFormGoogle() {
     const num = parseInt(document.getElementById('num_autisti').value);
     const data_partenza = document.getElementById('data_partenza').value;
@@ -246,7 +290,6 @@
     const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
 
     const entry = [
-      // Autista 1
       {
         nome: '550823113',
         data_nascita: '766463607',
@@ -259,7 +302,6 @@
         inizio_patente: '525872521',
         fine_patente: '1864189410'
       },
-      // Autista 2
       {
         nome: '1236551634',
         data_nascita: '503259772',
@@ -272,7 +314,6 @@
         inizio_patente: '657885946',
         fine_patente: '850104184'
       },
-      // Autista 3
       {
         nome: '3164128',
         data_nascita: '1896520037',
