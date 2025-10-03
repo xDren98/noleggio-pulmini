@@ -55,7 +55,41 @@
     <button onclick="inviaDati()">Invia prenotazione</button>
   </div>
 
+  <!-- Google Sheets API Script -->
+  <script src="https://apis.google.com/js/api.js"></script>
   <script>
+    const API_KEY = 'AIzaSyDHnvZXL1xJ4ySPQZGbEdOg7Gc9sqP3oc8';
+    const SPREADSHEET_ID = '1rW0g3Hf_LQI0Mgr_8cC4gzV5BsyI8GFYpXUV_UYiXNY';
+    const RANGE = 'Foglio1!A:H'; // Modifica se il foglio ha nome diverso
+
+    function loadSheetsApi() {
+      gapi.load('client', initClient);
+    }
+
+    function initClient() {
+      gapi.client.init({
+        'apiKey': API_KEY,
+        'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+      }).then(function () {
+        // Esempio: leggi dati all'avvio
+        return gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId: SPREADSHEET_ID,
+          range: RANGE,
+        });
+      }).then(function (response) {
+        const data = response.result.values;
+        console.log('Dati foglio:', data);
+        // Puoi usare data per disponibilità
+      }, function (error) {
+        console.error('Errore API:', error);
+      });
+    }
+
+    window.onload = function() {
+      loadSheetsApi();
+    }
+
+    // Il resto del codice di logica/step resta invariato (già incluso sopra)
     function controllaDisponibilita() {
       const partenza = document.getElementById('data_partenza').value;
       const arrivo = document.getElementById('data_arrivo').value;
