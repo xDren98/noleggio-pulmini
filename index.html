@@ -30,8 +30,7 @@
 
 <div id="step2">
   <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
-  <select id="scelta_pulmino" name="scelta_pulmino">
-  </select>
+  <select id="scelta_pulmino" name="scelta_pulmino"></select>
   <button onclick="vaiStep3()">Continua</button>
 </div>
 
@@ -52,10 +51,6 @@
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  const API_KEY = 'AIzaSyDHnvZXL1xJ4ySPQZGbEdOg7Gc9sqP3oc8';
-  const SPREADSHEET_ID = '1VAUJNVwxX8OLrkQVJP7IEGrqLIrDjJjrhfr7ABVqtns';
-  const RANGE = 'Foglio1!A:H';
-
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
     { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
@@ -63,7 +58,10 @@
   ];
   let prenotazioni = [];
 
-  // Inizializza API Google Sheets e carica dati
+  const API_KEY = 'AIzaSyDHnvZXL1xJ4ySPQZGbEdOg7Gc9sqP3oc8';
+  const SPREADSHEET_ID = '1VAUJNVwxX8OLrkQVJP7IEGrqLIrDjJjrhfr7ABVqtns';
+  const RANGE = 'Foglio1!A:H';
+
   function loadSheetsApi() {
     gapi.load('client', initClient);
   }
@@ -97,7 +95,6 @@
       alert('Inserisci date e orari validi.');
       return;
     }
-
     const disponibili = pulmini.filter(pulmino => {
       return !prenotazioni.some(row => {
         if (row[0] === "Pulmino") return false;
@@ -166,20 +163,48 @@
   }
 
   function mostraFormGoogle() {
+    // Dati autista 1
+    const nome1 = document.getElementById('nome_1').value;
+    const cognome1 = document.getElementById('cognome_1').value;
+    const data_nascita1 = document.getElementById('data_nascita_1').value;
+    const luogo_nascita1 = document.getElementById('luogo_nascita_1').value;
+    const cf1 = document.getElementById('codice_fiscale_1').value;
+    const comune_residenza1 = document.getElementById('comune_residenza_1').value;
+    const via_residenza1 = document.getElementById('via_residenza_1').value;
+    const civico_residenza1 = document.getElementById('civico_residenza_1').value;
+    const numero_patente1 = document.getElementById('numero_patente_1').value;
+    const inizio_validita_patente1 = document.getElementById('inizio_validita_patente_1').value;
+    const fine_validita_patente1 = document.getElementById('fine_validita_patente_1').value;
+
+    // Dati autista 2, 3 possono essere aggiunti in modo simile
+
     const data_partenza = document.getElementById('data_partenza').value.split('T')[0];
-    const ora_partenza = document.getElementById('data_partenza').value.split('T')[1];
+    const ora_inizio = document.getElementById('data_partenza').value.split('T')[1];
     const data_arrivo = document.getElementById('data_arrivo').value.split('T')[0];
-    const ora_arrivo = document.getElementById('data_arrivo').value.split('T')[1];
-    const pulmino = document.getElementById('scelta_pulmino').selectedOptions[0].text;
+    const ora_fine = document.getElementById('data_arrivo').value.split('T')[1];
+    const pulminoId = document.getElementById('scelta_pulmino').value;
+    const pulminoObj = pulmini.find(p => p.id === pulminoId);
+    const targa = pulminoObj ? pulminoObj.targa : "";
     const data_contratto = new Date().toISOString().split('T')[0];
 
-    const urlModulo = `https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?embedded=true`
-      + `&entry.1473419052=${encodeURIComponent(data_partenza)}`
-      + `&entry.1636334307=${encodeURIComponent(ora_partenza)}`
-      + `&entry.1514949362=${encodeURIComponent(data_arrivo)}`
-      + `&entry.1429961043=${encodeURIComponent(ora_arrivo)}`
-      + `&entry.1489530990=${encodeURIComponent(pulmino)}`
-      + `&entry.819970005=${encodeURIComponent(data_contratto)}`;
+    const urlModulo = `https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url`
+      + `&entry.550823113=${encodeURIComponent(nome1)}`
+      + `&entry.766463607=${encodeURIComponent(data_nascita1)}`
+      + `&entry.1735522613=${encodeURIComponent(luogo_nascita1)}`
+      + `&entry.36844075=${encodeURIComponent(cf1)}`
+      + `&entry.913323396=${encodeURIComponent(comune_residenza1)}`
+      + `&entry.1329485765=${encodeURIComponent(via_residenza1)}`
+      + `&entry.1349864501=${encodeURIComponent(civico_residenza1)}`
+      + `&entry.1885490374=${encodeURIComponent(numero_patente1)}`
+      + `&entry.525872521=${encodeURIComponent(inizio_validita_patente1)}`
+      + `&entry.1864189410=${encodeURIComponent(fine_validita_patente1)}`
+      + `&entry.1578287722=${encodeURIComponent(targa)}`
+      + `&entry.257199041=${encodeURIComponent(ora_inizio)}`
+      + `&entry.917923685=${encodeURIComponent(ora_fine)}`
+      + `&entry.1499256988=${encodeURIComponent(data_partenza)}`
+      + `&entry.517585546=${encodeURIComponent(data_arrivo)}`
+      + `&entry.1888774437=${encodeURIComponent(document.getElementById('cellulare').value)}`
+      + `&entry.925984482=${encodeURIComponent(data_contratto)}`;
 
     document.getElementById('step3').style.display = 'none';
     const container = document.getElementById('container_iframe');
