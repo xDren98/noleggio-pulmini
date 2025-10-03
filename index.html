@@ -44,6 +44,35 @@
       background: #666;
       cursor: not-allowed;
     }
+    @media screen and (max-width: 600px) {
+      body {
+        margin: 10px;
+        font-size: 1.1em;
+      }
+      input, select, button {
+        font-size: 1.2em;
+        padding: 12px;
+        margin-top: 10px;
+      }
+      button {
+        width: 100%;
+      }
+      #chiamaBtn {
+        width: 100% !important;
+        font-size: 1.3em !important;
+        padding: 16px !important;
+      }
+      #disponibili_box {
+        font-size: 1.4em;
+        padding: 14px;
+      }
+      #container_iframe iframe {
+        height: 1600px !important;
+      }
+      label {
+        margin-top: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -130,7 +159,7 @@
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  console.log("Noleggio Pulmini - Script Version 4.0");
+  console.log("Noleggio Pulmini - Script Version V 5.0");
 
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -216,7 +245,7 @@
     const select = document.getElementById('scelta_pulmino');
     select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
       disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
-
+    
     document.getElementById('num_disponibili').textContent = disponibili.length;
 
     if (disponibili.length === 0) {
