@@ -11,7 +11,7 @@
     input, select, button { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
     button { background-color: #004080; color: white; border: none; cursor: pointer; }
     button:hover { background-color: #003060; }
-    #step2, #step3 { display: none; }
+    #step2, #step3, #container_iframe { display: none; }
     .autista { border: 1px solid #ccc; padding: 10px; margin-top: 15px; }
   </style>
 </head>
@@ -34,7 +34,6 @@
     <label for="scelta_pulmino">Scegli il pulmino disponibile:</label>
     <select id="scelta_pulmino" name="scelta_pulmino">
       <option value="">-- Seleziona un pulmino --</option>
-      <!-- Opzioni aggiunte via codice -->
     </select>
     <button onclick="vaiStep3()">Continua</button>
   </div>
@@ -50,23 +49,26 @@
     <div id="autisti_container"></div>
     <label for="cellulare">Cellulare di riferimento</label>
     <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
-    <button onclick="inviaDati()">Invia prenotazione</button>
+    <button onclick="mostraFormGoogle()">Continua al modulo di prenotazione</button>
   </div>
 
-  <!-- Google Sheets API Script -->
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script>
-    const API_KEY = 'AIzaSyDHnvZXL1xJ4ySPQZGbEdOg7Gc9sqP3oc8';
-    const SPREADSHEET_ID = '1rW0g3Hf_LQI0Mgr_8cC4gzV5BsyI8GFYpXUV_UYiXNY';
-    const RANGE = 'Foglio1!A:H';
-    const URL_WEBAPP = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec';
+  <!-- Container per iframe Google Form -->
+  <div id="container_iframe"></div>
 
+  <script>
     const pulmini = [
       { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)" },
       { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)" },
       { id: "peugeot", nome: "Peugeot Expert Tepee" }
     ];
     let prenotazioni = [];
+
+    // Questi dati simulano la lettura dal foglio, sostituisci con API se vuoi
+    prenotazioni = [
+      ["Pulmino", "Nome", "Cognome", "Giorno inizio noleggio", "Ora inizio noleggio", "Giorno fine noleggio", "Ora fine noleggio"],
+      ["Fiat Ducato (Passo lungo)", "", "", "2025-10-04", "13:00", "2025-10-05", "12:00"],
+      // ... piu prenotazioni qui
+    ];
 
     function controllaDisponibilita() {
       const partenza = document.getElementById('data_partenza').value;
@@ -85,7 +87,6 @@
           return (partenza < sheetEnd && arrivo > sheetStart);
         });
       });
-
       const select = document.getElementById('scelta_pulmino');
       select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
         disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
@@ -95,31 +96,6 @@
       }
       document.getElementById('step1').style.display = 'none';
       document.getElementById('step2').style.display = 'block';
-    }
-
-    function loadSheetsApi() {
-      gapi.load('client', initClient);
-    }
-
-    function initClient() {
-      gapi.client.init({
-        'apiKey': API_KEY,
-        'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-      }).then(function () {
-        return gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: SPREADSHEET_ID,
-          range: RANGE,
-        });
-      }).then(function (response) {
-        prenotazioni = response.result.values || [];
-        console.log('Dati foglio:', prenotazioni);
-      }, function (error) {
-        console.error('Errore API:', error);
-      });
-    }
-
-    window.onload = function() {
-      loadSheetsApi();
     }
 
     function vaiStep3() {
@@ -167,44 +143,27 @@
       }
     }
 
-    function inviaDati() {
-      const num = parseInt(document.getElementById('num_autisti').value);
-      const cellulare = document.getElementById('cellulare').value.trim();
-      if (!cellulare) {
-        alert('Inserisci il numero di cellulare di riferimento.');
-        return;
-      }
-      let dati = {
-        data_partenza: document.getElementById('data_partenza').value,
-        data_arrivo: document.getElementById('data_arrivo').value,
-        pulmino: document.getElementById('scelta_pulmino').selectedOptions[0].text,
-        autisti: {
-          nome: document.getElementById('nome_1').value.trim(),
-          cognome: document.getElementById('cognome_1').value.trim()
-        },
-        cellulare: cellulare
-      };
+    // Usa gli entry ID del tuo modulo Google Form qui
+    function mostraFormGoogle() {
+      const data_partenza = document.getElementById('data_partenza').value.split('T')[0];
+      const ora_partenza = document.getElementById('data_partenza').value.split('T')[1];
+      const data_arrivo = document.getElementById('data_arrivo').value.split('T')[0];
+      const ora_arrivo = document.getElementById('data_arrivo').value.split('T')[1];
+      const pulmino = document.getElementById('scelta_pulmino').selectedOptions[0].text;
+      const data_contratto = new Date().toISOString().split('T')[0];
 
-      fetch(URL_WEBAPP, {
-        method: 'POST',
-        body: JSON.stringify(dati),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        mode: 'cors'
-      })
-      .then(response => response.json())
-      .then(data => {
-        if(data.result === 'success') {
-          alert("Prenotazione salvata con successo!");
-        } else {
-          alert("Errore durante il salvataggio, riprova.");
-        }
-      })
-      .catch(error => {
-        console.error('Errore:', error);
-        alert("Errore di rete, riprova.");
-      });
+      const urlModulo = `https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?embedded=true`
+        + `&entry.1473419052=${encodeURIComponent(data_partenza)}`
+        + `&entry.1636334307=${encodeURIComponent(ora_partenza)}`
+        + `&entry.1514949362=${encodeURIComponent(data_arrivo)}`
+        + `&entry.1429961043=${encodeURIComponent(ora_arrivo)}`
+        + `&entry.1489530990=${encodeURIComponent(pulmino)}`
+        + `&entry.819970005=${encodeURIComponent(data_contratto)}`;
+
+      document.getElementById('step3').style.display = 'none';
+      const container = document.getElementById('container_iframe');
+      container.style.display = 'block';
+      container.innerHTML = `<iframe src="${urlModulo}" width="100%" height="1200" frameborder="0" marginheight="0" marginwidth="0">Caricamento…</iframe>`;
     }
   </script>
 
