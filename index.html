@@ -184,33 +184,34 @@
       let dati = {
         data_partenza: document.getElementById('data_partenza').value,
         data_arrivo: document.getElementById('data_arrivo').value,
-        pulmino: document.getElementById('scelta_pulmino').value,
-        autisti: [],
+        pulmino: document.getElementById('scelta_pulmino').selectedOptions[0].text,
+        autisti: {
+          nome: document.getElementById('nome_1').value.trim(),
+          cognome: document.getElementById('cognome_1').value.trim()
+        },
         cellulare: cellulare
       };
-      for (let i = 1; i <= num; i++) {
-        let autista = {
-          nome: document.getElementById('nome_' + i).value.trim(),
-          cognome: document.getElementById('cognome_' + i).value.trim(),
-          data_nascita: document.getElementById('data_nascita_' + i).value,
-          luogo_nascita: document.getElementById('luogo_nascita_' + i).value.trim(),
-          comune_residenza: document.getElementById('comune_residenza_' + i).value.trim(),
-          via_residenza: document.getElementById('via_residenza_' + i).value.trim(),
-          civico_residenza: document.getElementById('civico_residenza_' + i).value.trim(),
-          codice_fiscale: document.getElementById('codice_fiscale_' + i).value.trim(),
-          numero_patente: document.getElementById('numero_patente_' + i).value.trim(),
-          inizio_validita_patente: document.getElementById('inizio_validita_patente_' + i).value,
-          fine_validita_patente: document.getElementById('fine_validita_patente_' + i).value
-        };
-        if (Object.values(autista).some(x => !x)) {
-          alert('Compila tutti i campi per ogni autista.');
-          return;
+
+      fetch('https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec', {
+        method: 'POST',
+        body: JSON.stringify(dati),
+        headers: {
+          'Content-Type': 'application/json'
         }
-        dati.autisti.push(autista);
-      }
-      console.log('Dati prenotazione:', dati);
-      alert('Prenotazione inviata! (demo solo console al momento)');
-      // Qui in futuro invierai i dati al backend o Google Sheet
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.result === 'success') {
+          alert("Prenotazione salvata con successo!");
+          // eventualmente reset o reindirizza pagina
+        } else {
+          alert("Errore durante il salvataggio, riprova.");
+        }
+      })
+      .catch(error => {
+        console.error('Errore:', error);
+        alert("Errore di rete, riprova.");
+      });
     }
   </script>
 
