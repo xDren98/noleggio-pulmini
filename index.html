@@ -7,38 +7,55 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
+<!-- RIMOSSO Choices.js per default menu -->
 <style>
 html, body {height:100%; margin:0; overflow-x:hidden;}
 body {
   font-family:'Poppins',sans-serif;
   max-width:980px; margin:0 auto 60px auto;
   background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed;
-  background-size:cover;
-  color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;
+  background-size:cover; color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;
 }
 body:before {content:""; position:fixed; top:0; left:0; width:100vw; height:100vh;
   background:rgba(20,34,55,0.53); z-index:-1; pointer-events:none;}
-header {position:relative; z-index:1; text-align:center; margin-bottom:35px; padding-top:30px;}
-header h1 {font-weight:700; font-size:2.7em; letter-spacing:2.5px; margin-bottom:8px; color:#fff;
-  text-shadow:0 2px 12px #204a63,0 0 20px #012124;}
-header p.slogan {font-weight:500; font-size:1.22em; color:#fff; margin:0; margin-top:5px;
-  letter-spacing:1.2px; font-style:italic; text-shadow:0 2px 8px #1b2540,0 0 30px #3b585e;}
+header {
+  position:relative; z-index:10; text-align:center; margin-bottom:38px; padding-top:36px;
+  background: linear-gradient(95deg,#134264 88%,#ffe176 112%);
+  border-radius: 28px;
+  box-shadow:0 6px 32px #0a223679;
+  border: 4px solid #ffe176;
+  max-width:660px; margin-left:auto; margin-right:auto;
+}
+header h1 {
+  font-weight:900; font-size:3em; letter-spacing:2.5px; margin-bottom:12px; color:#ffe176;
+  text-shadow:0 2px 23px #174a86,0 0 13px #ffe9ab, 0 0 32px #04264a;
+  padding: 0.4em 0; font-family: 'Poppins',sans-serif;
+}
+header p.slogan {
+  font-weight:600; font-size:1.28em; color:#fff; margin:0;
+  margin-bottom:8px; margin-top:8px; letter-spacing:1.4px; font-style:italic;
+  text-shadow:0 2px 16px #1c2966,0 0 38px #ffe176,0 0 6px #368fa1;
+  padding: 0.2em 0;
+  background: linear-gradient(90deg,#ffe176 40%,#369fc8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 main {position:relative; z-index:1;}
 label{display:flex; align-items:center; margin-top:16px; font-weight:700; gap:10px; font-size:1em;
   color:#fff; text-shadow:0 0 10px rgba(0,0,0,0.85);}
 .material-icons {font-size:22px; color:#fcd168; text-shadow:0 2px 8px #1a2549;}
-input, button {
+input, button, select {
   padding:14px; width:100%; box-sizing:border-box; border:1.5px solid #c5dae5;
   border-radius:14px; font-size:1.13em; transition:border-color 0.35s,box-shadow 0.35s;
-  background:rgba(249,250,251,0.83); color:#184154; margin-top:4px;
+  background:rgba(249,250,251,0.95); color:#184154; margin-top:4px;
   font-family: 'Poppins', sans-serif;
 }
 input::placeholder {color:#a7babd;}
-input:focus {
+input:focus, select:focus {
   outline:none; border-color:#ffe176; box-shadow:0 0 14px 2px #ffe18699;
   background:#fff; color:#123035;
 }
+select {background:#fff;}
 button {
   background:#147ba7; color:#fefff7; font-weight:700; border-radius:18px; margin-top:28px;
   display:flex; align-items:center; justify-content:center; gap:10px; border:none; cursor:pointer; font-size:1.07em;
@@ -54,101 +71,82 @@ button:hover:not(:disabled) {
 button:disabled {
   background-color:#c9cbcf; cursor:not-allowed; box-shadow:none; transform:none; color:#90959c;
 }
-/* --- Flatpickr: fix mese dropdown --- */
-.flatpickr-calendar {background: #1a2a41 !important; color: #fff !important;}
-.flatpickr-current-month {
-  padding: 4px 8px !important;
-  background: transparent !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+#disponibili_box {
+  background:rgba(16,99,145,0.9); color:#fcd168; font-weight:700; font-size:1.28em; padding:15px; text-align:center;
+  border-radius:16px; margin-bottom:30px; text-shadow:0 0 12px #262e37; box-shadow:0 3px 10px #0c5066cc;
 }
-.flatpickr-monthDropdown-months {
-  width: 90px !important;
-  font-size: 1em !important;
-  height: 29px !important;
-  background: #ffe176 !important;
-  color: #193242 !important;
-  border-radius: 8px !important;
-  font-weight: 700 !important;
-  border:1px solid #ffe176 !important;
-  outline: none !important;
-  text-align: left !important;
-  margin-right: 12px !important;
-  margin-left: 2px !important;
+#istruzioni_modulo {
+  background:rgba(36,57,72,0.95); border:2.5px solid #ffe176; padding:24px 20px 16px 24px;
+  margin-bottom:28px; border-radius:18px; font-size:1.1em; color:#ffe176; box-shadow:0 0 18px #e2d38e77; user-select:none;
+  text-shadow:0 0 14px #223c52ad;
 }
-.flatpickr-monthDropdown-months option {
-  background: #ffe176 !important;
-  color: #193242 !important;
+#istruzioni_modulo p#avviso_leggimi {
+  color:#f6e995; font-weight:700; font-size:1.19em; margin-top:1em; margin-bottom:0;
+  letter-spacing:1px; text-shadow:0 0 10px #ffe486,0 0 1.2em #fff5c2;
 }
-.flatpickr-current-month .numInputWrapper {
-  width: 64px !important;
-  height: 29px !important;
-  background: #ffe176 !important;
-  color: #193242 !important;
-  border-radius: 8px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-weight: 700 !important;
-  font-size: 1em !important;
-  margin-left: 2px !important;
-  margin-right: 2px !important;
-  overflow:clip !important;
+.autista {
+  background:rgba(240,241,237,0.93); border-radius:13px; border:1.8px solid #bddaff; box-shadow:0 2px 12px #73a7ec4b;
+  padding:18px 24px; margin-top:18px; transition:border-color 0.3s, box-shadow 0.3s;
 }
-.flatpickr-current-month input.cur-year {
-  font-weight: 700 !important;
-  border: none !important;
-  background: transparent !important;
-  color: #193242 !important;
-  font-size: 1em !important;
-  text-align: center !important;
-  border-radius: 8px !important;
-  width:42px !important;
-  outline:none!important;
+.autista:hover {
+  border-color:#1db7ef; box-shadow:0 0 28px #87c4fd90;
 }
-.flatpickr-prev-month, .flatpickr-next-month {
-  background: none !important;
-  border-radius: 12px !important;
-  color:#ffe176 !important;
-  width: 35px !important; height: 35px !important;
-  display: flex !important; align-items: center !important; justify-content: center !important;
+h3 {
+  font-weight:700; margin-bottom:14px; color:#2690c9; border-bottom:2px solid #ffe176; padding-bottom:4px;
 }
-/* NON TOCCARE pointer-events, flex-basis, visibility */
-.flatpickr-day,
-.flatpickr-day:hover {
-  color: #ffe176 !important;
-  font-weight: 700 !important;
-  background: none !important;
-  box-shadow: none !important;
+.step { opacity:0; transform:translateY(20px); transition:opacity 0.48s, transform 0.48s;
+  height:0; overflow:hidden; pointer-events:none;}
+.step.active {
+  opacity:1; transform:translateY(0); height:auto; margin-bottom:34px; pointer-events:all; overflow:visible;
 }
-.flatpickr-day.selected,
-.flatpickr-day.today {
-  background: #ffe176 !important;
-  color: #193242 !important;
-  border-radius: 8px !important;
-  font-weight: 800 !important;
+#progressContainer {
+  position:fixed; bottom:0; left:0; width:100%; min-height:73px; height:73px;
+  background:rgba(19,32,43,0.82);
+  box-shadow:0 -2px 16px #00152888; display:flex; align-items:center; justify-content:center;
+  z-index:999; user-select:none; font-weight:600; color:#ffe37e; font-size:1.09em; gap:14px;
 }
-.flatpickr-weekday {
-  font-weight: bold !important;
-  color: #ffe176 !important;
+#progressBar {
+  position: relative; width:73%; height:16px; background:rgba(255,255,255,0.2);
+  border-radius:24px; overflow:visible; box-shadow:inset 0 0 8px rgba(0,0,0,0.2),0 3px 16px #ffe77e26;
+  margin-right:10px;
 }
-.choices__inner {
-  background: rgba(249,250,251,0.85); border-radius: 14px; border: 1.5px solid #c5dae5;
-  font-family: 'Poppins', sans-serif; font-size: 1.13em; color: #184154; box-shadow: 0 2px 4px #21404722;
-  margin-top: 4px; padding: 10px 16px;}
-.choices__list--dropdown {background: rgba(20,34,55,0.98); border-radius: 16px;
-  border: 1.5px solid #ffe176; font-family: 'Poppins', sans-serif; font-size: 1.10em;
-  color: #ffe176; box-shadow: 0 6px 24px #12203899;}
-.choices__item--selectable {color: #193242; border-radius: 8px; padding: 8px 16px;}
-.choices__item--selectable.is-highlighted, .choices__item.is-selected {background: #ffe176; color: #193242; font-weight: 700;}
+#progressFill {
+  height:100%; width:0%; background:linear-gradient(90deg,#1db7ef 27%,#ffe176 100%);
+  border-radius:20px 0 0 20px; transition:width 0.6s cubic-bezier(.45,0,.55,1);
+}
+#progressIcon {
+  position:absolute; top:50%; left:0; transform:translateY(-50%);
+  width:70px; height:70px; z-index:11; pointer-events:none;
+  animation:oscillate 1.7s ease-in-out infinite;
+  filter: drop-shadow(0 2px 6px #195976b6) drop-shadow(0 0 13px #ffe1769e);
+  transition:left 0.6s cubic-bezier(.45,0,.55,1);
+}
+@keyframes oscillate {
+  0%{transform:translateY(-50%) translateX(0);}
+  25%{transform:translateY(calc(-50% - 2px)) translateX(2px);}
+  50%{transform:translateY(-50%) translateX(-2px);}
+  75%{transform:translateY(calc(-50% + 2px)) translateX(2px);}
+  100%{transform:translateY(-50%) translateX(0);}
+}
+#finishFlag { width:70px; height:70px; position: absolute; top: 50%; right: 0;
+  transform: translate(50%, -50%); filter: drop-shadow(0 1px 3px #ffe176aa); z-index: 12; background: none;}
+#progressPercent {
+  min-width:48px; font-weight:700; color:#ffe176; letter-spacing:0.08em;
+  user-select:none; text-shadow:0 0 11px #fff7df99;
+}
+@media screen and (max-width:600px) {
+  body {padding-bottom:140px;}
+  header {max-width:98vw;}
+  header h1 {font-size:2em;}
+  #progressContainer {height:100px; min-height:78px; font-size:1em;}
+  #progressBar {width:98%;}
+}
 </style>
 </head>
 <body>
 <header>
   <h1>Imbriani Noleggio</h1>
-  <p class="slogan">Dividi i costi moltiplica il divertimento</p>
+  <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
 </header>
 <main>
   <div id="step1" class="step active">
@@ -235,35 +233,231 @@ button:disabled {
 </div>
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-console.log('Imbriani Noleggio - Versione 3.3');
+console.log('Imbriani Noleggio - Versione 3.2');
+
 function aggiornaFlatpickr() {
   flatpickr("input[type='text'][id*='data_']", {
-    dateFormat: "d/m/Y",
-    monthSelectorType: "dropdown",
-    enableTime: false
+    dateFormat: "d/m/Y"
+    // Opzioni default, niente monthSelectorType forzato
   });
 }
 aggiornaFlatpickr();
 
-let choicesInstances = [];
-function aggiornaChoices() {
-  choicesInstances.forEach(i => i.destroy());
-  choicesInstances = [];
-  document.querySelectorAll('select').forEach(el => {
-    // choices su tuoi select, NON su quello del calendario!
-    choicesInstances.push(new Choices(el, {
-      searchEnabled: false,
-      itemSelectText: '',
-      shouldSort: false
-    }));
+// Tutti i select sono di default, niente Choices.js
+
+const pulmini = [
+  { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
+  { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
+  { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
+];
+let prenotazioni = [];
+const API_KEY = 'AIzaSyCxz6r2f6ZfsPv5tlHNLj5F7_LfWuyww9U';
+const SPREADSHEET_ID = '1VAUJNVwxX8OLrkQVJP7IEGrqLIrDjJjrhfr7ABVqtns';
+const RANGE = "'Risposte del modulo 1'!A:AL";
+function loadSheetsApi() { gapi.load('client', initClient);}
+function initClient() {
+  gapi.client.init({'apiKey': API_KEY,'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],})
+  .then(function () {
+    return gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID, range: RANGE,
+    });
+  }).then(function (response) {
+    prenotazioni = response.result.values || [];
+  }, function (error) {
+    alert("Errore nel caricamento delle prenotazioni. Riprova più tardi.");
   });
 }
-aggiornaChoices();
-
-// --- tutta la logica JS per i vari step rimane invariata ---
-/* vedi versione precedente, tutto funziona, solo non toccare il .flatpickr-monthDropdown-months con JS o Choices! */
+window.onload = function () { loadSheetsApi(); }
+function showStep(stepId) {
+  document.querySelectorAll('.step').forEach(step=> step.classList.remove('active'));
+  document.getElementById(stepId).classList.add('active');
+  updateProgressBar(stepId);
+}
+function updateProgressBar(stepId) {
+  const progressFill = document.getElementById('progressFill');
+  const progressPercent = document.getElementById('progressPercent');
+  const progressIcon = document.getElementById('progressIcon');
+  const progressBar = document.getElementById('progressBar');
+  let percent = 0;
+  switch (stepId) {
+    case 'step1': percent = 0; break;
+    case 'step2': percent = 25; break;
+    case 'step3': percent = 50; break;
+    case 'step4': percent = 75; break;
+    case 'step5': percent = 100; break;
+  }
+  progressFill.style.width = percent + '%';
+  progressPercent.textContent = percent + '%';
+  const barWidth = progressBar.clientWidth;
+  const iconWidth = progressIcon.clientWidth;
+  let leftPos = (percent / 100) * barWidth - iconWidth / 2;
+  leftPos = Math.min(Math.max(0, leftPos), barWidth - iconWidth);
+  progressIcon.style.left = leftPos + 'px';
+}
+function goBack() {
+  if (document.getElementById('step5').classList.contains('active')) showStep('step4');
+  else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
+  else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
+  else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
+}
+function goHome() {
+  showStep('step1');
+  document.getElementById('data_partenza').value = '';
+  document.getElementById('data_arrivo').value = '';
+  document.getElementById('ora_partenza').value = '08:00';
+  document.getElementById('ora_arrivo').value = '08:00';
+  document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
+  document.getElementById('num_autisti').value = '1';
+  document.getElementById('cellulare').value = '';
+  document.getElementById('autisti_container').innerHTML = '';
+  updateProgressBar('step1');
+}
+function composeJSDate(giorno, ora) {
+  if (!giorno || !ora) return null;
+  let dataISO = giorno;
+  if (giorno.includes('/')) {
+    const parts = giorno.split('/');
+    dataISO = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+  }
+  return new Date(`${dataISO}T${ora}`);
+}
+function controllaDisponibilita() {
+  const dataRitiro = document.getElementById('data_partenza').value;
+  const oraRitiro = document.getElementById('ora_partenza').value;
+  const dataArrivo = document.getElementById('data_arrivo').value;
+  const oraArrivo = document.getElementById('ora_arrivo').value;
+  if (!dataRitiro || !oraRitiro || !dataArrivo || !oraArrivo) {
+    alert('Inserisci data e ora validi.');
+    return;
+  }
+  const ritiroDate = new Date(`${dataRitiro}T${oraRitiro}`);
+  const arrivoDate = new Date(`${dataArrivo}T${oraArrivo}`);
+  if (ritiroDate >= arrivoDate) {
+    alert('L\'ora di arrivo deve essere successiva a quella di ritiro.');
+    return;
+  }
+  const rows = prenotazioni.filter(row => row[1] !== 'Nome');
+  const disponibili = pulmini.filter(pulmino => {
+    return !rows.some(row => {
+      if (row[11] !== pulmino.targa) return false;
+      const startPrenDate = composeJSDate(row[14], row[12]);
+      const endPrenDate = composeJSDate(row[15], row[13]);
+      if (!startPrenDate || !endPrenDate) return false;
+      return (startPrenDate < arrivoDate && endPrenDate > ritiroDate);
+    });
+  });
+  const select = document.getElementById('scelta_pulmino');
+  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
+    disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+  document.getElementById('num_disponibili').textContent = disponibili.length;
+  if (disponibili.length === 0) {
+    alert('Nessun pulmino disponibile per la fascia selezionata!');
+    return;
+  }
+  showStep('step2');
+  document.getElementById('chiamaContinuaBtn').disabled = true;
+}
+document.getElementById('scelta_pulmino').addEventListener('change', function () {
+  document.getElementById('chiamaContinuaBtn').disabled = !this.value;
+});
+function chiamaEContinua() {
+  const pulminoSelezionato = document.getElementById('scelta_pulmino').value;
+  if (!pulminoSelezionato) {
+    alert('Seleziona un pulmino prima di chiamare.');
+    return;
+  }
+  window.location.href = "tel:3286589618";
+  setTimeout(() => { vaiStep3(); }, 500);
+}
+function vaiStep3() {
+  const pulmino = document.getElementById('scelta_pulmino').value;
+  if (!pulmino) { alert('Seleziona un pulmino.'); return; }
+  showStep('step3');
+  mostraModuliAutisti();
+}
+function vaiStep4() {
+  showStep('step4');
+  const btnContinua = document.getElementById('btnApriModulo');
+  btnContinua.disabled = true;
+  let countdown = 10;
+  btnContinua.textContent = `Controlla e invia i tuoi dati (${countdown})`;
+  const timer = setInterval(() => {
+    countdown--;
+    btnContinua.textContent = `Controlla e invia i tuoi dati (${countdown})`;
+    if (countdown === 0) {
+      clearInterval(timer);
+      btnContinua.disabled = false;
+      btnContinua.textContent = "Controlla e invia i tuoi dati";
+    }
+  }, 1000);
+}
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnApriModulo').addEventListener('click', () => {
+    apriModuloPrecompilato();
+    setTimeout(() => { showStep('step5'); }, 500);
+  });
+});
+function mostraModuliAutisti() {
+  const container = document.getElementById('autisti_container');
+  const num = parseInt(document.getElementById('num_autisti').value);
+  container.innerHTML = '';
+  for (let i = 1; i <= num; i++) {
+    container.innerHTML += `<div class="autista">
+      <h3>Autista ${i}</h3>
+      <label>Nome</label><input type="text" id="nome_${i}" required/>
+      <label>Cognome</label><input type="text" id="cognome_${i}" required/>
+      <label>Data di nascita</label><input type="text" id="data_nascita_${i}" required/>
+      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required/>
+      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required/>
+      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required/>
+      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required/>
+      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required/>
+      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required/>
+      <label>Data inizio validità patente</label><input type="text" id="inizio_validita_patente_${i}" required/>
+      <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" required/>
+    </div>`;
+  }
+  aggiornaFlatpickr();
+}
+function apriModuloPrecompilato() {
+  const num = parseInt(document.getElementById('num_autisti').value);
+  const dataRitiro = document.getElementById('data_partenza').value;
+  const oraRitiro = document.getElementById('ora_partenza').value;
+  const dataArrivo = document.getElementById('data_arrivo').value;
+  const oraArrivo = document.getElementById('ora_arrivo').value;
+  const pulminoId = document.getElementById('scelta_pulmino').value;
+  const pulminoObj = pulmini.find(p => p.id === pulminoId);
+  const targa = pulminoObj ? pulminoObj.targa : "";
+  const data_contratto = new Date().toISOString().split('T')[0];
+  const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
+  const entry = [
+    {nome:'550823113',data_nascita:'766463607',luogo_nascita:'1735522613',cf:'36844075',comune_residenza:'913323396',via_residenza:'1329485765',civico_residenza:'1349864501',numero_patente:'1885490374',inizio_patente:'525872521',fine_patente:'1864189410'},
+    {nome:'1236551634',data_nascita:'503259772',luogo_nascita:'1977818551',cf:'1883324084',comune_residenza:'2118103863',via_residenza:'805763990',civico_residenza:'568892376',numero_patente:'124831667',inizio_patente:'657885946',fine_patente:'850104184'},
+    {nome:'3164128',data_nascita:'1896520037',luogo_nascita:'1923148193',cf:'2061435678',comune_residenza:'767994785',via_residenza:'1335171224',civico_residenza:'1926018707',numero_patente:'1750806014',inizio_patente:'1084842503',fine_patente:'965705170'}
+  ];
+  let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url" +
+    `&entry.257199041=${encodeURIComponent(oraRitiro)}` +
+    `&entry.917923685=${encodeURIComponent(oraArrivo)}` +
+    `&entry.1578287722=${encodeURIComponent(targa)}` +
+    `&entry.1499256988=${encodeURIComponent(dataRitiro)}` +
+    `&entry.517585546=${encodeURIComponent(dataArrivo)}` +
+    `&entry.1888774437=${cellulare}` +
+    `&entry.925984482=${encodeURIComponent(data_contratto)}`;
+  for (let i = 0; i < num; i++) {
+    urlModulo += `&entry.${entry[i].nome}=${encodeURIComponent(document.getElementById('nome_'+(i+1)).value)}`+
+      `&entry.${entry[i].data_nascita}=${encodeURIComponent(document.getElementById('data_nascita_'+(i+1)).value)}`+
+      `&entry.${entry[i].luogo_nascita}=${encodeURIComponent(document.getElementById('luogo_nascita_'+(i+1)).value)}`+
+      `&entry.${entry[i].cf}=${encodeURIComponent(document.getElementById('codice_fiscale_'+(i+1)).value)}`+
+      `&entry.${entry[i].comune_residenza}=${encodeURIComponent(document.getElementById('comune_residenza_'+(i+1)).value)}`+
+      `&entry.${entry[i].via_residenza}=${encodeURIComponent(document.getElementById('via_residenza_'+(i+1)).value)}`+
+      `&entry.${entry[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_'+(i+1)).value)}`+
+      `&entry.${entry[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_'+(i+1)).value)}`+
+      `&entry.${entry[i].inizio_patente}=${encodeURIComponent(document.getElementById('inizio_validita_patente_'+(i+1)).value)}`+
+      `&entry.${entry[i].fine_patente}=${encodeURIComponent(document.getElementById('fine_validita_patente_'+(i+1)).value)}`;
+  }
+  window.open(urlModulo, '_blank');
+}
 </script>
 </body>
 </html>
