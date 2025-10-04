@@ -19,7 +19,8 @@
       font-family: 'Poppins', sans-serif;
       max-width: 980px;
       margin: 0 auto 60px auto;
-      background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed;
+      background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png')
+        center center no-repeat fixed;
       background-size: cover;
       position: relative;
       color: #f2f6f8;
@@ -277,7 +278,6 @@
       position: relative;
     }
 
-    /* Icon pulmino stilizzato SVG embedded */
     #progressIcon {
       width: 48px;
       height: 44px;
@@ -289,6 +289,90 @@
       pointer-events: none;
       filter: drop-shadow(0 2px 6px #195976b6) drop-shadow(0 0 13px #ffe1769e);
       z-index: 3;
+      /* Animazione oscillatoria per movimento pulmino in moto */
+      animation: oscillate 2.5s ease-in-out infinite;
+    }
+
+    /* Fumo dietro al pulmino */
+    #smoke1,
+    #smoke2,
+    #smoke3 {
+      fill: #dde9f4;
+      opacity: 0.7;
+      filter: drop-shadow(0 0 2px #a7b9c8);
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+      animation-direction: alternate;
+      animation-play-state: running;
+      animation-fill-mode: forwards;
+    }
+
+    #smoke1 {
+      animation-name: smoke1;
+      animation-duration: 2.7s;
+    }
+
+    #smoke2 {
+      animation-name: smoke2;
+      animation-duration: 2.45s;
+      animation-delay: 0.45s;
+    }
+
+    #smoke3 {
+      animation-name: smoke3;
+      animation-duration: 3.2s;
+      animation-delay: 1s;
+    }
+
+    @keyframes oscillate {
+
+      0%,
+      100% {
+        transform: translateY(-48%) translateX(0%);
+      }
+
+      50% {
+        transform: translateY(-58%) translateX(1.8%);
+      }
+    }
+
+    @keyframes smoke1 {
+
+      0% {
+        opacity: 0.7;
+        transform: translate(0, 0) scale(0.9);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-10px, -15px) scale(1.8);
+      }
+    }
+
+    @keyframes smoke2 {
+
+      0% {
+        opacity: 0.7;
+        transform: translate(0, 0) scale(0.6);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-6px, -12px) scale(1.4);
+      }
+    }
+
+    @keyframes smoke3 {
+
+      0% {
+        opacity: 0.7;
+        transform: translate(0, 0) scale(0.8);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-13px, -14px) scale(2.4);
+      }
     }
 
     #progressPercent {
@@ -421,7 +505,8 @@
         <p style="font-size: 1.25em; color: #106391; font-weight: 600;">
           Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!
         </p>
-        <button type="button" onclick="goHome()" style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;">
+        <button type="button" onclick="goHome()"
+          style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;">
           <span class="material-icons">home</span>Torna all'inizio
         </button>
       </div>
@@ -443,6 +528,10 @@
         <ellipse cx="12" cy="24" rx="2" ry="2" fill="#ffe176" />
         <ellipse cx="49" cy="24" rx="2" ry="2" fill="#ffe176" />
         <rect x="24" y="12.2" width="6" height="7" fill="#94c8e7" rx="2" />
+        <!-- Nuvolette di fumo animate -->
+        <circle id="smoke1" cx="1" cy="15" r="3" />
+        <circle id="smoke2" cx="-3" cy="18" r="2" />
+        <circle id="smoke3" cx="-5" cy="12" r="2.3" />
       </svg>
     </div>
     <span id="progressPercent">0%</span>
@@ -450,7 +539,7 @@
 
   <script src="https://apis.google.com/js/api.js"></script>
   <script>
-    console.log("Noleggio Pulmini - Script Version V 7.3");
+    console.log("Noleggio Pulmini - Script Version V 7.4");
 
     const pulmini = [{
         id: "ducato_lungo",
@@ -534,7 +623,6 @@
           percent = 100;
           break;
       }
-
       progressFill.style.width = percent + '%';
       progressPercentText.textContent = percent + '%';
 
@@ -764,43 +852,6 @@
       }
 
       window.open(urlModulo, '_blank');
-    }
-
-    function goBack() {
-      const allSteps = document.querySelectorAll('.step');
-      if (document.getElementById('step5').classList.contains('active')) {
-        showStep('step4');
-      } else if (document.getElementById('step4').classList.contains('active')) {
-        showStep('step3');
-      } else if (document.getElementById('step3').classList.contains('active')) {
-        showStep('step2');
-      } else if (document.getElementById('step2').classList.contains('active')) {
-        showStep('step1');
-      }
-    }
-
-    function goHome() {
-      showStep('step1');
-
-      // Optionally reset form fields for fresh start
-      // Reset dates, selects, and clear autisti container
-      document.getElementById('data_partenza').value = '';
-      document.getElementById('ora_partenza').value = '08:00';
-      document.getElementById('data_arrivo').value = '';
-      document.getElementById('ora_arrivo').value = '08:00';
-
-      const pulminoSelect = document.getElementById('scelta_pulmino');
-      pulminoSelect.innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
-
-      const autistiContainer = document.getElementById('autisti_container');
-      autistiContainer.innerHTML = '';
-
-      document.getElementById('num_autisti').value = '1';
-      document.getElementById('cellulare').value = '';
-      document.getElementById('chiamaContinuaBtn').disabled = true;
-      document.getElementById('btnApriModulo').disabled = true;
-
-      updateProgressBar('step1');
     }
   </script>
 
