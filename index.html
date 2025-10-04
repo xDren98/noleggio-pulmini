@@ -190,8 +190,8 @@
     box-shadow: 0 0 8px #ffe176c0;
   }
 
-  /* Custom select styles - anche select dinamici */
-  select {
+  /* Custom select styles - coerenti e per tutti i select anche dinamici */
+  select, .autista select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -210,7 +210,7 @@
     cursor: pointer;
     transition: border-color 0.35s, box-shadow 0.35s;
   }
-  select:focus {
+  select:focus, .autista select:focus {
     outline: none;
     border-color: #ffe176;
     box-shadow: 0 0 14px 2px #ffe18699;
@@ -317,7 +317,7 @@
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-  // Flatpickr su tutti gli input data, anche nei moduli dinamici
+  console.log('Imbriani Noleggio - Versione 1.3');
   function aggiornaFlatpickr() {
     flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
       dateFormat: "Y-m-d",
@@ -326,8 +326,6 @@
     });
   }
   aggiornaFlatpickr();
-
-  // ---- LOGICA STEP/NAVIGAZIONE/PROGRESS BAR ----------------------
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
     { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
@@ -351,7 +349,6 @@
     });
   }
   window.onload = function () { loadSheetsApi(); }
-
   function showStep(stepId) {
     document.querySelectorAll('.step').forEach(step=> step.classList.remove('active'));
     document.getElementById(stepId).classList.add('active');
@@ -544,4 +541,3 @@
 </script>
 </body>
 </html>
-
