@@ -318,6 +318,8 @@ h3 {
 </head>
 <body>
 <script src="https://apis.google.com/js/api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
 <header>
   <h1>Imbriani Noleggio</h1>
   <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
@@ -326,7 +328,7 @@ h3 {
   <div id="step1" class="step active">
     <label for="data_partenza"><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</label>
     <label for="data_partenza"><span class="material-icons">calendar_month</span> Data di ritiro</label>
-    <input type="text" id="data_partenza" autocomplete="off" />
+    <input type="text" id="data_partenza" class="date-input" autocomplete="off" />
     <label for="ora_partenza"><span class="material-icons">access_time</span> Ora di ritiro</label>
     <select id="ora_partenza">
       <option value="08:00">08:00</option>
@@ -335,7 +337,7 @@ h3 {
       <option value="20:00">20:00</option>
     </select>
     <label for="data_arrivo"><span class="material-icons">calendar_month</span> Data di arrivo</label>
-    <input type="text" id="data_arrivo" autocomplete="off" />
+    <input type="text" id="data_arrivo" class="date-input" autocomplete="off" />
     <label for="ora_arrivo"><span class="material-icons">access_time</span> Ora di arrivo</label>
     <select id="ora_arrivo">
       <option value="08:00">08:00</option>
@@ -412,29 +414,11 @@ h3 {
   <span id="progressPercent">0%</span>
 </div>
 <script>
-function aggiornaFlatpickr() {
-  const inputs = document.querySelectorAll("input[type='text'][id*='data_'],input[id*='inizio_validita_patente'],input[id*='fine_validita_patente']");
-  inputs.forEach(input => {
-    if (!input.classList.contains("flatpickrized")) {
-      flatpickr(input, {
-        dateFormat: "d/m/Y",
-        locale: "it",
-        monthSelectorType: "dropdown",
-        firstDayOfWeek: 1,
-        disableMobile: true,
-        allowInput: false,
-        clickOpens: true,
-        position: "below"
-      });
-      input.setAttribute("readonly", "readonly");
-      input.classList.add("flatpickrized");
-    }
-  });
-}
+console.log("Versione 2.0 - Flatpickr calendar correction");
 
-// Chiamata caricamento Google API JS in modo sicuro
+// Caricamento Google API JS in modo sicuro
 document.addEventListener('DOMContentLoaded', function() {
-  aggiornaFlatpickr(); // sempre su prima interazione
+  aggiornaFlatpickr(); // applica Flatpickr all'avvio, anche dopo generazione campi
   if (window.gapi) {
     loadSheetsApi();
   } else {
@@ -592,6 +576,25 @@ function vaiStep4() {
     }
   }, 1000);
 }
+// Funzione aggiorna e inizializza Flatpickr su tutti i campi data (anche i nuovi)
+function aggiornaFlatpickr() {
+  const inputs = document.querySelectorAll("input.date-input");
+  inputs.forEach(input => {
+    if (!input._flatpickr) { // evita doppia inizializzazione
+      flatpickr(input, {
+        dateFormat: "d/m/Y",
+        locale: "it",
+        allowInput: false,
+        clickOpens: true,
+        monthSelectorType: "dropdown",
+        firstDayOfWeek: 1,
+        disableMobile: true,
+        position: "below"
+      });
+      input.setAttribute("readonly", "readonly");
+    }
+  });
+}
 function mostraModuliAutisti() {
   const container = document.getElementById('autisti_container');
   const num = parseInt(document.getElementById('num_autisti').value);
@@ -600,18 +603,18 @@ function mostraModuliAutisti() {
     container.innerHTML += `<div class="autista">
       <h3>Autista ${i}</h3>
       <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
-      <label>Data di nascita</label><input type="text" id="data_nascita_${i}" required />
+      <label>Data di nascita</label><input type="text" id="data_nascita_${i}" class="date-input" required />
       <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required />
       <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required />
       <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required />
       <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required />
       <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required />
       <label>Numero patente</label><input type="text" id="numero_patente_${i}" required />
-      <label>Data inizio validità patente</label><input type="text" id="inizio_validita_patente_${i}" required />
-      <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" required />
+      <label>Data inizio validità patente</label><input type="text" id="inizio_validita_patente_${i}" class="date-input" required />
+      <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" class="date-input" required />
     </div>`;
   }
-  aggiornaFlatpickr();
+  aggiornaFlatpickr(); // Riapplica Flatpickr anche qui dopo aver creato input dinamici
 }
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
