@@ -219,6 +219,68 @@
     color: #193242;
     font-weight: 700;
   }
+  /* Forza background scuro per la barra mese/anno */
+.flatpickr-months {
+  background: #192235 !important;
+  border-radius: 16px 16px 0 0;
+  min-height: 44px;
+  padding: 4px 0;
+}
+.flatpickr-current-month {
+  background: none !important;
+  color: #ffe176 !important;
+  font-size: 1.27em;
+  font-weight: 700;
+  padding-top: 4px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.06em;
+}
+.flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+  background: none !important;
+  color: #ffe176 !important;
+  border: none !important;
+  font-size: 1.14em !important;
+  font-weight: 700 !important;
+  text-align: left;
+  width: auto !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 2px !important;
+}
+.flatpickr-current-month input.cur-year:focus {
+  background: #ffe17633 !important;
+  color: #183242 !important;
+}
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  color: #ffe176 !important;
+  opacity: 1 !important;
+  top: 12px !important;
+  font-size: 1.2em;
+}
+
+.flatpickr-calendar input.flatpickr-input {
+  color: #193242 !important;
+  background-color: #fff !important;
+  border-radius: 6px;
+}
+
+/* Migliora la visibilità dei select Flatpickr */
+.flatpickr-current-month select.flatpickr-monthDropdown-months {
+  color: #ffe176 !important;
+  background: #183859 !important;
+  border-radius: 6px;
+  border: 1px solid #ffe176 !important;
+  margin: 0 4px !important;
+  font-size: 1.13em !important;
+}
+
+.flatpickr-current-month select.flatpickr-monthDropdown-months:focus {
+  border-color: #ffe176 !important;
+  outline: none !important;
+}
 </style>
 </head>
 <body>
@@ -557,3 +619,4 @@
 </script>
 </body>
 </html>
+
