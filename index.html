@@ -6,6 +6,7 @@
 <title>Imbriani Noleggio</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
   html, body {height:100%; margin:0; overflow-x:hidden;}
   body {
@@ -26,46 +27,93 @@
   label{display:flex; align-items:center; margin-top:16px; font-weight:700; gap:10px; font-size:1em;
     color:#fff; text-shadow:0 0 10px rgba(0,0,0,0.85);}
   .material-icons {font-size:22px; color:#fcd168; text-shadow:0 2px 8px #1a2549;}
-  input,select,button{padding:14px; width:100%; box-sizing:border-box; border:1.5px solid #c5dae5;
-    border-radius:14px; font-size:1.13em; transition:border-color 0.35s,box-shadow 0.35s; background:rgba(249,250,251,0.83); color:#184154; margin-top:4px;}
+  input, select, button{
+    padding:14px; width:100%; box-sizing:border-box; border:1.5px solid #c5dae5;
+    border-radius:14px; font-size:1.13em; transition:border-color 0.35s,box-shadow 0.35s;
+    background:rgba(249,250,251,0.83); color:#184154; margin-top:4px;
+    font-family: 'Poppins', sans-serif;
+  }
   input::placeholder {color:#a7babd;}
-  input:focus,select:focus{outline:none; border-color:#ffe176; box-shadow:0 0 14px 2px #ffe18699; background:#fff; color:#123035;}
-  button{background:#147ba7; color:#fefff7; font-weight:700; border-radius:18px; margin-top:28px;
+  input:focus, select:focus {
+    outline:none; border-color:#ffe176; box-shadow:0 0 14px 2px #ffe18699;
+    background:#fff; color:#123035;
+  }
+  button {
+    background:#147ba7; color:#fefff7; font-weight:700; border-radius:18px; margin-top:28px;
     display:flex; align-items:center; justify-content:center; gap:10px; border:none; cursor:pointer; font-size:1.07em;
-    letter-spacing:0.02em; box-shadow:0 2px 4px #21404760; user-select:none; transition:all 0.4s;}
-  button span.material-icons{color:#fffdf5; filter:drop-shadow(0 0 2px #0b2732af);}
-  button:hover:not(:disabled){
+    letter-spacing:0.02em; box-shadow:0 2px 4px #21404760; user-select:none; transition:all 0.4s;
+  }
+  button span.material-icons {
+    color:#fffdf5; filter:drop-shadow(0 0 2px #0b2732af);
+  }
+  button:hover:not(:disabled) {
     background:linear-gradient(90deg,#fcd168,#ffd966 90%);
-    color:#193242; box-shadow:0 7px 24px #fed68277,0 0 8px #89878760; transform:translateY(-2px) scale(1.03);}
-  button:disabled{background-color:#c9cbcf; cursor:not-allowed; box-shadow:none; transform:none; color:#90959c;}
-  #disponibili_box{background:rgba(16,99,145,0.9); color:#fcd168; font-weight:700; font-size:1.28em; padding:15px; text-align:center; border-radius:16px;
-    margin-bottom:30px; text-shadow:0 0 12px #262e37; box-shadow:0 3px 10px #0c5066cc;}
-  #istruzioni_modulo{background:rgba(36,57,72,0.95); border:2.5px solid #ffe176; padding:24px 20px 16px 24px;
-    margin-bottom:28px; border-radius:18px; font-size:1.1em; color:#ffe176; box-shadow:0 0 18px #e2d38e77; user-select:none; text-shadow:0 0 14px #223c52ad;}
-  #istruzioni_modulo p#avviso_leggimi{ color:#f6e995; font-weight:700; font-size:1.19em; margin-top:1em; margin-bottom:0;
-    letter-spacing:1px; text-shadow:0 0 10px #ffe486,0 0 1.2em #fff5c2;}
-  .autista{ background:rgba(240,241,237,0.93); border-radius:13px; border:1.8px solid #bddaff; box-shadow:0 2px 12px #73a7ec4b;
-    padding:18px 24px; margin-top:18px; transition:border-color 0.3s, box-shadow 0.3s; }
-  .autista:hover{border-color:#1db7ef; box-shadow:0 0 28px #87c4fd90;}
-  h3{ font-weight:700; margin-bottom:14px; color:#2690c9; border-bottom:2px solid #ffe176; padding-bottom:4px;}
-  .step{opacity:0; transform:translateY(20px); transition:opacity 0.48s, transform 0.48s;
-    height:0; overflow:hidden; pointer-events:none;}
-  .step.active{opacity:1; transform:translateY(0); height:auto; margin-bottom:34px; pointer-events:all; overflow:visible;}
-  #progressContainer{position:fixed; bottom:0; left:0; width:100%; min-height:73px; height:73px; background:rgba(19,32,43,0.82);
-    box-shadow:0 -2px 16px #00152888; display:flex; align-items:center; justify-content:center; z-index:999;
-    user-select:none; font-weight:600; color:#ffe37e; font-size:1.09em; gap:14px;}
-  #progressBar{position:relative; width:73%; height:16px; background:rgba(255,255,255,0.2); border-radius:24px; overflow:visible;
-    box-shadow:inset 0 0 8px rgba(0,0,0,0.2),0 3px 16px #ffe77e26; margin-right:10px;}
-  #progressFill{height:100%; width:0%; background:linear-gradient(90deg,#1db7ef 27%,#ffe176 100%);
-    border-radius:20px 0 0 20px; transition:width 0.6s cubic-bezier(.45,0,.55,1);}
-  #progressIcon{
-    position:absolute; top:50%; left:0; transform:translateY(-50%);
+    color:#193242; box-shadow:0 7px 24px #fed68277,0 0 8px #89878760; transform:translateY(-2px) scale(1.03);
+  }
+  button:disabled {
+    background-color:#c9cbcf; cursor:not-allowed; box-shadow:none; transform:none; color:#90959c;
+  }
+  #disponibili_box {
+    background:rgba(16,99,145,0.9); color:#fcd168; font-weight:700; font-size:1.28em; padding:15px; text-align:center;
+    border-radius:16px; margin-bottom:30px; text-shadow:0 0 12px #262e37; box-shadow:0 3px 10px #0c5066cc;
+  }
+  #istruzioni_modulo {
+    background:rgba(36,57,72,0.95); border:2.5px solid #ffe176; padding:24px 20px 16px 24px;
+    margin-bottom:28px; border-radius:18px; font-size:1.1em; color:#ffe176; box-shadow:0 0 18px #e2d38e77; user-select:none;
+    text-shadow:0 0 14px #223c52ad;
+  }
+  #istruzioni_modulo p#avviso_leggimi {
+    color:#f6e995; font-weight:700; font-size:1.19em; margin-top:1em; margin-bottom:0;
+    letter-spacing:1px; text-shadow:0 0 10px #ffe486,0 0 1.2em #fff5c2;
+  }
+  .autista {
+    background:rgba(240,241,237,0.93); border-radius:13px; border:1.8px solid #bddaff; box-shadow:0 2px 12px #73a7ec4b;
+    padding:18px 24px; margin-top:18px; transition:border-color 0.3s, box-shadow 0.3s;
+  }
+  .autista:hover {
+    border-color:#1db7ef; box-shadow:0 0 28px #87c4fd90;
+  }
+  h3 {
+    font-weight:700; margin-bottom:14px; color:#2690c9; border-bottom:2px solid #ffe176; padding-bottom:4px;
+  }
+  .step {
+    opacity:0; transform:translateY(20px); transition:opacity 0.48s, transform 0.48s;
+    height:0; overflow:hidden; pointer-events:none;
+  }
+  .step.active {
+    opacity:1; transform:translateY(0); height:auto; margin-bottom:34px; pointer-events:all; overflow:visible;
+  }
+  #progressContainer {
+    position:fixed; bottom:0; left:0; width:100%; min-height:73px; height:73px;
+    background:rgba(19,32,43,0.82);
+    box-shadow:0 -2px 16px #00152888; display:flex; align-items:center; justify-content:center;
+    z-index:999; user-select:none; font-weight:600; color:#ffe37e; font-size:1.09em; gap:14px;
+  }
+  #progressBar {
+    position: relative;
+    width:73%;
+    height:16px;
+    background:rgba(255,255,255,0.2);
+    border-radius:24px;
+    overflow:visible;
+    box-shadow:inset 0 0 8px rgba(0,0,0,0.2),0 3px 16px #ffe77e26;
+    margin-right:10px;
+  }
+  #progressFill {
+    height:100%; width:0%;
+    background:linear-gradient(90deg,#1db7ef 27%,#ffe176 100%);
+    border-radius:20px 0 0 20px;
+    transition:width 0.6s cubic-bezier(.45,0,.55,1);
+  }
+  #progressIcon {
+    position:absolute; top:50%; left:0;
+    transform:translateY(-50%);
     width:48px; height:48px; z-index:11; pointer-events:none;
     animation:oscillate 1.7s ease-in-out infinite;
     filter: drop-shadow(0 2px 6px #195976b6) drop-shadow(0 0 13px #ffe1769e);
     transition:left 0.6s cubic-bezier(.45,0,.55,1);
   }
-  @keyframes oscillate{
+  @keyframes oscillate {
     0%{transform:translateY(-50%) translateX(0);}
     25%{transform:translateY(calc(-50% - 2px)) translateX(2px);}
     50%{transform:translateY(-50%) translateX(-2px);}
@@ -73,24 +121,79 @@
     100%{transform:translateY(-50%) translateX(0);}
   }
   #finishFlag {
-  width: 34px;
-  height: 34px;
-  position: absolute;
-  top: 50%;
-  right: 0; /* Allinea alla fine della barra */
-  transform: translate(50%, -50%); /* sposta leggermente a destra rispetto al bordo */
-  filter: drop-shadow(0 1px 3px #ffe176aa);
-  z-index: 12;
-  background: none;
-}
+    width: 34px;
+    height: 34px;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+    filter: drop-shadow(0 1px 3px #ffe176aa);
+    z-index: 12;
+    background: none;
+  }
+  #progressPercent {
+    min-width:48px;
+    font-weight:700;
+    color:#ffe176;
+    letter-spacing:0.08em;
+    user-select:none;
+    text-shadow:0 0 11px #fff7df99;
+  }
+  @media screen and (max-width:600px) {
+    body {padding-bottom:140px;}
+    header h1 {font-size:2em;}
+    #progressContainer {height:100px; min-height:78px; font-size:1em;}
+    #progressBar {width:98%;}
+  }
 
-  #progressPercent{min-width:48px; font-weight:700; color:#ffe176; letter-spacing:0.08em;
-    user-select:none; text-shadow:0 0 11px #fff7df99;}
-  @media screen and (max-width:600px){
-    body{padding-bottom:140px;}
-    header h1{font-size:2em;}
-    #progressContainer{height:100px; min-height:78px; font-size:1em;}
-    #progressBar{width:98%;}
+  /* Flatpickr custom theme */
+  .flatpickr-calendar {
+    background: rgba(20,34,55,0.9);
+    color: #f2f6f8;
+    border-radius: 16px;
+    box-shadow: 0 1px 12px rgba(0,0,0,0.85);
+    font-family: 'Poppins', sans-serif;
+    border: 1.5px solid #ffe176;
+  }
+  .flatpickr-day {
+    border-radius: 8px;
+    color: #f2f6f8;
+  }
+  .flatpickr-day:hover,
+  .flatpickr-day.selected,
+  .flatpickr-day.today {
+    background: #fcd168;
+    color: #193242;
+    font-weight: 700;
+    box-shadow: 0 0 6px #ffe176;
+  }
+
+  /* Custom select styles */
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(249,250,251,0.8);
+    border: 1.5px solid #c5dae5;
+    border-radius: 14px;
+    padding: 14px 40px 14px 14px;
+    font-size: 1.13em;
+    color: #184154;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%231471a8" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 16px;
+    cursor: pointer;
+    transition: border-color 0.35s, box-shadow 0.35s;
+  }
+  select:focus {
+    outline: none;
+    border-color: #ffe176;
+    box-shadow: 0 0 14px 2px #ffe18699;
+    background-color: #fff;
+    color: #123035;
   }
 </style>
 </head>
@@ -104,7 +207,7 @@
   <div id="step1" class="step active">
     <p><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</p>
     <label for="data_partenza"><span class="material-icons">calendar_month</span> Data di ritiro</label>
-    <input type="date" id="data_partenza" name="data_partenza" />
+    <input type="text" id="data_partenza" name="data_partenza" />
     <label for="ora_partenza"><span class="material-icons">access_time</span> Ora di ritiro</label>
     <select id="ora_partenza" name="ora_partenza">
       <option value="08:00">08:00</option>
@@ -114,7 +217,7 @@
       <option value="24:00">24:00</option>
     </select>
     <label for="data_arrivo"><span class="material-icons">calendar_month</span> Data di arrivo</label>
-    <input type="date" id="data_arrivo" name="data_arrivo" />
+    <input type="text" id="data_arrivo" name="data_arrivo" />
     <label for="ora_arrivo"><span class="material-icons">access_time</span> Ora di arrivo</label>
     <select id="ora_arrivo" name="ora_arrivo">
       <option value="08:00">08:00</option>
@@ -183,17 +286,24 @@
 <div id="progressContainer">
   <div id="progressBar">
     <div id="progressFill"></div>
-  <img id="progressIcon" src="pulmino.png" alt="Pulmino"/>
-<img id="finishFlag" src="traguardo.png" alt="Traguardo"/>
+    <img id="progressIcon" src="pulmino.png" alt="Pulmino"/>
+    <img id="finishFlag" src="traguardo.png" alt="Traguardo"/>
   </div>
   <span id="progressPercent">0%</span>
 </div>
 
 <script src="https://apis.google.com/js/api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-  console.log("Imbriani Noleggio - Versione 1.0.0");
+  console.log("Imbriani Noleggio - Versione 1.1");
 
-  // (LOGICA SHEETS E STEPS - vedi risposte precedenti per dettagli estesi: qui la parte fondamentale di interazione)
+  flatpickr("#data_partenza, #data_arrivo", {
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    theme: "material_blue",
+  });
+
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
     { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
@@ -409,11 +519,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
