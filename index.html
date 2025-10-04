@@ -10,7 +10,6 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
 <style>
-/* --- STILI GENERALI SITO + flatpickr personalizzato --- */
 html, body {height:100%; margin:0; overflow-x:hidden;}
 body {
   font-family:'Poppins',sans-serif;
@@ -133,21 +132,24 @@ h3 {
   #progressContainer {height:100px; min-height:78px; font-size:1em;}
   #progressBar {width:98%;}
 }
-
-/* Flatpickr palette blu-oro, in italiano, da lunedì, font Poppins */
-.flatpickr-calendar {background: #14233a !important; border: 2px solid #ffe176 !important; border-radius: 14px !important; color: #ffe176 !important; font-family: 'Poppins', sans-serif !important; box-shadow: 0 0 28px #ffe17699 !important; padding: 12px !important;}
-.flatpickr-months {background: transparent !important; border-bottom: 2px solid #ffe176 !important; padding: 0 10px !important;}
-.flatpickr-current-month {font-weight: 900 !important; font-size: 1.25em !important; color: #ffe176 !important; font-family: 'Poppins', sans-serif !important; letter-spacing: 0.06em;}
-.flatpickr-monthDropdown-months, .flatpickr-current-month input.cur-year {background-color: #ffe176 !important; color: #193242 !important;font-weight: 700 !important; border-radius: 8px !important; border: none !important; outline: none !important; font-size: 1em !important; font-family: 'Poppins', sans-serif !important; padding: 5px 8px !important; text-align: center; box-shadow: 0 0 12px #d6b7426b !important;}
-.flatpickr-monthDropdown-months {margin-right: 8px !important;cursor: pointer !important;}
-.flatpickr-current-month input.cur-year {width: 56px !important;cursor: pointer !important;}
-.flatpickr-weekdays {color: #ffe176 !important;font-weight: 800 !important;font-family: 'Poppins', sans-serif !important;}
-.flatpickr-weekday {padding: 4px 0 !important;font-weight: 700 !important;color: #ffe176 !important;text-transform: capitalize !important;font-family: 'Poppins', sans-serif !important;}
-.flatpickr-day {font-weight: 600 !important;color: #ffe176 !important;background: transparent !important;margin: 2px 3px !important;border-radius: 8px !important;font-family: 'Poppins', sans-serif !important;cursor: pointer !important;transition: background-color 0.3s ease !important;}
-.flatpickr-day:hover {background: #ffe176 !important;color: #193242 !important;}
-.flatpickr-day.today, .flatpickr-day.selected {background: #ffe176 !important;border-radius: 8px !important;color: #193242 !important; font-weight: 700 !important;}
-.flatpickr-prev-month, .flatpickr-next-month {color: #ffe176 !important;width: 32px !important; height: 32px !important;border-radius: 50% !important;background: transparent !important;box-shadow: 0 0 11px #ffe176aa !important;cursor: pointer !important; font-weight: 900 !important; font-size: 1.25em !important; font-family: 'Poppins', sans-serif !important; line-height: 32px !important;}
-.flatpickr-prev-month:hover, .flatpickr-next-month:hover {background: #ffe176 !important;color: #193242 !important;}
+/* Flatpickr palette blu-oro, forte contrasto, fix larghezza */
+.flatpickr-calendar {background: #14233a !important; border: 2px solid #ffe176 !important; border-radius: 14px !important; color: #ffe176 !important; font-family: 'Poppins', sans-serif !important; box-shadow: 0 0 36px #ffe176bb !important; min-width: 335px !important; max-width: 360px !important;}
+.flatpickr-months {background: transparent !important; border-bottom: 2px solid #ffe176 !important; display: flex !important; align-items: center; justify-content: center; gap: 6px; padding: 0 14px !important; min-width: 320px;}
+.flatpickr-current-month {font-weight: 900 !important; font-size: 1.25em !important; color: #ffe176 !important; font-family: 'Poppins', sans-serif !important; letter-spacing: 0.06em; display: flex !important; align-items: center; gap: 12px !important; min-width: 0 !important;}
+.flatpickr-monthDropdown-months, .flatpickr-current-month input.cur-year {background-color: #ffe176 !important; color: #193242 !important; font-weight: 700 !important; border-radius: 9px !important; border: none !important; outline: none !important; font-size: 1em !important; font-family: 'Poppins', sans-serif !important; padding: 5px 14px !important; margin: 0 4px; text-align: center; box-shadow: 0 0 14px #d6b742b1 !important;}
+.flatpickr-monthDropdown-months {margin:0 4px 0 0;} .flatpickr-current-month input.cur-year {width: 62px !important;}
+.flatpickr-weekdays {color: #ffe176 !important;font-weight: 900 !important;font-size: 1.14em !important;font-family: 'Poppins', sans-serif !important;letter-spacing: 1px !important;text-shadow: 0 0 8px #fff1ab, 0 0 6px #ffe17699 !important;}
+.flatpickr-weekday {padding: 4px 3px !important; font-weight: 900 !important; color: #ffe176 !important; background: transparent !important; text-transform: capitalize !important; font-family: 'Poppins',sans-serif !important; text-shadow: 0 0 8px #fff9de, 0 0 6px #ffe176a2 !important;}
+.flatpickr-days {min-width: 328px !important; max-width: 342px !important;}
+.flatpickr-day {font-weight: 700 !important; color: #ffe176 !important; background: transparent !important; margin: 2px 3px !important; border-radius: 8px !important; font-family: 'Poppins', sans-serif !important; cursor: pointer !important; transition: background-color 0.3s ease !important;}
+.flatpickr-day:hover {background: #ffe176 !important; color: #193242 !important; font-weight: 900 !important;}
+.flatpickr-day.today, .flatpickr-day.selected {background: #ffe176 !important; border-radius: 8px !important; color: #193242 !important; font-weight: 900 !important;}
+.flatpickr-prev-month, .flatpickr-next-month {color: #ffe176 !important; width: 32px !important; height: 32px !important; border-radius: 50% !important; background: transparent !important; box-shadow: 0 0 11px #ffe176aa !important; cursor: pointer !important; font-weight: 900 !important; font-size: 1.25em !important; font-family: 'Poppins', sans-serif !important; line-height: 32px !important; min-width:32px !important; min-height:32px !important;}
+.flatpickr-prev-month:hover, .flatpickr-next-month:hover {background: #ffe176 !important; color: #193242 !important;}
+input[id*='data_nascita'],input[id*='inizio_validita_patente'],input[id*='fine_validita_patente'] {
+  background: #fffbe6 !important; border: 2px solid #ffe176 !important;
+  color: #193242 !important; font-family: 'Poppins',sans-serif !important; font-weight: 700;
+}
 </style>
 </head>
 <body>
@@ -156,11 +158,11 @@ h3 {
   <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
 </header>
 <main>
-  <!-- STEP 1 -->
+  <!-- Step 1 -->
   <div id="step1" class="step active">
     <p><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</p>
     <label for="data_partenza"><span class="material-icons">calendar_month</span> Data di ritiro</label>
-    <input type="text" id="data_partenza" />
+    <input type="text" id="data_partenza" autocomplete="off" />
     <label for="ora_partenza"><span class="material-icons">access_time</span> Ora di ritiro</label>
     <select id="ora_partenza">
       <option value="08:00">08:00</option>
@@ -170,7 +172,7 @@ h3 {
       <option value="24:00">24:00</option>
     </select>
     <label for="data_arrivo"><span class="material-icons">calendar_month</span> Data di arrivo</label>
-    <input type="text" id="data_arrivo"/>
+    <input type="text" id="data_arrivo" autocomplete="off"/>
     <label for="ora_arrivo"><span class="material-icons">access_time</span> Ora di arrivo</label>
     <select id="ora_arrivo">
       <option value="08:00">08:00</option>
@@ -182,7 +184,7 @@ h3 {
     <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
     <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
   </div>
-  <!-- STEP 2 -->
+  <!-- Step 2 -->
   <div id="step2" class="step">
     <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
     <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
@@ -191,7 +193,7 @@ h3 {
     <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
     <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
   </div>
-  <!-- STEP 3 -->
+  <!-- Step 3 -->
   <div id="step3" class="step">
     <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
     <select id="num_autisti" onchange="mostraModuliAutisti()">
@@ -206,7 +208,7 @@ h3 {
     <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
     <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
   </div>
-  <!-- STEP 4 -->
+  <!-- Step 4 -->
   <div id="step4" class="step">
     <div id="istruzioni_modulo">
       <strong>Istruzioni per il completamento della prenotazione:</strong>
@@ -222,7 +224,7 @@ h3 {
     <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
     <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
   </div>
-  <!-- STEP 5 -->
+  <!-- Step 5 -->
   <div id="step5" class="step">
     <div id="thankyou" style="background: rgba(241, 245, 250, 0.93); padding: 36px 18px; border-radius: 18px; text-align: center; box-shadow: 0 0 28px #bddaff;">
       <h2 style="color: #2690c9; margin-bottom: 18px;">Grazie per aver scelto Imbriani Noleggio!</h2>
@@ -245,21 +247,19 @@ h3 {
 </div>
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-console.log('Imbriani Noleggio - Versione 4.0');
-
-// Flatpickr integrato italiano, palette coerente sito, da lunedì a domenica, selezione anno/mese
+console.log('Imbriani Noleggio - Versione 4.1');
 function aggiornaFlatpickr() {
-  flatpickr("input[type='text'][id*='data_']", {
+  flatpickr("input[type='text'][id*='data_'],input[id*='inizio_validita_patente'],input[id*='fine_validita_patente']", {
     dateFormat: "d/m/Y",
     locale: "it",
     monthSelectorType: "dropdown",
     firstDayOfWeek: 1,
-    disableMobile: true
+    disableMobile: true,
+    allowInput: false
   });
 }
 aggiornaFlatpickr();
 
-// LOGICA DISPONIBILITÀ PULMINI: verifica reale sulle date
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
   { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
