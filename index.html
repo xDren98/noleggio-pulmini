@@ -99,7 +99,7 @@ h3 {
 }
 #progressIcon {
   position:absolute; top:50%; left:0; transform:translateY(-50%);
-  width:48px; height:48px; z-index:11; pointer-events:none;
+  width:60px; height:60px; z-index:11; pointer-events:none;
   animation:oscillate 1.7s ease-in-out infinite;
   filter: drop-shadow(0 2px 6px #195976b6) drop-shadow(0 0 13px #ffe1769e);
   transition:left 0.6s cubic-bezier(.45,0,.55,1);
@@ -111,7 +111,7 @@ h3 {
   75%{transform:translateY(calc(-50% + 2px)) translateX(2px);}
   100%{transform:translateY(-50%) translateX(0);}
 }
-#finishFlag { width:34px; height:34px; position: absolute; top: 50%; right: 0;
+#finishFlag { width:60px; height:60px; position: absolute; top: 50%; right: 0;
   transform: translate(50%, -50%); filter: drop-shadow(0 1px 3px #ffe176aa); z-index: 12; background: none;}
 #progressPercent {
   min-width:48px; font-weight:700; color:#ffe176; letter-spacing:0.08em;
@@ -354,15 +354,19 @@ h3 {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-console.log('Imbriani Noleggio - Versione 2.3');
+console.log('Imbriani Noleggio - Versione 3.0');
+
+// Attiva flatpickr SOLO sugli input che sono date
 function aggiornaFlatpickr() {
-  flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
+  flatpickr("input[type='text'][id*='data_']", {
     dateFormat: "d/m/Y",
     monthSelectorType: "dropdown",
     enableTime: false
   });
 }
 aggiornaFlatpickr();
+
+// Attiva Choices SOLO sui select (non input) per evitare conflitti
 let choicesInstances = [];
 function aggiornaChoices() {
   choicesInstances.forEach(i => i.destroy());
@@ -376,6 +380,7 @@ function aggiornaChoices() {
   });
 }
 aggiornaChoices();
+
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
   { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
@@ -399,11 +404,13 @@ function initClient() {
   });
 }
 window.onload = function () { loadSheetsApi(); }
+
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(step=> step.classList.remove('active'));
   document.getElementById(stepId).classList.add('active');
   updateProgressBar(stepId);
 }
+
 function updateProgressBar(stepId) {
   const progressFill = document.getElementById('progressFill');
   const progressPercent = document.getElementById('progressPercent');
