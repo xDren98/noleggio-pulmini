@@ -357,14 +357,24 @@ h3 {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-console.log('Imbriani Noleggio - Versione 2.1');
+console.log('Imbriani Noleggio - Versione 2.2');
 function aggiornaFlatpickr() {
   flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
     dateFormat: "Y-m-d",
     altInput: true,
-    altFormat: "d/m/Y"
+    altFormat: "d/m/Y",
+    monthSelectorType: 'static',
+    enableTime: false,
+    wrap: false,
+    onReady: function(selectedDates, dateStr, instance) {
+      const monthContainer = instance.calendarContainer.querySelector(".flatpickr-months");
+      if(monthContainer){
+        monthContainer.style.display = "flex";
+      }
+    }
   });
 }
+
 aggiornaFlatpickr();
 let choicesInstances = [];
 function aggiornaChoices() {
@@ -597,3 +607,4 @@ function apriModuloPrecompilato() {
 </script>
 </body>
 </html>
+
