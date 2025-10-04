@@ -264,6 +264,34 @@
     color: #193242;
     font-weight: 700;
   }
+  /* Elimina rettangolo grigio del mese su Flatpickr */
+.flatpickr-months .flatpickr-month {
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: unset !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  color: #ffe176 !important;
+  background: none !important;
+  border: none !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 1.18em !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .11em !important;
+  padding: 0 6px !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months:focus,
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+  background: none !important;
+  color: #ffe176 !important;
+  outline: none !important;
+}
 </style>
 </head>
 <body>
@@ -358,7 +386,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-  console.log('Imbriani Noleggio - Versione 1.8');
+  console.log('Imbriani Noleggio - Versione 1.9');
   function aggiornaFlatpickr() {
     flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
       dateFormat: "Y-m-d",
@@ -598,3 +626,4 @@
 </script>
 </body>
 </html>
+
