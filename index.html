@@ -1,55 +1,136 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Imbriani Noleggio</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
 <style>
 html, body {height:100%; margin:0; overflow-x:hidden;}
 body {
   font-family:'Poppins',sans-serif;
-  max-width:980px; margin:0 auto 60px auto;
+  max-width:980px;
+  margin:0 auto 60px auto;
   background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed;
   background-size:cover; color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;
 }
-body:before {content:""; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(20,34,55,0.53); z-index:-1; pointer-events:none;}
-header {position: relative; z-index: 10; text-align: center; margin-bottom: 32px; padding: 24px 0 16px 0; background: rgba(255,255,255,0.01); border-radius: 14px; border: 2.5px solid #ffe176; box-shadow: 0 2px 24px #ffe1763a, 0 2px 12px #fffdeebb; max-width: 480px; margin-left: auto; margin-right: auto;}
-header h1 {font-family: 'Poppins',sans-serif; font-weight: 900; font-size: 2.6em; letter-spacing: 1.4px; margin-bottom: 8px; color: #ffe176; text-shadow: 0 2px 9px #ffe176cc, 0 0 14px #fffbe3; background: none;}
-header p.slogan {font-weight: 600; font-size: 1.15em; color: #fffbe6; margin: 0; margin-bottom: 3px; margin-top: 6px; letter-spacing: 1.1px; font-style: italic; text-shadow: 0 2px 10px #ffe17655, 0 0 22px #ffe17644, 0 0 4px #fff9dc; background: none; padding: 0.07em 0;}
-main {position:relative; z-index:1;}
+body:before {
+  content:"";
+  position:fixed;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
+  background:rgba(20,34,55,0.53);
+  z-index:-1;
+  pointer-events:none;
+}
+header {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 24px 0 16px 0;
+  background: rgba(255,255,255,0.01);
+  border-radius: 14px;
+  border: 2.5px solid #ffe176;
+  box-shadow: 0 2px 24px #ffe1763a, 0 2px 12px #fffdeebb;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+header h1 {
+  font-family: 'Poppins',sans-serif;
+  font-weight: 900;
+  font-size: 2.6em;
+  letter-spacing: 1.4px;
+  margin-bottom: 8px;
+  color: #ffe176;
+  text-shadow: 0 2px 9px #ffe176cc, 0 0 14px #fffbe3;
+  background: none;
+}
+header p.slogan {
+  font-weight: 600;
+  font-size: 1.15em;
+  color: #fffbe6;
+  margin: 0;
+  margin-bottom: 3px;
+  margin-top: 6px;
+  letter-spacing: 1.1px;
+  font-style: italic;
+  text-shadow: 0 2px 10px #ffe17655, 0 0 22px #ffe17644, 0 0 4px #fff9dc;
+  background: none;
+  padding: 0.07em 0;
+}
+main {
+  position:relative;
+  z-index:1;
+}
 .step {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  opacity:0; transform:translateY(20px); transition:opacity 0.48s, transform 0.48s;
-  height:0; overflow:hidden; pointer-events:none;
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.48s, transform 0.48s;
+  height:0;
+  overflow:hidden;
+  pointer-events:none;
   background: rgba(26, 38, 51, 0.52);
-  padding: 22px 16px 16px 16px; border-radius: 18px;
+  padding: 22px 16px 16px 16px;
+  border-radius: 18px;
 }
-.step.active {opacity:1; transform:translateY(0); height:auto; pointer-events:all; overflow:visible;}
+.step.active {
+  opacity:1;
+  transform:translateY(0);
+  height:auto;
+  pointer-events:all;
+  overflow:visible;
+}
 label {
-  display:flex; align-items:center; font-weight:700; gap:10px; font-size:1em;
+  display:flex;
+  align-items:center;
+  font-weight:700;
+  gap:10px;
+  font-size:1em;
   color:#fff;
   text-shadow:0 0 10px rgba(0,0,0,0.85);
   margin-bottom: 8px;
 }
-.material-icons {font-size:22px; color:#fcd168; text-shadow:0 2px 8px #1a2549;}
+.material-icons {
+  font-size:22px;
+  color:#fcd168;
+  text-shadow:0 2px 8px #1a2549;
+}
 input, button, select {
-  padding:14px; width:100%; box-sizing:border-box; border:1.5px solid #c5dae5;
-  border-radius:14px; font-size:1.13em; transition:border-color 0.35s,box-shadow 0.35s;
-  background:rgba(249,250,251,0.95); color:#184154; font-family: 'Poppins', sans-serif;
+  padding:14px;
+  width:100%;
+  box-sizing:border-box;
+  border:1.5px solid #c5dae5;
+  border-radius:14px;
+  font-size:1.13em;
+  transition:border-color 0.35s,box-shadow 0.35s;
+  background:rgba(249,250,251,0.95);
+  color:#184154;
+  font-family: 'Poppins', sans-serif;
 }
-input::placeholder {color:#a7babd;}
+input::placeholder {
+  color:#a7babd;
+}
 input:focus, select:focus {
-  outline:none; border-color:#ffe176; box-shadow:0 0 14px 2px #ffe18699;
-  background:#fff; color:#123035;
+  outline:none;
+  border-color:#ffe176;
+  box-shadow:0 0 14px 2px #ffe18699;
+  background:#fff;
+  color:#123035;
 }
-select {background:#fff;}
+select {
+  background:#fff;
+}
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -58,43 +139,191 @@ select {background:#fff;}
   margin-bottom: 6px;
 }
 button {
-  background:#147ba7; color:#fefff7; font-weight:700; border-radius:18px;
-  display:flex; align-items:center; justify-content:center;
-  gap:10px; border:none; cursor:pointer; font-size:1.07em;
-  letter-spacing:0.02em; box-shadow:0 2px 4px #21404760; user-select:none; transition:all 0.4s;
+  background:#147ba7;
+  color:#fefff7;
+  font-weight:700;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  border:none;
+  cursor:pointer;
+  font-size:1.07em;
+  letter-spacing:0.02em;
+  box-shadow:0 2px 4px #21404760;
+  user-select:none;
+  transition:all 0.4s;
   padding: 12px 24px;
 }
 button span.material-icons {
-  color:#fffdf5; filter:drop-shadow(0 0 2px #0b2732af);
+  color:#fffdf5;
+  filter:drop-shadow(0 0 2px #0b2732af);
 }
 button:hover:not(:disabled) {
   background:linear-gradient(90deg,#fcd168,#ffd966 90%);
-  color:#193242; box-shadow:0 7px 24px #fed68277,0 0 8px #89878760; transform:translateY(-2px) scale(1.03);
+  color:#193242;
+  box-shadow:0 7px 24px #fed68277,0 0 8px #89878760;
+  transform:translateY(-2px) scale(1.03);
 }
 button:disabled {
-  background-color:#c9cbcf; cursor:not-allowed; box-shadow:none; transform:none; color:#90959c;
+  background-color:#c9cbcf;
+  cursor:not-allowed;
+  box-shadow:none;
+  transform:none;
+  color:#90959c;
 }
-#disponibili_box {background:rgba(16,99,145,0.9); color:#fcd168; font-weight:700; font-size:1.19em; padding:15px; text-align:center; border-radius:16px; margin-bottom:10px; text-shadow:0 0 12px #262e37; box-shadow:0 3px 10px #0c5066cc;}
-#istruzioni_modulo {background:rgba(36,57,72,0.95); border:2.5px solid #ffe176; padding:24px 20px 16px 24px; margin-bottom:18px; border-radius:18px; font-size:1.1em; color:#ffe176; box-shadow:0 0 18px #e2d38e77; user-select:none; text-shadow:0 0 14px #223c52ad;}
-#istruzioni_modulo p#avviso_leggimi {color:#f6e995; font-weight:700; font-size:1.19em; margin-top:1em; margin-bottom:0; letter-spacing:1px; text-shadow:0 0 10px #ffe486,0 0 1.2em #fff5c2;}
-.autista {background:rgba(240,241,237,0.93); border-radius:13px; border:1.8px solid #bddaff; box-shadow:0 2px 12px #73a7ec4b; padding:18px 24px; margin-top:8px; transition:border-color 0.3s, box-shadow 0.3s; display:flex; flex-direction:column; gap:9px;}
-.autista:hover {border-color:#1db7ef; box-shadow:0 0 28px #87c4fd90;}
-h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid #ffe176; padding-bottom:4px;}
+#disponibili_box {
+  background:rgba(16,99,145,0.9);
+  color:#fcd168;
+  font-weight:700;
+  font-size:1.19em;
+  padding:15px;
+  text-align:center;
+  border-radius:16px;
+  margin-bottom:10px;
+  text-shadow:0 0 12px #262e37;
+  box-shadow:0 3px 10px #0c5066cc;
+}
+#istruzioni_modulo {
+  background:rgba(36,57,72,0.95);
+  border:2.5px solid #ffe176;
+  padding:24px 20px 16px 24px;
+  margin-bottom:18px;
+  border-radius:18px;
+  font-size:1.1em;
+  color:#ffe176;
+  box-shadow:0 0 18px #e2d38e77;
+  user-select:none;
+  text-shadow:0 0 14px #223c52ad;
+}
+#istruzioni_modulo p#avviso_leggimi {
+  color:#f6e995;
+  font-weight:700;
+  font-size:1.19em;
+  margin-top:1em;
+  margin-bottom:0;
+  letter-spacing:1px;
+  text-shadow:0 0 10px #ffe486,0 0 1.2em #fff5c2;
+}
+.autista {
+  background:rgba(240,241,237,0.93);
+  border-radius:13px;
+  border:1.8px solid #bddaff;
+  box-shadow:0 2px 12px #73a7ec4b;
+  padding:18px 24px;
+  margin-top:8px;
+  transition:border-color 0.3s, box-shadow 0.3s;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+.autista:hover {
+  border-color:#1db7ef;
+  box-shadow:0 0 28px #87c4fd90;
+}
+h3 {
+  font-weight:700;
+  margin-bottom:10px;
+  color:#2690c9;
+  border-bottom:2px solid #ffe176;
+  padding-bottom:4px;
+}
 #progressContainer {
-  position:fixed; bottom:0; left:0; width:100%; min-height:73px; height:73px;
-  background:rgba(19,32,43,0.82); box-shadow:0 -2px 16px #00152888; display:flex; align-items:center; justify-content:center;
-  z-index:999; user-select:none; font-weight:600; color:#ffe37e; font-size:1.09em; gap:14px;
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  min-height:73px;
+  height:73px;
+  background:rgba(19,32,43,0.82);
+  box-shadow:0 -2px 16px #00152888;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+  user-select:none;
+  font-weight:600;
+  color:#ffe37e;
+  font-size:1.09em;
+  gap:14px;
 }
-#progressBar {position: relative; width:73%; height:16px; background:rgba(255,255,255,0.2); border-radius:24px; overflow:visible; box-shadow:inset 0 0 8px rgba(0,0,0,0.2),0 3px 16px #ffe77e26; margin-right:10px;}
-#progressFill {height:100%; width:0%; background:linear-gradient(90deg,#1db7ef 27%,#ffe176 100%); border-radius:20px 0 0 20px; transition:width 0.6s cubic-bezier(.45,0,.55,1);}
-#progressIcon {position:absolute; top:50%; left:0; transform:translateY(-50%); width:70px; height:70px; z-index:11; pointer-events:none; animation:oscillate 1.7s ease-in-out infinite; filter: drop-shadow(0 2px 6px #195976b6) drop-shadow(0 0 13px #ffe1769e); transition:left 0.6s cubic-bezier(.45,0,.55,1);}
-@keyframes oscillate {0%{transform:translateY(-50%) translateX(0);}25%{transform:translateY(calc(-50% - 2px)) translateX(2px);}50%{transform:translateY(-50%) translateX(-2px);}75%{transform:translateY(calc(-50% + 2px)) translateX(2px);}100%{transform:translateY(-50%) translateX(0);}
+#progressBar {
+  position: relative;
+  width:73%;
+  height:16px;
+  background:rgba(255,255,255,0.2);
+  border-radius:24px;
+  overflow:visible;
+  box-shadow:inset 0 0 8px rgba(0,0,0,0.2),
+    0 3px 16px #ffe77e26;
+  margin-right:10px;
 }
-#finishFlag {width:70px; height:70px; position: absolute; top: 50%; right: 0; transform: translate(50%, -50%); filter: drop-shadow(0 1px 3px #ffe176aa); z-index:12; background:none;}
-#progressPercent {min-width:48px; font-weight:700; color:#ffe176; letter-spacing:0.08em; user-select:none; text-shadow:0 0 11px #fff7df99;}
+#progressFill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#1db7ef 27%,#ffe176 100%);
+  border-radius:20px 0 0 20px;
+  transition:width 0.6s cubic-bezier(.45,0,.55,1);
+}
+#progressIcon {
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translateY(-50%);
+  width:70px;
+  height:70px;
+  z-index:11;
+  pointer-events:none;
+  animation:oscillate 1.7s ease-in-out infinite;
+  filter: drop-shadow(0 2px 6px #195976b6)
+    drop-shadow(0 0 13px #ffe1769e);
+  transition:left 0.6s cubic-bezier(.45,0,.55,1);
+}
+@keyframes oscillate {
+  0% {
+    transform:translateY(-50%) translateX(0);
+  }
+  25% {
+    transform:translateY(calc(-50% - 2px)) translateX(2px);
+  }
+  50% {
+    transform:translateY(-50%) translateX(-2px);
+  }
+  75% {
+    transform:translateY(calc(-50% + 2px)) translateX(2px);
+  }
+  100% {
+    transform:translateY(-50%) translateX(0);
+  }
+}
+#finishFlag {
+  width:70px;
+  height:70px;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
+  filter: drop-shadow(0 1px 3px #ffe176aa);
+  z-index:12;
+  background:none;
+}
+#progressPercent {
+  min-width:48px;
+  font-weight:700;
+  color:#ffe176;
+  letter-spacing:0.08em;
+  user-select:none;
+  text-shadow:0 0 11px #fff7df99;
+}
 @media screen and (max-width:700px) {
-  .step, .autista {padding:11px 4vw;}
-  body {padding-right: 0; padding-left: 0;}
+  .step, .autista {
+    padding:11px 4vw;
+  }
+  body {
+    padding-right: 0;
+    padding-left: 0;
+  }
 }
 </style>
 </head>
@@ -104,7 +333,7 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
   <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
 </header>
 <main>
-  <!-- Step 1 -->
+  <!-- STEP 1 -->
   <div id="step1" class="step active">
     <label for="data_partenza"><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</label>
     <label for="data_partenza"><span class="material-icons">calendar_month</span> Data di ritiro</label>
@@ -117,7 +346,7 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
       <option value="20:00">20:00</option>
     </select>
     <label for="data_arrivo"><span class="material-icons">calendar_month</span> Data di arrivo</label>
-    <input type="text" id="data_arrivo" autocomplete="off"/>
+    <input type="text" id="data_arrivo" autocomplete="off" />
     <label for="ora_arrivo"><span class="material-icons">access_time</span> Ora di arrivo</label>
     <select id="ora_arrivo">
       <option value="08:00">08:00</option>
@@ -130,7 +359,7 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
       <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
     </div>
   </div>
-  <!-- Step 2 -->
+  <!-- STEP 2 -->
   <div id="step2" class="step">
     <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
     <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
@@ -141,7 +370,7 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
       <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
     </div>
   </div>
-  <!-- Step 3 -->
+  <!-- STEP 3 -->
   <div id="step3" class="step">
     <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
     <select id="num_autisti" onchange="mostraModuliAutisti()">
@@ -158,7 +387,7 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
       <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
     </div>
   </div>
-  <!-- Step 4 -->
+  <!-- STEP 4 -->
   <div id="step4" class="step">
     <div id="istruzioni_modulo">
       <strong>Istruzioni per il completamento della prenotazione:</strong>
@@ -176,7 +405,7 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
       <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
     </div>
   </div>
-  <!-- Step 5 -->
+  <!-- STEP 5 -->
   <div id="step5" class="step">
     <div id="thankyou" style="background: rgba(241, 245, 250, 0.93); padding: 36px 18px; border-radius: 18px; text-align: center; box-shadow: 0 0 28px #bddaff;">
       <h2 style="color: #2690c9; margin-bottom: 18px;">Grazie per aver scelto Imbriani Noleggio!</h2>
@@ -192,29 +421,32 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
 <div id="progressContainer">
   <div id="progressBar">
     <div id="progressFill"></div>
-    <img id="progressIcon" src="pulmino.png" alt="Pulmino"/>
-    <img id="finishFlag" src="traguardo.png" alt="Traguardo"/>
+    <img id="progressIcon" src="pulmino.png" alt="Pulmino" />
+    <img id="finishFlag" src="traguardo.png" alt="Traguardo" />
   </div>
   <span id="progressPercent">0%</span>
 </div>
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-console.log('Imbriani Noleggio - Versione finale perfetta');
+console.log('Imbriani Noleggio - Versione 5.1');
 
 function aggiornaFlatpickr() {
   const inputs = document.querySelectorAll("input[type='text'][id*='data_'],input[id*='inizio_validita_patente'],input[id*='fine_validita_patente']");
   inputs.forEach(input => {
-    flatpickr(input, {
-      dateFormat: "d/m/Y",
-      locale: "it",
-      monthSelectorType: "dropdown",
-      firstDayOfWeek: 1,
-      disableMobile: true,
-      allowInput: false,
-      clickOpens: true,
-      position: "below"
-    });
-    input.setAttribute("readonly", "readonly");
+    if (!input.classList.contains("flatpickrized")) {
+      flatpickr(input, {
+        dateFormat: "d/m/Y",
+        locale: "it",
+        monthSelectorType: "dropdown",
+        firstDayOfWeek: 1,
+        disableMobile: true,
+        allowInput: false,
+        clickOpens: true,
+        position: "below"
+      });
+      input.setAttribute("readonly", "readonly");
+      input.classList.add("flatpickrized");
+    }
   });
 }
 document.addEventListener('DOMContentLoaded', aggiornaFlatpickr);
@@ -226,23 +458,17 @@ const pulmini = [
 ];
 
 let prenotazioni = [];
-const API_KEY = 'AIzaSyCxz6r2f6ZfsPv5tlHNLj5F7_LfWuyww9U';
+const API_KEY = 'AIzaSyCxz6r6ZfsPv5tlHNLj5F7_LfWuyww9U';
 const SPREADSHEET_ID = '1VAUJNVwxX8OLrkQVJP7IEGrqLIrDjJjrhfr7ABVqtns';
 const RANGE = "'Risposte del modulo 1'!A:AL";
 
 function loadSheetsApi() { gapi.load('client', initClient); }
 function initClient() {
-  gapi.client.init({'apiKey': API_KEY, 'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],})
-    .then(function () {
-      return gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
-    })
-    .then(function (response) {
-      prenotazioni = response.result.values || [];
-    }, function (error) {
-      alert("Errore nel caricamento delle prenotazioni. Riprova più tardi.");
-    });
+  gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] })
+    .then(() => gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE }))
+    .then(response => { prenotazioni = response.result.values || []; }, () => alert("Errore nel caricamento delle prenotazioni. Riprova più tardi."));
 }
-window.onload = function () { loadSheetsApi(); }
+window.onload = () => loadSheetsApi();
 
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
@@ -288,16 +514,14 @@ function goHome() {
   document.getElementById('autisti_container').innerHTML = '';
   updateProgressBar('step1');
 }
-
 function composeJSDate(giorno, ora) {
   if (!giorno || !ora) return null;
   if (giorno.includes('/')) {
     const parts = giorno.split('/');
-    giorno = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+    giorno = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
   }
   return new Date(`${giorno}T${ora}`);
 }
-
 function controllaDisponibilita() {
   const dataRitiro = document.getElementById('data_partenza').value;
   const oraRitiro = document.getElementById('ora_partenza').value;
@@ -324,8 +548,7 @@ function controllaDisponibilita() {
     });
   });
   const select = document.getElementById('scelta_pulmino');
-  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
-    disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
   document.getElementById('num_disponibili').textContent = disponibili.length;
   if (disponibili.length === 0) {
     alert('Nessun pulmino disponibile per la fascia selezionata!');
@@ -375,16 +598,16 @@ function mostraModuliAutisti() {
   for (let i = 1; i <= num; i++) {
     container.innerHTML += `<div class="autista">
       <h3>Autista ${i}</h3>
-      <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required/>
-      <label>Data di nascita</label><input type="text" id="data_nascita_${i}" required/>
-      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required/>
-      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required/>
-      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required/>
-      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required/>
-      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required/>
-      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required/>
-      <label>Data inizio validità patente</label><input type="text" id="inizio_validita_patente_${i}" required/>
-      <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" required/>
+      <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
+      <label>Data di nascita</label><input type="text" id="data_nascita_${i}" required />
+      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required />
+      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required />
+      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required />
+      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required />
+      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required />
+      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required />
+      <label>Data inizio validità patente</label><input type="text" id="inizio_validita_patente_${i}" required />
+      <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" required />
     </div>`;
   }
   aggiornaFlatpickr();
@@ -428,8 +651,10 @@ function apriModuloPrecompilato() {
       `&entry.${entryFields[i].inizio_patente}=${encodeURIComponent(document.getElementById('inizio_validita_patente_' + (i + 1)).value)}` +
       `&entry.${entryFields[i].fine_patente}=${encodeURIComponent(document.getElementById('fine_validita_patente_' + (i + 1)).value)}`;
   }
+
   window.open(urlModulo, '_blank');
 }
+
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnApriModulo').addEventListener('click', () => {
     apriModuloPrecompilato();
