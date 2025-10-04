@@ -199,8 +199,243 @@ h3 {font-weight:700; margin-bottom:10px; color:#2690c9; border-bottom:2px solid 
 </div>
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-// tutte le funzioni JS precedenti rimangono valide (aggiornaFlatpickr, mostraModuliAutisti, composeJSDate, controllaDisponibilita ecc.),
-// incolla qui dentro il JS funzionante dell'ultima versione con la logica corretta!
+console.log('Imbriani Noleggio - Versione finale perfetta');
+
+function aggiornaFlatpickr() {
+  const inputs = document.querySelectorAll("input[type='text'][id*='data_'],input[id*='inizio_validita_patente'],input[id*='fine_validita_patente']");
+  inputs.forEach(input => {
+    flatpickr(input, {
+      dateFormat: "d/m/Y",
+      locale: "it",
+      monthSelectorType: "dropdown",
+      firstDayOfWeek: 1,
+      disableMobile: true,
+      allowInput: false,
+      clickOpens: true,
+      position: "below"
+    });
+    input.setAttribute("readonly", "readonly");
+  });
+}
+document.addEventListener('DOMContentLoaded', aggiornaFlatpickr);
+
+const pulmini = [
+  { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
+  { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
+  { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
+];
+
+let prenotazioni = [];
+const API_KEY = 'AIzaSyCxz6r2f6ZfsPv5tlHNLj5F7_LfWuyww9U';
+const SPREADSHEET_ID = '1VAUJNVwxX8OLrkQVJP7IEGrqLIrDjJjrhfr7ABVqtns';
+const RANGE = "'Risposte del modulo 1'!A:AL";
+
+function loadSheetsApi() { gapi.load('client', initClient); }
+function initClient() {
+  gapi.client.init({'apiKey': API_KEY, 'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],})
+    .then(function () {
+      return gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
+    })
+    .then(function (response) {
+      prenotazioni = response.result.values || [];
+    }, function (error) {
+      alert("Errore nel caricamento delle prenotazioni. Riprova più tardi.");
+    });
+}
+window.onload = function () { loadSheetsApi(); }
+
+function showStep(stepId) {
+  document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+  document.getElementById(stepId).classList.add('active');
+  updateProgressBar(stepId);
+}
+function updateProgressBar(stepId) {
+  const progressFill = document.getElementById('progressFill');
+  const progressPercent = document.getElementById('progressPercent');
+  const progressIcon = document.getElementById('progressIcon');
+  const progressBar = document.getElementById('progressBar');
+  let percent = 0;
+  switch (stepId) {
+    case 'step1': percent = 0; break;
+    case 'step2': percent = 25; break;
+    case 'step3': percent = 50; break;
+    case 'step4': percent = 75; break;
+    case 'step5': percent = 100; break;
+  }
+  progressFill.style.width = percent + '%';
+  progressPercent.textContent = `${percent}%`;
+  const barWidth = progressBar.clientWidth;
+  const iconWidth = progressIcon.clientWidth;
+  let leftPos = (percent / 100) * barWidth - iconWidth / 2;
+  leftPos = Math.min(Math.max(0, leftPos), barWidth - iconWidth);
+  progressIcon.style.left = `${leftPos}px`;
+}
+function goBack() {
+  if (document.getElementById('step5').classList.contains('active')) showStep('step4');
+  else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
+  else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
+  else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
+}
+function goHome() {
+  showStep('step1');
+  document.getElementById('data_partenza').value = '';
+  document.getElementById('data_arrivo').value = '';
+  document.getElementById('ora_partenza').value = '08:00';
+  document.getElementById('ora_arrivo').value = '08:00';
+  document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
+  document.getElementById('num_autisti').value = '1';
+  document.getElementById('cellulare').value = '';
+  document.getElementById('autisti_container').innerHTML = '';
+  updateProgressBar('step1');
+}
+
+function composeJSDate(giorno, ora) {
+  if (!giorno || !ora) return null;
+  if (giorno.includes('/')) {
+    const parts = giorno.split('/');
+    giorno = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+  }
+  return new Date(`${giorno}T${ora}`);
+}
+
+function controllaDisponibilita() {
+  const dataRitiro = document.getElementById('data_partenza').value;
+  const oraRitiro = document.getElementById('ora_partenza').value;
+  const dataArrivo = document.getElementById('data_arrivo').value;
+  const oraArrivo = document.getElementById('ora_arrivo').value;
+  if (!dataRitiro || !oraRitiro || !dataArrivo || !oraArrivo) {
+    alert('Inserisci data e ora validi.');
+    return;
+  }
+  const ritiroDate = composeJSDate(dataRitiro, oraRitiro);
+  const arrivoDate = composeJSDate(dataArrivo, oraArrivo);
+  if (ritiroDate >= arrivoDate) {
+    alert('L\'ora di arrivo deve essere successiva a quella di ritiro.');
+    return;
+  }
+  const rows = prenotazioni.filter(row => row[1] !== 'Nome');
+  const disponibili = pulmini.filter(pulmino => {
+    return !rows.some(row => {
+      if (row[11] !== pulmino.targa) return false;
+      const startPrenDate = composeJSDate(row[14], row[12]);
+      const endPrenDate = composeJSDate(row[15], row[13]);
+      if (!startPrenDate || !endPrenDate) return false;
+      return (startPrenDate < arrivoDate && endPrenDate > ritiroDate);
+    });
+  });
+  const select = document.getElementById('scelta_pulmino');
+  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' +
+    disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+  document.getElementById('num_disponibili').textContent = disponibili.length;
+  if (disponibili.length === 0) {
+    alert('Nessun pulmino disponibile per la fascia selezionata!');
+    return;
+  }
+  showStep('step2');
+  document.getElementById('chiamaContinuaBtn').disabled = true;
+}
+document.getElementById('scelta_pulmino').addEventListener('change', function () {
+  document.getElementById('chiamaContinuaBtn').disabled = !this.value;
+});
+function chiamaEContinua() {
+  const pulminoSelezionato = document.getElementById('scelta_pulmino').value;
+  if (!pulminoSelezionato) {
+    alert('Seleziona un pulmino prima di chiamare.');
+    return;
+  }
+  window.location.href = "tel:3286589618";
+  setTimeout(() => { vaiStep3(); }, 500);
+}
+function vaiStep3() {
+  const pulmino = document.getElementById('scelta_pulmino').value;
+  if (!pulmino) { alert('Seleziona un pulmino.'); return; }
+  showStep('step3');
+  mostraModuliAutisti();
+}
+function vaiStep4() {
+  showStep('step4');
+  const btnContinua = document.getElementById('btnApriModulo');
+  btnContinua.disabled = true;
+  let countdown = 10;
+  btnContinua.textContent = `Controlla e invia i tuoi dati (${countdown})`;
+  const timer = setInterval(() => {
+    countdown--;
+    btnContinua.textContent = `Controlla e invia i tuoi dati (${countdown})`;
+    if (countdown === 0) {
+      clearInterval(timer);
+      btnContinua.disabled = false;
+      btnContinua.textContent = "Controlla e invia i tuoi dati";
+    }
+  }, 1000);
+}
+function mostraModuliAutisti() {
+  const container = document.getElementById('autisti_container');
+  const num = parseInt(document.getElementById('num_autisti').value);
+  container.innerHTML = '';
+  for (let i = 1; i <= num; i++) {
+    container.innerHTML += `<div class="autista">
+      <h3>Autista ${i}</h3>
+      <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required/>
+      <label>Data di nascita</label><input type="text" id="data_nascita_${i}" required/>
+      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required/>
+      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required/>
+      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required/>
+      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required/>
+      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required/>
+      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required/>
+      <label>Data inizio validità patente</label><input type="text" id="inizio_validita_patente_${i}" required/>
+      <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" required/>
+    </div>`;
+  }
+  aggiornaFlatpickr();
+}
+function apriModuloPrecompilato() {
+  const num = parseInt(document.getElementById('num_autisti').value);
+  const dataRitiro = document.getElementById('data_partenza').value;
+  const oraRitiro = document.getElementById('ora_partenza').value;
+  const dataArrivo = document.getElementById('data_arrivo').value;
+  const oraArrivo = document.getElementById('ora_arrivo').value;
+  const pulminoId = document.getElementById('scelta_pulmino').value;
+  const pulminoObj = pulmini.find(p => p.id === pulminoId);
+  const targa = pulminoObj ? pulminoObj.targa : "";
+  const dataContratto = dataRitiro;
+  const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
+
+  let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url" +
+    `&entry.257199041=${encodeURIComponent(oraRitiro)}` +
+    `&entry.917923685=${encodeURIComponent(oraArrivo)}` +
+    `&entry.1578287722=${encodeURIComponent(targa)}` +
+    `&entry.1499256988=${encodeURIComponent(dataRitiro)}` +
+    `&entry.517585546=${encodeURIComponent(dataArrivo)}` +
+    `&entry.1888774437=${cellulare}` +
+    `&entry.925984482=${encodeURIComponent(dataContratto)}`;
+
+  const entryFields = [
+    { nome: '550823113', data_nascita: '766463607', luogo_nascita: '1735522613', cf: '36844075', comune_residenza: '913323396', via_residenza: '1329485765', civico_residenza: '1349864501', numero_patente: '1885490374', inizio_patente: '525872521', fine_patente: '1864189410' },
+    { nome: '1236551634', data_nascita: '503259772', luogo_nascita: '1977818551', cf: '1883324084', comune_residenza: '2118103863', via_residenza: '805763990', civico_residenza: '568892376', numero_patente: '124831667', inizio_patente: '657885946', fine_patente: '850104184' },
+    { nome: '3164128', data_nascita: '1896520037', luogo_nascita: '1923148193', cf: '2061435678', comune_residenza: '767994785', via_residenza: '1335171224', civico_residenza: '1926018707', numero_patente: '1750806014', inizio_patente: '1084842503', fine_patente: '965705170' }
+  ];
+
+  for (let i = 0; i < num; i++) {
+    urlModulo += `&entry.${entryFields[i].nome}=${encodeURIComponent(document.getElementById('nome_cognome_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].data_nascita}=${encodeURIComponent(document.getElementById('data_nascita_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].luogo_nascita}=${encodeURIComponent(document.getElementById('luogo_nascita_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].cf}=${encodeURIComponent(document.getElementById('codice_fiscale_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].comune_residenza}=${encodeURIComponent(document.getElementById('comune_residenza_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].via_residenza}=${encodeURIComponent(document.getElementById('via_residenza_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].inizio_patente}=${encodeURIComponent(document.getElementById('inizio_validita_patente_' + (i + 1)).value)}` +
+      `&entry.${entryFields[i].fine_patente}=${encodeURIComponent(document.getElementById('fine_validita_patente_' + (i + 1)).value)}`;
+  }
+  window.open(urlModulo, '_blank');
+}
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnApriModulo').addEventListener('click', () => {
+    apriModuloPrecompilato();
+    setTimeout(() => { showStep('step5'); }, 500);
+  });
+});
 </script>
 </body>
 </html>
