@@ -146,6 +146,8 @@
     #progressContainer {height:100px; min-height:78px; font-size:1em;}
     #progressBar {width:98%;}
   }
+
+  /* Flatpickr calendar: migliora contrasto e coerenza */
   .flatpickr-calendar {
     background: rgba(20,34,55,0.97);
     border-radius: 16px;
@@ -156,39 +158,43 @@
   .flatpickr-current-month,
   .flatpickr-current-month .flatpickr-monthDropdown-months,
   .flatpickr-current-month input.cur-year {
+    background: none !important;
     color: #ffe176 !important;
-    font-weight: 700 !important;
-    font-size: 1.25em !important;
-    letter-spacing: 0.06em;
-    text-shadow: 0 1px 6px #193242cc;
+    border: none !important;
+    font-size: 1.21em !important;
+    font-weight: 900 !important;
+    outline: none !important;
+    text-align: center;
+    box-shadow: none !important;
+    letter-spacing: 0.09em;
+    margin: 0 5px !important;
+    padding: 0 5px !important;
+  }
+  .flatpickr-months {
+    background: #182745 !important;
+    border-radius: 16px 16px 0 0;
+    min-height: 44px;
+    padding: 6px 0 2px 0;
+  }
+  .flatpickr-current-month input.cur-year:focus,
+  .flatpickr-current-month select.flatpickr-monthDropdown-months:focus {
+    background: #ffe17622 !important;
+    color: #183242 !important;
+    outline: none !important;
+    border: none !important;
   }
   .flatpickr-months .flatpickr-prev-month,
   .flatpickr-months .flatpickr-next-month {
     color: #ffe176 !important;
+    font-size: 1.16em !important;
+    top: 10px !important;
     opacity: 1 !important;
   }
-  .flatpickr-weekdays,
-  .flatpickr-weekday {
-    color: #ffe176 !important;
-    font-weight: 700;
-    font-size: 1em;
-    text-shadow: 0 1px 2px #193242cc;
-  }
-  .flatpickr-day {
-    color: #fff !important;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: background 0.2s;
-  }
-  .flatpickr-day:hover,
-  .flatpickr-day.selected,
-  .flatpickr-day.today {
-    background: #ffe176 !important;
+  .flatpickr-calendar input.flatpickr-input {
     color: #193242 !important;
-    font-weight: 700;
-    box-shadow: 0 0 8px #ffe176c0;
+    background: #fff !important;
+    border-radius: 6px;
   }
-  /* Choices.js custom select styles */
   .choices__inner {
     background: rgba(249,250,251,0.85);
     border-radius: 14px;
@@ -219,57 +225,6 @@
     color: #193242;
     font-weight: 700;
   }
-    /* Migliora testo mese/anno nel Flatpickr */
-.flatpickr-months {
-  background: #182745 !important;
-  border-radius: 16px 16px 0 0;
-  min-height: 44px;
-  padding: 6px 0 2px 0;
-}
-.flatpickr-current-month {
-  background: none !important;
-  color: #ffe176 !important;
-  font-size: 1.44em !important;
-  font-weight: 900 !important;
-  display: flex;
-  align-items: center;
-  letter-spacing: 0.09em;
-  justify-content: center;
-}
-.flatpickr-current-month .flatpickr-monthDropdown-months,
-.flatpickr-current-month input.cur-year {
-  background: none !important;
-  color: #ffe176 !important;
-  border: none !important;
-  font-size: 1.13em !important;
-  font-weight: 900 !important;
-  outline: none !important;
-  text-align: center;
-  width: auto !important;
-  box-shadow: none !important;
-  padding: 0 5px !important;
-  margin: 0 5px !important;
-}
-.flatpickr-current-month input.cur-year:focus,
-.flatpickr-current-month select.flatpickr-monthDropdown-months:focus {
-  background: #ffe17622 !important;
-  color: #183242 !important;
-  outline: none !important;
-  border: none !important;
-}
-.flatpickr-months .flatpickr-prev-month,
-.flatpickr-months .flatpickr-next-month {
-  color: #ffe176 !important;
-  font-size: 1.16em !important;
-  top: 10px !important;
-  opacity: 1 !important;
-}
-.flatpickr-calendar input.flatpickr-input {
-  color: #193242 !important;
-  background: #fff !important;
-  border-radius: 6px;
-}
-
 </style>
 </head>
 <body>
@@ -364,7 +319,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-  console.log('Imbriani Noleggio - Versione 1.7');
+  console.log('Imbriani Noleggio - Versione 1.4');
   
   function aggiornaFlatpickr() {
     flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
@@ -608,7 +563,3 @@
 </script>
 </body>
 </html>
-
-
-
-
