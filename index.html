@@ -245,6 +245,45 @@
     color: #193242;
     font-weight: 700;
   }
+  .flatpickr-current-month .flatpickr-monthDropdown-months {
+  color: #ffe176 !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 1.15em !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  box-shadow: none !important;
+  outline: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  padding: 0 4px !important;
+  margin: 0 4px !important;
+}
+
+.flatpickr-monthDropdown-months option,
+.flatpickr-current-month select option {
+  color: #183242 !important;
+  background: #ffe176 !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+}
+.flatpickr-current-month input.cur-year {
+  color: #ffe176 !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 1.15em !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 4px !important;
+  margin: 0 4px !important;
+}
 </style>
 </head>
 <body>
@@ -339,7 +378,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-  console.log('Imbriani Noleggio - Versione 1.6');
+  console.log('Imbriani Noleggio - Versione 1.7');
   function aggiornaFlatpickr() {
     flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
       dateFormat: "Y-m-d",
@@ -579,3 +618,4 @@
 </script>
 </body>
 </html>
+
