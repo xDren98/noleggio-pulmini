@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
 <style>
+/* Stile sito, nessuna personalizzazione su Flatpickr */
 html, body {height:100%; margin:0; overflow-x:hidden;}
 body {
   font-family:'Poppins',sans-serif;
@@ -131,24 +132,6 @@ h3 {
   header h1 {font-size:2em;}
   #progressContainer {height:100px; min-height:78px; font-size:1em;}
   #progressBar {width:98%;}
-}
-/* Flatpickr palette blu-oro, forte contrasto, fix larghezza */
-.flatpickr-calendar {background: #14233a !important; border: 2px solid #ffe176 !important; border-radius: 14px !important; color: #ffe176 !important; font-family: 'Poppins', sans-serif !important; box-shadow: 0 0 36px #ffe176bb !important; min-width: 335px !important; max-width: 360px !important;}
-.flatpickr-months {background: transparent !important; border-bottom: 2px solid #ffe176 !important; display: flex !important; align-items: center; justify-content: center; gap: 6px; padding: 0 14px !important; min-width: 320px;}
-.flatpickr-current-month {font-weight: 900 !important; font-size: 1.25em !important; color: #ffe176 !important; font-family: 'Poppins', sans-serif !important; letter-spacing: 0.06em; display: flex !important; align-items: center; gap: 12px !important; min-width: 0 !important;}
-.flatpickr-monthDropdown-months, .flatpickr-current-month input.cur-year {background-color: #ffe176 !important; color: #193242 !important; font-weight: 700 !important; border-radius: 9px !important; border: none !important; outline: none !important; font-size: 1em !important; font-family: 'Poppins', sans-serif !important; padding: 5px 14px !important; margin: 0 4px; text-align: center; box-shadow: 0 0 14px #d6b742b1 !important;}
-.flatpickr-monthDropdown-months {margin:0 4px 0 0;} .flatpickr-current-month input.cur-year {width: 62px !important;}
-.flatpickr-weekdays {color: #ffe176 !important;font-weight: 900 !important;font-size: 1.14em !important;font-family: 'Poppins', sans-serif !important;letter-spacing: 1px !important;text-shadow: 0 0 8px #fff1ab, 0 0 6px #ffe17699 !important;}
-.flatpickr-weekday {padding: 4px 3px !important; font-weight: 900 !important; color: #ffe176 !important; background: transparent !important; text-transform: capitalize !important; font-family: 'Poppins',sans-serif !important; text-shadow: 0 0 8px #fff9de, 0 0 6px #ffe176a2 !important;}
-.flatpickr-days {min-width: 328px !important; max-width: 342px !important;}
-.flatpickr-day {font-weight: 700 !important; color: #ffe176 !important; background: transparent !important; margin: 2px 3px !important; border-radius: 8px !important; font-family: 'Poppins', sans-serif !important; cursor: pointer !important; transition: background-color 0.3s ease !important;}
-.flatpickr-day:hover {background: #ffe176 !important; color: #193242 !important; font-weight: 900 !important;}
-.flatpickr-day.today, .flatpickr-day.selected {background: #ffe176 !important; border-radius: 8px !important; color: #193242 !important; font-weight: 900 !important;}
-.flatpickr-prev-month, .flatpickr-next-month {color: #ffe176 !important; width: 32px !important; height: 32px !important; border-radius: 50% !important; background: transparent !important; box-shadow: 0 0 11px #ffe176aa !important; cursor: pointer !important; font-weight: 900 !important; font-size: 1.25em !important; font-family: 'Poppins', sans-serif !important; line-height: 32px !important; min-width:32px !important; min-height:32px !important;}
-.flatpickr-prev-month:hover, .flatpickr-next-month:hover {background: #ffe176 !important; color: #193242 !important;}
-input[id*='data_nascita'],input[id*='inizio_validita_patente'],input[id*='fine_validita_patente'] {
-  background: #fffbe6 !important; border: 2px solid #ffe176 !important;
-  color: #193242 !important; font-family: 'Poppins',sans-serif !important; font-weight: 700;
 }
 </style>
 </head>
@@ -330,7 +313,6 @@ function composeJSDate(giorno, ora) {
   if (!giorno || !ora) return null;
   if (giorno.includes('/')) {
     const parts = giorno.split('/');
-    // formato flatpickr giorno/mese/anno → yyyy-mm-dd
     giorno = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
   }
   return new Date(`${giorno}T${ora}`);
@@ -357,7 +339,6 @@ function controllaDisponibilita() {
       const startPrenDate = composeJSDate(row[14], row[12]);
       const endPrenDate = composeJSDate(row[15], row[13]);
       if (!startPrenDate || !endPrenDate) return false;
-      // Fasce prenotate - check reale sulle date
       return (startPrenDate < arrivoDate && endPrenDate > ritiroDate);
     });
   });
