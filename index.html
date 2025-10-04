@@ -1,36 +1,33 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Imbriani Noleggio</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 <style>
   html, body {
-    height:100%;
-    margin:0;
-    overflow-x:hidden;
+    height: 100%; margin: 0; overflow-x: hidden;
   }
   body {
-    font-family:'Poppins',sans-serif;
-    max-width:980px;
-    margin:0 auto 60px auto;
+    font-family: 'Poppins', sans-serif;
+    max-width: 980px;
+    margin: 0 auto 60px auto;
     background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed;
     background-size: cover;
-    position: relative;
     color: #f2f6f8;
     padding: 0 18px 120px 18px;
     min-height: 100vh;
+    position: relative;
   }
   body:before {
-    content:"";
+    content: "";
     position: fixed;
-    top:0; left:0;
-    width: 100vw; height:100vh;
+    top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(20,34,55,0.53);
     z-index: -1;
-    pointer-events:none;
+    pointer-events: none;
   }
   header {
     position: relative;
@@ -69,7 +66,7 @@
     gap: 10px;
     font-size: 1em;
     color: #fff;
-    text-shadow: 0 0 10px rgb(0 0 0 / 0.85);
+    text-shadow: 0 0 10px rgba(0,0,0,0.85);
   }
   .material-icons {
     font-size: 22px;
@@ -84,7 +81,7 @@
     border-radius: 14px;
     font-size: 1.13em;
     transition: border-color 0.35s, box-shadow 0.35s;
-    background: rgba(249, 250, 251, 0.83);
+    background: rgba(249,250,251,0.83);
     color: #184154;
     margin-top: 4px;
   }
@@ -224,22 +221,21 @@
     gap: 14px;
   }
   #progressBar {
+    position: relative;
     width: 73%;
     height: 16px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 24px;
-    position: relative;
     overflow: visible;
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2), 0 3px 16px #ffe77e26;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.2), 0 3px 16px #ffe77e26;
     margin-right: 10px;
   }
   #progressFill {
     height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #1db7ef 27%, #ffe176 100%);
     border-radius: 20px 0 0 20px;
+    background: linear-gradient(90deg, #1db7ef 27%, #ffe176 100%);
+    width: 0%;
     transition: width 0.6s cubic-bezier(.45, 0, .55, 1);
-    position: relative;
   }
   #progressIcon {
     position: absolute;
@@ -250,7 +246,7 @@
     filter: drop-shadow(0 2px 6px #195976b6) drop-shadow(0 0 13px #ffe1769e);
     z-index: 10;
     animation: oscillate 1.7s ease-in-out infinite;
-    pointer-events:none;
+    pointer-events: none;
   }
   @keyframes oscillate {
     0% { transform: translateY(-50%) translateX(0); }
@@ -302,11 +298,30 @@
     user-select: none;
     text-shadow: 0 0 11px #fff7df99;
   }
-  @media screen and (max-width:600px){
-    body{padding-bottom: 140px;}
-    header h1{font-size: 2em;}
-    #progressContainer{height: 100px; min-height: 78px; font-size: 1em;}
-    #progressBar{width: 98%;}
+  #finishFlag {
+    width: 32px;
+    height: 26px;
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    filter: drop-shadow(0 1px 3px #ffe176aa);
+  }
+  @media screen and (max-width: 600px) {
+    body {
+      padding-bottom: 140px;
+    }
+    header h1 {
+      font-size: 2em;
+    }
+    #progressContainer {
+      height: 100px;
+      min-height: 78px;
+      font-size: 1em;
+    }
+    #progressBar {
+      width: 98%;
+    }
   }
 </style>
 </head>
@@ -384,32 +399,33 @@
     <div id="thankyou" style="background: rgba(241, 245, 250, 0.93); padding: 36px 18px; border-radius: 18px; text-align: center; box-shadow: 0 0 28px #bddaff;">
       <h2 style="color: #2690c9; margin-bottom: 18px;">Grazie per aver scelto Imbriani Noleggio!</h2>
       <p style="font-size: 1.25em; color: #106391; font-weight: 600;">
-        Ti abbiamo inviato il modulo di prenotazione.<br>Ti auguriamo un viaggio piacevole e sicuro!
+        Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!
       </p>
-      <button type="button" onclick="goHome()" style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;">
-        <span class="material-icons">home</span>Torna all'inizio
-      </button>
+      <button type="button" onclick="goHome()" style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;"><span class="material-icons">home</span>Torna all'inizio</button>
     </div>
   </div>
 </main>
 
-<!-- Progress Bar -->
+<!-- Progress bar -->
 <div id="progressContainer">
   <div id="progressBar">
     <div id="progressFill"></div>
-    <svg id="progressIcon" viewBox="0 0 70 34" xmlns="http://www.w3.org/2000/svg" aria-label="Pulmino 9 posti" style="background:none;z-index:1500;">
-      <rect x="4" y="10" width="54" height="14" rx="6" fill="#fff" stroke="#2690c9" stroke-width="2"></rect>
-      <rect x="14" y="14" width="20" height="5" rx="2.5" fill="#fcd168"></rect>
-      <rect x="37" y="12" width="13" height="9" rx="3" fill="#2690c9"></rect>
-      <ellipse cx="19" cy="24" rx="5" ry="5" fill="#1db7ef" stroke="#fff" stroke-width="1.7"></ellipse>
-      <ellipse cx="44" cy="24" rx="5" ry="5" fill="#1db7ef" stroke="#fff" stroke-width="1.7"></ellipse>
-      <rect x="7" y="14" width="7" height="5" rx="2.5" fill="#c5dae5"></rect>
-      <ellipse cx="12" cy="24" rx="2" ry="2" fill="#ffe176"></ellipse>
-      <ellipse cx="49" cy="24" rx="2" ry="2" fill="#ffe176"></ellipse>
-      <rect x="24" y="12.2" width="6" height="7" fill="#94c8e7" rx="2"></rect>
-      <circle id="smoke1" cx="2" cy="14" r="3" />
-      <circle id="smoke2" cx="0" cy="18" r="2" />
-      <circle id="smoke3" cx="-3" cy="12" r="2.3" />
+    <img id="finishFlag" src="https://cdn-icons-png.flaticon.com/512/2164/2164976.png" alt="Traguardo" />
+    <svg id="progressIcon" viewBox="0 0 94 53" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;filter: drop-shadow(0 2px 6px #195976b6) drop-shadow(0 0 13px #ffe1769e);z-index:11;pointer-events:none;animation:oscillate 1.5s ease-in-out infinite;">
+      <rect x="10" y="20" width="70" height="20" rx="10" fill="#009bfb" stroke="#004265" stroke-width="2"/>
+      <rect x="40" y="26" width="20" height="12" rx="4" fill="#005799"/>
+      <circle cx="24" cy="40" r="8" fill="#04aaff" stroke="#004265" stroke-width="2"/>
+      <circle cx="66" cy="40" r="8" fill="#04aaff" stroke="#004265" stroke-width="2"/>
+      <ellipse cx="28" cy="40" rx="3.5" ry="3.5" fill="#e0ffff"/>
+      <ellipse cx="70" cy="40" rx="3.5" ry="3.5" fill="#e0ffff"/>
+      <rect x="16" y="26" width="8" height="12" rx="3" fill="#80d0ff"/>
+      <ellipse cx="22" cy="40" rx="3" ry="3" fill="#80d0ff"/>
+      <ellipse cx="68" cy="40" rx="3" ry="3" fill="#80d0ff"/>
+      <rect x="44" y="26" width="6" height="8" fill="#1faaff" rx="3"/>
+      <!-- Simulazione fumo -->
+      <circle id="smoke1" cx="3" cy="27" r="4" fill="#dde9f4" opacity="0.7" filter="drop-shadow(0 0 2px #a7b9c8)"></circle>
+      <circle id="smoke2" cx="7" cy="33" r="3" fill="#dde9f4" opacity="0.7" filter="drop-shadow(0 0 2px #a7b9c8)"></circle>
+      <circle id="smoke3" cx="4" cy="19" r="3.5" fill="#dde9f4" opacity="0.7" filter="drop-shadow(0 0 2px #a7b9c8)"></circle>
     </svg>
   </div>
   <span id="progressPercent">0%</span>
@@ -417,13 +433,14 @@
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
-  console.log("Noleggio Pulmini - Script Version V 7.5");
+  console.log("Noleggio Pulmini - Script Version V7.8");
 
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
     { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
     { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
   ];
+
   let prenotazioni = [];
 
   const API_KEY = 'AIzaSyCxz6r2f6ZfsPv5tlHNLj5F7_LfWuyww9U';
@@ -466,7 +483,7 @@
 
   function updateProgressBar(stepId) {
     const progressFill = document.getElementById('progressFill');
-    const progressPercentText = document.getElementById('progressPercent');
+    const progressPercent = document.getElementById('progressPercent');
     const progressIcon = document.getElementById('progressIcon');
     const progressBar = document.getElementById('progressBar');
 
@@ -478,17 +495,13 @@
       case 'step4': percent = 75; break;
       case 'step5': percent = 100; break;
     }
-
     progressFill.style.width = percent + '%';
-    progressPercentText.textContent = percent + '%';
+    progressPercent.textContent = percent + '%';
 
-    const barWidth = progressBar.offsetWidth;
-    const iconWidth = progressIcon.offsetWidth;
+    const barWidth = progressBar.clientWidth;
+    const iconWidth = progressIcon.clientWidth;
     let leftPos = (percent / 100) * barWidth - iconWidth / 2;
-
-    if (leftPos < 0) leftPos = 0;
-    if (leftPos > barWidth - iconWidth) leftPos = barWidth - iconWidth;
-    // posiziona icon dentro progressBar con oscillazione css
+    leftPos = Math.min(Math.max(0, leftPos), barWidth - iconWidth);
     progressIcon.style.left = leftPos + 'px';
   }
 
@@ -497,7 +510,7 @@
     let dataISO = giorno;
     if (giorno.includes('/')) {
       const parts = giorno.split('/');
-      dataISO = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+      dataISO = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
     }
     return new Date(`${dataISO}T${ora}`);
   }
@@ -550,7 +563,7 @@
     document.getElementById('chiamaContinuaBtn').disabled = true;
   }
 
-  document.getElementById('scelta_pulmino').addEventListener('change', function() {
+  document.getElementById('scelta_pulmino').addEventListener('change', function () {
     document.getElementById('chiamaContinuaBtn').disabled = !this.value;
   });
 
@@ -712,6 +725,5 @@
     window.open(urlModulo, '_blank');
   }
 </script>
-
 </body>
 </html>
