@@ -72,10 +72,18 @@
     75%{transform:translateY(calc(-50% + 2px)) translateX(2px);}
     100%{transform:translateY(-50%) translateX(0);}
   }
-  #finishFlag{
-    width:34px; height:34px; position:absolute; top:50%; right:6px;
-    transform:translateY(-50%); filter: drop-shadow(0 1px 3px #ffe176aa); z-index:12; background:none;
-  }
+  #finishFlag {
+  width: 34px;
+  height: 34px;
+  position: absolute;
+  top: 50%;
+  right: 0; /* Allinea alla fine della barra */
+  transform: translate(50%, -50%); /* sposta leggermente a destra rispetto al bordo */
+  filter: drop-shadow(0 1px 3px #ffe176aa);
+  z-index: 12;
+  background: none;
+}
+
   #progressPercent{min-width:48px; font-weight:700; color:#ffe176; letter-spacing:0.08em;
     user-select:none; text-shadow:0 0 11px #fff7df99;}
   @media screen and (max-width:600px){
@@ -401,6 +409,7 @@
 </script>
 </body>
 </html>
+
 
 
 
