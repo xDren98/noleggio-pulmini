@@ -414,11 +414,30 @@ h3 {
   <span id="progressPercent">0%</span>
 </div>
 <script>
-console.log("Versione 2.0 - Flatpickr calendar correction");
+console.log("Versione 2.1 - Flatpickr appendTo fix");
 
-// Caricamento Google API JS in modo sicuro
+function aggiornaFlatpickr() {
+  const inputs = document.querySelectorAll("input.date-input");
+  inputs.forEach(input => {
+    if (!input._flatpickr) {
+      flatpickr(input, {
+        dateFormat: "d/m/Y",
+        locale: "it",
+        allowInput: false,
+        clickOpens: true,
+        monthSelectorType: "dropdown",
+        firstDayOfWeek: 1,
+        disableMobile: true,
+        position: "below",
+        appendTo: document.body
+      });
+      input.setAttribute("readonly", "readonly");
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-  aggiornaFlatpickr(); // applica Flatpickr all'avvio, anche dopo generazione campi
+  aggiornaFlatpickr();
   if (window.gapi) {
     loadSheetsApi();
   } else {
@@ -576,25 +595,6 @@ function vaiStep4() {
     }
   }, 1000);
 }
-// Funzione aggiorna e inizializza Flatpickr su tutti i campi data (anche i nuovi)
-function aggiornaFlatpickr() {
-  const inputs = document.querySelectorAll("input.date-input");
-  inputs.forEach(input => {
-    if (!input._flatpickr) { // evita doppia inizializzazione
-      flatpickr(input, {
-        dateFormat: "d/m/Y",
-        locale: "it",
-        allowInput: false,
-        clickOpens: true,
-        monthSelectorType: "dropdown",
-        firstDayOfWeek: 1,
-        disableMobile: true,
-        position: "below"
-      });
-      input.setAttribute("readonly", "readonly");
-    }
-  });
-}
 function mostraModuliAutisti() {
   const container = document.getElementById('autisti_container');
   const num = parseInt(document.getElementById('num_autisti').value);
@@ -614,7 +614,7 @@ function mostraModuliAutisti() {
       <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" class="date-input" required />
     </div>`;
   }
-  aggiornaFlatpickr(); // Riapplica Flatpickr anche qui dopo aver creato input dinamici
+  aggiornaFlatpickr();
 }
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
