@@ -146,29 +146,51 @@
     #progressBar {width:98%;}
   }
 
-  /* Flatpickr custom theme */
+  /* Flatpickr calendar: migliora contrasto e coerenza */
   .flatpickr-calendar {
-    background: rgba(20,34,55,0.9);
-    color: #f2f6f8;
+    background: rgba(20,34,55,0.97);
     border-radius: 16px;
+    border: 1.5px solid #ffe176;
     box-shadow: 0 1px 12px rgba(0,0,0,0.85);
     font-family: 'Poppins', sans-serif;
-    border: 1.5px solid #ffe176;
+  }
+  .flatpickr-current-month,
+  .flatpickr-current-month .flatpickr-monthDropdown-months,
+  .flatpickr-current-month input.cur-year {
+    color: #ffe176 !important;
+    font-weight: 700 !important;
+    font-size: 1.25em !important;
+    letter-spacing: 0.06em;
+    text-shadow: 0 1px 6px #193242cc;
+  }
+  .flatpickr-months .flatpickr-prev-month,
+  .flatpickr-months .flatpickr-next-month {
+    color: #ffe176 !important;
+    opacity: 1 !important;
+  }
+  .flatpickr-weekdays,
+  .flatpickr-weekday {
+    color: #ffe176 !important;
+    font-weight: 700;
+    font-size: 1em;
+    text-shadow: 0 1px 2px #193242cc;
   }
   .flatpickr-day {
+    color: #fff !important;
+    font-weight: 500;
     border-radius: 8px;
-    color: #f2f6f8;
+    transition: background 0.2s;
   }
   .flatpickr-day:hover,
   .flatpickr-day.selected,
   .flatpickr-day.today {
-    background: #fcd168;
-    color: #193242;
+    background: #ffe176 !important;
+    color: #193242 !important;
     font-weight: 700;
-    box-shadow: 0 0 6px #ffe176;
+    box-shadow: 0 0 8px #ffe176c0;
   }
 
-  /* Custom select styles */
+  /* Custom select styles - anche select dinamici */
   select {
     appearance: none;
     -webkit-appearance: none;
@@ -295,15 +317,17 @@
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-  console.log("Imbriani Noleggio - Versione 1.1");
+  // Flatpickr su tutti gli input data, anche nei moduli dinamici
+  function aggiornaFlatpickr() {
+    flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
+      dateFormat: "Y-m-d",
+      altInput: true,
+      altFormat: "d/m/Y"
+    });
+  }
+  aggiornaFlatpickr();
 
-  flatpickr("#data_partenza, #data_arrivo", {
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d/m/Y",
-    theme: "material_blue",
-  });
-
+  // ---- LOGICA STEP/NAVIGAZIONE/PROGRESS BAR ----------------------
   const pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
     { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
@@ -451,6 +475,12 @@
       }
     }, 1000);
   }
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btnApriModulo').addEventListener('click', () => {
+      apriModuloPrecompilato();
+      setTimeout(() => { showStep('step5'); }, 500);
+    });
+  });
   function mostraModuliAutisti() {
     const container = document.getElementById('autisti_container');
     const num = parseInt(document.getElementById('num_autisti').value);
@@ -460,24 +490,19 @@
         <h3>Autista ${i}</h3>
         <label>Nome</label><input type="text" id="nome_${i}" required/>
         <label>Cognome</label><input type="text" id="cognome_${i}" required/>
-        <label>Data di nascita</label><input type="date" id="data_nascita_${i}" required/>
+        <label>Data di nascita</label><input type="text" id="data_nascita_${i}" required/>
         <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required/>
         <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required/>
         <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required/>
         <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required/>
         <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required/>
         <label>Numero patente</label><input type="text" id="numero_patente_${i}" required/>
-        <label>Data inizio validità patente</label><input type="date" id="inizio_validita_patente_${i}" required/>
-        <label>Data fine validità patente</label><input type="date" id="fine_validita_patente_${i}" required/>
+        <label>Data inizio validità patente</label><input type="text" id="inizio_validita_patente_${i}" required/>
+        <label>Data fine validità patente</label><input type="text" id="fine_validita_patente_${i}" required/>
       </div>`;
     }
+    aggiornaFlatpickr();
   }
-  window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('btnApriModulo').addEventListener('click', () => {
-      apriModuloPrecompilato();
-      setTimeout(() => { showStep('step5'); }, 500);
-    });
-  });
   function apriModuloPrecompilato() {
     const num = parseInt(document.getElementById('num_autisti').value);
     const dataRitiro = document.getElementById('data_partenza').value;
