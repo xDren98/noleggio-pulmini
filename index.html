@@ -123,7 +123,6 @@ h3 {
   #progressContainer {height:100px; min-height:78px; font-size:1em;}
   #progressBar {width:98%;}
 }
-/* --- Flatpickr coerente --- */
 .flatpickr-calendar,
 .flatpickr-months,
 .flatpickr-weekdays,
@@ -164,7 +163,6 @@ h3 {
   border: none !important;
   box-shadow: none !important;
 }
-/* --- Eliminazione rettangolo/sfondo mese --- */
 .flatpickr-months .flatpickr-month {
   background: none !important;
   box-shadow: none !important;
@@ -232,7 +230,6 @@ h3 {
   font-weight: bold !important;
   color: #ffe176 !important;
 }
-/* Choices.js (custom select) */
 .choices__inner {
   background: rgba(249,250,251,0.85);
   border-radius: 14px;
@@ -271,7 +268,6 @@ h3 {
   <p class="slogan">Dividi i costi moltiplica il divertimento</p>
 </header>
 <main>
-  <!-- STEP 1/2/3/4/5 markup -->
   <div id="step1" class="step active">
     <p><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</p>
     <label for="data_partenza"><span class="material-icons">calendar_month</span> Data di ritiro</label>
@@ -297,7 +293,8 @@ h3 {
     <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
     <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
   </div>
-  <div id="step2" class="step"><div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
+  <div id="step2" class="step">
+    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
     <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
     <select id="scelta_pulmino"></select>
     <button id="chiamaContinuaBtn" onclick="chiamaEContinua()" disabled><span class="material-icons">call</span> Chiama per continuare la prenotazione: 328 6589618</button>
@@ -357,24 +354,14 @@ h3 {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-console.log('Imbriani Noleggio - Versione 2.2');
+console.log('Imbriani Noleggio - Versione 2.3');
 function aggiornaFlatpickr() {
   flatpickr("input[type='text'][id*='data_'], #data_partenza, #data_arrivo", {
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d/m/Y",
-    monthSelectorType: 'static',
-    enableTime: false,
-    wrap: false,
-    onReady: function(selectedDates, dateStr, instance) {
-      const monthContainer = instance.calendarContainer.querySelector(".flatpickr-months");
-      if(monthContainer){
-        monthContainer.style.display = "flex";
-      }
-    }
+    dateFormat: "d/m/Y",
+    monthSelectorType: "dropdown",
+    enableTime: false
   });
 }
-
 aggiornaFlatpickr();
 let choicesInstances = [];
 function aggiornaChoices() {
@@ -607,4 +594,3 @@ function apriModuloPrecompilato() {
 </script>
 </body>
 </html>
-
