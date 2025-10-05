@@ -35,7 +35,93 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
   <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
 </header>
 <main>
-  <!-- Tutto come le versioni precedenti: step1, step2, step3, step4, step5 -->
+  <div id="step1" class="step active">
+    <label><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</label>
+    <label><span class="material-icons">calendar_month</span> Data di ritiro</label>
+    <div class="data-triple">
+      <select id="giorno_ritiro"></select>
+      <select id="mese_ritiro"></select>
+      <select id="anno_ritiro"></select>
+    </div>
+    <label><span class="material-icons">access_time</span> Ora di ritiro</label>
+    <select id="ora_partenza">
+      <option value="08:00">08:00</option>
+      <option value="12:00">12:00</option>
+      <option value="16:00">16:00</option>
+      <option value="20:00">20:00</option>
+    </select>
+    <label><span class="material-icons">calendar_month</span> Data di arrivo</label>
+    <div class="data-triple">
+      <select id="giorno_arrivo"></select>
+      <select id="mese_arrivo"></select>
+      <select id="anno_arrivo"></select>
+    </div>
+    <label><span class="material-icons">access_time</span> Ora di arrivo</label>
+    <select id="ora_arrivo">
+      <option value="08:00">08:00</option>
+      <option value="12:00">12:00</option>
+      <option value="16:00">16:00</option>
+      <option value="20:00">20:00</option>
+    </select>
+    <div class="actions">
+      <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+    </div>
+  </div>
+  <div id="step2" class="step">
+    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
+    <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
+    <select id="scelta_pulmino"></select>
+    <div class="actions">
+      <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
+      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+    </div>
+  </div>
+  <div id="step3" class="step">
+    <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
+    <select id="num_autisti" onchange="mostraModuliAutisti()">
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+    <div id="autisti_container"></div>
+    <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
+    <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
+    <div class="actions">
+      <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
+      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+    </div>
+  </div>
+  <div id="step4" class="step">
+    <div id="istruzioni_modulo">
+      <strong>Istruzioni per il completamento della prenotazione:</strong>
+      <ol>
+        <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
+        <li>Verifica attentamente che tutti i dati siano corretti.</li>
+        <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
+        <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
+      </ol>
+      <p id="avviso_leggimi">Leggi attentamente prima di procedere!</p>
+    </div>
+    <div class="actions">
+      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Controlla e invia i tuoi dati</button>
+      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+    </div>
+  </div>
+  <div id="step5" class="step">
+    <div id="thankyou" style="background: rgba(241, 245, 250, 0.93); padding: 36px 18px; border-radius: 18px; text-align: center; box-shadow: 0 0 28px #bddaff;">
+      <h2 style="color: #2690c9; margin-bottom: 18px;">Grazie per aver scelto Imbriani Noleggio!</h2>
+      <p style="font-size: 1.25em; color: #106391; font-weight: 600;">
+        Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!
+      </p>
+      <button type="button" onclick="goHome()" style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;">
+        <span class="material-icons">home</span>Torna all'inizio
+      </button>
+    </div>
+  </div>
 </main>
 <script>
 const pulmini = [
@@ -60,6 +146,127 @@ function getDataAutista(tipo, i) {
   const mm = document.getElementById('mese_' + tipo + '_' + i).value;
   const aa = document.getElementById('anno_' + tipo + '_' + i).value;
   return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
+}
+function showStep(stepId) {
+  document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+  document.getElementById(stepId).classList.add('active');
+}
+function goBack() {
+  if (document.getElementById('step5').classList.contains('active')) showStep('step4');
+  else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
+  else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
+  else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
+}
+function goHome() {
+  showStep('step1');
+  document.getElementById('giorno_ritiro').value = '';
+  document.getElementById('mese_ritiro').value = '';
+  document.getElementById('anno_ritiro').value = '';
+  document.getElementById('giorno_arrivo').value = '';
+  document.getElementById('mese_arrivo').value = '';
+  document.getElementById('anno_arrivo').value = '';
+  document.getElementById('ora_partenza').value = '08:00';
+  document.getElementById('ora_arrivo').value = '08:00';
+  document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
+  document.getElementById('num_autisti').value = '1';
+  document.getElementById('cellulare').value = '';
+  document.getElementById('autisti_container').innerHTML = '';
+}
+function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
+  const selG = document.getElementById(giornoId);
+  const selM = document.getElementById(meseId);
+  const selA = document.getElementById(annoId);
+  selG.innerHTML = '<option value="">GG</option>';
+  for (let i = 1; i<=31; i++) selG.innerHTML += `<option value="${i.toString().padStart(2,'0')}">${i}</option>`;
+  selM.innerHTML = '<option value="">MM</option>';
+  for (let i=1; i<=12; i++) selM.innerHTML += `<option value="${i.toString().padStart(2,'0')}">${i}</option>`;
+  selA.innerHTML = '<option value="">AAAA</option>';
+  for (let i = annoEnd; i>=annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
+}
+function controllaDisponibilita() {
+  const dataRitiroStr = getData('ritiro');
+  const oraRitiro = document.getElementById('ora_partenza').value;
+  const dataArrivoStr = getData('arrivo');
+  const oraArrivo = document.getElementById('ora_arrivo').value;
+  if (!dataRitiroStr || !oraRitiro || !dataArrivoStr || !oraArrivo) {
+    alert('Inserisci data e ora validi.');
+    return;
+  }
+  const dateRitiro = new Date(`${dataRitiroStr.split('/')[2]}-${dataRitiroStr.split('/')[1]}-${dataRitiroStr.split('/')[0]}T${oraRitiro}`);
+  const dateArrivo = new Date(`${dataArrivoStr.split('/')[2]}-${dataArrivoStr.split('/')[1]}-${dataArrivoStr.split('/')[0]}T${oraArrivo}`);
+  if (dateRitiro >= dateArrivo) {
+    alert("La data/ora di arrivo deve essere successiva a quella di ritiro.");
+    return;
+  }
+  var arrayPrenotazioni = [
+    { targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
+    { targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
+    { targa: 'EC787NM', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' }
+  ];
+  var disponibili = pulmini.filter(pulmino => {
+    return !arrayPrenotazioni.some(pren => {
+      if (pren.targa !== pulmino.targa) return false;
+      var inizioPren = new Date(pren.inizio);
+      var finePren = new Date(pren.fine);
+      return inizioPren < dateArrivo && finePren > dateRitiro;
+    });
+  });
+  const select = document.getElementById('scelta_pulmino');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+  document.getElementById('num_disponibili').textContent = disponibili.length;
+  if (disponibili.length === 0) {
+    alert('Nessun pulmino disponibile per la fascia selezionata!');
+    return;
+  }
+  showStep('step2');
+  document.getElementById('chiamaContinuaBtn').disabled = true;
+  select.addEventListener('change', function () {
+    document.getElementById('chiamaContinuaBtn').disabled = !this.value;
+  });
+}
+function vaiStep3() { showStep('step3'); }
+function vaiStep4() { showStep('step4'); }
+function mostraModuliAutisti() {
+  const container = document.getElementById('autisti_container');
+  const num = parseInt(document.getElementById('num_autisti').value);
+  container.innerHTML = '';
+  for (let i = 1; i <= num; i++) {
+    container.innerHTML += `<div class="autista">
+      <h3>Autista ${i}</h3>
+      <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
+      <label>Data di nascita</label>
+        <div class="data-triple">
+          <select id="giorno_nascita_${i}"></select>
+          <select id="mese_nascita_${i}"></select>
+          <select id="anno_nascita_${i}"></select>
+        </div>
+      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required />
+      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required />
+      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required />
+      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required />
+      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required />
+      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required />
+      <label>Data inizio validità patente</label>
+        <div class="data-triple">
+          <select id="giorno_inizio_validita_patente_${i}"></select>
+          <select id="mese_inizio_validita_patente_${i}"></select>
+          <select id="anno_inizio_validita_patente_${i}"></select>
+        </div>
+      <label>Data fine validità patente</label>
+        <div class="data-triple">
+          <select id="giorno_fine_validita_patente_${i}"></select>
+          <select id="mese_fine_validita_patente_${i}"></select>
+          <select id="anno_fine_validita_patente_${i}"></select>
+        </div>
+    </div>`;
+  }
+  const annoCorrente = new Date().getFullYear();
+  for (let i = 1; i <= num; i++) {
+    popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
+    popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente-50, annoCorrente+10);
+    popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente+15);
+  }
 }
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
@@ -104,8 +311,17 @@ function apriModuloPrecompilato() {
   window.open(urlModulo, '_blank');
 }
 
-// Tutte le altre funzioni come step wizard, mostraModuliAutisti, popolaTendineData rimangono uguali
-
+document.addEventListener('DOMContentLoaded', function(){
+  const annoCorrente = new Date().getFullYear();
+  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
+  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente+6);
+  mostraModuliAutisti();
+  document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
+  document.getElementById('btnApriModulo').addEventListener('click', function() {
+    apriModuloPrecompilato();
+    showStep('step5');
+  });
+});
 </script>
 </body>
 </html>
