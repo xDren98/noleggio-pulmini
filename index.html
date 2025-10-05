@@ -87,15 +87,11 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
     </div>
   </div>
   <div id="step2" class="step">
-    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">3</span></div>
+    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
     <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
-    <select id="scelta_pulmino">
-      <option value="ducato_lungo">Fiat Ducato (Passo lungo)</option>
-      <option value="ducato_corto">Fiat Ducato (Passo corto)</option>
-      <option value="peugeot">Peugeot Expert Tepee</option>
-    </select>
+    <select id="scelta_pulmino"></select>
     <div class="actions">
-      <button id="chiamaContinuaBtn" onclick="vaiStep3()"><span class="material-icons">arrow_forward</span> Continua</button>
+      <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
       <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
       <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
     </div>
@@ -146,9 +142,9 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
   </div>
 </main>
 <script>
-console.log("Versione 3.2 - completo tendine + wizard + invio");
+console.log("Versione 3.3 - logica disponibilità");
 
-// Wizard step utilities
+// Wizard step utilities (showStep, goBack, goHome come prima)
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
   document.getElementById(stepId).classList.add('active');
@@ -169,7 +165,7 @@ function goHome() {
   document.getElementById('anno_arrivo').value = '';
   document.getElementById('ora_partenza').value = '08:00';
   document.getElementById('ora_arrivo').value = '08:00';
-  document.getElementById('scelta_pulmino').value = '';
+  document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
   document.getElementById('num_autisti').value = '1';
   document.getElementById('cellulare').value = '';
   document.getElementById('autisti_container').innerHTML = '';
@@ -201,30 +197,71 @@ function getDataAutista(tipo, i) {
   const aa = document.getElementById('anno_' + tipo + '_' + i).value;
   return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
 }
+function parseItalianDate(str) {
+  // str formato gg/mm/aaaa
+  var arr = str.split('/');
+  if (arr.length!==3) return null;
+  return new Date(arr[2], parseInt(arr[1])-1, arr[0]);
+}
 
-// Step logic
-document.addEventListener('DOMContentLoaded', function() {
-  const annoCorrente = new Date().getFullYear();
-  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
-  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente+6);
-  mostraModuliAutisti();
-  document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
-  document.getElementById('btnApriModulo').addEventListener('click', function() {
-    apriModuloPrecompilato();
-    showStep('step5');
-  });
-});
-
+// Logica disponibilità con blocco pulmini se sovrapposti (simulata)
+// Puoi integrare qui fetch reale Google Sheet per riempire arrayPrenotazioni
 function controllaDisponibilita() {
-  const dataRitiro = getData('ritiro');
+  const dataRitiroStr = getData('ritiro');
   const oraRitiro = document.getElementById('ora_partenza').value;
-  const dataArrivo = getData('arrivo');
+  const dataArrivoStr = getData('arrivo');
   const oraArrivo = document.getElementById('ora_arrivo').value;
-  if (!dataRitiro || !oraRitiro || !dataArrivo || !oraArrivo) {
+  if (!dataRitiroStr || !oraRitiro || !dataArrivoStr || !oraArrivo) {
     alert('Inserisci data e ora validi.');
     return;
   }
+  // Componi date JS
+  const dateRitiro = parseItalianDate(dataRitiroStr + '');
+  const dateArrivo = parseItalianDate(dataArrivoStr + '');
+  dateRitiro.setHours(Number(oraRitiro.split(":")[0]), Number(oraRitiro.split(":")[1]), 0, 0);
+  dateArrivo.setHours(Number(oraArrivo.split(":")[0]), Number(oraArrivo.split(":")[1]), 0, 0);
+  if (dateRitiro >= dateArrivo) {
+    alert("La data/ora di arrivo deve essere successiva a quella di ritiro.");
+    return;
+  }
+
+  // Array di PRENOTAZIONI FINTI da Google Sheet, es:
+  // targa, inizioData (ISO), fineData (ISO)
+  var arrayPrenotazioni = [
+    { targa: 'EC787NM', inizio: '2025-10-06T08:00:00', fine: '2025-10-10T20:00:00' },
+    { targa: 'DL291XZ', inizio: '2025-10-08T12:00:00', fine: '2025-10-09T20:00:00' }
+  ];
+  var pulmini = [
+    { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
+    { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
+    { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
+  ];
+
+  // Calcolo disponibilità
+  var disponibili = pulmini.filter(pulmino => {
+    return !arrayPrenotazioni.some(pren => {
+      if (pren.targa !== pulmino.targa) return false;
+      var inizioPren = new Date(pren.inizio);
+      var finePren = new Date(pren.fine);
+      // Sovrapposizione
+      return inizioPren < dateArrivo && finePren > dateRitiro;
+    });
+  });
+
+  // Aggiorna select pulmini
+  const select = document.getElementById('scelta_pulmino');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+  document.getElementById('num_disponibili').textContent = disponibili.length;
+  if (disponibili.length === 0) {
+    alert('Nessun pulmino disponibile per la fascia selezionata!');
+    return;
+  }
   showStep('step2');
+  document.getElementById('chiamaContinuaBtn').disabled = true;
+  select.addEventListener('change', function () {
+    document.getElementById('chiamaContinuaBtn').disabled = !this.value;
+  });
 }
 
 function vaiStep3() { showStep('step3'); }
@@ -272,7 +309,7 @@ function mostraModuliAutisti() {
   }
 }
 
-// INVIO A GOOGLE FORMS
+// INVIO A GOOGLE FORMS (come sempre, personalizza ID per il tuo modulo)
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
   const dataRitiro = getData('ritiro');
@@ -281,21 +318,18 @@ function apriModuloPrecompilato() {
   const oraArrivo = document.getElementById('ora_arrivo').value;
   const pulminoId = document.getElementById('scelta_pulmino').value;
   const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
-  // Puoi personalizzare qui la composizione dei dati
   let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url" +
     `&entry.257199041=${encodeURIComponent(oraRitiro)}` +
     `&entry.917923685=${encodeURIComponent(oraArrivo)}` +
     `&entry.1499256988=${encodeURIComponent(dataRitiro)}` +
     `&entry.517585546=${encodeURIComponent(dataArrivo)}` +
     `&entry.1888774437=${cellulare}`;
-
   // Aggiorna questi ID con quelli del tuo Google Forms se necessario!
   const entryFields = [
     { nome: '550823113', data_nascita: '766463607', luogo_nascita: '1735522613', cf: '36844075', comune_residenza: '913323396', via_residenza: '1329485765', civico_residenza: '1349864501', numero_patente: '1885490374', inizio_patente: '525872521', fine_patente: '1864189410' },
     { nome: '1236551634', data_nascita: '503259772', luogo_nascita: '1977818551', cf: '1883324084', comune_residenza: '2118103863', via_residenza: '805763990', civico_residenza: '568892376', numero_patente: '124831667', inizio_patente: '657885946', fine_patente: '850104184' },
     { nome: '3164128', data_nascita: '1896520037', luogo_nascita: '1923148193', cf: '2061435678', comune_residenza: '767994785', via_residenza: '1335171224', civico_residenza: '1926018707', numero_patente: '1750806014', inizio_patente: '1084842503', fine_patente: '965705170' }
   ];
-
   for (let i = 0; i < num; i++) {
     urlModulo += `&entry.${entryFields[i].nome}=${encodeURIComponent(document.getElementById('nome_cognome_' + (i + 1)).value)}` +
       `&entry.${entryFields[i].data_nascita}=${encodeURIComponent(getDataAutista('nascita', i+1))}` +
@@ -308,9 +342,19 @@ function apriModuloPrecompilato() {
       `&entry.${entryFields[i].inizio_patente}=${encodeURIComponent(getDataAutista('inizio_patente', i+1))}` +
       `&entry.${entryFields[i].fine_patente}=${encodeURIComponent(getDataAutista('fine_patente', i+1))}`;
   }
-
   window.open(urlModulo, '_blank');
 }
+document.addEventListener('DOMContentLoaded', function(){
+  const annoCorrente = new Date().getFullYear();
+  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
+  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente+6);
+  mostraModuliAutisti();
+  document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
+  document.getElementById('btnApriModulo').addEventListener('click', function() {
+    apriModuloPrecompilato();
+    showStep('step5');
+  });
+});
 </script>
 </body>
 </html>
