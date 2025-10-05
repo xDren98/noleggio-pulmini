@@ -363,30 +363,36 @@ function showPrenotazioni(data) {
   prenotazioniList.innerHTML = html;
 }
 function logIn(cf, dn) {
+  // Conversione da "YYYY-MM-DD" a "DD/MM/YYYY"
+  if (dn && dn.indexOf('-') !== -1) {
+    const parts = dn.split('-');
+    if(parts.length === 3) dn = `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
   fetch('https://script.google.com/macros/s/AKfycbypJPSNrXaQUY6m9FvO5_yv32L5uf5lWKzDcovPmoBTjomjLEftRhKR4IBsBuFLBlc/exec', {
     method: 'POST',
     mode: 'cors',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({cf: cf, dn: dn})
-  }).then(res => res.json())
-    .then(data => {
-      if(!data || data.length === 0) {
-        loginResult.innerHTML = 'Credenziali errate o nessuna prenotazione trovata.';
-        localStorage.removeItem('loginCF');
-        localStorage.removeItem('loginDN');
-        return;
-      }
-      loginResult.innerHTML = '';
-      localStorage.setItem('loginCF', cf);
-      localStorage.setItem('loginDN', dn);
-      loginContainer.style.display = 'none';
-      loginBtn.style.display = 'none';
-      logoutBtn.style.display = 'inline-block';
-      showPrenotazioni(data);
-    }).catch(err => {
-      loginResult.innerHTML = 'Errore comunicazione login.';
-      console.error(err);
-    });
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(!data || data.length === 0) {
+      loginResult.innerHTML = 'Credenziali errate o nessuna prenotazione trovata.';
+      localStorage.removeItem('loginCF');
+      localStorage.removeItem('loginDN');
+      return;
+    }
+    loginResult.innerHTML = '';
+    localStorage.setItem('loginCF', cf);
+    localStorage.setItem('loginDN', dn);
+    loginContainer.style.display = 'none';
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+    showPrenotazioni(data);
+  }).catch(err => {
+    loginResult.innerHTML = 'Errore comunicazione login.';
+    console.error(err);
+  });
 }
 function logOut() {
   localStorage.removeItem('loginCF');
@@ -614,3 +620,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
