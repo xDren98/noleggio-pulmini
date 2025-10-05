@@ -67,8 +67,6 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
       <option value="12:00">12:00</option>
       <option value="16:00">16:00</option>
       <option value="20:00">20:00</option>
-      <option value="18:00">18:00</option>
-      <option value="10:00">10:00</option>
     </select>
     <label><span class="material-icons">calendar_month</span> Data di arrivo</label>
     <div class="data-triple">
@@ -82,8 +80,6 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
       <option value="12:00">12:00</option>
       <option value="16:00">16:00</option>
       <option value="20:00">20:00</option>
-      <option value="18:00">18:00</option>
-      <option value="10:00">10:00</option>
     </select>
     <div class="actions">
       <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
@@ -146,7 +142,7 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
   </div>
 </main>
 <script>
-console.log("Versione 3.5 - logica reale prenotazioni demo");
+console.log("Versione 3.6 - date modulo e orari solo 08-20");
 
 // Wizard base
 function showStep(stepId) {
@@ -199,7 +195,6 @@ function getDataAutista(tipo, i) {
   return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
 }
 function parseItalianDate(str) {
-  // str formato gg/mm/aaaa
   var arr = str.split('/');
   if (arr.length!==3) return null;
   return new Date(arr[2], parseInt(arr[1])-1, arr[0]);
@@ -214,7 +209,6 @@ function controllaDisponibilita() {
     alert('Inserisci data e ora validi.');
     return;
   }
-  // Componi date JS
   const dateRitiro = parseItalianDate(dataRitiroStr + '');
   const dateArrivo = parseItalianDate(dataArrivoStr + '');
   dateRitiro.setHours(Number(oraRitiro.split(":")[0]), Number(oraRitiro.split(":")[1]), 0, 0);
@@ -223,8 +217,6 @@ function controllaDisponibilita() {
     alert("La data/ora di arrivo deve essere successiva a quella di ritiro.");
     return;
   }
-
-  // Array REALISTICO prenotazioni esempio
   var arrayPrenotazioni = [
     { targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
     { targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
@@ -235,19 +227,14 @@ function controllaDisponibilita() {
     { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
     { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
   ];
-
-  // Calcolo disponibilità
   var disponibili = pulmini.filter(pulmino => {
     return !arrayPrenotazioni.some(pren => {
       if (pren.targa !== pulmino.targa) return false;
       var inizioPren = new Date(pren.inizio);
       var finePren = new Date(pren.fine);
-      // Sovrapposizione
       return inizioPren < dateArrivo && finePren > dateRitiro;
     });
   });
-
-  // Popola la select SOLO con i pulmini disponibili
   const select = document.getElementById('scelta_pulmino');
   if (!select) return;
   select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
@@ -308,7 +295,7 @@ function mostraModuliAutisti() {
   }
 }
 
-// INVIO A GOOGLE FORMS
+// INVIO A GOOGLE FORMS demo: tutte le date e orari, aggiorna entry.xxx con i tuoi field!
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
   const dataRitiro = getData('ritiro');
@@ -318,17 +305,19 @@ function apriModuloPrecompilato() {
   const pulminoId = document.getElementById('scelta_pulmino').value;
   const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
   let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url" +
-    `&entry.257199041=${encodeURIComponent(oraRitiro)}` +
-    `&entry.917923685=${encodeURIComponent(oraArrivo)}` +
-    `&entry.1499256988=${encodeURIComponent(dataRitiro)}` +
-    `&entry.517585546=${encodeURIComponent(dataArrivo)}` +
-    `&entry.1888774437=${cellulare}`;
-  // Aggiorna questi ID con quelli del tuo Google Forms se necessario!
+    `&entry.1499256988=${encodeURIComponent(dataRitiro)}` + // Data ritiro
+    `&entry.257199041=${encodeURIComponent(oraRitiro)}` +   // Ora ritiro
+    `&entry.517585546=${encodeURIComponent(dataArrivo)}` +  // Data arrivo
+    `&entry.917923685=${encodeURIComponent(oraArrivo)}` +   // Ora arrivo
+    `&entry.1888774437=${cellulare}` +
+    `&entry.1578287722=${encodeURIComponent(pulminoId)}`; // ID pulmino per esempio
+
   const entryFields = [
     { nome: '550823113', data_nascita: '766463607', luogo_nascita: '1735522613', cf: '36844075', comune_residenza: '913323396', via_residenza: '1329485765', civico_residenza: '1349864501', numero_patente: '1885490374', inizio_patente: '525872521', fine_patente: '1864189410' },
     { nome: '1236551634', data_nascita: '503259772', luogo_nascita: '1977818551', cf: '1883324084', comune_residenza: '2118103863', via_residenza: '805763990', civico_residenza: '568892376', numero_patente: '124831667', inizio_patente: '657885946', fine_patente: '850104184' },
     { nome: '3164128', data_nascita: '1896520037', luogo_nascita: '1923148193', cf: '2061435678', comune_residenza: '767994785', via_residenza: '1335171224', civico_residenza: '1926018707', numero_patente: '1750806014', inizio_patente: '1084842503', fine_patente: '965705170' }
   ];
+
   for (let i = 0; i < num; i++) {
     urlModulo += `&entry.${entryFields[i].nome}=${encodeURIComponent(document.getElementById('nome_cognome_' + (i + 1)).value)}` +
       `&entry.${entryFields[i].data_nascita}=${encodeURIComponent(getDataAutista('nascita', i+1))}` +
@@ -343,6 +332,7 @@ function apriModuloPrecompilato() {
   }
   window.open(urlModulo, '_blank');
 }
+
 document.addEventListener('DOMContentLoaded', function(){
   const annoCorrente = new Date().getFullYear();
   popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
