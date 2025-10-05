@@ -81,37 +81,38 @@ select:focus, input:focus {
   border-color: #37b24d;
   background-color: #fff;
 }
-/* Nuova disposizione per data+ora */
-.data-row {
-  display: flex;
-  flex-direction: row;
-  gap: 28px;
-  align-items: flex-end;
-  margin-bottom: 8px;
-}
-.data-group {
+
+/* NUOVA GRIGLIA PER DATA/ORA */
+.booking-grid {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.booking-row {
+  display: flex;
+  gap: 36px;
+}
+.booking-row > div {
   flex: none;
-  min-width: 170px;
 }
-.data-group.short {
-  min-width: 110px;
-}
-.data-inline {
+.date-inline {
   display: flex;
   gap: 6px;
-  align-items: center;
 }
-.data-inline select {
-  flex: 0 0 auto;
-  min-width: 60px;
-  height: 43px;
-  padding: 7px 10px;
-  box-sizing: border-box;
+.date-inline select {
+  min-width: 58px;
+  max-width: 90px;
+  width: auto;
+  padding: 7px 5px;
 }
-/* Fine nuova disposizione */
+@media (max-width: 700px) {
+  .booking-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -191,8 +192,6 @@ h3 {
 }
 @media (max-width: 640px) {
   #mainbox, header { max-width: 100vw; padding-left: 2vw; padding-right: 2vw; }
-  .data-inline select {min-width: 34px;}
-  .data-row { flex-direction: column; gap: 10px; }
 }
 </style>
 </head>
@@ -204,40 +203,44 @@ h3 {
 <div id="mainbox">
   <div id="step1" class="step active">
     <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
-    <div class="data-row">
-      <div class="data-group">
-        <label><span class="material-icons">calendar_month</span> Data ritiro</label>
-        <div class="data-inline">
-          <select id="giorno_ritiro"></select>
-          <select id="mese_ritiro"></select>
-          <select id="anno_ritiro"></select>
+    <div class="booking-grid">
+      <div class="booking-row">
+        <div>
+          <label><span class="material-icons">calendar_month</span> Data ritiro</label>
+          <div class="date-inline">
+            <select id="giorno_ritiro"></select>
+            <select id="mese_ritiro"></select>
+            <select id="anno_ritiro"></select>
+          </div>
+        </div>
+        <div>
+          <label><span class="material-icons">access_time</span> Ora ritiro</label>
+          <select id="ora_partenza">
+            <option value="08:00">08:00</option>
+            <option value="12:00">12:00</option>
+            <option value="16:00">16:00</option>
+            <option value="20:00">20:00</option>
+          </select>
         </div>
       </div>
-      <div class="data-group short">
-        <label><span class="material-icons">access_time</span> Ora ritiro</label>
-        <select id="ora_partenza">
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
-      </div>
-      <div class="data-group">
-        <label><span class="material-icons">calendar_month</span> Data arrivo</label>
-        <div class="data-inline">
-          <select id="giorno_arrivo"></select>
-          <select id="mese_arrivo"></select>
-          <select id="anno_arrivo"></select>
+      <div class="booking-row">
+        <div>
+          <label><span class="material-icons">calendar_month</span> Data arrivo</label>
+          <div class="date-inline">
+            <select id="giorno_arrivo"></select>
+            <select id="mese_arrivo"></select>
+            <select id="anno_arrivo"></select>
+          </div>
         </div>
-      </div>
-      <div class="data-group short">
-        <label><span class="material-icons">access_time</span> Ora arrivo</label>
-        <select id="ora_arrivo">
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
+        <div>
+          <label><span class="material-icons">access_time</span> Ora arrivo</label>
+          <select id="ora_arrivo">
+            <option value="08:00">08:00</option>
+            <option value="12:00">12:00</option>
+            <option value="16:00">16:00</option>
+            <option value="20:00">20:00</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -423,7 +426,7 @@ function mostraModuliAutisti() {
       <h3>Autista ${i}</h3>
       <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
       <label>Data di nascita</label>
-        <div class="data-inline">
+        <div class="date-inline">
           <select id="giorno_nascita_${i}"></select>
           <select id="mese_nascita_${i}"></select>
           <select id="anno_nascita_${i}"></select>
@@ -435,13 +438,13 @@ function mostraModuliAutisti() {
       <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required />
       <label>Numero patente</label><input type="text" id="numero_patente_${i}" required />
       <label>Data inizio validità patente</label>
-        <div class="data-inline">
+        <div class="date-inline">
           <select id="giorno_inizio_validita_patente_${i}"></select>
           <select id="mese_inizio_validita_patente_${i}"></select>
           <select id="anno_inizio_validita_patente_${i}"></select>
         </div>
       <label>Data fine validità patente</label>
-        <div class="data-inline">
+        <div class="date-inline">
           <select id="giorno_fine_validita_patente_${i}"></select>
           <select id="mese_fine_validita_patente_${i}"></select>
           <select id="anno_fine_validita_patente_${i}"></select>
