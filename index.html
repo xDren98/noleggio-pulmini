@@ -43,82 +43,6 @@ header p {
   color: #516551;
   margin: 0 0 10px 0;
 }
-.step {
-  display: none;
-  flex-direction: column;
-  gap: 14px;
-}
-.step.active {
-  display: flex;
-}
-label {
-  font-weight: 600;
-  font-size: 1.02em;
-  color: #2c5d2a;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.material-icons {
-  font-size: 20px;
-  color: #37b24d;
-}
-select, input[type=tel], input[type=text] {
-  width: 100%;
-  min-height: 43px;
-  padding: 7px 10px;
-  font-size: 1em;
-  border-radius: 10px;
-  border: 1.4px solid #72b972;
-  box-sizing: border-box;
-  color: #2c5d2a;
-  background-color: #f9fff7;
-  font-family: 'Poppins', sans-serif;
-}
-select:focus, input:focus {
-  outline: none;
-  border-color: #37b24d;
-  background-color: #fff;
-}
-
-/* NUOVA GRIGLIA PER DATA/ORA */
-.booking-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-.booking-row {
-  display: flex;
-  gap: 36px;
-}
-.booking-row > div {
-  flex: none;
-}
-.date-inline {
-  display: flex;
-  gap: 6px;
-}
-.date-inline select {
-  min-width: 58px;
-  max-width: 90px;
-  width: auto;
-  padding: 7px 5px;
-}
-@media (max-width: 700px) {
-  .booking-row {
-    flex-direction: column;
-    gap: 5px;
-  }
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 6px;
-}
 button {
   background-color: #37c559;
   color: #fff;
@@ -150,10 +74,63 @@ button:disabled {
   transform: none;
   color: #5c995c;
 }
-#disponibili_box {
-  font-weight: 700;
-  font-size: 1.1em;
-  color: #2e7f2e;
+#loginContainer {
+  display: none;
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #37b24d;
+  border-radius: 10px;
+  background: #eafbe9;
+}
+#loginResult {
+  margin-top: 14px;
+  font-weight: 600;
+  color: #2c5d2a;
+}
+#logoutBtn {
+  margin-top: 10px;
+}
+#prenotazioniList ul {
+  padding-left: 20px;
+  margin-top: 10px;
+}
+#prenotazioniList li {
+  margin-bottom: 8px;
+}
+.booking-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.booking-row {
+  display: flex;
+  gap: 36px;
+}
+.booking-row > div {
+  flex: none;
+}
+.date-inline {
+  display: flex;
+  gap: 6px;
+}
+.date-inline select {
+  min-width: 58px;
+  max-width: 90px;
+  width: auto;
+  padding: 7px 5px;
+}
+@media (max-width: 700px) {
+  .booking-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
 }
 .autista {
   background-color: #eafbe9;
@@ -190,17 +167,30 @@ h3 {
   font-weight: 600;
   font-size: 1.13em;
 }
-@media (max-width: 640px) {
-  #mainbox, header { max-width: 100vw; padding-left: 2vw; padding-right: 2vw; }
-}
 </style>
 </head>
 <body>
 <header>
   <h1>Imbriani Noleggio</h1>
   <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
+  <button id="loginBtn">Login Cliente</button>
+  <button id="logoutBtn" style="display:none;">Logout</button>
 </header>
+
+<div id="loginContainer">
+  <form id="loginForm">
+    <label>Codice Fiscale:<br><input type="text" id="cf" required></label><br>
+    <label>Data di Nascita:<br><input type="date" id="dn" required></label><br>
+    <button type="submit">Accedi</button>
+    <button type="button" id="closeLogin">Chiudi</button>
+  </form>
+  <div id="loginResult"></div>
+</div>
+
+<div id="prenotazioniList"></div>
+
 <div id="mainbox">
+  <!-- Contenuto originario con step ... -->
   <div id="step1" class="step active">
     <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
     <div class="booking-grid">
@@ -511,6 +501,122 @@ document.addEventListener('DOMContentLoaded', () => {
     apriModuloPrecompilato();
     showStep('step5');
   });
+});
+
+// Parte aggiuntiva login con stato utente
+const loginBtn = document.createElement('button');
+loginBtn.textContent = "Login Cliente";
+loginBtn.style.margin = "16px";
+loginBtn.style.fontWeight = "700";
+document.body.insertBefore(loginBtn, document.getElementById('mainbox'));
+
+const logoutBtn = document.createElement('button');
+logoutBtn.textContent = "Logout";
+logoutBtn.style.margin = "16px";
+logoutBtn.style.fontWeight = "700";
+logoutBtn.style.display = "none";
+document.body.insertBefore(logoutBtn, document.getElementById('mainbox'));
+
+const loginContainer = document.createElement('div');
+loginContainer.style.display = 'none';
+loginContainer.style.margin = '18px 0';
+loginContainer.style.padding = '16px';
+loginContainer.style.border = '1px solid #37b24d';
+loginContainer.style.borderRadius = '10px';
+loginContainer.style.backgroundColor = '#eafbe9';
+document.body.insertBefore(loginContainer, document.getElementById('mainbox'));
+
+loginContainer.innerHTML = `
+<form id="loginForm">
+  <label>Codice Fiscale:<br><input type="text" id="cf" required></label><br>
+  <label>Data di Nascita:<br><input type="date" id="dn" required></label><br>
+  <button type="submit">Accedi</button>
+  <button type="button" id="closeLogin">Chiudi</button>
+</form>
+<div id="loginResult" style="margin-top:14px; font-weight:600; color:#2c5d2a;"></div>
+`;
+
+const prenotazioniList = document.createElement('div');
+document.body.insertBefore(prenotazioniList, document.getElementById('mainbox'));
+
+// Funzioni login persistente qui (puoi leggerle dal mio messaggio precedente ed integrarle)
+
+loginBtn.addEventListener('click', () => {
+  loginContainer.style.display = 'block';
+  loginResult.innerHTML = '';
+});
+document.getElementById('closeLogin').addEventListener('click', () => {
+  loginContainer.style.display = 'none';
+  loginResult.innerHTML = '';
+  document.getElementById('loginForm').reset();
+});
+logoutBtn.addEventListener('click', () => {
+  localStorage.removeItem('loginCF');
+  localStorage.removeItem('loginDN');
+  prenotazioniList.innerHTML = '';
+  loginBtn.style.display = 'inline-block';
+  logoutBtn.style.display = 'none';
+  loginContainer.style.display = 'none';
+});
+document.getElementById('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const cf = document.getElementById('cf').value.trim().toUpperCase();
+  const dn = document.getElementById('dn').value;
+  fetch('https://script.google.com/macros/s/AKfycbypJPSNrXaQUY6m9FvO5_yv32L5uf5lWKzDcovPmoBTjomjLEftRhKR4IBsBuFLBlc/exec', {
+    method: 'POST',
+    mode: 'cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({cf: cf, dn: dn})
+  }).then(response => response.json())
+    .then(data => {
+      if(!data || data.length === 0){
+        document.getElementById('loginResult').innerHTML = 'Credenziali errate o nessuna prenotazione trovata.';
+        localStorage.removeItem('loginCF');
+        localStorage.removeItem('loginDN');
+        return;
+      }
+      document.getElementById('loginResult').innerHTML = '';
+      localStorage.setItem('loginCF', cf);
+      localStorage.setItem('loginDN', dn);
+      loginContainer.style.display = 'none';
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+      let html = '<h3>Le tue prenotazioni:</h3><ul>';
+      data.forEach(p => {
+        html += `<li>Dal <strong>${p.dataRitiro}</strong> al <strong>${p.dataFine}</strong> - Pulmino: <strong>${p.targa}</strong> - Stato: ${p.stato}</li>`;
+      });
+      html += '</ul>';
+      prenotazioniList.innerHTML = html;
+    })
+    .catch(err => {
+      document.getElementById('loginResult').innerHTML = 'Errore comunicazione login.';
+      console.error(err);
+    });
+});
+// Mostra prenotazioni già loggato
+window.addEventListener('DOMContentLoaded', () => {
+  const savedCf = localStorage.getItem('loginCF');
+  const savedDn = localStorage.getItem('loginDN');
+  if(savedCf && savedDn) {
+    fetch('https://script.google.com/macros/s/AKfycbypJPSNrXaQUY6m9FvO5_yv32L5uf5lWKzDcovPmoBTjomjLEftRhKR4IBsBuFLBlc/exec', {
+      method: 'POST',
+      mode: 'cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({cf: savedCf, dn: savedDn})
+    }).then(response => response.json())
+      .then(data => {
+        if(data && data.length>0) {
+          loginBtn.style.display = 'none';
+          logoutBtn.style.display = 'inline-block';
+          let html = '<h3>Le tue prenotazioni:</h3><ul>';
+          data.forEach(p => {
+            html += `<li>Dal <strong>${p.dataRitiro}</strong> al <strong>${p.dataFine}</strong> - Pulmino: <strong>${p.targa}</strong> - Stato: ${p.stato}</li>`;
+          });
+          html += '</ul>';
+          prenotazioniList.innerHTML = html;
+        }
+      });
+  }
 });
 </script>
 </body>
