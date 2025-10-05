@@ -7,29 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 <style>
-body {
-  font-family:'Poppins',sans-serif;
-  max-width:980px;
-  margin:0 auto 60px auto;
+body { font-family: 'Poppins',sans-serif; max-width:980px; margin:0 auto 60px auto;
   background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed;
-  background-size:cover; color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;
-}
-.data-triple {
-  display: flex;
-  gap: 7px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-.data-triple select {
-  flex: 1 1 0;
-  font-size: 1em;
-  border-radius: 9px;
-  border: 1.2px solid #c5dae5;
-  background: #fff;
-  color: #123035;
-  padding: 9px;
-  margin:0;
-}
+  background-size:cover; color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;}
+.data-triple { display:flex; gap:7px; width:100%; margin-bottom:12px;}
+.data-triple select {flex:1 1 0; font-size:1em; border-radius:9px; border:1.2px solid #c5dae5;background:#fff;color:#123035; padding:9px; margin:0;}
 label {display:flex;align-items:center;font-weight:700;gap:10px;font-size:1em;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.85);margin-bottom: 8px;}
 .material-icons {font-size:22px;color:#fcd168;text-shadow:0 2px 8px #1a2549;}
 input, button, select {padding:12px;width:100%;box-sizing:border-box;border:1.5px solid #c5dae5;border-radius:14px;font-size:1.13em;transition:border-color 0.35s,box-shadow 0.35s;background:rgba(249,250,251,0.95);color:#184154;font-family: 'Poppins', sans-serif;}
@@ -142,19 +124,21 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
   </div>
 </main>
 <script>
-console.log("Versione 3.6 - date modulo e orari solo 08-20");
+console.log("Versione 3.7 - modulo completo con date+targa");
 
-// Wizard base
-function showStep(stepId) {
-  document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-  document.getElementById(stepId).classList.add('active');
-}
-function goBack() {
-  if (document.getElementById('step5').classList.contains('active')) showStep('step4');
-  else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
-  else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
-  else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
-}
+// Pulmini dati statici
+const pulmini = [
+  { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
+  { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
+  { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
+];
+
+// VARIE LOGICHE
+function showStep(stepId) { document.querySelectorAll('.step').forEach(step => step.classList.remove('active')); document.getElementById(stepId).classList.add('active'); }
+function goBack() { if (document.getElementById('step5').classList.contains('active')) showStep('step4');
+else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
+else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
+else if (document.getElementById('step2').classList.contains('active')) showStep('step1'); }
 function goHome() {
   showStep('step1');
   document.getElementById('giorno_ritiro').value = '';
@@ -170,7 +154,6 @@ function goHome() {
   document.getElementById('cellulare').value = '';
   document.getElementById('autisti_container').innerHTML = '';
 }
-
 function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   const selG = document.getElementById(giornoId);
   const selM = document.getElementById(meseId);
@@ -199,7 +182,6 @@ function parseItalianDate(str) {
   if (arr.length!==3) return null;
   return new Date(arr[2], parseInt(arr[1])-1, arr[0]);
 }
-
 function controllaDisponibilita() {
   const dataRitiroStr = getData('ritiro');
   const oraRitiro = document.getElementById('ora_partenza').value;
@@ -221,11 +203,6 @@ function controllaDisponibilita() {
     { targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
     { targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
     { targa: 'EC787NM', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' }
-  ];
-  var pulmini = [
-    { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
-    { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
-    { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
   ];
   var disponibili = pulmini.filter(pulmino => {
     return !arrayPrenotazioni.some(pren => {
@@ -249,10 +226,8 @@ function controllaDisponibilita() {
     document.getElementById('chiamaContinuaBtn').disabled = !this.value;
   });
 }
-
 function vaiStep3() { showStep('step3'); }
 function vaiStep4() { showStep('step4'); }
-
 function mostraModuliAutisti() {
   const container = document.getElementById('autisti_container');
   const num = parseInt(document.getElementById('num_autisti').value);
@@ -294,8 +269,6 @@ function mostraModuliAutisti() {
     popolaTendineData(`giorno_fine_patente_${i}`, `mese_fine_patente_${i}`, `anno_fine_patente_${i}`, annoCorrente, annoCorrente+15);
   }
 }
-
-// INVIO A GOOGLE FORMS demo: tutte le date e orari, aggiorna entry.xxx con i tuoi field!
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
   const dataRitiro = getData('ritiro');
@@ -304,13 +277,17 @@ function apriModuloPrecompilato() {
   const oraArrivo = document.getElementById('ora_arrivo').value;
   const pulminoId = document.getElementById('scelta_pulmino').value;
   const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
-  let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url" +
-    `&entry.1499256988=${encodeURIComponent(dataRitiro)}` + // Data ritiro
-    `&entry.257199041=${encodeURIComponent(oraRitiro)}` +   // Ora ritiro
-    `&entry.517585546=${encodeURIComponent(dataArrivo)}` +  // Data arrivo
-    `&entry.917923685=${encodeURIComponent(oraArrivo)}` +   // Ora arrivo
-    `&entry.1888774437=${cellulare}` +
-    `&entry.1578287722=${encodeURIComponent(pulminoId)}`; // ID pulmino per esempio
+  const pulminoObj = pulmini.find(p => p.id === pulminoId);
+  const targaPulmino = pulminoObj ? pulminoObj.targa : "";
+
+  let urlModulo =
+    "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url"
+    + `&entry.1499256988=${encodeURIComponent(dataRitiro)}`
+    + `&entry.257199041=${encodeURIComponent(oraRitiro)}`
+    + `&entry.517585546=${encodeURIComponent(dataArrivo)}`
+    + `&entry.917923685=${encodeURIComponent(oraArrivo)}`
+    + `&entry.1888774437=${cellulare}`
+    + `&entry.1578287722=${encodeURIComponent(targaPulmino)}`;
 
   const entryFields = [
     { nome: '550823113', data_nascita: '766463607', luogo_nascita: '1735522613', cf: '36844075', comune_residenza: '913323396', via_residenza: '1329485765', civico_residenza: '1349864501', numero_patente: '1885490374', inizio_patente: '525872521', fine_patente: '1864189410' },
@@ -319,20 +296,19 @@ function apriModuloPrecompilato() {
   ];
 
   for (let i = 0; i < num; i++) {
-    urlModulo += `&entry.${entryFields[i].nome}=${encodeURIComponent(document.getElementById('nome_cognome_' + (i + 1)).value)}` +
-      `&entry.${entryFields[i].data_nascita}=${encodeURIComponent(getDataAutista('nascita', i+1))}` +
-      `&entry.${entryFields[i].luogo_nascita}=${encodeURIComponent(document.getElementById('luogo_nascita_' + (i + 1)).value)}` +
-      `&entry.${entryFields[i].cf}=${encodeURIComponent(document.getElementById('codice_fiscale_' + (i + 1)).value)}` +
-      `&entry.${entryFields[i].comune_residenza}=${encodeURIComponent(document.getElementById('comune_residenza_' + (i + 1)).value)}` +
-      `&entry.${entryFields[i].via_residenza}=${encodeURIComponent(document.getElementById('via_residenza_' + (i + 1)).value)}` +
-      `&entry.${entryFields[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_' + (i + 1)).value)}` +
-      `&entry.${entryFields[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_' + (i + 1)).value)}` +
-      `&entry.${entryFields[i].inizio_patente}=${encodeURIComponent(getDataAutista('inizio_patente', i+1))}` +
-      `&entry.${entryFields[i].fine_patente}=${encodeURIComponent(getDataAutista('fine_patente', i+1))}`;
+    urlModulo += `&entry.${entryFields[i].nome}=${encodeURIComponent(document.getElementById('nome_cognome_' + (i + 1)).value)}`
+      + `&entry.${entryFields[i].data_nascita}=${encodeURIComponent(getDataAutista('nascita', i+1))}`
+      + `&entry.${entryFields[i].luogo_nascita}=${encodeURIComponent(document.getElementById('luogo_nascita_' + (i + 1)).value)}`
+      + `&entry.${entryFields[i].inizio_patente}=${encodeURIComponent(getDataAutista('inizio_patente', i+1))}`
+      + `&entry.${entryFields[i].fine_patente}=${encodeURIComponent(getDataAutista('fine_patente', i+1))}`
+      + `&entry.${entryFields[i].cf}=${encodeURIComponent(document.getElementById('codice_fiscale_' + (i + 1)).value)}`
+      + `&entry.${entryFields[i].comune_residenza}=${encodeURIComponent(document.getElementById('comune_residenza_' + (i + 1)).value)}`
+      + `&entry.${entryFields[i].via_residenza}=${encodeURIComponent(document.getElementById('via_residenza_' + (i + 1)).value)}`
+      + `&entry.${entryFields[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_' + (i + 1)).value)}`
+      + `&entry.${entryFields[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_' + (i + 1)).value)}`;
   }
   window.open(urlModulo, '_blank');
 }
-
 document.addEventListener('DOMContentLoaded', function(){
   const annoCorrente = new Date().getFullYear();
   popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
