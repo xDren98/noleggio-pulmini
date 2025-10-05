@@ -4,47 +4,173 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Imbriani Noleggio</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 <style>
 body {
-  font-family:'Poppins',sans-serif;
-  max-width:980px;
-  margin:0 auto 60px auto;
-  background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed;
-  background-size:cover; color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;
+  font-family: 'Poppins', sans-serif;
+  background: #f7f7f7;
+  margin: 0;
+  min-height: 100vh;
+  padding: 0;
+}
+#mainbox {
+  max-width: 660px;
+  margin: 36px auto 60px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 3px 20px rgba(0,0,0,0.12);
+  padding: 36px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+header {
+  max-width: 660px;
+  margin: 0 auto 24px;
+  padding-top: 20px;
+  text-align: center;
+}
+header h1 {
+  font-weight: 700;
+  font-size: 2.2em;
+  color: #2e8e2f;
+  margin: 0 0 8px 0;
+}
+header p {
+  font-weight: 600;
+  font-size: 1.1em;
+  color: #516551;
+  margin: 0;
+}
+.step {
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+}
+.step.active {
+  display: flex;
+}
+label {
+  font-weight: 600;
+  font-size: 1.05em;
+  color: #2c5d2a;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.material-icons {
+  font-size: 22px;
+  color: #2e8e2f;
+}
+select, input[type=tel], input[type=text] {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 1em;
+  border-radius: 10px;
+  border: 1.5px solid #a8d5a8;
+  box-sizing: border-box;
+  color: #21401f;
+  background-color: #fefef9;
+  font-family: 'Poppins', sans-serif;
+}
+select:focus, input:focus {
+  outline: none;
+  border-color: #49b66f;
+  background-color: white;
 }
 .data-triple {
   display: flex;
-  gap: 7px;
-  width: 100%;
-  margin-bottom: 12px;
+  gap: 10px;
 }
 .data-triple select {
-  flex: 1 1 0;
-  font-size: 1em;
-  border-radius: 9px;
-  border: 1.2px solid #c5dae5;
-  background: #fff;
-  color: #123035;
-  padding: 9px;
-  margin:0;
+  flex: 1 0 auto;
+  min-width: 65px;
 }
-label {display:flex;align-items:center;font-weight:700;gap:10px;font-size:1em;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.85);margin-bottom: 8px;}
-.material-icons {font-size:22px;color:#fcd168;text-shadow:0 2px 8px #1a2549;}
-input, button, select {padding:12px;width:100%;box-sizing:border-box;border:1.5px solid #c5dae5;border-radius:14px;font-size:1.13em;transition:border-color 0.35s,box-shadow 0.35s;background:rgba(249,250,251,0.95);color:#184154;font-family: 'Poppins', sans-serif;}
-input::placeholder {color:#a7babd;}
-input:focus, select:focus {outline:none;border-color:#ffe176;box-shadow:0 0 14px 2px #ffe18699;background:#fff;color:#123035;}
-.actions {display: flex;flex-wrap: wrap;gap: 18px;margin-top: 10px;margin-bottom: 6px;}
-button {background:#147ba7;color:#fefff7;font-weight:700;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;font-size:1.07em;letter-spacing:0.02em;box-shadow:0 2px 4px #21404760;user-select:none;transition:all 0.4s;padding: 12px 24px;}
-button span.material-icons {color:#fffdf5;filter:drop-shadow(0 0 2px #0b2732af);}
-button:hover:not(:disabled) {background:linear-gradient(90deg,#fcd168,#ffd966 90%);color:#193242;box-shadow:0 7px 24px #fed68277,0 0 8px #89878760;transform:translateY(-2px) scale(1.03);}
-button:disabled {background-color:#c9cbcf;cursor:not-allowed;box-shadow:none;transform:none;color:#90959c;}
-.step {display: flex;flex-direction: column;gap: 20px;opacity:0;transform:translateY(20px);transition:opacity 0.48s, transform 0.48s;height:0;overflow:hidden;pointer-events:none;background: rgba(26, 38, 51, 0.52);padding: 22px 16px 16px 16px;border-radius: 18px;}
-.step.active {opacity:1;transform:translateY(0);height:auto;pointer-events:all;overflow:visible;}
-.autista {background:rgba(240,241,237,0.93);border-radius:13px;border:1.8px solid #bddaff;box-shadow:0 2px 12px #73a7ec4b;padding:18px 24px;margin-top:8px;transition:border-color 0.3s, box-shadow 0.3s;display:flex;flex-direction:column;gap:9px;}
-.autista:hover {border-color:#1db7ef;box-shadow:0 0 28px #87c4fd90;}
-h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ffe176;padding-bottom:4px;}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+}
+button {
+  background-color: #24943d;
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1.1em;
+  padding: 12px 28px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 14px #45ba61bf;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+button span.material-icons {
+  filter: drop-shadow(0 0 2px #26893a);
+}
+button:hover:not(:disabled) {
+  background-color: #37c559;
+  box-shadow: 0 6px 22px #30af56bf;
+  transform: scale(1.04);
+}
+button:disabled {
+  background-color: #b7d6b7;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+  color: #5c995c;
+}
+#disponibili_box {
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #2e7f2e;
+}
+.autista {
+  background-color: #eafbe9;
+  border: 1.5px solid #9ed49e;
+  border-radius: 12px;
+  padding: 18px 22px;
+  box-shadow: 0 2px 14px #bfe9be9a;
+}
+.autista:hover {
+  border-color: #48c030;
+  box-shadow: 0 0 32px #7add4570;
+}
+h3 {
+  font-weight: 700;
+  color: #27802a;
+  border-bottom: 2.4px solid #6fd24f;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+}
+
+#thankyou {
+  background: #e1f9d9;
+  border-radius: 14px;
+  box-shadow: 0 0 32px #8ddd4870;
+  text-align: center;
+  padding: 36px 16px;
+}
+#thankyou h2 {
+  color: #3dab35;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+#thankyou p {
+  color: #2b6e21;
+  font-weight: 600;
+  font-size: 1.2em;
+}
+
+@media (max-width: 640px) {
+  #mainbox, header { max-width: 95vw; padding-left: 2.5vw; padding-right: 2.5vw; }
+  .data-triple select {min-width: 38px;}
+}
 </style>
 </head>
 <body>
@@ -52,40 +178,51 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
   <h1>Imbriani Noleggio</h1>
   <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
 </header>
-<main>
+<div id="mainbox">
   <div id="step1" class="step active">
-    <label><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</label>
-    <label><span class="material-icons">calendar_month</span> Data di ritiro</label>
+    <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
     <div class="data-triple">
-      <select id="giorno_ritiro"></select>
-      <select id="mese_ritiro"></select>
-      <select id="anno_ritiro"></select>
+      <div>
+        <label><span class="material-icons">calendar_month</span> Data ritiro</label>
+        <div class="data-triple">
+          <select id="giorno_ritiro"></select>
+          <select id="mese_ritiro"></select>
+          <select id="anno_ritiro"></select>
+        </div>
+      </div>
+      <div style="min-width:90px">
+        <label><span class="material-icons">access_time</span> Ora ritiro</label>
+        <select id="ora_partenza">
+          <option value="08:00">08:00</option>
+          <option value="12:00">12:00</option>
+          <option value="16:00">16:00</option>
+          <option value="20:00">20:00</option>
+        </select>
+      </div>
+      <div>
+        <label><span class="material-icons">calendar_month</span> Data arrivo</label>
+        <div class="data-triple">
+          <select id="giorno_arrivo"></select>
+          <select id="mese_arrivo"></select>
+          <select id="anno_arrivo"></select>
+        </div>
+      </div>
+      <div style="min-width:90px">
+        <label><span class="material-icons">access_time</span> Ora arrivo</label>
+        <select id="ora_arrivo">
+          <option value="08:00">08:00</option>
+          <option value="12:00">12:00</option>
+          <option value="16:00">16:00</option>
+          <option value="20:00">20:00</option>
+        </select>
+      </div>
     </div>
-    <label><span class="material-icons">access_time</span> Ora di ritiro</label>
-    <select id="ora_partenza">
-      <option value="08:00">08:00</option>
-      <option value="12:00">12:00</option>
-      <option value="16:00">16:00</option>
-      <option value="20:00">20:00</option>
-    </select>
-    <label><span class="material-icons">calendar_month</span> Data di arrivo</label>
-    <div class="data-triple">
-      <select id="giorno_arrivo"></select>
-      <select id="mese_arrivo"></select>
-      <select id="anno_arrivo"></select>
-    </div>
-    <label><span class="material-icons">access_time</span> Ora di arrivo</label>
-    <select id="ora_arrivo">
-      <option value="08:00">08:00</option>
-      <option value="12:00">12:00</option>
-      <option value="16:00">16:00</option>
-      <option value="20:00">20:00</option>
-    </select>
     <div class="actions">
       <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
     </div>
   </div>
+
   <div id="step2" class="step">
     <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
     <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
@@ -93,9 +230,10 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
     <div class="actions">
       <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
       <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
     </div>
   </div>
+
   <div id="step3" class="step">
     <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
     <select id="num_autisti" onchange="mostraModuliAutisti()">
@@ -109,38 +247,37 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
     <div class="actions">
       <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
       <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
     </div>
   </div>
+
   <div id="step4" class="step">
     <div id="istruzioni_modulo">
-      <strong>Istruzioni per il completamento della prenotazione:</strong>
+      <strong style="color:#25a34e;">Istruzioni per il completamento della prenotazione:</strong>
       <ol>
         <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
         <li>Verifica attentamente che tutti i dati siano corretti.</li>
         <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
         <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
       </ol>
-      <p id="avviso_leggimi">Leggi attentamente prima di procedere!</p>
+      <p id="avviso_leggimi" style="color:#19692c;">Leggi attentamente prima di procedere!</p>
     </div>
     <div class="actions">
-      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Controlla e invia i tuoi dati</button>
+      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Invia la prenotazione</button>
       <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
     </div>
   </div>
+
   <div id="step5" class="step">
-    <div id="thankyou" style="background: rgba(241, 245, 250, 0.93); padding: 36px 18px; border-radius: 18px; text-align: center; box-shadow: 0 0 28px #bddaff;">
-      <h2 style="color: #2690c9; margin-bottom: 18px;">Grazie per aver scelto Imbriani Noleggio!</h2>
-      <p style="font-size: 1.25em; color: #106391; font-weight: 600;">
-        Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!
-      </p>
-      <button type="button" onclick="goHome()" style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;">
-        <span class="material-icons">home</span>Torna all'inizio
-      </button>
+    <div id="thankyou">
+      <h2>Grazie per aver scelto Imbriani Noleggio!</h2>
+      <p>Ti abbiamo inviato il modulo di prenotazione.<br/>Ti auguriamo un viaggio piacevole e sicuro!</p>
+      <button type="button" onclick="goHome()"><span class="material-icons">home</span> Torna all'inizio</button>
     </div>
   </div>
-</main>
+</div>
+
 <script>
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -151,7 +288,7 @@ const pulmini = [
 function convertDateToIso(dateEuro) {
   let parts = dateEuro.split('/');
   if(parts.length !== 3) return '';
-  return `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
 
 function getData(prefix) {
@@ -310,7 +447,7 @@ function apriModuloPrecompilato() {
   let urlModulo =
     "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url"
     + `&entry.1499256988=${encodeURIComponent(dataRitiro)}`
-    + `&entry.925984482=${encodeURIComponent(dataRitiro)}` // data contratto = data ritiro
+    + `&entry.925984482=${encodeURIComponent(dataRitiro)}`
     + `&entry.257199041=${encodeURIComponent(oraRitiro)}`
     + `&entry.517585546=${encodeURIComponent(dataArrivo)}`
     + `&entry.917923685=${encodeURIComponent(oraArrivo)}`
@@ -335,7 +472,6 @@ function apriModuloPrecompilato() {
       + `&entry.${entryFields[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_' + (i + 1)).value)}`
       + `&entry.${entryFields[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_' + (i + 1)).value)}`;
   }
-
   window.open(urlModulo, '_blank');
 }
 
