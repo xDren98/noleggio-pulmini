@@ -67,6 +67,8 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
       <option value="12:00">12:00</option>
       <option value="16:00">16:00</option>
       <option value="20:00">20:00</option>
+      <option value="18:00">18:00</option>
+      <option value="10:00">10:00</option>
     </select>
     <label><span class="material-icons">calendar_month</span> Data di arrivo</label>
     <div class="data-triple">
@@ -80,6 +82,8 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
       <option value="12:00">12:00</option>
       <option value="16:00">16:00</option>
       <option value="20:00">20:00</option>
+      <option value="18:00">18:00</option>
+      <option value="10:00">10:00</option>
     </select>
     <div class="actions">
       <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
@@ -142,9 +146,9 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
   </div>
 </main>
 <script>
-console.log("Versione 3.3 - logica disponibilità");
+console.log("Versione 3.5 - logica reale prenotazioni demo");
 
-// Wizard step utilities (showStep, goBack, goHome come prima)
+// Wizard base
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
   document.getElementById(stepId).classList.add('active');
@@ -171,7 +175,6 @@ function goHome() {
   document.getElementById('autisti_container').innerHTML = '';
 }
 
-// Tendine giorno, mese, anno
 function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   const selG = document.getElementById(giornoId);
   const selM = document.getElementById(meseId);
@@ -183,8 +186,6 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   selA.innerHTML = '<option value="">AAAA</option>';
   for (let i = annoEnd; i>=annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
 }
-
-// Data helpers
 function getData(prefix) {
   const gg = document.getElementById('giorno_' + prefix).value;
   const mm = document.getElementById('mese_' + prefix).value;
@@ -204,8 +205,6 @@ function parseItalianDate(str) {
   return new Date(arr[2], parseInt(arr[1])-1, arr[0]);
 }
 
-// Logica disponibilità con blocco pulmini se sovrapposti (simulata)
-// Puoi integrare qui fetch reale Google Sheet per riempire arrayPrenotazioni
 function controllaDisponibilita() {
   const dataRitiroStr = getData('ritiro');
   const oraRitiro = document.getElementById('ora_partenza').value;
@@ -225,11 +224,11 @@ function controllaDisponibilita() {
     return;
   }
 
-  // Array di PRENOTAZIONI FINTI da Google Sheet, es:
-  // targa, inizioData (ISO), fineData (ISO)
+  // Array REALISTICO prenotazioni esempio
   var arrayPrenotazioni = [
-    { targa: 'EC787NM', inizio: '2025-10-06T08:00:00', fine: '2025-10-10T20:00:00' },
-    { targa: 'DL291XZ', inizio: '2025-10-08T12:00:00', fine: '2025-10-09T20:00:00' }
+    { targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
+    { targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
+    { targa: 'EC787NM', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' }
   ];
   var pulmini = [
     { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -248,7 +247,7 @@ function controllaDisponibilita() {
     });
   });
 
-  // Aggiorna select pulmini
+  // Popola la select SOLO con i pulmini disponibili
   const select = document.getElementById('scelta_pulmino');
   if (!select) return;
   select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
@@ -309,7 +308,7 @@ function mostraModuliAutisti() {
   }
 }
 
-// INVIO A GOOGLE FORMS (come sempre, personalizza ID per il tuo modulo)
+// INVIO A GOOGLE FORMS
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
   const dataRitiro = getData('ritiro');
