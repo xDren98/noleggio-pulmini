@@ -1,327 +1,167 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Imbriani Noleggio</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-<style>
-body { font-family:'Poppins',sans-serif; max-width:980px; margin:0 auto 60px auto;
-  background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed;
-  background-size:cover; color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;}
-.data-triple { display:flex; gap:7px; width:100%; margin-bottom:12px;}
-.data-triple select {flex:1 1 0; font-size:1em; border-radius:9px; border:1.2px solid #c5dae5;background:#fff;color:#123035; padding:9px; margin:0;}
-label {display:flex;align-items:center;font-weight:700;gap:10px;font-size:1em;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.85);margin-bottom: 8px;}
-.material-icons {font-size:22px;color:#fcd168;text-shadow:0 2px 8px #1a2549;}
-input, button, select {padding:12px;width:100%;box-sizing:border-box;border:1.5px solid #c5dae5;border-radius:14px;font-size:1.13em;transition:border-color 0.35s,box-shadow 0.35s;background:rgba(249,250,251,0.95);color:#184154;font-family: 'Poppins', sans-serif;}
-input::placeholder {color:#a7babd;}
-input:focus, select:focus {outline:none;border-color:#ffe176;box-shadow:0 0 14px 2px #ffe18699;background:#fff;color:#123035;}
-.actions {display: flex;flex-wrap: wrap;gap: 18px;margin-top: 10px;margin-bottom: 6px;}
-button {background:#147ba7;color:#fefff7;font-weight:700;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;font-size:1.07em;letter-spacing:0.02em;box-shadow:0 2px 4px #21404760;user-select:none;transition:all 0.4s;padding: 12px 24px;}
-button span.material-icons {color:#fffdf5;filter:drop-shadow(0 0 2px #0b2732af);}
-button:hover:not(:disabled) {background:linear-gradient(90deg,#fcd168,#ffd966 90%);color:#193242;box-shadow:0 7px 24px #fed68277,0 0 8px #89878760;transform:translateY(-2px) scale(1.03);}
-button:disabled {background-color:#c9cbcf;cursor:not-allowed;box-shadow:none;transform:none;color:#90959c;}
-.step {display: flex;flex-direction: column;gap: 20px;opacity:0;transform:translateY(20px);transition:opacity 0.48s, transform 0.48s;height:0;overflow:hidden;pointer-events:none;background: rgba(26, 38, 51, 0.52);padding: 22px 16px 16px 16px;border-radius: 18px;}
-.step.active {opacity:1;transform:translateY(0);height:auto;pointer-events:all;overflow:visible;}
-.autista {background:rgba(240,241,237,0.93);border-radius:13px;border:1.8px solid #bddaff;box-shadow:0 2px 12px #73a7ec4b;padding:18px 24px;margin-top:8px;transition:border-color 0.3s, box-shadow 0.3s;display:flex;flex-direction:column;gap:9px;}
-.autista:hover {border-color:#1db7ef;box-shadow:0 0 28px #87c4fd90;}
-h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ffe176;padding-bottom:4px;}
-</style>
-</head>
-<body>
-<header>
-  <h1>Imbriani Noleggio</h1>
-  <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
-</header>
-<main>
-  <div id="step1" class="step active">
-    <label><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</label>
-    <label><span class="material-icons">calendar_month</span> Data di ritiro</label>
-    <div class="data-triple">
-      <select id="giorno_ritiro"></select>
-      <select id="mese_ritiro"></select>
-      <select id="anno_ritiro"></select>
-    </div>
-    <label><span class="material-icons">access_time</span> Ora di ritiro</label>
-    <select id="ora_partenza">
-      <option value="08:00">08:00</option>
-      <option value="12:00">12:00</option>
-      <option value="16:00">16:00</option>
-      <option value="20:00">20:00</option>
-    </select>
-    <label><span class="material-icons">calendar_month</span> Data di arrivo</label>
-    <div class="data-triple">
-      <select id="giorno_arrivo"></select>
-      <select id="mese_arrivo"></select>
-      <select id="anno_arrivo"></select>
-    </div>
-    <label><span class="material-icons">access_time</span> Ora di arrivo</label>
-    <select id="ora_arrivo">
-      <option value="08:00">08:00</option>
-      <option value="12:00">12:00</option>
-      <option value="16:00">16:00</option>
-      <option value="20:00">20:00</option>
-    </select>
-    <div class="actions">
-      <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
-    </div>
-  </div>
-  <div id="step2" class="step">
-    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
-    <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
-    <select id="scelta_pulmino"></select>
-    <div class="actions">
-      <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
-    </div>
-  </div>
-  <div id="step3" class="step">
-    <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
-    <select id="num_autisti" onchange="mostraModuliAutisti()">
-      <option value="1" selected>1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-    </select>
-    <div id="autisti_container"></div>
-    <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
-    <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
-    <div class="actions">
-      <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
-    </div>
-  </div>
-  <div id="step4" class="step">
-    <div id="istruzioni_modulo">
-      <strong>Istruzioni per il completamento della prenotazione:</strong>
-      <ol>
-        <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
-        <li>Verifica attentamente che tutti i dati siano corretti.</li>
-        <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
-        <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
-      </ol>
-      <p id="avviso_leggimi">Leggi attentamente prima di procedere!</p>
-    </div>
-    <div class="actions">
-      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Controlla e invia i tuoi dati</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
-    </div>
-  </div>
-  <div id="step5" class="step">
-    <div id="thankyou" style="background: rgba(241, 245, 250, 0.93); padding: 36px 18px; border-radius: 18px; text-align: center; box-shadow: 0 0 28px #bddaff;">
-      <h2 style="color: #2690c9; margin-bottom: 18px;">Grazie per aver scelto Imbriani Noleggio!</h2>
-      <p style="font-size: 1.25em; color: #106391; font-weight: 600;">
-        Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!
-      </p>
-      <button type="button" onclick="goHome()" style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;">
-        <span class="material-icons">home</span>Torna all'inizio
-      </button>
-    </div>
-  </div>
-</main>
-<script>
-const pulmini = [
-  { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
-  { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
-  { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
-];
-
-function convertDateToUSFormat(dateEuro) {
-  let parts = dateEuro.split('/');
-  if(parts.length !== 3) return '';
-  return `${parts[1]}/${parts[0]}/${parts[2]}`;
+<!DOCTYPE html> <html lang="it"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <title>Imbriani Noleggio</title> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" /> <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" /> <style> body { font-family:'Poppins',sans-serif; max-width:980px; margin:0 auto 60px auto; background: url('https://user-gen-media-assets.s3.amazonaws.com/seedream_images/2237bed5-a57b-45f0-ac6f-7941a95c5dd1.png') center center no-repeat fixed; background-size:cover; color:#f2f6f8; padding:0 18px 120px 18px; min-height:100vh; position:relative;} .data-triple { display:flex; gap:7px; width:100%; margin-bottom:12px;} .data-triple select {flex:1 1 0; font-size:1em; border-radius:9px; border:1.2px solid #c5dae5;background:#fff;color:#123035; padding:9px; margin:0;} label {display:flex;align-items:center;font-weight:700;gap:10px;font-size:1em;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.85);margin-bottom: 8px;} .material-icons {font-size:22px;color:#fcd168;text-shadow:0 2px 8px #1a2549;} input, button, select {padding:12px;width:100%;box-sizing:border-box;border:1.5px solid #c5dae5;border-radius:14px;font-size:1.13em;transition:border-color 0.35s,box-shadow 0.35s;background:rgba(249,250,251,0.95);color:#184154;font-family: 'Poppins', sans-serif;} input::placeholder {color:#a7babd;} input:focus, select:focus {outline:none;border-color:#ffe176;box-shadow:0 0 14px 2px #ffe18699;background:#fff;color:#123035;} .actions {display: flex;flex-wrap: wrap;gap: 18px;margin-top: 10px;margin-bottom: 6px;} button {background:#147ba7;color:#fefff7;font-weight:700;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;font-size:1.07em;letter-spacing:0.02em;box-shadow:0 2px 4px #21404760;user-select:none;transition:all 0.4s;padding: 12px 24px;} button span.material-icons {color:#fffdf5;filter:drop-shadow(0 0 2px #0b2732af);} button:hover:not(:disabled) {background:linear-gradient(90deg,#fcd168,#ffd966 90%);color:#193242;box-shadow:0 7px 24px #fed68277,0 0 8px #89878760;transform:translateY(-2px) scale(1.03);} button:disabled {background-color:#c9cbcf;cursor:not-allowed;box-shadow:none;transform:none;color:#90959c;} .step {display: flex;flex-direction: column;gap: 20px;opacity:0;transform:translateY(20px);transition:opacity 0.48s, transform 0.48s;height:0;overflow:hidden;pointer-events:none;background: rgba(26, 38, 51, 0.52);padding: 22px 16px 16px 16px;border-radius: 18px;} .step.active {opacity:1;transform:translateY(0);height:auto;pointer-events:all;overflow:visible;} .autista {background:rgba(240,241,237,0.93);border-radius:13px;border:1.8px solid #bddaff;box-shadow:0 2px 12px #73a7ec4b;padding:18px 24px;margin-top:8px;transition:border-color 0.3s, box-shadow 0.3s;display:flex;flex-direction:column;gap:9px;} .autista:hover {border-color:#1db7ef;box-shadow:0 0 28px #87c4fd90;} h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ffe176;padding-bottom:4px;} </style> </head> <body> <header> <h1>Imbriani Noleggio</h1> <p class="slogan">Dividi i costi, moltiplica il divertimento!</p> </header> <main> <div id="step1" class="step active"> <label><span class="material-icons">calendar_today</span> Inserisci data e orario di ritiro e arrivo per verificare disponibilità.</label> <label><span class="material-icons">calendar_month</span> Data di ritiro</label> <div class="data-triple"> <select id="giorno_ritiro"></select> <select id="mese_ritiro"></select> <select id="anno_ritiro"></select> </div> <label><span class="material-icons">access_time</span> Ora di ritiro</label> <select id="ora_partenza"> <option value="08:00">08:00</option> <option value="12:00">12:00</option> <option value="16:00">16:00</option> <option value="20:00">20:00</option> </select> <label><span class="material-icons">calendar_month</span> Data di arrivo</label> <div class="data-triple"> <select id="giorno_arrivo"></select> <select id="mese_arrivo"></select> <select id="anno_arrivo"></select> </div> <label><span class="material-icons">access_time</span> Ora di arrivo</label> <select id="ora_arrivo"> <option value="08:00">08:00</option> <option value="12:00">12:00</option> <option value="16:00">16:00</option> <option value="20:00">20:00</option> </select> <div class="actions"> <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button> <button onclick="goHome()"><span class="material-icons">home</span> HOME</button> </div> </div> <div id="step2" class="step"> <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div> <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label> <select id="scelta_pulmino"></select> <div class="actions"> <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button> <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button> <button onclick="goHome()"><span class="material-icons">home</span> HOME</button> </div> </div> <div id="step3" class="step"> <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label> <select id="num_autisti" onchange="mostraModuliAutisti()"> <option value="1" selected>1</option> <option value="2">2</option> <option value="3">3</option> </select> <div id="autisti_container"></div> <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label> <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" /> <div class="actions"> <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button> <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button> <button onclick="goHome()"><span class="material-icons">home</span> HOME</button> </div> </div> <div id="step4" class="step"> <div id="istruzioni_modulo"> <strong>Istruzioni per il completamento della prenotazione:</strong> <ol> <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li> <li>Verifica attentamente che tutti i dati siano corretti.</li> <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li> <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li> </ol> <p id="avviso_leggimi">Leggi attentamente prima di procedere!</p> </div> <div class="actions"> <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Controlla e invia i tuoi dati</button> <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button> <button onclick="goHome()"><span class="material-icons">home</span> HOME</button> </div> </div> <div id="step5" class="step"> <div id="thankyou" style="background: rgba(241, 245, 250, 0.93); padding: 36px 18px; border-radius: 18px; text-align: center; box-shadow: 0 0 28px #bddaff;"> <h2 style="color: #2690c9; margin-bottom: 18px;">Grazie per aver scelto Imbriani Noleggio!</h2> <p style="font-size: 1.25em; color: #106391; font-weight: 600;"> Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro! </p> <button type="button" onclick="goHome()" style="margin-top: 26px; background: #2690c9; padding: 12px 24px; border-radius: 12px; font-size: 1.09em; font-weight: 700; color: #fff; margin-bottom:5px;"> <span class="material-icons">home</span>Torna all'inizio </button> </div> </div> </main> <script> const pulmini = [ { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" }, { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" }, { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" } ];
+function convertDateToIso(dateEuro) {
+let parts = dateEuro.split('/');
+if(parts.length !== 3) return '';
+return ${parts[2]}-${parts[1]}-${parts[0]}; // YYYY-MM-DD
 }
 function getData(prefix) {
-  const gg = document.getElementById('giorno_' + prefix).value;
-  const mm = document.getElementById('mese_' + prefix).value;
-  const aa = document.getElementById('anno_' + prefix).value;
-  return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
+const gg = document.getElementById('giorno_' + prefix).value;
+const mm = document.getElementById('mese_' + prefix).value;
+const aa = document.getElementById('anno_' + prefix).value;
+return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
 }
 function getDataAutista(tipo, i) {
-  const gg = document.getElementById('giorno_' + tipo + '_' + i).value;
-  const mm = document.getElementById('mese_' + tipo + '_' + i).value;
-  const aa = document.getElementById('anno_' + tipo + '_' + i).value;
-  return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
+const gg = document.getElementById('giorno_' + tipo + '' + i).value;
+const mm = document.getElementById('mese' + tipo + '' + i).value;
+const aa = document.getElementById('anno' + tipo + '_' + i).value;
+return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
 }
 function showStep(stepId) {
-  document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-  document.getElementById(stepId).classList.add('active');
+document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+document.getElementById(stepId).classList.add('active');
 }
 function goBack() {
-  if (document.getElementById('step5').classList.contains('active')) showStep('step4');
-  else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
-  else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
-  else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
+if (document.getElementById('step5').classList.contains('active')) showStep('step4');
+else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
+else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
+else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
 }
 function goHome() {
-  showStep('step1');
-  document.getElementById('giorno_ritiro').value = '';
-  document.getElementById('mese_ritiro').value = '';
-  document.getElementById('anno_ritiro').value = '';
-  document.getElementById('giorno_arrivo').value = '';
-  document.getElementById('mese_arrivo').value = '';
-  document.getElementById('anno_arrivo').value = '';
-  document.getElementById('ora_partenza').value = '08:00';
-  document.getElementById('ora_arrivo').value = '08:00';
-  document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
-  document.getElementById('num_autisti').value = '1';
-  document.getElementById('cellulare').value = '';
-  document.getElementById('autisti_container').innerHTML = '';
+showStep('step1');
+document.getElementById('giorno_ritiro').value = '';
+document.getElementById('mese_ritiro').value = '';
+document.getElementById('anno_ritiro').value = '';
+document.getElementById('giorno_arrivo').value = '';
+document.getElementById('mese_arrivo').value = '';
+document.getElementById('anno_arrivo').value = '';
+document.getElementById('ora_partenza').value = '08:00';
+document.getElementById('ora_arrivo').value = '08:00';
+document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
+document.getElementById('num_autisti').value = '1';
+document.getElementById('cellulare').value = '';
+document.getElementById('autisti_container').innerHTML = '';
 }
 function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
-  const selG = document.getElementById(giornoId);
-  const selM = document.getElementById(meseId);
-  const selA = document.getElementById(annoId);
-  selG.innerHTML = '<option value="">GG</option>';
-  for (let i = 1; i<=31; i++) selG.innerHTML += `<option value="${i.toString().padStart(2,'0')}">${i}</option>`;
-  selM.innerHTML = '<option value="">MM</option>';
-  for (let i=1; i<=12; i++) selM.innerHTML += `<option value="${i.toString().padStart(2,'0')}">${i}</option>`;
-  selA.innerHTML = '<option value="">AAAA</option>';
-  for (let i = annoEnd; i>=annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
+const selG = document.getElementById(giornoId);
+const selM = document.getElementById(meseId);
+const selA = document.getElementById(annoId);
+selG.innerHTML = '<option value="">GG</option>';
+for (let i = 1; i<=31; i++) selG.innerHTML += <option value="${i.toString().padStart(2,'0')}">${i}</option>;
+selM.innerHTML = '<option value="">MM</option>';
+for (let i=1; i<=12; i++) selM.innerHTML += <option value="${i.toString().padStart(2,'0')}">${i}</option>;
+selA.innerHTML = '<option value="">AAAA</option>';
+for (let i = annoEnd; i>=annoStart; i--) selA.innerHTML += <option value="${i}">${i}</option>;
 }
 function controllaDisponibilita() {
-  const dataRitiroStr = getData('ritiro');
-  const oraRitiro = document.getElementById('ora_partenza').value;
-  const dataArrivoStr = getData('arrivo');
-  const oraArrivo = document.getElementById('ora_arrivo').value;
-  if (!dataRitiroStr || !oraRitiro || !dataArrivoStr || !oraArrivo) {
-    alert('Inserisci data e ora validi.');
-    return;
-  }
-  const dateRitiro = new Date(`${dataRitiroStr.split('/')[2]}-${dataRitiroStr.split('/')[1]}-${dataRitiroStr.split('/')[0]}T${oraRitiro}`);
-  const dateArrivo = new Date(`${dataArrivoStr.split('/')[2]}-${dataArrivoStr.split('/')[1]}-${dataArrivoStr.split('/')[0]}T${oraArrivo}`);
-  if (dateRitiro >= dateArrivo) {
-    alert("La data/ora di arrivo deve essere successiva a quella di ritiro.");
-    return;
-  }
-  var arrayPrenotazioni = [
-    { targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
-    { targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
-    { targa: 'EC787NM', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' }
-  ];
-  var disponibili = pulmini.filter(pulmino => {
-    return !arrayPrenotazioni.some(pren => {
-      if (pren.targa !== pulmino.targa) return false;
-      var inizioPren = new Date(pren.inizio);
-      var finePren = new Date(pren.fine);
-      return inizioPren < dateArrivo && finePren > dateRitiro;
-    });
-  });
-  const select = document.getElementById('scelta_pulmino');
-  if (!select) return;
-  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
-  document.getElementById('num_disponibili').textContent = disponibili.length;
-  if (disponibili.length === 0) {
-    alert('Nessun pulmino disponibile per la fascia selezionata!');
-    return;
-  }
-  showStep('step2');
-  document.getElementById('chiamaContinuaBtn').disabled = true;
-  select.addEventListener('change', function () {
-    document.getElementById('chiamaContinuaBtn').disabled = !this.value;
-  });
+const dataRitiroStr = getData('ritiro');
+const oraRitiro = document.getElementById('ora_partenza').value;
+const dataArrivoStr = getData('arrivo');
+const oraArrivo = document.getElementById('ora_arrivo').value;
+if (!dataRitiroStr || !oraRitiro || !dataArrivoStr || !oraArrivo) {
+alert('Inserisci data e ora validi.');
+return;
+}
+const dateRitiro = new Date(${dataRitiroStr.split('/')[2]}-${dataRitiroStr.split('/')[1]}-${dataRitiroStr.split('/')[0]}T${oraRitiro});
+const dateArrivo = new Date(${dataArrivoStr.split('/')[2]}-${dataArrivoStr.split('/')[1]}-${dataArrivoStr.split('/')[0]}T${oraArrivo});
+if (dateRitiro >= dateArrivo) {
+alert("La data/ora di arrivo deve essere successiva a quella di ritiro.");
+return;
+}
+var arrayPrenotazioni = [
+{ targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
+{ targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
+{ targa: 'EC787NM', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' }
+];
+var disponibili = pulmini.filter(pulmino => {
+return !arrayPrenotazioni.some(pren => {
+if (pren.targa !== pulmino.targa) return false;
+var inizioPren = new Date(pren.inizio);
+var finePren = new Date(pren.fine);
+return inizioPren < dateArrivo && finePren > dateRitiro;
+});
+});
+const select = document.getElementById('scelta_pulmino');
+if (!select) return;
+select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => <option value="${p.id}">${p.nome}</option>).join("");
+document.getElementById('num_disponibili').textContent = disponibili.length;
+if (disponibili.length === 0) {
+alert('Nessun pulmino disponibile per la fascia selezionata!');
+return;
+}
+showStep('step2');
+document.getElementById('chiamaContinuaBtn').disabled = true;
+select.addEventListener('change', function () {
+document.getElementById('chiamaContinuaBtn').disabled = !this.value;
+});
 }
 function vaiStep3() { showStep('step3'); }
 function vaiStep4() { showStep('step4'); }
 function mostraModuliAutisti() {
-  const container = document.getElementById('autisti_container');
-  const num = parseInt(document.getElementById('num_autisti').value);
-  container.innerHTML = '';
-  for (let i = 1; i <= num; i++) {
-    container.innerHTML += `<div class="autista">
-      <h3>Autista ${i}</h3>
-      <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
-      <label>Data di nascita</label>
-        <div class="data-triple">
-          <select id="giorno_nascita_${i}"></select>
-          <select id="mese_nascita_${i}"></select>
-          <select id="anno_nascita_${i}"></select>
-        </div>
-      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required />
-      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required />
-      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required />
-      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required />
-      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required />
-      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required />
-      <label>Data inizio validità patente</label>
-        <div class="data-triple">
-          <select id="giorno_inizio_validita_patente_${i}"></select>
-          <select id="mese_inizio_validita_patente_${i}"></select>
-          <select id="anno_inizio_validita_patente_${i}"></select>
-        </div>
-      <label>Data fine validità patente</label>
-        <div class="data-triple">
-          <select id="giorno_fine_validita_patente_${i}"></select>
-          <select id="mese_fine_validita_patente_${i}"></select>
-          <select id="anno_fine_validita_patente_${i}"></select>
-        </div>
-    </div>`;
-  }
-  const annoCorrente = new Date().getFullYear();
-  for (let i = 1; i <= num; i++) {
-    popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
-    popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente-50, annoCorrente+10);
-    popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente+15);
-  }
+const container = document.getElementById('autisti_container');
+const num = parseInt(document.getElementById('num_autisti').value);
+container.innerHTML = '';
+for (let i = 1; i <= num; i++) {
+container.innerHTML += <div class="autista"> <h3>Autista ${i}</h3> <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required /> <label>Data di nascita</label> <div class="data-triple"> <select id="giorno_nascita_${i}"></select> <select id="mese_nascita_${i}"></select> <select id="anno_nascita_${i}"></select> </div> <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required /> <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required /> <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required /> <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required /> <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required /> <label>Numero patente</label><input type="text" id="numero_patente_${i}" required /> <label>Data inizio validità patente</label> <div class="data-triple"> <select id="giorno_inizio_validita_patente_${i}"></select> <select id="mese_inizio_validita_patente_${i}"></select> <select id="anno_inizio_validita_patente_${i}"></select> </div> <label>Data fine validità patente</label> <div class="data-triple"> <select id="giorno_fine_validita_patente_${i}"></select> <select id="mese_fine_validita_patente_${i}"></select> <select id="anno_fine_validita_patente_${i}"></select> </div> </div>;
+}
+const annoCorrente = new Date().getFullYear();
+for (let i = 1; i <= num; i++) {
+popolaTendineData(giorno_nascita_${i}, mese_nascita_${i}, anno_nascita_${i}, 1940, annoCorrente - 18);
+popolaTendineData(giorno_inizio_validita_patente_${i}, mese_inizio_validita_patente_${i}, anno_inizio_validita_patente_${i}, annoCorrente-50, annoCorrente+10);
+popolaTendineData(giorno_fine_validita_patente_${i}, mese_fine_validita_patente_${i}, anno_fine_validita_patente_${i}, annoCorrente, annoCorrente+15);
+}
 }
 function apriModuloPrecompilato() {
-  const num = parseInt(document.getElementById('num_autisti').value);
-  const dataRitiro = convertDateToUSFormat(getData('ritiro'));
-  const oraRitiro = document.getElementById('ora_partenza').value;
-  const dataArrivo = convertDateToUSFormat(getData('arrivo'));
-  const oraArrivo = document.getElementById('ora_arrivo').value;
-  const pulminoId = document.getElementById('scelta_pulmino').value;
-  const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
-  const pulminoObj = pulmini.find(p => p.id === pulminoId);
-  const targaPulmino = pulminoObj ? pulminoObj.targa : "";
+const num = parseInt(document.getElementById('num_autisti').value);
+const dataRitiro = convertDateToIso(getData('ritiro'));
+const oraRitiro = document.getElementById('ora_partenza').value;
+const dataArrivo = convertDateToIso(getData('arrivo'));
+const oraArrivo = document.getElementById('ora_arrivo').value;
+const pulminoId = document.getElementById('scelta_pulmino').value;
+const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
+const pulminoObj = pulmini.find(p => p.id === pulminoId);
+const targaPulmino = pulminoObj ? pulminoObj.targa : "";
 
-  let urlModulo =
-    "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url"
-    + `&entry.1499256988=${encodeURIComponent(dataRitiro)}`
-    + `&entry.925984482=${encodeURIComponent(dataRitiro)}` // data contratto uguale a data ritiro
-    + `&entry.257199041=${encodeURIComponent(oraRitiro)}`
-    + `&entry.517585546=${encodeURIComponent(dataArrivo)}`
-    + `&entry.917923685=${encodeURIComponent(oraArrivo)}`
-    + `&entry.1888774437=${cellulare}`
-    + `&entry.1578287722=${encodeURIComponent(targaPulmino)}`;
+let urlModulo =
+"https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url"
++ &entry.1499256988=${encodeURIComponent(dataRitiro)}
++ &entry.925984482=${encodeURIComponent(dataRitiro)} // data contratto = data ritiro
++ &entry.257199041=${encodeURIComponent(oraRitiro)}
++ &entry.517585546=${encodeURIComponent(dataArrivo)}
++ &entry.917923685=${encodeURIComponent(oraArrivo)}
++ &entry.1888774437=${cellulare}
++ &entry.1578287722=${encodeURIComponent(targaPulmino)};
 
-  const entryFields = [
-    { nome: '550823113', data_nascita: '766463607', luogo_nascita: '1735522613', cf: '36844075', comune_residenza: '913323396', via_residenza: '1329485765', civico_residenza: '1349864501', numero_patente: '1885490374', inizio_patente: '525872521', fine_patente: '1864189410' },
-    { nome: '1236551634', data_nascita: '503259772', luogo_nascita: '1977818551', cf: '1883324084', comune_residenza: '2118103863', via_residenza: '805763990', civico_residenza: '568892376', numero_patente: '124831667', inizio_patente: '657885946', fine_patente: '850104184' },
-    { nome: '3164128', data_nascita: '1896520037', luogo_nascita: '1923148193', cf: '2061435678', comune_residenza: '767994785', via_residenza: '1335171224', civico_residenza: '1926018707', numero_patente: '1750806014', inizio_patente: '1084842503', fine_patente: '965705170' }
-  ];
+const entryFields = [
+{ nome: '550823113', data_nascita: '766463607', luogo_nascita: '1735522613', cf: '36844075', comune_residenza: '913323396', via_residenza: '1329485765', civico_residenza: '1349864501', numero_patente: '1885490374', inizio_patente: '525872521', fine_patente: '1864189410' },
+{ nome: '1236551634', data_nascita: '503259772', luogo_nascita: '1977818551', cf: '1883324084', comune_residenza: '2118103863', via_residenza: '805763990', civico_residenza: '568892376', numero_patente: '124831667', inizio_patente: '657885946', fine_patente: '850104184' },
+{ nome: '3164128', data_nascita: '1896520037', luogo_nascita: '1923148193', cf: '2061435678', comune_residenza: '767994785', via_residenza: '1335171224', civico_residenza: '1926018707', numero_patente: '1750806014', inizio_patente: '1084842503', fine_patente: '965705170' }
+];
 
-  for (let i = 0; i < num; i++) {
-    urlModulo += `&entry.${entryFields[i].nome}=${encodeURIComponent(document.getElementById('nome_cognome_' + (i + 1)).value)}`
-      + `&entry.${entryFields[i].data_nascita}=${encodeURIComponent(convertDateToUSFormat(getDataAutista('nascita', i+1)))}`
-      + `&entry.${entryFields[i].luogo_nascita}=${encodeURIComponent(document.getElementById('luogo_nascita_' + (i + 1)).value)}`
-      + `&entry.${entryFields[i].inizio_patente}=${encodeURIComponent(convertDateToUSFormat(getDataAutista('inizio_validita_patente', i+1)))}`
-      + `&entry.${entryFields[i].fine_patente}=${encodeURIComponent(convertDateToUSFormat(getDataAutista('fine_validita_patente', i+1)))}`
-      + `&entry.${entryFields[i].cf}=${encodeURIComponent(document.getElementById('codice_fiscale_' + (i + 1)).value)}`
-      + `&entry.${entryFields[i].comune_residenza}=${encodeURIComponent(document.getElementById('comune_residenza_' + (i + 1)).value)}`
-      + `&entry.${entryFields[i].via_residenza}=${encodeURIComponent(document.getElementById('via_residenza_' + (i + 1)).value)}`
-      + `&entry.${entryFields[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_' + (i + 1)).value)}`
-      + `&entry.${entryFields[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_' + (i + 1)).value)}`;
-  }
-
-  window.open(urlModulo, '_blank');
+for (let i = 0; i < num; i++) {
+urlModulo += &entry.${entryFields[i].nome}=${encodeURIComponent(document.getElementById('nome_cognome_' + (i + 1)).value)}
++ &entry.${entryFields[i].data_nascita}=${encodeURIComponent(convertDateToIso(getDataAutista('nascita', i+1)))}
++ &entry.${entryFields[i].luogo_nascita}=${encodeURIComponent(document.getElementById('luogo_nascita_' + (i + 1)).value)}
++ &entry.${entryFields[i].inizio_patente}=${encodeURIComponent(convertDateToIso(getDataAutista('inizio_validita_patente', i+1)))}
++ &entry.${entryFields[i].fine_patente}=${encodeURIComponent(convertDateToIso(getDataAutista('fine_validita_patente', i+1)))}
++ &entry.${entryFields[i].cf}=${encodeURIComponent(document.getElementById('codice_fiscale_' + (i + 1)).value)}
++ &entry.${entryFields[i].comune_residenza}=${encodeURIComponent(document.getElementById('comune_residenza_' + (i + 1)).value)}
++ &entry.${entryFields[i].via_residenza}=${encodeURIComponent(document.getElementById('via_residenza_' + (i + 1)).value)}
++ &entry.${entryFields[i].civico_residenza}=${encodeURIComponent(document.getElementById('civico_residenza_' + (i + 1)).value)}
++ &entry.${entryFields[i].numero_patente}=${encodeURIComponent(document.getElementById('numero_patente_' + (i + 1)).value)};
 }
-
+window.open(urlModulo, '_blank');
+}
 document.addEventListener('DOMContentLoaded', function(){
-  const annoCorrente = new Date().getFullYear();
-  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
-  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente+6);
-  mostraModuliAutisti();
-  document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
-  document.getElementById('btnApriModulo').addEventListener('click', function() {
-    apriModuloPrecompilato();
-    showStep('step5');
-  });
+const annoCorrente = new Date().getFullYear();
+popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
+popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente+6);
+mostraModuliAutisti();
+document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
+document.getElementById('btnApriModulo').addEventListener('click', function() {
+apriModuloPrecompilato();
+showStep('step5');
+});
 });
 </script>
-</body>
-</html>
+
+</body> </html>
