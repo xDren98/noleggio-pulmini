@@ -382,7 +382,7 @@ function goHome() {
   ['giorno_ritiro','mese_ritiro','anno_ritiro','giorno_arrivo','mese_arrivo','anno_arrivo'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('ora_partenza').value = '08:00';
   document.getElementById('ora_arrivo').value = '08:00';
-  document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
+  document.getElementById('scelta_pulmino').innerHTML = '<option value=\"\">-- Seleziona un pulmino --</option>';
   document.getElementById('num_autisti').value = '1';
   document.getElementById('cellulare').value = '';
   document.getElementById('autisti_container').innerHTML = '';
@@ -393,12 +393,12 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   const selG = document.getElementById(giornoId);
   const selM = document.getElementById(meseId);
   const selA = document.getElementById(annoId);
-  selG.innerHTML = '<option value="">GG</option>';
-  for (let i = 1; i <= 31; i++) selG.innerHTML += `<option value="${i.toString().padStart(2,'0')}">${i}</option>`;
-  selM.innerHTML = '<option value="">MM</option>';
-  for (let i = 1; i <= 12; i++) selM.innerHTML += `<option value="${i.toString().padStart(2,'0')}">${i}</option>`;
-  selA.innerHTML = '<option value="">AAAA</option>';
-  for (let i = annoEnd; i >= annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
+  selG.innerHTML = '<option value=\"\">GG</option>';
+  for (let i = 1; i <= 31; i++) selG.innerHTML += `<option value=\"${i.toString().padStart(2,'0')}\">${i}</option>`;
+  selM.innerHTML = '<option value=\"\">MM</option>';
+  for (let i = 1; i <= 12; i++) selM.innerHTML += `<option value=\"${i.toString().padStart(2,'0')}\">${i}</option>`;
+  selA.innerHTML = '<option value=\"\">AAAA</option>';
+  for (let i = annoEnd; i >= annoStart; i--) selA.innerHTML += `<option value=\"${i}\">${i}</option>`;
 }
 
 function controllaDisponibilita() {
@@ -431,7 +431,7 @@ function controllaDisponibilita() {
   });
   const select = document.getElementById('scelta_pulmino');
   if (!select) return;
-  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join("");
+  select.innerHTML = '<option value=\"\">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value=\"${p.id}\">${p.nome}</option>`).join(\"\");
   document.getElementById('num_disponibili').textContent = disponibili.length;
   if (disponibili.length === 0) {
     alert('Nessun pulmino disponibile per la fascia selezionata!');
@@ -454,32 +454,32 @@ function mostraModuliAutisti() {
   const num = parseInt(document.getElementById('num_autisti').value);
   container.innerHTML = '';
   for (let i = 1; i <= num; i++) {
-    container.innerHTML += `<div class="autista">
+    container.innerHTML += `<div class=\"autista\">
       <h3>Autista ${i}</h3>
-      <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
+      <label>Nome e Cognome</label><input type=\"text\" id=\"nome_cognome_${i}\" required />
       <label>Data di nascita</label>
-        <div class="date-inline">
-          <select id="giorno_nascita_${i}"></select>
-          <select id="mese_nascita_${i}"></select>
-          <select id="anno_nascita_${i}"></select>
+        <div class=\"date-inline\">
+          <select id=\"giorno_nascita_${i}\"></select>
+          <select id=\"mese_nascita_${i}\"></select>
+          <select id=\"anno_nascita_${i}\"></select>
         </div>
-      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required />
-      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required />
-      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required />
-      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required />
-      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required />
-      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required />
+      <label>Luogo di nascita</label><input type=\"text\" id=\"luogo_nascita_${i}\" required />
+      <label>Comune di residenza</label><input type=\"text\" id=\"comune_residenza_${i}\" required />
+      <label>Via di residenza</label><input type=\"text\" id=\"via_residenza_${i}\" required />
+      <label>Civico di residenza</label><input type=\"text\" id=\"civico_residenza_${i}\" required />
+      <label>Codice fiscale</label><input type=\"text\" id=\"codice_fiscale_${i}\" required />
+      <label>Numero patente</label><input type=\"text\" id=\"numero_patente_${i}\" required />
       <label>Data inizio validità patente</label>
-        <div class="date-inline">
-          <select id="giorno_inizio_validita_patente_${i}"></select>
-          <select id="mese_inizio_validita_patente_${i}"></select>
-          <select id="anno_inizio_validita_patente_${i}"></select>
+        <div class=\"date-inline\">
+          <select id=\"giorno_inizio_validita_patente_${i}\"></select>
+          <select id=\"mese_inizio_validita_patente_${i}\"></select>
+          <select id=\"anno_inizio_validita_patente_${i}\"></select>
         </div>
       <label>Data fine validità patente</label>
-        <div class="date-inline">
-          <select id="giorno_fine_validita_patente_${i}"></select>
-          <select id="mese_fine_validita_patente_${i}"></select>
-          <select id="anno_fine_validita_patente_${i}"></select>
+        <div class=\"date-inline\">
+          <select id=\"giorno_fine_validita_patente_${i}\"></select>
+          <select id=\"mese_fine_validita_patente_${i}\"></select>
+          <select id=\"anno_fine_validita_patente_${i}\"></select>
         </div>
     </div>`;
   }
@@ -532,6 +532,24 @@ function apriModuloPrecompilato() {
   }
   window.open(urlModulo, '_blank');
 }
+
+// Nuove funzioni per il login - mostra/nascondi form
+
+document.getElementById('loginBtn').addEventListener('click', function() {
+  const loginContainer = document.getElementById('loginContainer');
+  loginContainer.style.display = loginContainer.style.display === 'none' || loginContainer.style.display === '' ? 'block' : 'none';
+});
+
+document.getElementById('closeLogin').addEventListener('click', function() {
+  document.getElementById('loginContainer').style.display = 'none';
+});
+
+// Popola le tendine delle date all'avvio della pagina
+window.onload = function() {
+  const annoCorrente = new Date().getFullYear();
+  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente + 1);
+  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente + 1);
+};
 </script>
 
 </body>
