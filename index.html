@@ -342,6 +342,7 @@ h3 {
   </div>
 </div>
 <script>
+console.log("versione 1.0");
 // ****** Login ******
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
@@ -363,15 +364,17 @@ function showPrenotazioni(data) {
   prenotazioniList.innerHTML = html;
 }
 function logIn(cf, dn) {
-  // Conversione da "YYYY-MM-DD" a "DD/MM/YYYY"
+  // Conversione "YYYY-MM-DD" a "DD/MM/YYYY" (dal date picker HTML)
   if (dn && dn.indexOf('-') !== -1) {
     const parts = dn.split('-');
-    if(parts.length === 3) dn = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    if (parts.length === 3) dn = `${parts[2]}/${parts[1]}/${parts[0]}`;
   }
-  fetch('https://script.google.com/macros/s/AKfycbypJPSNrXaQUY6m9FvO5_yv32L5uf5lWKzDcovPmoBTjomjLEftRhKR4IBsBuFLBlc/exec', {
+  // Usa proxy gratuito corsproxy.io
+  const gsurl = 'https://script.google.com/macros/s/AKfycbypJPSNrXaQUY6m9FvO5_yv32L5uf5lWKzDcovPmoBTjomjLEftRhKR4IBsBuFLBlc/exec';
+  const proxy = 'https://corsproxy.io/?';
+  fetch(proxy + encodeURIComponent(gsurl), {
     method: 'POST',
-    mode: 'cors',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({cf: cf, dn: dn})
   })
   .then(res => res.json())
@@ -620,4 +623,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
