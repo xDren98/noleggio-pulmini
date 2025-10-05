@@ -48,7 +48,6 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
 </style>
 </head>
 <body>
-<script src="https://apis.google.com/js/api.js"></script>
 <header>
   <h1>Imbriani Noleggio</h1>
   <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
@@ -88,11 +87,15 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
     </div>
   </div>
   <div id="step2" class="step">
-    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
+    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">3</span></div>
     <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
-    <select id="scelta_pulmino"></select>
+    <select id="scelta_pulmino">
+      <option value="ducato_lungo">Fiat Ducato (Passo lungo)</option>
+      <option value="ducato_corto">Fiat Ducato (Passo corto)</option>
+      <option value="peugeot">Peugeot Expert Tepee</option>
+    </select>
     <div class="actions">
-      <button id="chiamaContinuaBtn" onclick="chiamaEContinua()" disabled><span class="material-icons">call</span> Chiama per continuare la prenotazione: 328 6589618</button>
+      <button id="chiamaContinuaBtn" onclick="vaiStep3()"><span class="material-icons">arrow_forward</span> Continua</button>
       <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
       <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
     </div>
@@ -125,7 +128,7 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
       <p id="avviso_leggimi">Leggi attentamente prima di procedere!</p>
     </div>
     <div class="actions">
-      <button id="btnApriModulo" disabled><span class="material-icons">directions_bus</span> Controlla e invia i tuoi dati (10)</button>
+      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Controlla e invia i tuoi dati</button>
       <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
       <button onclick="goHome()"><span class="material-icons">home</span> HOME</button>
     </div>
@@ -143,9 +146,36 @@ h3 {font-weight:700;margin-bottom:10px;color:#2690c9;border-bottom:2px solid #ff
   </div>
 </main>
 <script>
-console.log("Versione 3.0 - data tendine complete");
+console.log("Versione 3.2 - completo tendine + wizard + invio");
 
-// funzione per popolare le tendine (giorno, mese, anno)
+// Wizard step utilities
+function showStep(stepId) {
+  document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+  document.getElementById(stepId).classList.add('active');
+}
+function goBack() {
+  if (document.getElementById('step5').classList.contains('active')) showStep('step4');
+  else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
+  else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
+  else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
+}
+function goHome() {
+  showStep('step1');
+  document.getElementById('giorno_ritiro').value = '';
+  document.getElementById('mese_ritiro').value = '';
+  document.getElementById('anno_ritiro').value = '';
+  document.getElementById('giorno_arrivo').value = '';
+  document.getElementById('mese_arrivo').value = '';
+  document.getElementById('anno_arrivo').value = '';
+  document.getElementById('ora_partenza').value = '08:00';
+  document.getElementById('ora_arrivo').value = '08:00';
+  document.getElementById('scelta_pulmino').value = '';
+  document.getElementById('num_autisti').value = '1';
+  document.getElementById('cellulare').value = '';
+  document.getElementById('autisti_container').innerHTML = '';
+}
+
+// Tendine giorno, mese, anno
 function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   const selG = document.getElementById(giornoId);
   const selM = document.getElementById(meseId);
@@ -158,27 +188,32 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   for (let i = annoEnd; i>=annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const annoCorrente = new Date().getFullYear();
-  // Reti arrivano: range futuri
-  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
-  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente+6);
-  mostraModuliAutisti();
-});
-
+// Data helpers
 function getData(prefix) {
   const gg = document.getElementById('giorno_' + prefix).value;
   const mm = document.getElementById('mese_' + prefix).value;
   const aa = document.getElementById('anno_' + prefix).value;
   return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
 }
-
 function getDataAutista(tipo, i) {
   const gg = document.getElementById('giorno_' + tipo + '_' + i).value;
   const mm = document.getElementById('mese_' + tipo + '_' + i).value;
   const aa = document.getElementById('anno_' + tipo + '_' + i).value;
   return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
 }
+
+// Step logic
+document.addEventListener('DOMContentLoaded', function() {
+  const annoCorrente = new Date().getFullYear();
+  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente+6);
+  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente+6);
+  mostraModuliAutisti();
+  document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
+  document.getElementById('btnApriModulo').addEventListener('click', function() {
+    apriModuloPrecompilato();
+    showStep('step5');
+  });
+});
 
 function controllaDisponibilita() {
   const dataRitiro = getData('ritiro');
@@ -189,9 +224,11 @@ function controllaDisponibilita() {
     alert('Inserisci data e ora validi.');
     return;
   }
-  // Puoi inserire qui la logica delle prenotazioni come in precedenza...
   showStep('step2');
 }
+
+function vaiStep3() { showStep('step3'); }
+function vaiStep4() { showStep('step4'); }
 
 function mostraModuliAutisti() {
   const container = document.getElementById('autisti_container');
@@ -235,9 +272,7 @@ function mostraModuliAutisti() {
   }
 }
 
-// Step logic e progress bar (copia dal tuo JS di versione precedente)
-
-// Invio dati a Google Forms
+// INVIO A GOOGLE FORMS
 function apriModuloPrecompilato() {
   const num = parseInt(document.getElementById('num_autisti').value);
   const dataRitiro = getData('ritiro');
@@ -246,8 +281,7 @@ function apriModuloPrecompilato() {
   const oraArrivo = document.getElementById('ora_arrivo').value;
   const pulminoId = document.getElementById('scelta_pulmino').value;
   const cellulare = encodeURIComponent(document.getElementById('cellulare').value);
-  // ... altri dati
-
+  // Puoi personalizzare qui la composizione dei dati
   let urlModulo = "https://docs.google.com/forms/d/e/1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw/viewform?usp=pp_url" +
     `&entry.257199041=${encodeURIComponent(oraRitiro)}` +
     `&entry.917923685=${encodeURIComponent(oraArrivo)}` +
@@ -255,7 +289,7 @@ function apriModuloPrecompilato() {
     `&entry.517585546=${encodeURIComponent(dataArrivo)}` +
     `&entry.1888774437=${cellulare}`;
 
-  // Autisti (aggiorna id Google moduli, qui esempio!)
+  // Aggiorna questi ID con quelli del tuo Google Forms se necessario!
   const entryFields = [
     { nome: '550823113', data_nascita: '766463607', luogo_nascita: '1735522613', cf: '36844075', comune_residenza: '913323396', via_residenza: '1329485765', civico_residenza: '1349864501', numero_patente: '1885490374', inizio_patente: '525872521', fine_patente: '1864189410' },
     { nome: '1236551634', data_nascita: '503259772', luogo_nascita: '1977818551', cf: '1883324084', comune_residenza: '2118103863', via_residenza: '805763990', civico_residenza: '568892376', numero_patente: '124831667', inizio_patente: '657885946', fine_patente: '850104184' },
@@ -277,14 +311,6 @@ function apriModuloPrecompilato() {
 
   window.open(urlModulo, '_blank');
 }
-
-// Aggiungi la chiamata al click come nelle versioni precedenti
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('btnApriModulo').addEventListener('click', () => {
-    apriModuloPrecompilato();
-    setTimeout(() => { showStep('step5'); }, 500);
-  });
-});
 </script>
 </body>
 </html>
