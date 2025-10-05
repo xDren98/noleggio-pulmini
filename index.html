@@ -72,14 +72,22 @@ header p {
 }
 #prenotazioniList li {
   margin-bottom: 8px;
+  padding: 8px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 1px 1px 5px #b9d5b8;
 }
-.step {
-  display: none;
-  flex-direction: column;
-  gap: 14px;
+.stato-completato {
+  color: green;
+  font-weight: 700;
 }
-.step.active {
-  display: flex;
+.stato-in-corso {
+  color: red;
+  font-weight: 700;
+}
+.stato-prenotato {
+  color: goldenrod;
+  font-weight: 700;
 }
 label {
   font-weight: 600;
@@ -94,7 +102,7 @@ label {
   font-size: 20px;
   color: #37b24d;
 }
-select, input[type=tel], input[type=text] {
+input[type=text] {
   width: 100%;
   min-height: 43px;
   padding: 7px 10px;
@@ -106,46 +114,10 @@ select, input[type=tel], input[type=text] {
   background-color: #f9fff7;
   font-family: 'Poppins', sans-serif;
 }
-select:focus, input:focus {
+input[type=text]:focus {
   outline: none;
   border-color: #37b24d;
   background-color: #fff;
-}
-/* NUOVA GRIGLIA PER DATA/ORA */
-.booking-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-.booking-row {
-  display: flex;
-  gap: 36px;
-}
-.booking-row > div {
-  flex: none;
-}
-.date-inline {
-  display: flex;
-  gap: 6px;
-}
-.date-inline select {
-  min-width: 58px;
-  max-width: 90px;
-  width: auto;
-  padding: 7px 5px;
-}
-@media (max-width: 700px) {
-  .booking-row {
-    flex-direction: column;
-    gap: 5px;
-  }
-}
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 6px;
 }
 button {
   background-color: #37c559;
@@ -162,6 +134,7 @@ button {
   gap: 7px;
   box-shadow: 0 2px 6px #86e8a2aa;
   transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+  margin-left: 10px;
 }
 button span.material-icons {
   filter: drop-shadow(0 0 1px #26893a);
@@ -178,45 +151,11 @@ button:disabled {
   transform: none;
   color: #5c995c;
 }
-#disponibili_box {
+#errorMsg {
+  color: red;
   font-weight: 700;
-  font-size: 1.1em;
-  color: #2e7f2e;
-}
-.autista {
-  background-color: #eafbe9;
-  border: 1.5px solid #b2e4b2;
-  border-radius: 10px;
-  padding: 14px 15px;
-  box-shadow: 0 1px 6px #bfe9be47;
-}
-.autista:hover {
-  border-color: #48c030;
-  box-shadow: 0 0 16px #7add4555;
-}
-h3 {
-  font-weight: 700;
-  color: #27802a;
-  border-bottom: 2px solid #6fd24f;
-  margin-bottom: 5px;
-  padding-bottom: 2px;
-}
-#thankyou {
-  background: #e1f9d9;
-  border-radius: 12px;
-  box-shadow: 0 0 14px #8ddd4833;
+  margin-top: 10px;
   text-align: center;
-  padding: 30px 12px;
-}
-#thankyou h2 {
-  color: #3dab35;
-  font-weight: 700;
-  margin-bottom: 9px;
-}
-#thankyou p {
-  color: #2b6e21;
-  font-weight: 600;
-  font-size: 1.13em;
 }
 @media (max-width: 640px) {
   #mainbox, header { max-width: 100vw; padding-left: 2vw; padding-right: 2vw; }
@@ -234,7 +173,9 @@ h3 {
 </header>
 <div id="loginContainer">
   <form id="loginForm">
-    <label>Codice Fiscale:<br><input type="text" id="cf" required></label><br>
+    <label for="cfInput">Codice Fiscale:</label>
+    <input type="text" id="cfInput" maxlength="16" required />
+    <div id="errorMsg"></div>
     <button type="submit">Accedi</button>
     <button type="button" id="closeLogin">Chiudi</button>
   </form>
@@ -242,190 +183,121 @@ h3 {
 </div>
 <div id="prenotazioniList"></div>
 <div id="mainbox">
-  <div id="step1" class="step active">
-    <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
-    <div class="booking-grid">
-      <div class="booking-row">
-        <div>
-          <label><span class="material-icons">calendar_month</span> Data ritiro</label>
-          <div class="date-inline">
-            <select id="giorno_ritiro"></select>
-            <select id="mese_ritiro"></select>
-            <select id="anno_ritiro"></select>
-          </div>
-        </div>
-        <div>
-          <label><span class="material-icons">access_time</span> Ora ritiro</label>
-          <select id="ora_partenza">
-            <option value="08:00">08:00</option>
-            <option value="12:00">12:00</option>
-            <option value="16:00">16:00</option>
-            <option value="20:00">20:00</option>
-          </select>
-        </div>
-      </div>
-      <div class="booking-row">
-        <div>
-          <label><span class="material-icons">calendar_month</span> Data arrivo</label>
-          <div class="date-inline">
-            <select id="giorno_arrivo"></select>
-            <select id="mese_arrivo"></select>
-            <select id="anno_arrivo"></select>
-          </div>
-        </div>
-        <div>
-          <label><span class="material-icons">access_time</span> Ora arrivo</label>
-          <select id="ora_arrivo">
-            <option value="08:00">08:00</option>
-            <option value="12:00">12:00</option>
-            <option value="16:00">16:00</option>
-            <option value="20:00">20:00</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="actions">
-      <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
-  <div id="step2" class="step">
-    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
-    <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
-    <select id="scelta_pulmino"></select>
-    <div class="actions">
-      <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
-  <div id="step3" class="step">
-    <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
-    <select id="num_autisti" onchange="mostraModuliAutisti()">
-      <option value="1" selected>1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-    </select>
-    <div id="autisti_container"></div>
-    <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
-    <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
-    <div class="actions">
-      <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
-  <div id="step4" class="step">
-    <div id="istruzioni_modulo">
-      <strong style="color:#25a34e;">Istruzioni per il completamento della prenotazione:</strong>
-      <ol>
-        <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
-        <li>Verifica attentamente che tutti i dati siano corretti.</li>
-        <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
-        <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
-      </ol>
-      <p id="avviso_leggimi" style="color:#19692c;">Leggi attentamente prima di procedere!</p>
-    </div>
-    <div class="actions">
-      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Invia la prenotazione</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
-  <div id="step5" class="step">
-    <div id="thankyou">
-      <h2>Grazie per aver scelto Imbriani Noleggio!</h2>
-      <p>Ti abbiamo inviato il modulo di prenotazione.<br/>Ti auguriamo un viaggio piacevole e sicuro!</p>
-      <button type="button" onclick="goHome()"><span class="material-icons">home</span> Torna all'inizio</button>
-    </div>
-  </div>
+  <!-- Altri contenuti della pagina se necessario -->
 </div>
+
 <script>
-console.log("versione 2.4");
-// ****** Login ******
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const loginContainer = document.getElementById('loginContainer');
-const loginForm = document.getElementById('loginForm');
-const loginResult = document.getElementById('loginResult');
-const prenotazioniList = document.getElementById('prenotazioniList');
-const closeLogin = document.getElementById('closeLogin');
-function showPrenotazioni(data) {
-  if(!data || data.length === 0) {
-    prenotazioniList.innerHTML = '<p>Nessuna prenotazione trovata.</p>';
-    return;
-  }
-  let html = '<h3>Le tue prenotazioni:</h3><ul>';
-  data.forEach(p => {
-    html += `<li>Dal <strong>${p.dataRitiro}</strong> al <strong>${p.dataFine}</strong> - Pulmino: <strong>${p.targa}</strong> - Stato: ${p.stato}</li>`;
-  });
-  html += '</ul>';
-  prenotazioniList.innerHTML = html;
-}
-function logIn(cf) {
-  const gsurl = 'https://script.google.com/macros/s/AKfycbyRfwXBfNULgwohG24SDVpHl_68pIPHqTtBxrLkUNwTk53I85YWmkQMG4hjLzOcgnU2/exec';
-  const proxy = 'https://proxy-cors-google-apps.onrender.com/';
-  fetch(proxy + gsurl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cf: cf })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (!data || data.length === 0) {
-      loginResult.innerHTML = 'Credenziali errate o nessuna prenotazione trovata.';
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginContainer = document.getElementById('loginContainer');
+    const loginForm = document.getElementById('loginForm');
+    const cfInput = document.getElementById('cfInput');
+    const errorMsg = document.getElementById('errorMsg');
+    const loginResult = document.getElementById('loginResult');
+    const prenotazioniList = document.getElementById('prenotazioniList');
+    const closeLoginBtn = document.getElementById('closeLogin');
+
+    const backendUrl = 'https://script.google.com/macros/s/AKfycbyRfwXBfNULgwohG24SDVpHl_68pIPHqTtBxrLkUNwTk53I85YWmkQMG4hjLzOcgnU2/exec';
+
+    loginBtn.addEventListener('click', () => {
+      loginContainer.style.display = 'block';
+      loginResult.textContent = '';
+      errorMsg.textContent = '';
+      cfInput.value = '';
+    });
+
+    closeLoginBtn.addEventListener('click', () => {
+      loginContainer.style.display = 'none';
+      loginResult.textContent = '';
+      errorMsg.textContent = '';
+    });
+
+    logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('loginCF');
-      return;
+      prenotazioniList.innerHTML = '';
+      loginBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+      loginContainer.style.display = 'none';
+    });
+
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      loginResult.textContent = '';
+      let cf = cfInput.value.trim().toUpperCase();
+
+      if (cf.length !== 16) {
+        errorMsg.textContent = 'Inserisci un codice fiscale valido di 16 caratteri.';
+        return;
+      }
+      loginBtn.disabled = true;
+
+      fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cf })
+      })
+      .then(response => response.json())
+      .then(data => {
+        loginBtn.disabled = false;
+        if (!Array.isArray(data)) {
+          loginResult.textContent = 'Risposta non valida dal server.';
+          return;
+        }
+        if (data.length === 0) {
+          loginResult.textContent = 'Credenziali errate o nessuna prenotazione trovata.';
+          return;
+        }
+        localStorage.setItem('loginCF', cf);
+        loginContainer.style.display = 'none';
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        mostraPrenotazioni(data);
+      }).catch(err => {
+        loginBtn.disabled = false;
+        loginResult.textContent = 'Errore comunicazione login.';
+        console.error(err);
+      });
+    });
+
+    window.addEventListener('load', () => {
+      const savedCf = localStorage.getItem('loginCF');
+      if (savedCf) {
+        cfInput.value = savedCf;
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        loginContainer.style.display = 'none';
+        fetch(backendUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cf: savedCf })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            mostraPrenotazioni(data);
+          }
+        });
+      }
+    });
+
+    function mostraPrenotazioni(data) {
+      let html = '<h3>Le tue prenotazioni:</h3><ul>';
+      data.forEach(pren => {
+        let classeStato = '';
+        switch(pren.stato) {
+          case 'Completato': classeStato = 'stato-completato'; break;
+          case 'In corso': classeStato = 'stato-in-corso'; break;
+          case 'Prenotato': classeStato = 'stato-prenotato'; break;
+          default: classeStato = '';
+        }
+        html += `<li>Dal <strong>${pren.dal}</strong> al <strong>${pren.al}</strong> - Pulmino: <strong>${pren.targa}</strong> - Stato: <span class="${classeStato}">${pren.stato}</span></li>`;
+      });
+      html += '</ul>';
+      prenotazioniList.innerHTML = html;
     }
-    loginResult.innerHTML = '';
-    localStorage.setItem('loginCF', cf);
-    loginContainer.style.display = 'none';
-    loginBtn.style.display = 'none';
-    logoutBtn.style.display = 'inline-block';
-    showPrenotazioni(data);
-  }).catch(err => {
-    loginResult.innerHTML = 'Errore comunicazione login.';
-    console.error(err);
   });
-}
-function logOut() {
-  localStorage.removeItem('loginCF');
-  prenotazioniList.innerHTML = '';
-  loginBtn.style.display = 'inline-block';
-  logoutBtn.style.display = 'none';
-  loginContainer.style.display = 'none';
-}
-loginBtn.addEventListener('click', () => {
-  loginContainer.style.display = 'block';
-  loginResult.innerHTML = '';
-});
-closeLogin.addEventListener('click', () => {
-  loginContainer.style.display = 'none';
-  loginResult.innerHTML = '';
-  loginForm.reset();
-});
-logoutBtn.addEventListener('click', () => { logOut(); });
-loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  let cf = document.getElementById('cf').value.trim().toUpperCase();
-  logIn(cf);
-});
-window.addEventListener('DOMContentLoaded', () => {
-  const savedCf = localStorage.getItem('loginCF');
-  if(savedCf){ logIn(savedCf); }
-});
-// ****** Funzioni Prenotazione ******
-const pulmini = [
-  { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
-  { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
-  { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
-];
-// ...il resto del JS rimane invariato...
 </script>
 </body>
 </html>
-
-
-
-
-
