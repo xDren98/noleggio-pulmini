@@ -342,7 +342,7 @@ h3 {
   </div>
 </div>
 <script>
-console.log("versione 1.2");
+console.log("versione 1.3");
 // ****** Login ******
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
@@ -369,7 +369,7 @@ function logIn(cf, dn) {
     const parts = dn.split('-');
     dn = `${parts[2]}/${parts[1]}/${parts[0]}`;
   }
-  const gsurl = 'https://script.google.com/macros/s/AKfycbypJPSNrXaQUY6m9FvO5_yv32L5uf5lWKzDcovPmoBTjomjLEftRhKR4IBsBuFLBlc/exec';
+  const gsurl = 'https://script.google.com/macros/s/AKfycbwC68jjy4vpa4TNMvsppg7Xolr8eoqCmGlrLyQRuOiBia5g8o5EkWqy6cAp5eYLiXk8/exec';
   const proxy = 'https://proxy-cors-google-apps.onrender.com/';
   fetch(proxy + gsurl, {
     method: 'POST',
@@ -622,6 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
