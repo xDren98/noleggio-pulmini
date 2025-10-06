@@ -287,7 +287,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
   const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
 
- fetch(url, {
+fetch(url, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -295,14 +295,28 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
   },
   body: JSON.stringify({ cf })
 })
-  .then(response => response.text())
-  .then(text => {
-    console.log('Risposta raw dal server:', text);
-    //... gestione risposta
-  })
-  .catch(err => {
-    //... gestione errori
-  });
+.then(response => response.text())
+.then(text => {
+  console.log('Risposta raw dal server:', text);
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    throw new Error('Risposta non JSON valida dal server Google Apps Script. Testo ricevuto: ' + text);
+  }
+  if (!data || (Array.isArray(data) && data.length === 0)) {
+    loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
+  } else if (Array.isArray(data)) {
+    loginResult.innerHTML = '<h3>Prenotazioni trovate:</h3><ul>' +
+      data.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
+      '</ul>';
+  } else {
+    loginResult.textContent = JSON.stringify(data);
+  }
+})
+.catch(err => {
+  errorMsg.textContent = 'Errore durante la ricerca: ' + err.message;
+});
 
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -456,4 +470,5 @@ document.getElementById('num_autisti').addEventListener('change', mostraModuliAu
 </script>
 </body>
 </html>
+
 
