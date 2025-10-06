@@ -243,7 +243,7 @@
 </div>
 
 <script>
-console.log('Imbriani Noleggio - Versione codice: 1.1.3');
+console.log('Imbriani Noleggio - Versione codice: 1.1.5');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -287,36 +287,22 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
   const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
 
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ cf })
+ fetch(url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
+  },
+  body: JSON.stringify({ cf })
+})
+  .then(response => response.text())
+  .then(text => {
+    console.log('Risposta raw dal server:', text);
+    //... gestione risposta
   })
-    .then(response => response.text())
-    .then(text => {
-      console.log('Risposta raw dal server:', text);
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error('Risposta non JSON valida dal server Google Apps Script. Testo ricevuto: ' + text);
-      }
-      if (!data || (Array.isArray(data) && data.length === 0)) {
-        loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
-      } else if (Array.isArray(data)) {
-        loginResult.innerHTML = '<h3>Prenotazioni trovate:</h3><ul>' +
-          data.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
-          '</ul>';
-      } else {
-        loginResult.textContent = JSON.stringify(data);
-      }
-    })
-    .catch(err => {
-      errorMsg.textContent = 'Errore durante la ricerca: ' + err.message;
-    });
-});
+  .catch(err => {
+    //... gestione errori
+  });
 
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -470,3 +456,4 @@ document.getElementById('num_autisti').addEventListener('change', mostraModuliAu
 </script>
 </body>
 </html>
+
