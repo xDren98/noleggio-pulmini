@@ -279,7 +279,7 @@
 </div>
 
 <script>
-console.log('Imbriani Noleggio - Versione codice: 1.1.1');
+console.log('Imbriani Noleggio - Versione codice: 1.1.2');
 
 // Veicoli disponibili
 const pulmini = [
@@ -307,9 +307,10 @@ function getDataAutista(tipo, i) {
   return (gg && mm && aa) ? (gg + '/' + mm + '/' + aa) : '';
 }
 
-// Login API Google Apps POST
+// Login API Google Apps POST tramite proxy
 document.getElementById('loginForm').addEventListener('submit', function(event) {
   event.preventDefault();
+
   const cf = document.getElementById('cfInput').value.trim().toUpperCase();
   const errorMsg = document.getElementById('errorMsg');
   const loginResult = document.getElementById('loginResult');
@@ -321,9 +322,11 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     return;
   }
 
-  // API POST col proxy Google Apps
+  // URL base script e proxy
   const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyRfwXBfNULgwohG24SDVpHl_68pIPHqTtBxrLkUNwTk53I85YWmkQMG4hjLzOcgnU2/exec';
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
+
+  // Costruzione URL senza query params aggiuntivi
   const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
 
   fetch(url, {
@@ -331,13 +334,17 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cf })
   })
-  .then(response => {
-    if (!response.ok) throw new Error('Errore nella risposta dal server.');
-    return response.json();
-  })
-  .then(data => {
+  .then(response => response.text())
+  .then(text => {
+    console.log('Risposta raw dal server:', text);
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      throw new Error('Risposta non JSON valida dal server Google Apps Script. Testo ricevuto: ' + text);
+    }
     if (!data || (Array.isArray(data) && data.length === 0)) {
-      loginResult.innerHTML = 'Nessuna prenotazione trovata per questo codice fiscale.';
+      loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
     } else if (Array.isArray(data)) {
       loginResult.innerHTML = '<h3>Prenotazioni trovate:</h3><ul>' +
         data.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
@@ -351,7 +358,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
   });
 });
 
-// Navigazione step
+// Gestione navigazione step
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById(stepId).classList.add('active');
@@ -377,7 +384,7 @@ function goHome() {
   document.getElementById('chiamaContinuaBtn').disabled = true;
 }
 
-// Popolamento date
+// Popola select date
 function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   const selG = document.getElementById(giornoId);
   const selM = document.getElementById(meseId);
@@ -391,7 +398,7 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   for(let i=annoEnd; i>=annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
 }
 
-// Check disponibilità veicoli
+// Verifica disponibilità pulmini
 function controllaDisponibilita() {
   const dataRitiroStr = getData('ritiro');
   const oraRitiro = document.getElementById('ora_partenza').value;
@@ -436,17 +443,21 @@ function controllaDisponibilita() {
   });
 }
 
+// Mostra step 3 e genera moduli autisti
 function vaiStep3() {
   showStep('step3');
-  mostraModuliAutisti(); // GENERA subito i campi autisti!
+  mostraModuliAutisti();
 }
+
+// Mostra step 4
 function vaiStep4() { showStep('step4'); }
 
+// Genera dinamicamente i moduli autisti
 function mostraModuliAutisti() {
   const container = document.getElementById('autisti_container');
   const num = parseInt(document.getElementById('num_autisti').value);
   container.innerHTML = '';
-  for (let i = 1; i <= num; i++) {
+  for (let i=1; i<=num; i++) {
     container.innerHTML += `<div class="autista">
       <h3>Autista ${i}</h3>
       <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
@@ -484,37 +495,30 @@ function mostraModuliAutisti() {
   }
 }
 
-// Moduli login show/hide
-document.getElementById('loginBtn').addEventListener('click', function() {
+// Login mostra/nascondi
+document.getElementById('loginBtn').addEventListener('click', () => {
   const loginContainer = document.getElementById('loginContainer');
   loginContainer.style.display = (loginContainer.style.display === 'none' || loginContainer.style.display === '') ? 'block' : 'none';
 });
-document.getElementById('closeLogin').addEventListener('click', function() {
+document.getElementById('closeLogin').addEventListener('click', () => {
   document.getElementById('loginContainer').style.display = 'none';
 });
 
-// Api Google Form
-function apriModuloPrecompilato() {
-  // ... rimane invariato ...
-}
+// Google Form apertura (rimane invariato, da integrare)
+// Aggiungi se vuoi
 
-// Popola date onload & attiva autisti al cambio select
-window.onload = function() {
+// Init popola date e genera moduli autisti all'avvio
+window.onload = () => {
   const annoCorrente = new Date().getFullYear();
   popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente + 1);
   popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente + 1);
+  mostraModuliAutisti();
   document.getElementById('loginBtn').textContent = 'Gestisci le tue prenotazioni';
-  mostraModuliAutisti(); // genera i moduli autisti su prima apertura!
 };
 
-// Se cambia numero autisti, aggiorna i campi!
+// Aggiorna campi autisti al cambio numero
 document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
 
-// Invio prenotazione Google Form
-document.getElementById('btnApriModulo').addEventListener("click", function() {
-  apriModuloPrecompilato();
-  showStep('step5');
-});
 </script>
 </body>
 </html>
