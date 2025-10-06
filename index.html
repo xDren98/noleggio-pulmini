@@ -10,7 +10,9 @@
   body {
     font-family: 'Poppins', sans-serif;
     background: #f7f7f7;
-    margin: 0; min-height: 100vh; padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    padding: 0;
   }
   #mainbox {
     max-width: 700px;
@@ -30,72 +32,130 @@
     text-align: center;
   }
   header h1 {
-    font-weight: 700; font-size: 2em; color: #37b24d; margin: 0 0 4px 0;
+    font-weight: 700;
+    font-size: 2em;
+    color: #37b24d;
+    margin: 0 0 4px 0;
   }
   header p {
-    font-weight: 600; font-size: 1em; color: #516551; margin: 0 0 10px 0;
+    font-weight: 600;
+    font-size: 1em;
+    color: #516551;
+    margin: 0 0 10px 0;
   }
   .step {
     display: none;
     flex-direction: column;
     gap: 12px;
   }
-  .step.active { display: flex; }
-  label {
-    font-weight: 600; font-size: 1.02em; color: #2c5d2a;
-    margin-bottom: 2px;
-    display: flex; align-items: center; gap: 8px;
+  .step.active {
+    display: flex;
   }
-  .material-icons { font-size: 20px; color: #37b24d; }
+  label {
+    font-weight: 600;
+    font-size: 1.02em;
+    color: #2c5d2a;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .material-icons {
+    font-size: 20px;
+    color: #37b24d;
+  }
   select, input[type=tel], input[type=text] {
-    width: 100%; min-height: 43px; padding: 7px 10px;
-    font-size: 1em; border-radius: 10px; border: 1.4px solid #72b972;
-    color: #2c5d2a; background-color: #f9fff7; font-family: 'Poppins', sans-serif;
+    width: 100%;
+    min-height: 43px;
+    padding: 7px 10px;
+    font-size: 1em;
+    border-radius: 10px;
+    border: 1.4px solid #72b972;
+    color: #2c5d2a;
+    background-color: #f9fff7;
+    font-family: 'Poppins', sans-serif;
   }
   .actions {
-    display: flex; gap: 10px; margin-top: 6px;
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
   }
   button {
-    background-color: #37c559; color: #fff; font-weight: 700;
-    border: none; border-radius: 14px; cursor: pointer; font-size: 1.05em;
-    padding: 11px 25px; display: flex; align-items: center; gap: 7px;
-    box-shadow: 0 2px 6px #86e8a2aa; transition: all 0.2s;
+    background-color: #37c559;
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 1.05em;
+    padding: 11px 25px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 2px 6px #86e8a2aa;
+    transition: all 0.2s;
   }
   button:hover:not(:disabled) {
-    background-color: #24943d; box-shadow: 0 2px 12px #30af5640; transform: scale(1.02);
+    background-color: #24943d;
+    box-shadow: 0 2px 12px #30af5640;
+    transform: scale(1.02);
   }
   button:disabled {
-    background-color: #b7d6b7; cursor: not-allowed; color: #5c995c;
+    background-color: #b7d6b7;
+    cursor: not-allowed;
+    color: #5c995c;
   }
   #disponibili_box {
-    font-weight: 700; font-size: 1.1em; color: #2e7f2e;
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #2e7f2e;
   }
   .autista {
-    background-color: #eafbe9; border: 1.5px solid #b2e4b2; border-radius: 10px;
-    padding: 14px 15px; box-shadow: 0 1px 6px #bfe9be47; margin-bottom: 12px;
+    background-color: #eafbe9;
+    border: 1.5px solid #b2e4b2;
+    border-radius: 10px;
+    padding: 14px 15px;
+    box-shadow: 0 1px 6px #bfe9be47;
+    margin-bottom: 12px;
   }
   h3 {
-    font-weight: 700; color: #27802a; border-bottom: 2px solid #6fd24f;
-    margin-bottom: 6px; padding-bottom: 3px;
+    font-weight: 700;
+    color: #27802a;
+    border-bottom: 2px solid #6fd24f;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
   }
   #thankyou {
-    background: #e1f9d9; border-radius: 12px; box-shadow: 0 0 14px #8ddd4833;
-    text-align: center; padding: 30px 12px;
+    background: #e1f9d9;
+    border-radius: 12px;
+    box-shadow: 0 0 14px #8ddd4833;
+    text-align: center;
+    padding: 30px 12px;
   }
   #thankyou h2 {
-    color: #3dab35; font-weight: 700; margin-bottom: 9px;
+    color: #3dab35;
+    font-weight: 700;
+    margin-bottom: 9px;
   }
   #thankyou p {
-    color: #2b6e21; font-weight: 600; font-size: 1.13em;
+    color: #2b6e21;
+    font-weight: 600;
+    font-size: 1.13em;
   }
   #errorMsg {
-    color: red; font-weight: 700; margin-top: 10px; text-align: center;
+    color: red;
+    font-weight: 700;
+    margin-top: 10px;
+    text-align: center;
   }
   #loginContainer {
-    display: none; max-width: 700px; margin: 0 auto 1.5rem;
+    display: none;
+    max-width: 700px;
+    margin: 0 auto 1.5rem;
   }
   @media (max-width: 700px) {
-    #mainbox, header {
+    #mainbox,
+    header {
       max-width: 100vw;
       padding: 0 2vw;
     }
@@ -104,16 +164,26 @@
     }
   }
   .dataora-row {
-    display: flex; gap: 16px; align-items: flex-end; margin-bottom: 10px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 10px;
   }
   .data-col {
-    display: flex; flex-direction: column; flex: 2; min-width: 190px;
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    min-width: 190px;
   }
   .ora-col {
-    flex: 1; display: flex; flex-direction: column; min-width: 110px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 110px;
   }
   .date-inline {
-    display: flex; gap: 7px;
+    display: flex;
+    gap: 7px;
   }
 </style>
 </head>
@@ -129,7 +199,7 @@
 <div id="loginContainer">
   <form id="loginForm">
     <label for="cfInput">Codice Fiscale:</label>
-    <input type="text" id="cfInput" maxlength="16" required/>
+    <input type="text" id="cfInput" maxlength="16" required />
     <div id="errorMsg"></div>
     <button type="submit">Accedi</button>
     <button type="button" id="closeLogin">Chiudi</button>
@@ -140,7 +210,6 @@
 <div id="prenotazioniList" style="max-width:700px; margin:0 auto;"></div>
 
 <div id="mainbox">
-
   <div id="step1" class="step active">
     <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
     <div class="dataora-row">
@@ -243,7 +312,7 @@
 </div>
 
 <script>
-console.log('Imbriani Noleggio - Versione codice: 1.1.5');
+console.log('Imbriani Noleggio - Versione codice: 1.1.6');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -256,12 +325,14 @@ function convertDateToIso(dateEuro) {
   if (parts.length !== 3) return '';
   return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
+
 function getData(prefix) {
   const gg = document.getElementById('giorno_' + prefix).value;
   const mm = document.getElementById('mese_' + prefix).value;
   const aa = document.getElementById('anno_' + prefix).value;
   return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
 }
+
 function getDataAutista(tipo, i) {
   const gg = document.getElementById(`giorno_${tipo}_${i}`).value;
   const mm = document.getElementById(`mese_${tipo}_${i}`).value;
@@ -287,47 +358,48 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
   const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
 
-fetch(url, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest'
-  },
-  body: JSON.stringify({ cf })
-})
-.then(response => response.text())
-.then(text => {
-  console.log('Risposta raw dal server:', text);
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-    throw new Error('Risposta non JSON valida dal server Google Apps Script. Testo ricevuto: ' + text);
-  }
-  if (!data || (Array.isArray(data) && data.length === 0)) {
-    loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
-  } else if (Array.isArray(data)) {
-    loginResult.innerHTML = '<h3>Prenotazioni trovate:</h3><ul>' +
-      data.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
-      '</ul>';
-  } else {
-    loginResult.textContent = JSON.stringify(data);
-  }
-})
-.catch(err => {
-  errorMsg.textContent = 'Errore durante la ricerca: ' + err.message;
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: JSON.stringify({ cf })
+  }).then(response => response.text())
+    .then(text => {
+      console.log('Risposta raw dal server:', text);
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error('Risposta non JSON valida dal server Google Apps Script. Testo ricevuto: ' + text);
+      }
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
+      } else if (Array.isArray(data)) {
+        loginResult.innerHTML = '<h3>Prenotazioni trovate:</h3><ul>' +
+          data.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
+          '</ul>';
+      } else {
+        loginResult.textContent = JSON.stringify(data);
+      }
+    }).catch(err => {
+      errorMsg.textContent = 'Errore durante la ricerca: ' + err.message;
+    });
 });
 
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById(stepId).classList.add('active');
 }
+
 function goBack() {
   if (document.getElementById('step5').classList.contains('active')) showStep('step4');
   else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
   else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
   else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
 }
+
 function goHome() {
   showStep('step1');
   ['giorno_ritiro', 'mese_ritiro', 'anno_ritiro', 'giorno_arrivo', 'mese_arrivo', 'anno_arrivo'].forEach(id => {
@@ -470,5 +542,3 @@ document.getElementById('num_autisti').addEventListener('change', mostraModuliAu
 </script>
 </body>
 </html>
-
-
