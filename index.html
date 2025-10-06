@@ -188,127 +188,127 @@
 </style>
 </head>
 <body>
-  <header>
-    <h1>Imbriani Noleggio</h1>
-    <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
-    <div id="userBar" style="margin-bottom:20px;text-align:center;">
-      <button id="loginBtn">Gestisci le tue prenotazioni</button>
-      <button id="logoutBtn" style="display:none;">Logout</button>
-    </div>
-  </header>
-  <div id="loginContainer">
-    <form id="loginForm">
-      <label for="cfInput">Codice Fiscale:</label>
-      <input type="text" id="cfInput" maxlength="16" required />
-      <div id="errorMsg"></div>
-      <button type="submit">Accedi</button>
-      <button type="button" id="closeLogin">Chiudi</button>
-    </form>
-    <div id="loginResult"></div>
+<header>
+  <h1>Imbriani Noleggio</h1>
+  <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
+  <div id="userBar" style="margin-bottom:20px;text-align:center;">
+    <button id="loginBtn">Gestisci le tue prenotazioni</button>
+    <button id="logoutBtn" style="display:none;">Logout</button>
   </div>
-  <div id="prenotazioniList" style="max-width:700px; margin:0 auto;"></div>
+</header>
+<div id="loginContainer">
+  <form id="loginForm">
+    <label for="cfInput">Codice Fiscale:</label>
+    <input type="text" id="cfInput" maxlength="16" required />
+    <div id="errorMsg"></div>
+    <button type="submit">Accedi</button>
+    <button type="button" id="closeLogin">Chiudi</button>
+  </form>
+  <div id="loginResult"></div>
+</div>
+<div id="prenotazioniList" style="max-width:700px; margin:0 auto;"></div>
 
-  <div id="mainbox">
-    <div id="step1" class="step active">
-      <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
-      <div class="dataora-row">
-        <div class="data-col">
-          <label><span class="material-icons">calendar_month</span> Data ritiro</label>
-          <div class="date-inline">
-            <select id="giorno_ritiro"></select>
-            <select id="mese_ritiro"></select>
-            <select id="anno_ritiro"></select>
-          </div>
-        </div>
-        <div class="ora-col">
-          <label><span class="material-icons">access_time</span> Ora ritiro</label>
-          <select id="ora_partenza">
-            <option value="08:00">08:00</option>
-            <option value="12:00">12:00</option>
-            <option value="16:00">16:00</option>
-            <option value="20:00">20:00</option>
-          </select>
-        </div>
-      </div>
-      <div class="dataora-row">
-        <div class="data-col">
-          <label><span class="material-icons">calendar_month</span> Data arrivo</label>
-          <div class="date-inline">
-            <select id="giorno_arrivo"></select>
-            <select id="mese_arrivo"></select>
-            <select id="anno_arrivo"></select>
-          </div>
-        </div>
-        <div class="ora-col">
-          <label><span class="material-icons">access_time</span> Ora arrivo</label>
-          <select id="ora_arrivo">
-            <option value="08:00">08:00</option>
-            <option value="12:00">12:00</option>
-            <option value="16:00">16:00</option>
-            <option value="20:00">20:00</option>
-          </select>
+<div id="mainbox">
+  <div id="step1" class="step active">
+    <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
+    <div class="dataora-row">
+      <div class="data-col">
+        <label><span class="material-icons">calendar_month</span> Data ritiro</label>
+        <div class="date-inline">
+          <select id="giorno_ritiro"></select>
+          <select id="mese_ritiro"></select>
+          <select id="anno_ritiro"></select>
         </div>
       </div>
-      <div class="actions">
-        <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
-        <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
+      <div class="ora-col">
+        <label><span class="material-icons">access_time</span> Ora ritiro</label>
+        <select id="ora_partenza">
+          <option value="08:00">08:00</option>
+          <option value="12:00">12:00</option>
+          <option value="16:00">16:00</option>
+          <option value="20:00">20:00</option>
+        </select>
       </div>
     </div>
-
-    <div id="step2" class="step">
-      <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
-      <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
-      <select id="scelta_pulmino"></select>
-      <div class="actions">
-        <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
-        <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-        <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
+    <div class="dataora-row">
+      <div class="data-col">
+        <label><span class="material-icons">calendar_month</span> Data arrivo</label>
+        <div class="date-inline">
+          <select id="giorno_arrivo"></select>
+          <select id="mese_arrivo"></select>
+          <select id="anno_arrivo"></select>
+        </div>
+      </div>
+      <div class="ora-col">
+        <label><span class="material-icons">access_time</span> Ora arrivo</label>
+        <select id="ora_arrivo">
+          <option value="08:00">08:00</option>
+          <option value="12:00">12:00</option>
+          <option value="16:00">16:00</option>
+          <option value="20:00">20:00</option>
+        </select>
       </div>
     </div>
-
-    <div id="step3" class="step">
-      <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
-      <select id="num_autisti">
-        <option value="1" selected>1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-      </select>
-      <div id="autisti_container"></div>
-      <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
-      <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
-      <div class="actions">
-        <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
-        <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-        <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-      </div>
-    </div>
-
-    <div id="step4" class="step">
-      <div id="istruzioni_modulo">
-        <strong style="color:#25a34e;">Istruzioni per il completamento della prenotazione:</strong>
-        <ol>
-          <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
-          <li>Verifica attentamente che tutti i dati siano corretti.</li>
-          <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
-          <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
-        </ol>
-        <p id="avviso_leggimi" style="color:#19692c;">Leggi attentamente prima di procedere!</p>
-      </div>
-      <div class="actions">
-        <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Invia la prenotazione</button>
-        <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-        <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-      </div>
-    </div>
-
-    <div id="step5" class="step">
-      <div id="thankyou">
-        <h2>Grazie per aver scelto Imbriani Noleggio!</h2>
-        <p>Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!</p>
-        <button type="button" onclick="goHome()"><span class="material-icons">home</span> Torna all'inizio</button>
-      </div>
+    <div class="actions">
+      <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
     </div>
   </div>
+
+  <div id="step2" class="step">
+    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
+    <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
+    <select id="scelta_pulmino"></select>
+    <div class="actions">
+      <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
+      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
+    </div>
+  </div>
+
+  <div id="step3" class="step">
+    <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
+    <select id="num_autisti">
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+    <div id="autisti_container"></div>
+    <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
+    <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
+    <div class="actions">
+      <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
+      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
+    </div>
+  </div>
+
+  <div id="step4" class="step">
+    <div id="istruzioni_modulo">
+      <strong style="color:#25a34e;">Istruzioni per il completamento della prenotazione:</strong>
+      <ol>
+        <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
+        <li>Verifica attentamente che tutti i dati siano corretti.</li>
+        <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
+        <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
+      </ol>
+      <p id="avviso_leggimi" style="color:#19692c;">Leggi attentamente prima di procedere!</p>
+    </div>
+    <div class="actions">
+      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Invia la prenotazione</button>
+      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
+      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
+    </div>
+  </div>
+
+  <div id="step5" class="step">
+    <div id="thankyou">
+      <h2>Grazie per aver scelto Imbriani Noleggio!</h2>
+      <p>Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!</p>
+      <button type="button" onclick="goHome()"><span class="material-icons">home</span> Torna all'inizio</button>
+    </div>
+  </div>
+</div>
 
 <script>
 console.log('Imbriani Noleggio - Versione codice: 1.1.3');
@@ -351,15 +351,15 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     return;
   }
 
-  const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyRfwXBfNULgwohG24SDVpHl_68pIPHqTtBxrLkUNwTk53I85YWmkQMG4hjLzOcgnU2/exec';
+  const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbwm5JnAL-BKsL082wXWFWn9l3v8rWM-rI0UgtFfa8hJIB_8wMywRbkpwsMXaxRGa54/exec';
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
   const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
 
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Origin': window.location.origin
+      'Content-Type': 'application/json'
+      // Lasciamo che il browser gestisca Origin header
     },
     body: JSON.stringify({ cf })
   })
@@ -527,7 +527,6 @@ document.getElementById('closeLogin').addEventListener('click', () => {
   document.getElementById('loginContainer').style.display = 'none';
 });
 
-// Popola le date alla partenza e mostra autisti inizialmente
 window.onload = () => {
   const annoCorrente = new Date().getFullYear();
   popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente + 1);
@@ -537,10 +536,6 @@ window.onload = () => {
 };
 
 document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
-
-// Event listener invio modulo Google Form - da integrare a seconda della tua logica
-// document.getElementById('btnApriModulo').addEventListener("click", apriModuloPrecompilato);
-
 </script>
 </body>
 </html>
