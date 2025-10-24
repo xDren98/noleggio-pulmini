@@ -41,7 +41,7 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     return;
   }
 
-  const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbwm5JnAL-BKsL082wXWFWn9l3v8rWM-rI0UgtFfa8hJIB_8wMywRbkpwsMXaxRGa54/exec';
+  const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec';
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
   const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
 
@@ -53,28 +53,36 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     },
     body: JSON.stringify({ cf })
   })
-  .then(response => response.json())
-  .then(data => {
-    if (!data || (Array.isArray(data) && data.length === 0)) {
-      loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
-      loggedCustomerData = null;
-    } else {
-      loggedCustomerData = { cf };
-
-      let listaPrenotazioniHtml = '<h3>Prenotazioni trovate:</h3><ul>' +
-        data.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
-        '</ul><button id="btnNewBookingFromLogin">Prenota un nuovo noleggio</button>';
-
-      loginResult.innerHTML = listaPrenotazioniHtml;
-
-      document.getElementById('btnNewBookingFromLogin').addEventListener('click', () => {
-        startNewBookingWithPreFill();
-      });
+  .then(response => response.text())
+  .then(text => {
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      loginResult.textContent = 'Risposta non valida dal server: ' + text;
+      return;
     }
+    if (!data.success) {
+      loginResult.textContent = 'Errore dal server: ' + (data.error || 'Errore non specificato');
+      return;
+    }
+    if (!data.prenotazioni || data.prenotazioni.length === 0) {
+      loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
+      return;
+    }
+
+    // Mostra la lista prenotazioni
+    let listaPrenotazioniHtml = '<h3>Prenotazioni trovate:</h3><ul>' +
+      data.prenotazioni.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
+      '</ul><button id="btnNewBookingFromLogin">Prenota un nuovo noleggio</button>';
+    loginResult.innerHTML = listaPrenotazioniHtml;
+
+    document.getElementById('btnNewBookingFromLogin').addEventListener('click', () => {
+      startNewBookingWithPreFill();
+    });
   })
   .catch(err => {
     loginResult.textContent = 'Errore durante la ricerca: ' + err.message;
-    loggedCustomerData = null;
   });
 });
 
@@ -93,12 +101,11 @@ function startNewBookingWithPreFill() {
     document.getElementById('num_autisti').value = '1';
     mostraModuliAutisti();
 
-    // Qui es. precompilazione da dati reali, ora solo codice fiscale:
+    // Prefill dati autista 1 dal codice fiscale (esempio minimo)
     document.getElementById('codice_fiscale_1').value = loggedCustomerData.cf || '';
   }
 }
 
-// Gestione step e pulsanti
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   const step = document.getElementById(stepId);
@@ -141,7 +148,6 @@ function controllaDisponibilita() {
       if (pren.targa !== p.targa) return false;
       const inizio = new Date(pren.inizio);
       const fine = new Date(pren.fine);
-      // Sovrapposizione corretta (non devono essere separati)
       return !(fine <= dateRitiro || inizio >= dateArrivo);
     });
   });
@@ -228,7 +234,6 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   for (let i = annoEnd; i >= annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
 }
 
-// Popola inizialmente le date in homepage
 window.onload = () => {
   const annoCorrente = new Date().getFullYear();
   popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente + 1);
