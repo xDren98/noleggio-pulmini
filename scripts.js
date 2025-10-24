@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 1.2.0');
+console.log('Imbriani Noleggio - Versione codice: 1.2.1');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -172,9 +172,7 @@ function controllaDisponibilita() {
 
   // CHIAMATA AL SERVER PER RECUPERARE LE PRENOTAZIONI REALI
   // USANDO IL NUOVO URL DELLO SCRIPT DISPONIBILITÀ
-  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/';
-  const scriptDisponibilitaUrl = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec';
-  const url = proxyUrl + scriptDisponibilitaUrl;
+  const url = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec';
 
   fetch(url, {
     method: 'POST',
