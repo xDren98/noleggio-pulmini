@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 1.2.2');
+console.log('Imbriani Noleggio - Versione codice: 1.2.1');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -41,7 +41,6 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     return;
   }
 
-  // URL SCRIPT LOGIN (VECCHIO)
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/';
   const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec';
   const url = proxyUrl + baseScriptUrl;
@@ -71,13 +70,11 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
       return;
     }
 
-    // Mostra la lista prenotazioni
     loggedCustomerData = { cf };
 
     let listaPrenotazioniHtml = '<div class="prenotazioni-container"><h3>Prenotazioni trovate:</h3>';
 
     data.prenotazioni.forEach(item => {
-      // Determina la classe CSS in base allo stato
       let statoClass = '';
       if (item.stato === 'Prenotato') statoClass = 'status--info';
       else if (item.stato === 'In corso') statoClass = 'status--warning';
@@ -170,9 +167,9 @@ function controllaDisponibilita() {
     return;
   }
 
-  // CHIAMATA AL SERVER PER RECUPERARE LE PRENOTAZIONI REALI
-  // USANDO IL NUOVO URL DELLO SCRIPT DISPONIBILITÀ
-  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/'; const scriptDisponibilitaUrl = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec'; const url = proxyUrl + scriptDisponibilitaUrl;
+  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/';
+  const scriptDisponibilitaUrl = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec';
+  const url = proxyUrl + scriptDisponibilitaUrl;
 
   fetch(url, {
     method: 'POST',
@@ -181,21 +178,39 @@ function controllaDisponibilita() {
   })
   .then(response => response.json())
   .then(data => {
+    console.log('=== DEBUG DISPONIBILITÀ ===');
+    console.log('Data ricevuta dal backend:', data);
+    console.log('Prenotazioni:', data.prenotazioni);
+    console.log('Data ritiro richiesta:', dateRitiro);
+    console.log('Data arrivo richiesta:', dateArrivo);
+    
     if (!data.success) {
       alert('Errore nel recupero delle prenotazioni: ' + (data.error || 'Errore sconosciuto'));
       return;
     }
 
     const arrayPrenotazioni = data.prenotazioni;
+    
+    arrayPrenotazioni.forEach(pren => {
+      const inizio = new Date(pren.inizio);
+      const fine = new Date(pren.fine);
+      console.log(`Prenotazione ${pren.targa}: ${inizio} => ${fine}`);
+      console.log(`  Sovrappone? ${!(fine <= dateRitiro || inizio >= dateArrivo)}`);
+    });
 
     const disponibili = pulmini.filter(p => {
       return !arrayPrenotazioni.some(pren => {
         if (pren.targa !== p.targa) return false;
         const inizio = new Date(pren.inizio);
         const fine = new Date(pren.fine);
-        return !(fine <= dateRitiro || inizio >= dateArrivo);
+        const sovrapposizione = !(fine <= dateRitiro || inizio >= dateArrivo);
+        console.log(`${p.nome} (${p.targa}) vs Prenotazione ${pren.targa}: sovrapposizione=${sovrapposizione}`);
+        return sovrapposizione;
       });
     });
+    
+    console.log('Pulmini disponibili:', disponibili);
+    console.log('=== FINE DEBUG ===');
 
     const select = document.getElementById('scelta_pulmino');
     if (!select) return;
