@@ -525,3 +525,28 @@ h3 {
   color: #2c5d2a;
   margin-bottom: 12px;
 }
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon .material-icons {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 20px;
+  pointer-events: none;
+}
+
+.input-with-icon #cfInputHomepage {
+  padding-left: 44px;
+}
+.badge-new {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  margin-left: 8px;
+  font-weight: 700;
+}
