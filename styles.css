@@ -170,3 +170,134 @@ h3 {
   display: flex;
   gap: 7px;
 }
+/* ========================================
+   STILI PER LE PRENOTAZIONI
+   ======================================== */
+
+.prenotazioni-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.prenotazioni-container h3 {
+  color: #27802a;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+}
+
+.prenotazione-card {
+  background: linear-gradient(135deg, #eafbe9 0%, #f9fff7 100%);
+  border: 1.5px solid #b2e4b2;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.1);
+  transition: all 0.3s ease;
+}
+
+.prenotazione-card:hover {
+  box-shadow: 0 4px 16px rgba(55, 178, 77, 0.2);
+  transform: translateY(-2px);
+}
+
+.prenotazione-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1em;
+  color: #2c5d2a;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #6fd24f;
+}
+
+.prenotazione-header .material-icons {
+  font-size: 24px;
+  color: #37b24d;
+}
+
+.prenotazione-date {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.date-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95em;
+  color: #2c5d2a;
+}
+
+.date-item .material-icons {
+  font-size: 18px;
+  color: #37b24d;
+}
+
+.prenotazione-stato {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.status--success {
+  background-color: rgba(55, 178, 77, 0.15);
+  color: #27802a;
+  border: 1px solid rgba(55, 178, 77, 0.3);
+}
+
+.status--warning {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status--info {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+#btnNewBookingFromLogin {
+  margin-top: 16px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#btnNewBookingFromLogin .material-icons {
+  font-size: 20px;
+}
+
+/* Responsive per mobile */
+@media (max-width: 600px) {
+  .prenotazione-card {
+    padding: 14px;
+  }
+  
+  .prenotazione-header {
+    font-size: 1em;
+  }
+  
+  .date-item {
+    font-size: 0.9em;
+  }
+  
+  .status {
+    font-size: 0.85em;
+    padding: 5px 10px;
+  }
+}
