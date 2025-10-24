@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 1.2.1');
+console.log('Imbriani Noleggio - Versione codice: 1.2.2');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
