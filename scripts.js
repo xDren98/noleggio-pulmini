@@ -42,14 +42,14 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
   }
 
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/';
-const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec';
-const url = proxyUrl + baseScriptUrl;
+  const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec';
+  const url = proxyUrl + baseScriptUrl;
 
   fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
-  },
+    },
     body: JSON.stringify({ cf })
   })
   .then(response => response.text())
@@ -71,9 +71,44 @@ const url = proxyUrl + baseScriptUrl;
     }
 
     // Mostra la lista prenotazioni
-    let listaPrenotazioniHtml = '<h3>Prenotazioni trovate:</h3><ul>' +
-      data.prenotazioni.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
-      '</ul><button id="btnNewBookingFromLogin">Prenota un nuovo noleggio</button>';
+    loggedCustomerData = { cf };
+
+    let listaPrenotazioniHtml = '<div class="prenotazioni-container"><h3>Prenotazioni trovate:</h3>';
+
+    data.prenotazioni.forEach(item => {
+      // Determina la classe CSS in base allo stato
+      let statoClass = '';
+      if (item.stato === 'Prenotato') statoClass = 'status--info';
+      else if (item.stato === 'In corso') statoClass = 'status--warning';
+      else if (item.stato === 'Completato') statoClass = 'status--success';
+
+      listaPrenotazioniHtml += `
+        <div class="card prenotazione-card">
+          <div class="card__body">
+            <div class="prenotazione-header">
+              <span class="material-icons">directions_bus</span>
+              <strong>${item.targa || 'N/D'}</strong>
+            </div>
+            <div class="prenotazione-date">
+              <div class="date-item">
+                <span class="material-icons">event</span>
+                <span><strong>Dal:</strong> ${item.dal || 'N/D'}</span>
+              </div>
+              <div class="date-item">
+                <span class="material-icons">event</span>
+                <span><strong>Al:</strong> ${item.al || 'N/D'}</span>
+              </div>
+            </div>
+            <div class="prenotazione-stato">
+              <span class="status ${statoClass}">${item.stato || 'N/D'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    listaPrenotazioniHtml += '</div><button id="btnNewBookingFromLogin" class="btn btn--primary"><span class="material-icons">add</span> Prenota un nuovo noleggio</button>';
+
     loginResult.innerHTML = listaPrenotazioniHtml;
 
     document.getElementById('btnNewBookingFromLogin').addEventListener('click', () => {
@@ -99,8 +134,6 @@ function startNewBookingWithPreFill() {
   if (loggedCustomerData) {
     document.getElementById('num_autisti').value = '1';
     mostraModuliAutisti();
-
-    // Prefill dati autista 1 dal codice fiscale (esempio minimo)
     document.getElementById('codice_fiscale_1').value = loggedCustomerData.cf || '';
   }
 }
