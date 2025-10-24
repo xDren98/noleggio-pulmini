@@ -19,14 +19,17 @@
 
   <!-- HOME PAGE -->
   <div id="homepage">
-    <p><strong>Hai già prenotato con noi?</strong><br> Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
+    <h2>Hai già prenotato con noi?</h2> <p>Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
     <form id="loginFormHomepage">
-      <input type="text" id="cfInputHomepage" maxlength="16" placeholder="Codice fiscale" required />
+      <div class="input-with-icon">
+  <span class="material-icons">person</span>
+  <input type="text" id="cfInputHomepage" placeholder="Codice fiscale" required maxlength="16">
+</div>
       <button type="submit">Accedi</button>
     </form>
     <div id="loginResultHomepage"></div>
     <hr />
-    <p><strong>Prima volta con noi?</strong> Prenota ora il tuo pulmino. <button id="btnNewBooking">   <span class="material-icons">add_circle</span>   Prenota ora </button></p>
+    <h2>Prima volta con noi?</h2> <p>Prenota ora il tuo pulmino. <button id="btnNewBooking">   <span class="material-icons">add_circle</span>   Prenota ora   <span class="badge-new">Facile!</span> </button></p>
   </div>
 
   <!-- FORM DI PRENOTAZIONE -->
@@ -118,6 +121,7 @@
   <script src="scripts.js" defer></script>
 </body>
 </html>
+
 
 
 
