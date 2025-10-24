@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 1.1.9');
+console.log('Imbriani Noleggio - Versione codice: 1.2.0');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -41,6 +41,7 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     return;
   }
 
+  // URL SCRIPT LOGIN (VECCHIO)
   const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/';
   const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec';
   const url = proxyUrl + baseScriptUrl;
@@ -169,36 +170,54 @@ function controllaDisponibilita() {
     return;
   }
 
-  const arrayPrenotazioni = [
-    { targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
-    { targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
-    { targa: 'EC787NM', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' }
-  ];
+  // CHIAMATA AL SERVER PER RECUPERARE LE PRENOTAZIONI REALI
+  // USANDO IL NUOVO URL DELLO SCRIPT DISPONIBILITÀ
+  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/';
+  const scriptDisponibilitaUrl = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec';
+  const url = proxyUrl + scriptDisponibilitaUrl;
 
-  const disponibili = pulmini.filter(p => {
-    return !arrayPrenotazioni.some(pren => {
-      if (pren.targa !== p.targa) return false;
-      const inizio = new Date(pren.inizio);
-      const fine = new Date(pren.fine);
-      return !(fine <= dateRitiro || inizio >= dateArrivo);
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'getPrenotazioni' })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (!data.success) {
+      alert('Errore nel recupero delle prenotazioni: ' + (data.error || 'Errore sconosciuto'));
+      return;
+    }
+
+    const arrayPrenotazioni = data.prenotazioni;
+
+    const disponibili = pulmini.filter(p => {
+      return !arrayPrenotazioni.some(pren => {
+        if (pren.targa !== p.targa) return false;
+        const inizio = new Date(pren.inizio);
+        const fine = new Date(pren.fine);
+        return !(fine <= dateRitiro || inizio >= dateArrivo);
+      });
     });
-  });
 
-  const select = document.getElementById('scelta_pulmino');
-  if (!select) return;
-  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-  document.getElementById('num_disponibili').textContent = disponibili.length;
+    const select = document.getElementById('scelta_pulmino');
+    if (!select) return;
+    select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+    document.getElementById('num_disponibili').textContent = disponibili.length;
 
-  if (disponibili.length === 0) {
-    alert('Nessun pulmino disponibile per la fascia selezionata!');
-    return;
-  }
-  showStep('step2');
-  const continuaBtn = document.getElementById('chiamaContinuaBtn');
-  continuaBtn.disabled = true;
+    if (disponibili.length === 0) {
+      alert('Nessun pulmino disponibile per la fascia selezionata!');
+      return;
+    }
+    showStep('step2');
+    const continuaBtn = document.getElementById('chiamaContinuaBtn');
+    continuaBtn.disabled = true;
 
-  select.addEventListener('change', function () {
-    continuaBtn.disabled = !this.value;
+    select.addEventListener('change', function () {
+      continuaBtn.disabled = !this.value;
+    });
+  })
+  .catch(err => {
+    alert('Errore durante il controllo disponibilità: ' + err.message);
   });
 }
 
