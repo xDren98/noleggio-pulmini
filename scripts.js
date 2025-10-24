@@ -172,7 +172,7 @@ function controllaDisponibilita() {
 
   // CHIAMATA AL SERVER PER RECUPERARE LE PRENOTAZIONI REALI
   // USANDO IL NUOVO URL DELLO SCRIPT DISPONIBILITÀ
-  const url = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec';
+  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/'; const scriptDisponibilitaUrl = 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec'; const url = proxyUrl + scriptDisponibilitaUrl;
 
   fetch(url, {
     method: 'POST',
