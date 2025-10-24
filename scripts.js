@@ -41,16 +41,15 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     return;
   }
 
-  const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec';
-  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
-  const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
+  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com/';
+const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec';
+const url = proxyUrl + baseScriptUrl;
 
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
+      'Content-Type': 'application/json'
+  },
     body: JSON.stringify({ cf })
   })
   .then(response => response.text())
