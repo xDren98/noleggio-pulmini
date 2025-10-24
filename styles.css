@@ -488,3 +488,35 @@ h3 {
   margin-bottom: 40px;
   line-height: 1.6;
 }
+/* Miglioramenti pulsante prenota */
+#btnNewBooking {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #37b24d 0%, #2d9a3e 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.25);
+}
+
+#btnNewBooking:hover {
+  background: linear-gradient(135deg, #2d9a3e 0%, #27802a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(55, 178, 77, 0.35);
+}
+
+#btnNewBooking:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.2);
+}
+
+#btnNewBooking .material-icons {
+  font-size: 22px;
+}
