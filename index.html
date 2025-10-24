@@ -1,544 +1,117 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Imbriani Noleggio</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-<style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: #f7f7f7;
-    margin: 0;
-    min-height: 100vh;
-    padding: 0;
-  }
-  #mainbox {
-    max-width: 700px;
-    margin: 32px auto 54px;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 2px 10px rgba(44, 93, 42, 0.07);
-    padding: 26px 20px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  header {
-    max-width: 700px;
-    margin: 0 auto 10px;
-    padding-top: 10px;
-    text-align: center;
-  }
-  header h1 {
-    font-weight: 700;
-    font-size: 2em;
-    color: #37b24d;
-    margin: 0 0 4px 0;
-  }
-  header p {
-    font-weight: 600;
-    font-size: 1em;
-    color: #516551;
-    margin: 0 0 10px 0;
-  }
-  .step {
-    display: none;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .step.active {
-    display: flex;
-  }
-  label {
-    font-weight: 600;
-    font-size: 1.02em;
-    color: #2c5d2a;
-    margin-bottom: 2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .material-icons {
-    font-size: 20px;
-    color: #37b24d;
-  }
-  select, input[type=tel], input[type=text] {
-    width: 100%;
-    min-height: 43px;
-    padding: 7px 10px;
-    font-size: 1em;
-    border-radius: 10px;
-    border: 1.4px solid #72b972;
-    color: #2c5d2a;
-    background-color: #f9fff7;
-    font-family: 'Poppins', sans-serif;
-  }
-  .actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 6px;
-  }
-  button {
-    background-color: #37c559;
-    color: #fff;
-    font-weight: 700;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    font-size: 1.05em;
-    padding: 11px 25px;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    box-shadow: 0 2px 6px #86e8a2aa;
-    transition: all 0.2s;
-  }
-  button:hover:not(:disabled) {
-    background-color: #24943d;
-    box-shadow: 0 2px 12px #30af5640;
-    transform: scale(1.02);
-  }
-  button:disabled {
-    background-color: #b7d6b7;
-    cursor: not-allowed;
-    color: #5c995c;
-  }
-  #disponibili_box {
-    font-weight: 700;
-    font-size: 1.1em;
-    color: #2e7f2e;
-  }
-  .autista {
-    background-color: #eafbe9;
-    border: 1.5px solid #b2e4b2;
-    border-radius: 10px;
-    padding: 14px 15px;
-    box-shadow: 0 1px 6px #bfe9be47;
-    margin-bottom: 12px;
-  }
-  h3 {
-    font-weight: 700;
-    color: #27802a;
-    border-bottom: 2px solid #6fd24f;
-    margin-bottom: 6px;
-    padding-bottom: 3px;
-  }
-  #thankyou {
-    background: #e1f9d9;
-    border-radius: 12px;
-    box-shadow: 0 0 14px #8ddd4833;
-    text-align: center;
-    padding: 30px 12px;
-  }
-  #thankyou h2 {
-    color: #3dab35;
-    font-weight: 700;
-    margin-bottom: 9px;
-  }
-  #thankyou p {
-    color: #2b6e21;
-    font-weight: 600;
-    font-size: 1.13em;
-  }
-  #errorMsg {
-    color: red;
-    font-weight: 700;
-    margin-top: 10px;
-    text-align: center;
-  }
-  #loginContainer {
-    display: none;
-    max-width: 700px;
-    margin: 0 auto 1.5rem;
-  }
-  @media (max-width: 700px) {
-    #mainbox,
-    header {
-      max-width: 100vw;
-      padding: 0 2vw;
-    }
-    .actions {
-      flex-direction: column;
-    }
-  }
-  .dataora-row {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
-    margin-bottom: 10px;
-  }
-  .data-col {
-    display: flex;
-    flex-direction: column;
-    flex: 2;
-    min-width: 190px;
-  }
-  .ora-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 110px;
-  }
-  .date-inline {
-    display: flex;
-    gap: 7px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Imbriani Noleggio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header>
-  <h1>Imbriani Noleggio</h1>
-  <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
-  <div id="userBar" style="margin-bottom:20px;text-align:center;">
-    <button id="loginBtn">Gestisci le tue prenotazioni</button>
-    <button id="logoutBtn" style="display:none;">Logout</button>
+  <header>
+    <h1>Imbriani Noleggio</h1>
+    <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
+  </header>
+
+  <!-- HOME PAGE -->
+  <div id="homepage">
+    <p>Se sei già nostro cliente, inserisci il tuo codice fiscale per vedere le tue prenotazioni.</p>
+    <form id="loginFormHomepage">
+      <input type="text" id="cfInputHomepage" maxlength="16" placeholder="Codice fiscale" required />
+      <button type="submit">Accedi</button>
+    </form>
+    <div id="loginResultHomepage"></div>
+    <hr />
+    <p>Se sei un nuovo cliente, puoi <button id="btnNewBooking">creare una nuova prenotazione</button></p>
   </div>
-</header>
-<div id="loginContainer">
-  <form id="loginForm">
-    <label for="cfInput">Codice Fiscale:</label>
-    <input type="text" id="cfInput" maxlength="16" required />
-    <div id="errorMsg"></div>
-    <button type="submit">Accedi</button>
-    <button type="button" id="closeLogin">Chiudi</button>
-  </form>
-  <div id="loginResult"></div>
-</div>
 
-<div id="prenotazioniList" style="max-width:700px; margin:0 auto;"></div>
-
-<div id="mainbox">
-  <div id="step1" class="step active">
-    <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
-    <div class="dataora-row">
-      <div class="data-col">
-        <label><span class="material-icons">calendar_month</span> Data ritiro</label>
-        <div class="date-inline">
-          <select id="giorno_ritiro"></select>
-          <select id="mese_ritiro"></select>
-          <select id="anno_ritiro"></select>
+  <!-- FORM DI PRENOTAZIONE -->
+  <div id="mainbox" style="display:none;">
+    <div id="step1" class="step active">
+      <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
+      <div class="dataora-row">
+        <div class="data-col">
+          <label><span class="material-icons">calendar_month</span> Data ritiro</label>
+          <div class="date-inline">
+            <select id="giorno_ritiro"></select>
+            <select id="mese_ritiro"></select>
+            <select id="anno_ritiro"></select>
+          </div>
+        </div>
+        <div class="ora-col">
+          <label><span class="material-icons">access_time</span> Ora ritiro</label>
+          <select id="ora_partenza">
+            <option value="08:00">08:00</option>
+            <option value="12:00">12:00</option>
+            <option value="16:00">16:00</option>
+            <option value="20:00">20:00</option>
+          </select>
         </div>
       </div>
-      <div class="ora-col">
-        <label><span class="material-icons">access_time</span> Ora ritiro</label>
-        <select id="ora_partenza">
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
-      </div>
-    </div>
-    <div class="dataora-row">
-      <div class="data-col">
-        <label><span class="material-icons">calendar_month</span> Data arrivo</label>
-        <div class="date-inline">
-          <select id="giorno_arrivo"></select>
-          <select id="mese_arrivo"></select>
-          <select id="anno_arrivo"></select>
+      <div class="dataora-row">
+        <div class="data-col">
+          <label><span class="material-icons">calendar_month</span> Data arrivo</label>
+          <div class="date-inline">
+            <select id="giorno_arrivo"></select>
+            <select id="mese_arrivo"></select>
+            <select id="anno_arrivo"></select>
+          </div>
+        </div>
+        <div class="ora-col">
+          <label><span class="material-icons">access_time</span> Ora arrivo</label>
+          <select id="ora_arrivo">
+            <option value="08:00">08:00</option>
+            <option value="12:00">12:00</option>
+            <option value="16:00">16:00</option>
+            <option value="20:00">20:00</option>
+          </select>
         </div>
       </div>
-      <div class="ora-col">
-        <label><span class="material-icons">access_time</span> Ora arrivo</label>
-        <select id="ora_arrivo">
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
+      <div class="actions">
+        <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica disponibilità</button>
       </div>
     </div>
-    <div class="actions">
-      <button onclick="controllaDisponibilita()"><span class="material-icons">search</span> Verifica Disponibilità</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
 
-  <div id="step2" class="step">
-    <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
-    <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino disponibile:</label>
-    <select id="scelta_pulmino"></select>
-    <div class="actions">
-      <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
-
-  <div id="step3" class="step">
-    <label for="num_autisti"><span class="material-icons">group</span> Numero autisti (max 3):</label>
-    <select id="num_autisti">
-      <option value="1" selected>1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-    </select>
-    <div id="autisti_container"></div>
-    <label for="cellulare"><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
-    <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
-    <div class="actions">
-      <button id="btnIstruzioniContinua" onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
-
-  <div id="step4" class="step">
-    <div id="istruzioni_modulo">
-      <strong style="color:#25a34e;">Istruzioni per il completamento della prenotazione:</strong>
-      <ol>
-        <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato con i dati inseriti finora.</li>
-        <li>Verifica attentamente che tutti i dati siano corretti.</li>
-        <li>Scorri fino in fondo al modulo e clicca <em>Invia</em> per completare la prenotazione.</li>
-        <li>Se hai indicato meno di tre autisti, puoi lasciare vuoti i campi dedicati agli autisti non indicati.</li>
-      </ol>
-      <p id="avviso_leggimi" style="color:#19692c;">Leggi attentamente prima di procedere!</p>
-    </div>
-    <div class="actions">
-      <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Invia la prenotazione</button>
-      <button onclick="goBack()"><span class="material-icons">arrow_back</span> Indietro</button>
-      <button onclick="goHome()"><span class="material-icons">home</span> Home</button>
-    </div>
-  </div>
-
-  <div id="step5" class="step">
-    <div id="thankyou">
-      <h2>Grazie per aver scelto Imbriani Noleggio!</h2>
-      <p>Ti abbiamo inviato il modulo di prenotazione.<br />Ti auguriamo un viaggio piacevole e sicuro!</p>
-      <button type="button" onclick="goHome()"><span class="material-icons">home</span> Torna all'inizio</button>
-    </div>
-  </div>
-</div>
-
-<script>
-console.log('Imbriani Noleggio - Versione codice: 1.1.6');
-
-const pulmini = [
-  { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
-  { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
-  { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
-];
-
-function convertDateToIso(dateEuro) {
-  let parts = dateEuro.split('/');
-  if (parts.length !== 3) return '';
-  return `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
-
-function getData(prefix) {
-  const gg = document.getElementById('giorno_' + prefix).value;
-  const mm = document.getElementById('mese_' + prefix).value;
-  const aa = document.getElementById('anno_' + prefix).value;
-  return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
-}
-
-function getDataAutista(tipo, i) {
-  const gg = document.getElementById(`giorno_${tipo}_${i}`).value;
-  const mm = document.getElementById(`mese_${tipo}_${i}`).value;
-  const aa = document.getElementById(`anno_${tipo}_${i}`).value;
-  return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
-}
-
-document.getElementById('loginForm').addEventListener('submit', function(event) {
-  event.preventDefault();
-
-  const cf = document.getElementById('cfInput').value.trim().toUpperCase();
-  const errorMsg = document.getElementById('errorMsg');
-  const loginResult = document.getElementById('loginResult');
-  errorMsg.textContent = '';
-  loginResult.textContent = '';
-
-  if (!cf || cf.length !== 16) {
-    errorMsg.textContent = 'Inserisci un codice fiscale valido (16 caratteri).';
-    return;
-  }
-
-  const baseScriptUrl = 'https://script.google.com/macros/s/AKfycbwm5JnAL-BKsL082wXWFWn9l3v8rWM-rI0UgtFfa8hJIB_8wMywRbkpwsMXaxRGa54/exec';
-  const proxyUrl = 'https://proxy-cors-google-apps.onrender.com';
-  const url = `${proxyUrl}?url=${encodeURIComponent(baseScriptUrl)}`;
-
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    body: JSON.stringify({ cf })
-  }).then(response => response.text())
-    .then(text => {
-      console.log('Risposta raw dal server:', text);
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error('Risposta non JSON valida dal server Google Apps Script. Testo ricevuto: ' + text);
-      }
-      if (!data || (Array.isArray(data) && data.length === 0)) {
-        loginResult.textContent = 'Nessuna prenotazione trovata per questo codice fiscale.';
-      } else if (Array.isArray(data)) {
-        loginResult.innerHTML = '<h3>Prenotazioni trovate:</h3><ul>' +
-          data.map(item => `<li>Veicolo: ${item.targa || 'N/D'}, dalla: ${item.dal || 'N/D'}, al: ${item.al || 'N/D'}, stato: ${item.stato || 'N/D'}</li>`).join('') +
-          '</ul>';
-      } else {
-        loginResult.textContent = JSON.stringify(data);
-      }
-    }).catch(err => {
-      errorMsg.textContent = 'Errore durante la ricerca: ' + err.message;
-    });
-});
-
-function showStep(stepId) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById(stepId).classList.add('active');
-}
-
-function goBack() {
-  if (document.getElementById('step5').classList.contains('active')) showStep('step4');
-  else if (document.getElementById('step4').classList.contains('active')) showStep('step3');
-  else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
-  else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
-}
-
-function goHome() {
-  showStep('step1');
-  ['giorno_ritiro', 'mese_ritiro', 'anno_ritiro', 'giorno_arrivo', 'mese_arrivo', 'anno_arrivo'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  document.getElementById('ora_partenza').value = '08:00';
-  document.getElementById('ora_arrivo').value = '08:00';
-  document.getElementById('scelta_pulmino').innerHTML = '<option value="">-- Seleziona un pulmino --</option>';
-  document.getElementById('num_autisti').value = '1';
-  document.getElementById('cellulare').value = '';
-  document.getElementById('autisti_container').innerHTML = '';
-  document.getElementById('chiamaContinuaBtn').disabled = true;
-}
-
-function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
-  const selG = document.getElementById(giornoId);
-  const selM = document.getElementById(meseId);
-  const selA = document.getElementById(annoId);
-  if (!selG || !selM || !selA) return;
-  selG.innerHTML = '<option value="">GG</option>';
-  for (let i = 1; i <= 31; i++) selG.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
-  selM.innerHTML = '<option value="">MM</option>';
-  for (let i = 1; i <= 12; i++) selM.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
-  selA.innerHTML = '<option value="">AAAA</option>';
-  for (let i = annoEnd; i >= annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
-}
-
-function controllaDisponibilita() {
-  const dataRitiroStr = getData('ritiro');
-  const oraRitiro = document.getElementById('ora_partenza').value;
-  const dataArrivoStr = getData('arrivo');
-  const oraArrivo = document.getElementById('ora_arrivo').value;
-  if (!dataRitiroStr || !oraRitiro || !dataArrivoStr || !oraArrivo) {
-    alert('Inserisci data e ora validi.');
-    return;
-  }
-  const dateRitiro = new Date(`${dataRitiroStr.split('/')[2]}-${dataRitiroStr.split('/')[1]}-${dataRitiroStr.split('/')[0]}T${oraRitiro}`);
-  const dateArrivo = new Date(`${dataArrivoStr.split('/')[2]}-${dataArrivoStr.split('/')[1]}-${dataArrivoStr.split('/')[0]}T${oraArrivo}`);
-  if (dateRitiro >= dateArrivo) {
-    alert("La data/ora di arrivo deve essere successiva a quella di ritiro.");
-    return;
-  }
-  const arrayPrenotazioni = [
-    { targa: 'DN391FW', inizio: '2025-10-03T18:00:00', fine: '2025-10-06T10:00:00' },
-    { targa: 'DL291XZ', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' },
-    { targa: 'EC787NM', inizio: '2025-10-05T08:00:00', fine: '2025-10-05T20:00:00' }
-  ];
-  const disponibili = pulmini.filter(p => {
-    return !arrayPrenotazioni.some(pren => {
-      if (pren.targa !== p.targa) return false;
-      const inizio = new Date(pren.inizio);
-      const fine = new Date(pren.fine);
-      return inizio < dateArrivo && fine > dateRitiro;
-    });
-  });
-  const select = document.getElementById('scelta_pulmino');
-  if (!select) return;
-  select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-  document.getElementById('num_disponibili').textContent = disponibili.length;
-  if (disponibili.length === 0) {
-    alert('Nessun pulmino disponibile per la fascia selezionata!');
-    return;
-  }
-  showStep('step2');
-  const continuaBtn = document.getElementById('chiamaContinuaBtn');
-  continuaBtn.disabled = true;
-  select.addEventListener('change', function () {
-    continuaBtn.disabled = !this.value;
-  });
-}
-
-function vaiStep3() {
-  showStep('step3');
-  mostraModuliAutisti();
-}
-function vaiStep4() {
-  showStep('step4');
-}
-
-function mostraModuliAutisti() {
-  const container = document.getElementById('autisti_container');
-  const num = parseInt(document.getElementById('num_autisti').value);
-  container.innerHTML = '';
-  for (let i = 1; i <= num; i++) {
-    container.innerHTML += `<div class="autista">
-      <h3>Autista ${i}</h3>
-      <label>Nome e Cognome</label><input type="text" id="nome_cognome_${i}" required />
-      <label>Data di nascita</label>
-      <div class="date-inline">
-        <select id="giorno_nascita_${i}"></select>
-        <select id="mese_nascita_${i}"></select>
-        <select id="anno_nascita_${i}"></select>
+    <div id="step2" class="step">
+      <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
+      <label for="scelta_pulmino"><span class="material-icons">directions_bus</span> Scegli il pulmino:</label>
+      <select id="scelta_pulmino"></select>
+      <div class="actions">
+        <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled><span class="material-icons">arrow_forward</span> Continua</button>
       </div>
-      <label>Luogo di nascita</label><input type="text" id="luogo_nascita_${i}" required />
-      <label>Comune di residenza</label><input type="text" id="comune_residenza_${i}" required />
-      <label>Via di residenza</label><input type="text" id="via_residenza_${i}" required />
-      <label>Civico di residenza</label><input type="text" id="civico_residenza_${i}" required />
-      <label>Codice fiscale</label><input type="text" id="codice_fiscale_${i}" required />
-      <label>Numero patente</label><input type="text" id="numero_patente_${i}" required />
-      <label>Data inizio validità patente</label>
-      <div class="date-inline">
-        <select id="giorno_inizio_validita_patente_${i}"></select>
-        <select id="mese_inizio_validita_patente_${i}"></select>
-        <select id="anno_inizio_validita_patente_${i}"></select>
+    </div>
+
+    <div id="step3" class="step">
+      <label><span class="material-icons">group</span> Inserisci i dati autisti:</label>
+      <select id="num_autisti">
+        <option value="1" selected>1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+      <div id="autisti_container"></div>
+      <label><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
+      <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
+      <div class="actions">
+        <button onclick="vaiStep4()"><span class="material-icons">arrow_forward</span> Continua</button>
       </div>
-      <label>Data fine validità patente</label>
-      <div class="date-inline">
-        <select id="giorno_fine_validita_patente_${i}"></select>
-        <select id="mese_fine_validita_patente_${i}"></select>
-        <select id="anno_fine_validita_patente_${i}"></select>
+    </div>
+
+    <div id="step4" class="step">
+      <div id="istruzioni_modulo">
+        <strong>Istruzioni per il completamento della prenotazione:</strong>
+        <ol>
+          <li>Si aprirà una nuova finestra con il modulo di prenotazione precompilato.</li>
+          <li>Controlla i dati e clicca su <em>Invia</em> per completare.</li>
+          <li>Se hai meno di tre autisti, lascia vuoti i campi inutilizzati.</li>
+        </ol>
       </div>
-    </div>`;
-  }
-  const annoCorrente = new Date().getFullYear();
-  for (let i = 1; i <= num; i++) {
-    popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
-    popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente - 50, annoCorrente + 10);
-    popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente + 15);
-  }
-}
+      <div class="actions">
+        <button id="btnApriModulo"><span class="material-icons">directions_bus</span> Invia la prenotazione</button>
+      </div>
+    </div>
+  </div>
 
-document.getElementById('loginBtn').addEventListener('click', () => {
-  const loginContainer = document.getElementById('loginContainer');
-  loginContainer.style.display = (loginContainer.style.display === 'none' || loginContainer.style.display === '') ? 'block' : 'none';
-});
-document.getElementById('closeLogin').addEventListener('click', () => {
-  document.getElementById('loginContainer').style.display = 'none';
-});
-
-window.onload = () => {
-  const annoCorrente = new Date().getFullYear();
-  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente + 1);
-  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente + 1);
-  mostraModuliAutisti();
-  document.getElementById('loginBtn').textContent = 'Gestisci le tue prenotazioni';
-};
-
-document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
-</script>
+  <script src="scripts.js" defer></script>
 </body>
 </html>
