@@ -753,3 +753,312 @@ select:invalid {
 select:valid {
   color: #2c5d2a;
 }
+/* ============================================
+   LOADER OVERLAY
+   ============================================ */
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(31, 33, 33, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-in;
+}
+
+.loader-spinner {
+  text-align: center;
+  color: var(--color-text);
+}
+
+.loader-spinner p {
+  margin-top: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.spinner {
+  border: 4px solid rgba(50, 184, 198, 0.2);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+   BANNER SUCCESSO/ERRORE
+   ============================================ */
+
+.error-banner,
+.success-banner {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-lg);
+  z-index: 10000;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 420px;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+}
+
+.error-banner {
+  background: rgba(var(--color-error-rgb), 0.15);
+  color: var(--color-error);
+  border: 1px solid rgba(var(--color-error-rgb), 0.3);
+  border-left: 4px solid var(--color-error);
+}
+
+.success-banner {
+  background: rgba(var(--color-success-rgb), 0.15);
+  color: var(--color-success);
+  border: 1px solid rgba(var(--color-success-rgb), 0.3);
+  border-left: 4px solid var(--color-success);
+}
+
+.error-banner .material-icons,
+.success-banner .material-icons {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(450px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(450px);
+    opacity: 0;
+  }
+}
+
+/* Responsive: banner mobile */
+@media (max-width: 640px) {
+  .error-banner,
+  .success-banner {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+    font-size: var(--font-size-sm);
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOut {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+  }
+}
+
+/* ============================================
+   BOTTONE INDIETRO
+   ============================================ */
+
+.btn-back {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 10px 16px;
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--color-text);
+  transition: all var(--duration-fast) var(--ease-standard);
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  font-size: var(--font-size-sm);
+}
+
+.btn-back:hover {
+  background: var(--color-secondary-hover);
+  transform: translateX(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-back:active {
+  transform: translateX(-1px);
+}
+
+.btn-back .material-icons {
+  font-size: 20px;
+}
+
+@media (max-width: 640px) {
+  .btn-back {
+    top: 16px;
+    left: 16px;
+    padding: 8px 12px;
+    font-size: var(--font-size-xs);
+  }
+  
+  .btn-back .material-icons {
+    font-size: 18px;
+  }
+}
+
+/* ============================================
+   ANIMAZIONI SMOOTH PER STEP
+   ============================================ */
+
+.step {
+  animation: fadeInStep 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInStep {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   STATO DI FOCUS MIGLIORATO
+   ============================================ */
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* Rimuovi outline per mouse click ma mantienilo per tastiera */
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ============================================
+   STATI DI VALIDAZIONE INPUT
+   ============================================ */
+
+input.valid {
+  border-color: var(--color-success);
+}
+
+input.invalid {
+  border-color: var(--color-error);
+}
+
+/* Icona di validazione */
+input.valid,
+input.invalid {
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+input.valid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2337b24d' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+input.invalid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23c0152f' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='15' y1='9' x2='9' y2='15'%3E%3C/line%3E%3Cline x1='9' y1='9' x2='15' y2='15'%3E%3C/line%3E%3C/svg%3E");
+}
+
+/* ============================================
+   PULSANTI DISABILITATI
+   ============================================ */
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================
+   TOOLTIP HELPER (per futuri hint)
+   ============================================ */
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  background: var(--color-text);
+  color: var(--color-background);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast);
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
