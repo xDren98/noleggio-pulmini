@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.4.1 - Final Complete');
+console.log('Imbriani Noleggio - Versione codice: 2.4.2 - Final Complete');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -71,12 +71,14 @@ function convertDateToIso(dateEuro) {
 }
 
 function formatToISO(data) {
-  // Google Forms con campi data separati vuole MM/DD/YYYY o DD/MM/YYYY (dipende dalla localizzazione)
-  // Proviamo a inviare nel formato originale GG/MM/AAAA
   if (!data || data.length !== 10) return "";
-  return data; // Lascia nel formato GG/MM/AAAA
+  const parts = data.split('/');
+  if (parts.length === 3) {
+    // Prova formato MM/DD/YYYY (formato USA)
+    return `${parts[1]}/${parts[0]}/${parts[2]}`;
+  }
+  return data;
 }
-
 
 function getData(prefix) {
   const gg = document.getElementById('giorno_' + prefix).value;
