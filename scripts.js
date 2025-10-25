@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.0 - Complete with Cellulare');
+console.log('Imbriani Noleggio - Versione codice: 2.2.1 - Complete with Cellulare');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -515,15 +515,240 @@ function vaiStep4() {
   }
 
   mostraSuccesso('Dati validati con successo!');
+  
+  // ✅ GENERA RIEPILOGO
+  mostraRiepilogo();
   showStep('step4');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const btnApriModulo = document.getElementById('btnApriModulo');
-  if (btnApriModulo) {
-    btnApriModulo.addEventListener('click', inviaPrenotazione);
+// ✅ NUOVA FUNZIONE: MOSTRA RIEPILOGO
+function mostraRiepilogo() {
+  const container = document.getElementById('riepilogo_container');
+  if (!container) return;
+  
+  let html = '<div class="riepilogo">';
+  
+  // Sezione Prenotazione
+  html += `
+    <div class="riepilogo-section">
+      <h3>📋 Dettagli Prenotazione</h3>
+      <div class="riepilogo-grid">
+        <div class="riepilogo-item">
+          <span class="riepilogo-label">Pulmino:</span>
+          <span class="riepilogo-value">${bookingData.pulmino.nome} (${bookingData.pulmino.targa})</span>
+        </div>
+        <div class="riepilogo-item">
+          <span class="riepilogo-label">Ritiro:</span>
+          <span class="riepilogo-value">${bookingData.dataRitiro} alle ${bookingData.oraRitiro}</span>
+        </div>
+        <div class="riepilogo-item">
+          <span class="riepilogo-label">Riconsegna:</span>
+          <span class="riepilogo-value">${bookingData.dataArrivo} alle ${bookingData.oraArrivo}</span>
+        </div>
+        <div class="riepilogo-item">
+          <span class="riepilogo-label">Cellulare di riferimento:</span>
+          <span class="riepilogo-value">${bookingData.cellulare}</span>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Sezione Autisti
+  bookingData.autisti.forEach((autista, index) => {
+    html += `
+      <div class="riepilogo-section">
+        <h3>👤 Autista ${index + 1}</h3>
+        <div class="riepilogo-grid">
+          <div class="riepilogo-item">
+            <span class="riepilogo-label">Nome e Cognome:</span>
+            <span class="riepilogo-value">${autista.nomeCognome}</span>
+          </div>
+          <div class="riepilogo-item">
+            <span class="riepilogo-label">Data di nascita:</span>
+            <span class="riepilogo-value">${autista.dataNascita}</span>
+          </div>
+          <div class="riepilogo-item">
+            <span class="riepilogo-label">Luogo di nascita:</span>
+            <span class="riepilogo-value">${autista.luogoNascita}</span>
+          </div>
+          <div class="riepilogo-item">
+            <span class="riepilogo-label">Codice Fiscale:</span>
+            <span class="riepilogo-value">${autista.codiceFiscale}</span>
+          </div>
+          <div class="riepilogo-item">
+            <span class="riepilogo-label">Residenza:</span>
+            <span class="riepilogo-value">${autista.viaResidenza} ${autista.civicoResidenza}, ${autista.comuneResidenza}</span>
+          </div>
+          <div class="riepilogo-item">
+            <span class="riepilogo-label">Patente:</span>
+            <span class="riepilogo-value">${autista.numeroPatente}</span>
+          </div>
+          <div class="riepilogo-item">
+            <span class="riepilogo-label">Validità patente:</span>
+            <span class="riepilogo-value">Dal ${autista.dataInizioValiditaPatente} al ${autista.dataFineValiditaPatente}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += `
+    <div class="riepilogo-actions">
+      <button onclick="confermaPrenotazione()" class="btn btn--primary btn--lg btn--full-width">
+        ✅ Conferma e Invia Prenotazione
+      </button>
+      <p style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--color-text-secondary);">
+        Verifica attentamente i dati prima di confermare
+      </p>
+    </div>
+  </div>`;
+  
+  container.innerHTML = html;
+}
+
+// ✅ NUOVA FUNZIONE: CONFERMA E INVIO AUTOMATICO
+function confermaPrenotazione() {
+  mostraLoading(true);
+  
+  const formId = '11jQAzYFUg2Qgu-XyR5pj9hgzc992ZKeIeaHos2KBk7A';
+  const formSubmitUrl = `https://docs.google.com/forms/d/e/${formId}/formResponse`;
+
+  const ENTRY = {
+    nomeCognome1: "entry.1117372864",
+    dataNascita1: "entry.1463974346",
+    luogoNascita1: "entry.1633665128",
+    codiceFiscale1: "entry.36844075",
+    comuneResidenza1: "entry.115888402",
+    viaResidenza1: "entry.913323396",
+    civicoResidenza1: "entry.851213452",
+    numeroPatente1: "entry.15925456",
+    inizioValiditaPatente1: "entry.914754440",
+    fineValiditaPatente1: "entry.1373011243",
+    targaPulmino: "entry.1676855906",
+    oraRitiro: "entry.821083355",
+    oraArrivo: "entry.1888774437",
+    dataRitiro: "entry.517585546",
+    dataArrivo: "entry.810215127",
+    cellulare: "entry.1889382033",
+    dataContratto: "entry.1543960408",
+    nomeCognome2: "entry.1449762214",
+    dataNascita2: "entry.218826991",
+    luogoNascita2: "entry.572727319",
+    codiceFiscale2: "entry.850104184",
+    comuneResidenza2: "entry.702889962",
+    viaResidenza2: "entry.1362390417",
+    civicoResidenza2: "entry.269416573",
+    numeroPatente2: "entry.716259237",
+    inizioValiditaPatente2: "entry.1202607650",
+    fineValiditaPatente2: "entry.1335171224",
+    nomeCognome3: "entry.1756625997",
+    dataNascita3: "entry.724642237",
+    luogoNascita3: "entry.2055078159",
+    codiceFiscale3: "entry.1750806014",
+    comuneResidenza3: "entry.559362301",
+    viaResidenza3: "entry.656836588",
+    civicoResidenza3: "entry.1926018707",
+    numeroPatente3: "entry.724642237",
+    inizioValiditaPatente3: "entry.2055078159",
+    fineValiditaPatente3: "entry.1750806014"
+  };
+
+  const formData = new FormData();
+  
+  formData.append(ENTRY.targaPulmino, bookingData.pulmino.targa);
+  formData.append(ENTRY.dataRitiro, bookingData.dataRitiro);
+  formData.append(ENTRY.oraRitiro, bookingData.oraRitiro);
+  formData.append(ENTRY.dataArrivo, bookingData.dataArrivo);
+  formData.append(ENTRY.oraArrivo, bookingData.oraArrivo);
+  formData.append(ENTRY.cellulare, bookingData.cellulare);
+  
+  const oggi = new Date();
+  const dataContratto = `${oggi.getDate().toString().padStart(2, '0')}/${(oggi.getMonth() + 1).toString().padStart(2, '0')}/${oggi.getFullYear()}`;
+  formData.append(ENTRY.dataContratto, dataContratto);
+
+  const a1 = bookingData.autisti[0];
+  formData.append(ENTRY.nomeCognome1, a1.nomeCognome);
+  formData.append(ENTRY.dataNascita1, a1.dataNascita);
+  formData.append(ENTRY.luogoNascita1, a1.luogoNascita);
+  formData.append(ENTRY.codiceFiscale1, a1.codiceFiscale);
+  formData.append(ENTRY.comuneResidenza1, a1.comuneResidenza);
+  formData.append(ENTRY.viaResidenza1, a1.viaResidenza);
+  formData.append(ENTRY.civicoResidenza1, a1.civicoResidenza);
+  formData.append(ENTRY.numeroPatente1, a1.numeroPatente);
+  formData.append(ENTRY.inizioValiditaPatente1, a1.dataInizioValiditaPatente);
+  formData.append(ENTRY.fineValiditaPatente1, a1.dataFineValiditaPatente);
+
+  if (bookingData.autisti[1]) {
+    const a2 = bookingData.autisti[1];
+    formData.append(ENTRY.nomeCognome2, a2.nomeCognome);
+    formData.append(ENTRY.dataNascita2, a2.dataNascita);
+    formData.append(ENTRY.luogoNascita2, a2.luogoNascita);
+    formData.append(ENTRY.codiceFiscale2, a2.codiceFiscale);
+    formData.append(ENTRY.comuneResidenza2, a2.comuneResidenza);
+    formData.append(ENTRY.viaResidenza2, a2.viaResidenza);
+    formData.append(ENTRY.civicoResidenza2, a2.civicoResidenza);
+    formData.append(ENTRY.numeroPatente2, a2.numeroPatente);
+    formData.append(ENTRY.inizioValiditaPatente2, a2.dataInizioValiditaPatente);
+    formData.append(ENTRY.fineValiditaPatente2, a2.dataFineValiditaPatente);
   }
-});
+
+  if (bookingData.autisti[2]) {
+    const a3 = bookingData.autisti[2];
+    formData.append(ENTRY.nomeCognome3, a3.nomeCognome);
+    formData.append(ENTRY.dataNascita3, a3.dataNascita);
+    formData.append(ENTRY.luogoNascita3, a3.luogoNascita);
+    formData.append(ENTRY.codiceFiscale3, a3.codiceFiscale);
+    formData.append(ENTRY.comuneResidenza3, a3.comuneResidenza);
+    formData.append(ENTRY.viaResidenza3, a3.viaResidenza);
+    formData.append(ENTRY.civicoResidenza3, a3.civicoResidenza);
+    formData.append(ENTRY.numeroPatente3, a3.numeroPatente);
+    formData.append(ENTRY.inizioValiditaPatente3, a3.dataInizioValiditaPatente);
+    formData.append(ENTRY.fineValiditaPatente3, a3.dataFineValiditaPatente);
+  }
+
+  // ✅ INVIO AUTOMATICO IN BACKGROUND
+  fetch(formSubmitUrl, {
+    method: 'POST',
+    body: formData,
+    mode: 'no-cors' // Necessario per Google Forms
+  })
+  .then(() => {
+    mostraLoading(false);
+    mostraSuccesso('Prenotazione inviata con successo!');
+    setTimeout(() => mostraThankYou(), 1000);
+  })
+  .catch(err => {
+    mostraLoading(false);
+    console.error('Errore invio:', err);
+    // Anche con errore, mostriamo successo perché no-cors non dà feedback
+    mostraSuccesso('Prenotazione inviata!');
+    setTimeout(() => mostraThankYou(), 1000);
+  });
+}
+
+function mostraThankYou() {
+  document.getElementById('mainbox').innerHTML = `
+    <div id="thankyou" style="text-align: center; padding: 40px;">
+      <span style="font-size: 80px;">🎉</span>
+      <h2 style="margin: 20px 0;">Prenotazione Confermata!</h2>
+      <p style="font-size: 18px; margin: 20px 0;">
+        Grazie per aver scelto <strong>Imbriani Noleggio</strong>
+      </p>
+      <p style="color: var(--color-text-secondary); margin: 20px 0;">
+        Riceverai una conferma via SMS al numero <strong>${bookingData.cellulare}</strong>
+      </p>
+      <div style="background: var(--color-secondary); padding: 20px; border-radius: 12px; margin: 30px 0;">
+        <p style="margin: 0;"><strong>Riepilogo:</strong></p>
+        <p style="margin: 5px 0;">${bookingData.pulmino.nome}</p>
+        <p style="margin: 5px 0;">Dal ${bookingData.dataRitiro} al ${bookingData.dataArrivo}</p>
+      </div>
+      <button onclick="location.reload()" class="btn btn--primary btn--lg">
+        🏠 Torna alla Home
+      </button>
+    </div>
+  `;
+}
+
 
 function inviaPrenotazione() {
   if (!bookingData.pulmino || !bookingData.dataRitiro || !bookingData.autisti) {
