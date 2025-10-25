@@ -550,3 +550,206 @@ h3 {
   margin-left: 8px;
   font-weight: 700;
 }
+/* ========================================
+   LOADING OVERLAY
+   ======================================== */
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loader-spinner {
+  text-align: center;
+  color: white;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #37b24d;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-spinner p {
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+/* ========================================
+   ERROR E SUCCESS BANNERS
+   ======================================== */
+
+.error-banner,
+.success-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 24px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  animation: slideIn 0.3s ease-out;
+  max-width: 90%;
+}
+
+.error-banner {
+  background: #f44336;
+  color: white;
+}
+
+.success-banner {
+  background: #37b24d;
+  color: white;
+}
+
+.error-banner .material-icons,
+.success-banner .material-icons {
+  font-size: 24px;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-50%) translateY(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-50%) translateY(-100px);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   BACK BUTTON
+   ======================================== */
+
+.btn-back {
+  background: transparent;
+  border: 2px solid #37b24d;
+  color: #37b24d;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.btn-back:hover {
+  background: #37b24d;
+  color: white;
+  transform: translateX(-4px);
+}
+
+.btn-back .material-icons {
+  font-size: 20px;
+}
+
+/* ========================================
+   THANK YOU PAGE
+   ======================================== */
+
+#thankyou {
+  background: linear-gradient(135deg, #e1f9d9 0%, #f9fff7 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(55, 178, 77, 0.15);
+  text-align: center;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+#thankyou h2 {
+  color: #27802a;
+  font-weight: 700;
+  margin: 0;
+  font-size: 1.8em;
+}
+
+#thankyou p {
+  color: #2b6e21;
+  font-weight: 500;
+  font-size: 1.1em;
+  margin: 0;
+  line-height: 1.6;
+}
+
+#thankyou button {
+  margin-top: 16px;
+}
+
+/* ========================================
+   RESPONSIVE FIXES
+   ======================================== */
+
+@media (max-width: 600px) {
+  .error-banner,
+  .success-banner {
+    top: 10px;
+    padding: 12px 16px;
+    font-size: 0.9em;
+  }
+  
+  .btn-back {
+    font-size: 0.9em;
+    padding: 6px 12px;
+  }
+}
+
+/* ========================================
+   INPUT VALIDATION STATES
+   ======================================== */
+
+input:invalid:not(:placeholder-shown) {
+  border-color: #f44336;
+}
+
+input:valid:not(:placeholder-shown) {
+  border-color: #37b24d;
+}
+
+select:invalid {
+  color: #999;
+}
+
+select:valid {
+  color: #2c5d2a;
+}
