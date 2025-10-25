@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.4.3 - Final Complete');
+console.log('Imbriani Noleggio - Versione codice: 2.4.4 - Final Complete');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -274,18 +274,18 @@ function confermaPrenotazione() {
     form.appendChild(input);
   }
 
-  // Funzione per aggiungere data separata (giorno, mese, anno)
-  function addDateFields(entryBase, dateString) {
+  // Funzione per aggiungere data come campi separati (year, month, day)
+  function addDateFields(entryId, dateString) {
     if (!dateString || dateString.length !== 10) return;
     const parts = dateString.split('/'); // GG/MM/AAAA
     if (parts.length === 3) {
-      addHiddenField(`entry.${entryBase}_day`, parts[0]);
-      addHiddenField(`entry.${entryBase}_month`, parts[1]);
-      addHiddenField(`entry.${entryBase}_year`, parts[2]);
+      addHiddenField(`entry.${entryId}_year`, parts[2]);   // Anno
+      addHiddenField(`entry.${entryId}_month`, parts[1]);  // Mese
+      addHiddenField(`entry.${entryId}_day`, parts[0]);    // Giorno
     }
   }
 
-  // Autista 1 (obbligatorio)
+  // Autista 1
   const a1 = bookingData.autisti[0];
   addHiddenField("entry.550823113", a1.nomeCognome);
   addDateFields("766463607", a1.dataNascita);
@@ -298,26 +298,25 @@ function confermaPrenotazione() {
   addDateFields("525872521", a1.dataInizioValiditaPatente);
   addDateFields("1864189410", a1.dataFineValiditaPatente);
 
-  // Dati pulmino
+  // Dati veicolo e prenotazione
   addHiddenField("entry.1578287722", bookingData.pulmino.targa);
   addHiddenField("entry.917923685", bookingData.oraRitiro);
   addHiddenField("entry.1499256988", bookingData.oraArrivo);
-  addDateFields("1499256988", bookingData.dataRitiro);  // Giorno inizio noleggio
-  addDateFields("517585546", bookingData.dataArrivo);   // Giorno fine noleggio
-  addHiddenField("entry.1888774437", bookingData.cellulare);
-
-  // Data contratto (oggi)
+  addDateFields("517585546", bookingData.dataRitiro);
+  addDateFields("1888774437", bookingData.dataArrivo);
+  addHiddenField("entry.925984482", bookingData.cellulare);
+  
   const oggi = new Date();
   const dataContratto = `${oggi.getDate().toString().padStart(2, '0')}/${(oggi.getMonth() + 1).toString().padStart(2, '0')}/${oggi.getFullYear()}`;
-  addDateFields("925984482", dataContratto);
+  addDateFields("1236551634", dataContratto);
 
   // Autista 2 (se presente)
   if (bookingData.autisti[1]) {
     const a2 = bookingData.autisti[1];
-    addHiddenField("entry.3164128", a2.nomeCognome);
-    addDateFields("503259772", a2.dataNascita);
-    addHiddenField("entry.1977818551", a2.luogoNascita);
-    addHiddenField("entry.1883324084", a2.codiceFiscale);
+    addHiddenField("entry.503259772", a2.nomeCognome);
+    addDateFields("1977818551", a2.dataNascita);
+    addHiddenField("entry.1883324084", a2.luogoNascita);
+    addHiddenField("entry.2118103863", a2.codiceFiscale);
     addHiddenField("entry.805763990", a2.comuneResidenza);
     addHiddenField("entry.568892376", a2.viaResidenza);
     addHiddenField("entry.124831667", a2.civicoResidenza);
@@ -329,15 +328,15 @@ function confermaPrenotazione() {
   // Autista 3 (se presente)
   if (bookingData.autisti[2]) {
     const a3 = bookingData.autisti[2];
-    addHiddenField("entry.3164128", a3.nomeCognome);  // Nota: usa stesso entry del nome autista 2 (verifica form)
-    addDateFields("1896520037", a3.dataNascita);
-    addHiddenField("entry.1923148193", a3.luogoNascita);
-    addHiddenField("entry.2061435678", a3.codiceFiscale);
+    addHiddenField("entry.1896520037", a3.nomeCognome);
+    addDateFields("1923148193", a3.dataNascita);
+    addHiddenField("entry.2061435678", a3.luogoNascita);
+    addHiddenField("entry.767994785", a3.codiceFiscale);
     addHiddenField("entry.1335171224", a3.comuneResidenza);
     addHiddenField("entry.1926018707", a3.viaResidenza);
     addHiddenField("entry.1750806014", a3.civicoResidenza);
     addHiddenField("entry.1084842503", a3.numeroPatente);
-    addDateFields("1084842503", a3.dataInizioValiditaPatente);
+    addDateFields("965705170", a3.dataInizioValiditaPatente);
     addDateFields("965705170", a3.dataFineValiditaPatente);
   }
 
@@ -362,9 +361,17 @@ function confermaPrenotazione() {
   
   setTimeout(() => {
     form.submit();
-    console.log('✅ Form inviato con campi data separati');
+    console.log('✅ Form inviato con campi data separati (year/month/day)');
+    
+    // DEBUG: Mostra i dati inviati
+    const formData = new FormData(form);
+    console.log('Dati form inviati:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
   }, 100);
 }
+
 
 function mostraThankYou() {
   document.getElementById('mainbox').innerHTML = `<div id="thankyou" style="text-align: center; padding: 40px;"><span style="font-size: 80px;">🎉</span><h2 style="margin: 20px 0;">Prenotazione Confermata!</h2><p style="font-size: 18px; margin: 20px 0;">Grazie per aver scelto <strong>Imbriani Noleggio</strong></p><p style="color: var(--color-text-secondary); margin: 20px 0;">Riceverai una conferma via SMS al numero <strong>${bookingData.cellulare}</strong></p><div style="background: var(--color-secondary); padding: 20px; border-radius: 12px; margin: 30px 0;"><p style="margin: 0;"><strong>📋 Riepilogo:</strong></p><p style="margin: 8px 0; font-size: 16px;">${bookingData.pulmino.nome}</p><p style="margin: 5px 0;">🚗 Targa: <strong>${bookingData.pulmino.targa}</strong></p><p style="margin: 5px 0;">📅 Dal ${bookingData.dataRitiro} alle ${bookingData.oraRitiro}</p><p style="margin: 5px 0;">📅 Al ${bookingData.dataArrivo} alle ${bookingData.oraArrivo}</p><p style="margin: 5px 0;">📱 Contatto: <strong>${bookingData.cellulare}</strong></p></div><button onclick="location.reload()" class="btn btn--primary btn--lg" style="margin-top: 20px;">🏠 Torna alla Home</button></div>`;
