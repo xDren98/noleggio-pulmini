@@ -1124,3 +1124,63 @@ input.invalid {
     padding: 16px;
   }
 }
+@media (max-width: 600px) {
+  body, #mainbox {
+    padding: 10px;
+    margin: 0 auto;
+  }
+
+  .dataora-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  button {
+    padding: 16px 20px;
+    font-size: 1.2em;
+  }
+
+  header h1 {
+    font-size: 1.5em;
+  }
+
+  header p,
+  p, label {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  thead tr {
+    display: none;
+  }
+  tr {
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  td {
+    padding-left: 50%;
+    position: relative;
+  }
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 16px;
+    top: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+}
