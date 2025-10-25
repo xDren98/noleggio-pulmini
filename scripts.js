@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.4.2 - Final Complete');
+console.log('Imbriani Noleggio - Versione codice: 2.4.3 - Final Complete');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -257,63 +257,113 @@ function mostraRiepilogo() {
 
 function confermaPrenotazione() {
   mostraLoading(true);
+
   const formId = "1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw";
   const form = document.createElement('form');
   form.action = `https://docs.google.com/forms/d/e/${formId}/formResponse`;
-  form.method = 'POST'; form.target = 'hidden_iframe'; form.style.display = 'none';
-  const ENTRY = { nomeCognome1: "entry.550823113", dataNascita1: "entry.766463607", luogoNascita1: "entry.1735522613", codiceFiscale1: "entry.36844075", comuneResidenza1: "entry.1329485765", viaResidenza1: "entry.1349864501", civicoResidenza1: "entry.1885490374", numeroPatente1: "entry.257199041", inizioValiditaPatente1: "entry.525872521", fineValiditaPatente1: "entry.1864189410", targaPulmino: "entry.1578287722", oraRitiro: "entry.917923685", oraArrivo: "entry.1499256988", giornoRitiro: "entry.517585546", giornoArrivo: "entry.1888774437", cellulare: "entry.925984482", dataContratto: "entry.1236551634", nomeCognome2: "entry.503259772", dataNascita2: "entry.1977818551", luogoNascita2: "entry.1883324084", codiceFiscale2: "entry.2118103863", comuneResidenza2: "entry.805763990", viaResidenza2: "entry.568892376", civicoResidenza2: "entry.124831667", numeroPatente2: "entry.657885946", inizioValiditaPatente2: "entry.850104184", fineValiditaPatente2: "entry.3164128", nomeCognome3: "entry.1896520037", dataNascita3: "entry.1923148193", luogoNascita3: "entry.2061435678", codiceFiscale3: "entry.767994785", comuneResidenza3: "entry.1335171224", viaResidenza3: "entry.1926018707", civicoResidenza3: "entry.1750806014", numeroPatente3: "entry.1084842503", inizioValiditaPatente3: "entry.965705170", fineValiditaPatente3: "entry.965705170" };
-  function addHiddenField(name, value) { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = value; form.appendChild(input); }
-  addHiddenField(ENTRY.targaPulmino, bookingData.pulmino.targa);
-  addHiddenField(ENTRY.oraRitiro, bookingData.oraRitiro);
-  addHiddenField(ENTRY.oraArrivo, bookingData.oraArrivo);
-  addHiddenField(ENTRY.giornoRitiro, formatToISO(bookingData.dataRitiro));
-  addHiddenField(ENTRY.giornoArrivo, formatToISO(bookingData.dataArrivo));
-  addHiddenField(ENTRY.cellulare, bookingData.cellulare);
-  const oggi = new Date();
-  const dataContratto = `${oggi.getFullYear()}-${(oggi.getMonth() + 1).toString().padStart(2, '0')}-${oggi.getDate().toString().padStart(2, '0')}`;
-  addHiddenField(ENTRY.dataContratto, dataContratto);
+  form.method = 'POST';
+  form.target = 'hidden_iframe';
+  form.style.display = 'none';
+
+  // Funzione per aggiungere campi nascosti
+  function addHiddenField(name, value) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value || '';
+    form.appendChild(input);
+  }
+
+  // Funzione per aggiungere data separata (giorno, mese, anno)
+  function addDateFields(entryBase, dateString) {
+    if (!dateString || dateString.length !== 10) return;
+    const parts = dateString.split('/'); // GG/MM/AAAA
+    if (parts.length === 3) {
+      addHiddenField(`entry.${entryBase}_day`, parts[0]);
+      addHiddenField(`entry.${entryBase}_month`, parts[1]);
+      addHiddenField(`entry.${entryBase}_year`, parts[2]);
+    }
+  }
+
+  // Autista 1 (obbligatorio)
   const a1 = bookingData.autisti[0];
-  addHiddenField(ENTRY.nomeCognome1, a1.nomeCognome);
-  addHiddenField(ENTRY.dataNascita1, formatToISO(a1.dataNascita));
-  addHiddenField(ENTRY.luogoNascita1, a1.luogoNascita);
-  addHiddenField(ENTRY.codiceFiscale1, a1.codiceFiscale);
-  addHiddenField(ENTRY.comuneResidenza1, a1.comuneResidenza);
-  addHiddenField(ENTRY.viaResidenza1, a1.viaResidenza);
-  addHiddenField(ENTRY.civicoResidenza1, a1.civicoResidenza);
-  addHiddenField(ENTRY.numeroPatente1, a1.numeroPatente);
-  addHiddenField(ENTRY.inizioValiditaPatente1, formatToISO(a1.dataInizioValiditaPatente));
-  addHiddenField(ENTRY.fineValiditaPatente1, formatToISO(a1.dataFineValiditaPatente));
+  addHiddenField("entry.550823113", a1.nomeCognome);
+  addDateFields("766463607", a1.dataNascita);
+  addHiddenField("entry.1735522613", a1.luogoNascita);
+  addHiddenField("entry.36844075", a1.codiceFiscale);
+  addHiddenField("entry.1329485765", a1.comuneResidenza);
+  addHiddenField("entry.1349864501", a1.viaResidenza);
+  addHiddenField("entry.1885490374", a1.civicoResidenza);
+  addHiddenField("entry.257199041", a1.numeroPatente);
+  addDateFields("525872521", a1.dataInizioValiditaPatente);
+  addDateFields("1864189410", a1.dataFineValiditaPatente);
+
+  // Dati pulmino
+  addHiddenField("entry.1578287722", bookingData.pulmino.targa);
+  addHiddenField("entry.917923685", bookingData.oraRitiro);
+  addHiddenField("entry.1499256988", bookingData.oraArrivo);
+  addDateFields("1499256988", bookingData.dataRitiro);  // Giorno inizio noleggio
+  addDateFields("517585546", bookingData.dataArrivo);   // Giorno fine noleggio
+  addHiddenField("entry.1888774437", bookingData.cellulare);
+
+  // Data contratto (oggi)
+  const oggi = new Date();
+  const dataContratto = `${oggi.getDate().toString().padStart(2, '0')}/${(oggi.getMonth() + 1).toString().padStart(2, '0')}/${oggi.getFullYear()}`;
+  addDateFields("925984482", dataContratto);
+
+  // Autista 2 (se presente)
   if (bookingData.autisti[1]) {
     const a2 = bookingData.autisti[1];
-    addHiddenField(ENTRY.nomeCognome2, a2.nomeCognome);
-    addHiddenField(ENTRY.dataNascita2, formatToISO(a2.dataNascita));
-    addHiddenField(ENTRY.luogoNascita2, a2.luogoNascita);
-    addHiddenField(ENTRY.codiceFiscale2, a2.codiceFiscale);
-    addHiddenField(ENTRY.comuneResidenza2, a2.comuneResidenza);
-    addHiddenField(ENTRY.viaResidenza2, a2.viaResidenza);
-    addHiddenField(ENTRY.civicoResidenza2, a2.civicoResidenza);
-    addHiddenField(ENTRY.numeroPatente2, a2.numeroPatente);
-    addHiddenField(ENTRY.inizioValiditaPatente2, formatToISO(a2.dataInizioValiditaPatente));
-    addHiddenField(ENTRY.fineValiditaPatente2, formatToISO(a2.dataFineValiditaPatente));
+    addHiddenField("entry.3164128", a2.nomeCognome);
+    addDateFields("503259772", a2.dataNascita);
+    addHiddenField("entry.1977818551", a2.luogoNascita);
+    addHiddenField("entry.1883324084", a2.codiceFiscale);
+    addHiddenField("entry.805763990", a2.comuneResidenza);
+    addHiddenField("entry.568892376", a2.viaResidenza);
+    addHiddenField("entry.124831667", a2.civicoResidenza);
+    addHiddenField("entry.657885946", a2.numeroPatente);
+    addDateFields("850104184", a2.dataInizioValiditaPatente);
+    addDateFields("3164128", a2.dataFineValiditaPatente);
   }
+
+  // Autista 3 (se presente)
   if (bookingData.autisti[2]) {
     const a3 = bookingData.autisti[2];
-    addHiddenField(ENTRY.nomeCognome3, a3.nomeCognome);
-    addHiddenField(ENTRY.dataNascita3, formatToISO(a3.dataNascita));
-    addHiddenField(ENTRY.luogoNascita3, a3.luogoNascita);
-    addHiddenField(ENTRY.codiceFiscale3, a3.codiceFiscale);
-    addHiddenField(ENTRY.comuneResidenza3, a3.comuneResidenza);
-    addHiddenField(ENTRY.viaResidenza3, a3.viaResidenza);
-    addHiddenField(ENTRY.civicoResidenza3, a3.civicoResidenza);
-    addHiddenField(ENTRY.numeroPatente3, a3.numeroPatente);
-    addHiddenField(ENTRY.inizioValiditaPatente3, formatToISO(a3.dataInizioValiditaPatente));
-    addHiddenField(ENTRY.fineValiditaPatente3, formatToISO(a3.dataFineValiditaPatente));
+    addHiddenField("entry.3164128", a3.nomeCognome);  // Nota: usa stesso entry del nome autista 2 (verifica form)
+    addDateFields("1896520037", a3.dataNascita);
+    addHiddenField("entry.1923148193", a3.luogoNascita);
+    addHiddenField("entry.2061435678", a3.codiceFiscale);
+    addHiddenField("entry.1335171224", a3.comuneResidenza);
+    addHiddenField("entry.1926018707", a3.viaResidenza);
+    addHiddenField("entry.1750806014", a3.civicoResidenza);
+    addHiddenField("entry.1084842503", a3.numeroPatente);
+    addDateFields("1084842503", a3.dataInizioValiditaPatente);
+    addDateFields("965705170", a3.dataFineValiditaPatente);
   }
+
+  // Crea iframe nascosto
   let iframe = document.getElementById('hidden_iframe');
-  if (!iframe) { iframe = document.createElement('iframe'); iframe.id = 'hidden_iframe'; iframe.name = 'hidden_iframe'; iframe.style.display = 'none'; document.body.appendChild(iframe); }
-  iframe.onload = function() { mostraLoading(false); mostraSuccesso('Prenotazione inviata con successo!'); setTimeout(() => mostraThankYou(), 1000); form.remove(); };
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'hidden_iframe';
+    iframe.name = 'hidden_iframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+  }
+  
+  iframe.onload = function() {
+    mostraLoading(false);
+    mostraSuccesso('Prenotazione inviata con successo!');
+    setTimeout(() => mostraThankYou(), 1000);
+    form.remove();
+  };
+  
   document.body.appendChild(form);
-  setTimeout(() => { form.submit(); console.log('✅ Form inviato con iframe nascosto'); }, 100);
+  
+  setTimeout(() => {
+    form.submit();
+    console.log('✅ Form inviato con campi data separati');
+  }, 100);
 }
 
 function mostraThankYou() {
