@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.4.4 - Final Complete');
+console.log('Imbriani Noleggio - Versione codice: 2.5.0 - Direct to Sheets');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -13,7 +13,8 @@ const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
   datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
-  disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec'
+  disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec',
+  salvaPrenotazione: 'https://script.google.com/macros/s/AKfycbwy7ZO3hCMcjhPuOMFyJoJl_IRyDr_wfhALadDhFt__Yjg3FBFWqt7wbCjIm0iim9Ya/exec'
 };
 
 function validaCodiceFiscale(cf) {
@@ -68,16 +69,6 @@ function convertDateToIso(dateEuro) {
   let parts = dateEuro.split('/');
   if (parts.length !== 3) return '';
   return `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
-
-function formatToISO(data) {
-  if (!data || data.length !== 10) return "";
-  const parts = data.split('/');
-  if (parts.length === 3) {
-    // Prova formato MM/DD/YYYY (formato USA)
-    return `${parts[1]}/${parts[0]}/${parts[2]}`;
-  }
-  return data;
 }
 
 function getData(prefix) {
@@ -258,120 +249,77 @@ function mostraRiepilogo() {
 function confermaPrenotazione() {
   mostraLoading(true);
 
-  const formId = "1FAIpQLSeakbNHdqxJcfTG90xbTnLnEsmwNWh6q2RZIjtDChiJdhbNhw";
-  const form = document.createElement('form');
-  form.action = `https://docs.google.com/forms/d/e/${formId}/formResponse`;
-  form.method = 'POST';
-  form.target = 'hidden_iframe';
-  form.style.display = 'none';
-
-  // Funzione per aggiungere campi nascosti
-  function addHiddenField(name, value) {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = name;
-    input.value = value || '';
-    form.appendChild(input);
-  }
-
-  // Funzione per aggiungere data come campi separati (year, month, day)
-  function addDateFields(entryId, dateString) {
-    if (!dateString || dateString.length !== 10) return;
-    const parts = dateString.split('/'); // GG/MM/AAAA
-    if (parts.length === 3) {
-      addHiddenField(`entry.${entryId}_year`, parts[2]);   // Anno
-      addHiddenField(`entry.${entryId}_month`, parts[1]);  // Mese
-      addHiddenField(`entry.${entryId}_day`, parts[0]);    // Giorno
-    }
-  }
-
-  // Autista 1
-  const a1 = bookingData.autisti[0];
-  addHiddenField("entry.550823113", a1.nomeCognome);
-  addDateFields("766463607", a1.dataNascita);
-  addHiddenField("entry.1735522613", a1.luogoNascita);
-  addHiddenField("entry.36844075", a1.codiceFiscale);
-  addHiddenField("entry.1329485765", a1.comuneResidenza);
-  addHiddenField("entry.1349864501", a1.viaResidenza);
-  addHiddenField("entry.1885490374", a1.civicoResidenza);
-  addHiddenField("entry.257199041", a1.numeroPatente);
-  addDateFields("525872521", a1.dataInizioValiditaPatente);
-  addDateFields("1864189410", a1.dataFineValiditaPatente);
-
-  // Dati veicolo e prenotazione
-  addHiddenField("entry.1578287722", bookingData.pulmino.targa);
-  addHiddenField("entry.917923685", bookingData.oraRitiro);
-  addHiddenField("entry.1499256988", bookingData.oraArrivo);
-  addDateFields("517585546", bookingData.dataRitiro);
-  addDateFields("1888774437", bookingData.dataArrivo);
-  addHiddenField("entry.925984482", bookingData.cellulare);
-  
-  const oggi = new Date();
-  const dataContratto = `${oggi.getDate().toString().padStart(2, '0')}/${(oggi.getMonth() + 1).toString().padStart(2, '0')}/${oggi.getFullYear()}`;
-  addDateFields("1236551634", dataContratto);
-
-  // Autista 2 (se presente)
-  if (bookingData.autisti[1]) {
-    const a2 = bookingData.autisti[1];
-    addHiddenField("entry.503259772", a2.nomeCognome);
-    addDateFields("1977818551", a2.dataNascita);
-    addHiddenField("entry.1883324084", a2.luogoNascita);
-    addHiddenField("entry.2118103863", a2.codiceFiscale);
-    addHiddenField("entry.805763990", a2.comuneResidenza);
-    addHiddenField("entry.568892376", a2.viaResidenza);
-    addHiddenField("entry.124831667", a2.civicoResidenza);
-    addHiddenField("entry.657885946", a2.numeroPatente);
-    addDateFields("850104184", a2.dataInizioValiditaPatente);
-    addDateFields("3164128", a2.dataFineValiditaPatente);
-  }
-
-  // Autista 3 (se presente)
-  if (bookingData.autisti[2]) {
-    const a3 = bookingData.autisti[2];
-    addHiddenField("entry.1896520037", a3.nomeCognome);
-    addDateFields("1923148193", a3.dataNascita);
-    addHiddenField("entry.2061435678", a3.luogoNascita);
-    addHiddenField("entry.767994785", a3.codiceFiscale);
-    addHiddenField("entry.1335171224", a3.comuneResidenza);
-    addHiddenField("entry.1926018707", a3.viaResidenza);
-    addHiddenField("entry.1750806014", a3.civicoResidenza);
-    addHiddenField("entry.1084842503", a3.numeroPatente);
-    addDateFields("965705170", a3.dataInizioValiditaPatente);
-    addDateFields("965705170", a3.dataFineValiditaPatente);
-  }
-
-  // Crea iframe nascosto
-  let iframe = document.getElementById('hidden_iframe');
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.id = 'hidden_iframe';
-    iframe.name = 'hidden_iframe';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-  }
-  
-  iframe.onload = function() {
-    mostraLoading(false);
-    mostraSuccesso('Prenotazione inviata con successo!');
-    setTimeout(() => mostraThankYou(), 1000);
-    form.remove();
+  const prenotazioneData = {
+    nomeCognome1: bookingData.autisti[0].nomeCognome,
+    dataNascita1: bookingData.autisti[0].dataNascita,
+    luogoNascita1: bookingData.autisti[0].luogoNascita,
+    codiceFiscale1: bookingData.autisti[0].codiceFiscale,
+    comuneResidenza1: bookingData.autisti[0].comuneResidenza,
+    viaResidenza1: bookingData.autisti[0].viaResidenza,
+    civicoResidenza1: bookingData.autisti[0].civicoResidenza,
+    numeroPatente1: bookingData.autisti[0].numeroPatente,
+    inizioValiditaPatente1: bookingData.autisti[0].dataInizioValiditaPatente,
+    fineValiditaPatente1: bookingData.autisti[0].dataFineValiditaPatente,
+    targaPulmino: bookingData.pulmino.targa,
+    oraRitiro: bookingData.oraRitiro,
+    oraArrivo: bookingData.oraArrivo,
+    giornoRitiro: bookingData.dataRitiro,
+    giornoArrivo: bookingData.dataArrivo,
+    cellulare: bookingData.cellulare,
+    dataContratto: new Date().toLocaleDateString('it-IT')
   };
-  
-  document.body.appendChild(form);
-  
-  setTimeout(() => {
-    form.submit();
-    console.log('✅ Form inviato con campi data separati (year/month/day)');
-    
-    // DEBUG: Mostra i dati inviati
-    const formData = new FormData(form);
-    console.log('Dati form inviati:');
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-  }, 100);
-}
 
+  if (bookingData.autisti[1]) {
+    prenotazioneData.nomeCognome2 = bookingData.autisti[1].nomeCognome;
+    prenotazioneData.dataNascita2 = bookingData.autisti[1].dataNascita;
+    prenotazioneData.luogoNascita2 = bookingData.autisti[1].luogoNascita;
+    prenotazioneData.codiceFiscale2 = bookingData.autisti[1].codiceFiscale;
+    prenotazioneData.comuneResidenza2 = bookingData.autisti[1].comuneResidenza;
+    prenotazioneData.viaResidenza2 = bookingData.autisti[1].viaResidenza;
+    prenotazioneData.civicoResidenza2 = bookingData.autisti[1].civicoResidenza;
+    prenotazioneData.numeroPatente2 = bookingData.autisti[1].numeroPatente;
+    prenotazioneData.inizioValiditaPatente2 = bookingData.autisti[1].dataInizioValiditaPatente;
+    prenotazioneData.fineValiditaPatente2 = bookingData.autisti[1].dataFineValiditaPatente;
+  }
+
+  if (bookingData.autisti[2]) {
+    prenotazioneData.nomeCognome3 = bookingData.autisti[2].nomeCognome;
+    prenotazioneData.dataNascita3 = bookingData.autisti[2].dataNascita;
+    prenotazioneData.luogoNascita3 = bookingData.autisti[2].luogoNascita;
+    prenotazioneData.codiceFiscale3 = bookingData.autisti[2].codiceFiscale;
+    prenotazioneData.comuneResidenza3 = bookingData.autisti[2].comuneResidenza;
+    prenotazioneData.viaResidenza3 = bookingData.autisti[2].viaResidenza;
+    prenotazioneData.civicoResidenza3 = bookingData.autisti[2].civicoResidenza;
+    prenotazioneData.numeroPatente3 = bookingData.autisti[2].numeroPatente;
+    prenotazioneData.inizioValiditaPatente3 = bookingData.autisti[2].dataInizioValiditaPatente;
+    prenotazioneData.fineValiditaPatente3 = bookingData.autisti[2].dataFineValiditaPatente;
+  }
+
+  console.log('📤 Invio dati a Google Sheets:', prenotazioneData);
+
+  fetch(SCRIPTS.proxy + SCRIPTS.salvaPrenotazione, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(prenotazioneData)
+  })
+  .then(r => r.json())
+  .then(result => {
+    mostraLoading(false);
+    console.log('📥 Risposta server:', result);
+    
+    if (result.success) {
+      mostraSuccesso('Prenotazione salvata con successo!');
+      setTimeout(() => mostraThankYou(), 1000);
+    } else {
+      mostraErrore('Errore durante il salvataggio: ' + (result.error || 'Errore sconosciuto'));
+    }
+  })
+  .catch(err => {
+    mostraLoading(false);
+    console.error('❌ Errore connessione:', err);
+    mostraErrore('Errore di connessione: ' + err.message);
+  });
+}
 
 function mostraThankYou() {
   document.getElementById('mainbox').innerHTML = `<div id="thankyou" style="text-align: center; padding: 40px;"><span style="font-size: 80px;">🎉</span><h2 style="margin: 20px 0;">Prenotazione Confermata!</h2><p style="font-size: 18px; margin: 20px 0;">Grazie per aver scelto <strong>Imbriani Noleggio</strong></p><p style="color: var(--color-text-secondary); margin: 20px 0;">Riceverai una conferma via SMS al numero <strong>${bookingData.cellulare}</strong></p><div style="background: var(--color-secondary); padding: 20px; border-radius: 12px; margin: 30px 0;"><p style="margin: 0;"><strong>📋 Riepilogo:</strong></p><p style="margin: 8px 0; font-size: 16px;">${bookingData.pulmino.nome}</p><p style="margin: 5px 0;">🚗 Targa: <strong>${bookingData.pulmino.targa}</strong></p><p style="margin: 5px 0;">📅 Dal ${bookingData.dataRitiro} alle ${bookingData.oraRitiro}</p><p style="margin: 5px 0;">📅 Al ${bookingData.dataArrivo} alle ${bookingData.oraArrivo}</p><p style="margin: 5px 0;">📱 Contatto: <strong>${bookingData.cellulare}</strong></p></div><button onclick="location.reload()" class="btn btn--primary btn--lg" style="margin-top: 20px;">🏠 Torna alla Home</button></div>`;
