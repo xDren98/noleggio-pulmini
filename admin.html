@@ -1,169 +1,595 @@
-<script>
-const VERSIONE = 'Admin Dashboard v2.3';
-console.log(VERSIONE);
-
-const PASSWORD_ADMIN = 'Imbriani2025+';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1saUwj04dfzPqilrLz1GAfwha47Y-n5r6PG0hs7rGRnPexChTaAKrREQCryw3IOs/exec';
-let prenotazioniGlobali = [];
-let filtroAttivoDashboard = 'totali';
-let sortCol = null, sortAsc = true;
-
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const password = document.getElementById('passwordInput').value;
-  if (password === PASSWORD_ADMIN) {
-    sessionStorage.setItem('admin_auth', 'authenticated');
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('dashboardContent').style.display = 'block';
-    caricaPrenotazioni();
-    verificaUndo();
-    aggiornaAttivi();
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-    document.getElementById('passwordInput').value = '';
-    setTimeout(() => {
-      document.getElementById('loginError').style.display = 'none';
-    }, 3000);
-  }
-});
-
-function logout() {
-  sessionStorage.removeItem('admin_auth');
-  location.reload();
-}
-
-window.onload = function() {
-  const isAuth = sessionStorage.getItem('admin_auth');
-  if (isAuth === 'authenticated') {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('dashboardContent').style.display = 'block';
-    caricaPrenotazioni();
-    verificaUndo();
-    aggiornaAttivi();
-  }
-};
-
-async function verificaUndo() {
-  try {
-    const response = await fetchConRetry(SCRIPT_URL + '?action=canUndo');
-    if (response.canUndo) {
-      document.getElementById('undoBtn').classList.add('visible');
-    } else {
-      document.getElementById('undoBtn').classList.remove('visible');
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard - Imbriani Noleggio</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* STILI: COME RICHIESTO, INTEGRATI PER CHIAREZZA */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #333;
     }
-  } catch (error) {
-    console.error('Errore verifica undo:', error);
-  }
-}
+    .login-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000;
+    }
+    .login-box {
+      background: white; padding: 48px 40px; border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 400px; width: 90%; text-align: center;
+    }
+    .login-box h1 { font-size: 28px; margin-bottom: 8px; color: #333; }
+    .login-box p { color: #666; margin-bottom: 32px; }
+    .login-box input {
+      width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb;
+      border-radius: 8px; font-size: 16px; margin-bottom: 16px;
+      transition: border 0.3s;
+    }
+    .login-box input:focus { outline: none; border-color: #667eea; }
+    .login-box button {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; border: none; border-radius: 8px;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .login-box button:hover { transform: translateY(-2px); }
+    .login-error {
+      background: #fee2e2; color: #dc2626; padding: 12px;
+      border-radius: 8px; margin-bottom: 16px; display: none;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 8px; }
+    .header-actions { display: flex; gap: 12px; }
+    .undo-btn {
+      padding: 10px 20px; background: rgba(255, 193, 7, 0.9);
+      border: 2px solid #ffc107;
+      color: #333; border-radius: 8px; cursor: pointer;
+      font-weight: 600; transition: all 0.3s; display: none;
+    }
+    .undo-btn.visible {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .undo-btn:hover {
+      background: #ffc107; transform: translateY(-2px);
+    }
+    .logout-btn {
+      padding: 10px 20px; background: rgba(255, 255, 255, 0.2);
+      border: 2px solid white; color: white; border-radius: 8px;
+      cursor: pointer; font-weight: 600; transition: background 0.3s;
+    }
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .container {
+      max-width: 1400px; margin: 0 auto; padding: 24px;
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px; margin-bottom: 32px;
+    }
+    .stat-card {
+      background: white; padding: 24px; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      display: flex; align-items: center; gap: 16px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      border: 2px solid transparent;
+    }
+    .stat-card.active, .stat-card:hover {
+      box-shadow: 0 4px 14px rgba(51, 102, 255, 0.12);
+      border-color: #667eea;
+    }
+    .stat-icon {
+      width: 56px; height: 56px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+    .stat-icon.blue    { background: #f5f7fd; color: #ac5efd; }
+    .stat-icon.green   { background: #eafaf1; color: #22c55e; }
+    .stat-icon.orange  { background: #fff6e4; color: #fdba12; }
+    .stat-icon.purple  { background: #f7f5fe; color: #7786fd; }
+    .stat-content h3 {
+      font-size: 32px; font-weight: 700; margin-bottom: 4px;
+    }
+    .stat-content p {
+      color: #666; font-size: 15px;
+    }
+    .filters {
+      background: white; padding: 20px; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); margin-bottom: 24px;
+      display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+    }
+    .filters input, .filters select, .filters button {
+      padding: 10px 16px; border: 1px solid #ddd; border-radius: 8px;
+      font-size: 14px;
+    }
+    .filters button {
+      background: #667eea; color: white; border: none; cursor: pointer;
+      font-weight: 500; display: flex; align-items: center; gap: 8px;
+    }
+    .filters button:hover {
+      background: #5568d3;
+    }
+    .table-container {
+      background: white; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;
+    }
+    table {
+      width: 100%; border-collapse: collapse;
+    }
+    thead {
+      background: #f9fafb;
+    }
+    th, td {
+      padding: 16px; text-align: left; border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+      font-weight: 600; color: #374151; font-size: 14px;
+      cursor: pointer; user-select: none;
+    }
+    td {
+      color: #6b7280; font-size: 14px;
+    }
+    tr:hover {
+      background: #f9fafb;
+    }
+    .badge {
+      display: inline-block; padding: 4px 12px;
+      border-radius: 20px; font-size: 12px; font-weight: 500;
+    }
+    .badge.success {
+      background: #d1fae5; color: #065f46;
+    }
+    .badge.warning {
+      background: #fed7aa; color: #92400e;
+    }
+    .badge.info {
+      background: #dbeafe; color: #1e40af;
+    }
+    .actions {
+      display: flex; gap: 8px;
+    }
+    .btn-icon {
+      padding: 8px; border: none; background: transparent;
+      cursor: pointer; border-radius: 6px; color: #666;
+    }
+    .btn-icon:hover {
+      background: #f3f4f6;
+    }
+    .loader {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5); display: none;
+      align-items: center; justify-content: center; z-index: 9999;
+    }
+    .loader.active {
+      display: flex;
+    }
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 50px; height: 50px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-async function eseguiUndo() {
-  if (!confirm('Vuoi annullare l\'ultima azione? Questo ripristinerà la prenotazione e il PDF eliminati.')) return;
-  document.getElementById('loader').classList.add('active');
-  try {
-    const response = await fetchConRetry(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'undo' }),
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.26);
+      z-index: 99999;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+      padding: 40px 36px;
+      min-width: 340px;
+      max-width: 95vw;
+    }
+    .modal-box h2 {
+      margin-bottom: 16px;
+      color: #222;
+    }
+    .modal-box label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 3px;
+      color: #444;
+      font-size: 15px;
+    }
+    .modal-box input,
+    .modal-box select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 7px;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .btn-main {
+      background: linear-gradient(90deg,#667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 30px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .btn-main:hover {
+      background: linear-gradient(90deg,#5568c8 0%,#694598 100%);
+    }
+    .btn-secondary {
+      background: #eee;
+      color: #222;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <h1>🔐 Accesso Admin</h1>
+      <p>Inserisci la password per accedere alla dashboard</p>
+      <div class="login-error" id="loginError">Password errata!</div>
+      <form id="loginForm">
+        <input
+          type="password"
+          id="passwordInput"
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+        />
+        <button type="submit">Accedi</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL MODIFICA -->
+  <div class="modal-overlay" id="modalModifica">
+    <form class="modal-box" id="formModifica">
+      <h2>Modifica Prenotazione</h2>
+      <label>Nome Cliente</label>
+      <input type="text" id="mod-nome" required />
+      <label>Codice Fiscale</label>
+      <input type="text" id="mod-cf" required />
+      <label>Pulmino</label>
+      <select id="mod-targa" required>
+        <option value="EC787NM">Ducato Lungo (EC787NM)</option>
+        <option value="DN391FW">Ducato Corto (DN391FW)</option>
+        <option value="DL291XZ">Peugeot Expert (DL291XZ)</option>
+      </select>
+      <label>Data Inizio</label>
+      <input type="date" id="mod-data-inizio" required />
+      <label>Ora Inizio</label>
+      <input type="time" id="mod-ora-inizio" required />
+      <label>Data Fine</label>
+      <input type="date" id="mod-data-fine" required />
+      <label>Ora Fine</label>
+      <input type="time" id="mod-ora-fine" required />
+      <label>Cellulare</label>
+      <input type="text" id="mod-cellulare" required />
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="chiudiModifica()">
+          Annulla
+        </button>
+        <button type="submit" class="btn-main">Salva modifiche</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="dashboardContent" style="display: none;">
+    <div class="header">
+      <div>
+        <h1>🚐 Dashboard Amministrativa</h1>
+        <p>Gestione prenotazioni Imbriani Noleggio</p>
+      </div>
+      <div class="header-actions">
+        <button class="undo-btn" id="undoBtn" onclick="eseguiUndo()">
+          <span class="material-icons">undo</span>
+          Annulla ultima azione
+        </button>
+        <button class="logout-btn" onclick="logout()">
+          <span class="material-icons">logout</span>
+          Esci
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card" id="filter-totali" onclick="applicaFiltroDashboard('totali')">
+          <div class="stat-icon blue">📋</div>
+          <div class="stat-content">
+            <h3 id="stat-totali">0</h3>
+            <p>Prenotazioni Totali</p>
+          </div>
+        </div>
+        <div class="stat-card" id="filter-completate" onclick="applicaFiltroDashboard('completate')">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-content">
+            <h3 id="stat-completate">0</h3>
+            <p>Completate</p>
+          </div>
+        </div>
+        <div class="stat-card" id="filter-corso" onclick="applicaFiltroDashboard('corso')">
+          <div class="stat-icon orange">⏳</div>
+          <div class="stat-content">
+            <h3 id="stat-corso">0</h3>
+            <p>In Corso</p>
+          </div>
+        </div>
+        <div class="stat-card" id="filter-future" onclick="applicaFiltroDashboard('future')">
+          <div class="stat-icon purple">📅</div>
+          <div class="stat-content">
+            <h3 id="stat-future">0</h3>
+            <p>Future</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="date" id="filter-data-inizio" placeholder="Data inizio" />
+        <input type="date" id="filter-data-fine" placeholder="Data fine" />
+        <select id="filter-pulmino">
+          <option value="">Tutti i pulmini</option>
+          <option value="EC787NM">Ducato Lungo</option>
+          <option value="DN391FW">Ducato Corto</option>
+          <option value="DL291XZ">Peugeot</option>
+        </select>
+        <select id="filter-stato">
+          <option value="">Tutti gli stati</option>
+          <option value="Prenotato">Prenotato</option>
+          <option value="In corso">In corso</option>
+          <option value="Completato">Completato</option>
+        </select>
+        <button onclick="applicaFiltri()">
+          <span class="material-icons">filter_list</span>
+          Applica Filtri
+        </button>
+        <button onclick="esportaCSV()" style="background: #22c55e;">
+          <span class="material-icons">download</span>
+          Esporta CSV
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="ordinaPer('cliente')">Cliente</th>
+              <th onclick="ordinaPer('pulmino')">Pulmino</th>
+              <th onclick="ordinaPer('dataInizio')">Dal</th>
+              <th onclick="ordinaPer('dataFine')">Al</th>
+              <th onclick="ordinaPer('cellulare')">Cellulare</th>
+              <th onclick="ordinaPer('stato')">Stato</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <script>
+    const VERSIONE = 'Admin Dashboard v2.3';
+    console.log(VERSIONE);
+
+    const PASSWORD_ADMIN = 'Imbriani2025+';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1saUwj04dfzPqilrLz1GAfwha47Y-n5r6PG0hs7rGRnPexChTaAKrREQCryw3IOs/exec';
+    let prenotazioniGlobali = [];
+    let filtroAttivoDashboard = 'totali';
+    let sortCol = null,
+      sortAsc = true;
+    let modificaId = null;
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const password = document.getElementById('passwordInput').value;
+      if (password === PASSWORD_ADMIN) {
+        sessionStorage.setItem('admin_auth', 'authenticated');
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
+        caricaPrenotazioni();
+        verificaUndo();
+        aggiornaAttivi();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+        setTimeout(() => {
+          document.getElementById('loginError').style.display = 'none';
+        }, 3000);
+      }
     });
-    if (response.success) {
-      alert('✅ Azione annullata con successo!\n\n' + response.message);
-      document.getElementById('undoBtn').classList.remove('visible');
-      caricaPrenotazioni();
-    } else {
-      alert('❌ Errore durante l\'annullamento:\n' + response.error);
+    function logout() {
+      sessionStorage.removeItem('admin_auth');
+      location.reload();
     }
-  } catch (error) {
-    alert('❌ Errore: ' + error.message);
-  } finally {
-    document.getElementById('loader').classList.remove('active');
-  }
-}
+    window.onload = function() {
+      const isAuth = sessionStorage.getItem('admin_auth');
+      if (isAuth === 'authenticated') {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
+        caricaPrenotazioni();
+        verificaUndo();
+        aggiornaAttivi();
+      }
+    };
 
-async function fetchConRetry(url, options, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+    async function verificaUndo() {
+      try {
+        const response = await fetchConRetry(SCRIPT_URL + '?action=canUndo');
+        if (response.canUndo) {
+          document.getElementById('undoBtn').classList.add('visible');
+        } else {
+          document.getElementById('undoBtn').classList.remove('visible');
+        }
+      } catch (error) {
+        console.error('Errore verifica undo:', error);
+      }
     }
-  }
-}
-
-async function caricaPrenotazioni() {
-  document.getElementById('loader').classList.add('active');
-  try {
-    const data = await fetchConRetry(SCRIPT_URL + '?action=getAll');
-    prenotazioniGlobali = data.prenotazioni || [];
-    aggiornaStatistiche();
-    mostraPrenotazioni(filtraDashboard());
-    aggiornaAttivi();
-  } catch (error) {
-    alert('Errore caricamento dati: ' + error.message);
-  } finally {
-    document.getElementById('loader').classList.remove('active');
-  }
-}
-
-function aggiornaStatistiche() {
-  const oggi = new Date();
-  document.getElementById('stat-totali').textContent = prenotazioniGlobali.length;
-  document.getElementById('stat-completate').textContent = prenotazioniGlobali.filter(p => p.stato === 'Completato').length;
-  document.getElementById('stat-corso').textContent = prenotazioniGlobali.filter(p => p.stato === 'In corso').length;
-  document.getElementById('stat-future').textContent = prenotazioniGlobali.filter(p => new Date(p.dataInizio.split('/').reverse().join('-')) > oggi).length;
-}
-
-function aggiornaAttivi() {
-  ['totali', 'completate', 'corso', 'future'].forEach((id) => document.getElementById('filter-' + id).classList.remove('active'));
-  document.getElementById('filter-' + filtroAttivoDashboard).classList.add('active');
-}
-
-function filtraDashboard() {
-  const oggi = new Date();
-  if (filtroAttivoDashboard === 'totali') return prenotazioniGlobali;
-  if (filtroAttivoDashboard === 'completate') return prenotazioniGlobali.filter(p => p.stato === 'Completato');
-  if (filtroAttivoDashboard === 'corso') return prenotazioniGlobali.filter(p => p.stato === 'In corso');
-  if (filtroAttivoDashboard === 'future') return prenotazioniGlobali.filter(p => new Date(p.dataInizio.split('/').reverse().join('-')) > oggi);
-  return prenotazioniGlobali;
-}
-
-function applicaFiltroDashboard(filtro) {
-  filtroAttivoDashboard = filtro;
-  aggiornaAttivi();
-  mostraPrenotazioni(filtraDashboard());
-}
-
-// Ordinamento cliccando sulle intestazioni
-function ordinaPer(col) {
-  if (sortCol === col) {
-    sortAsc = !sortAsc;
-  } else {
-    sortCol = col;
-    sortAsc = true;
-  }
-  const datiCopia = [...filtraDashboard()];
-  datiCopia.sort((a, b) => {
-    if (col === 'dataInizio' || col === 'dataFine') {
-      const parseData = (str) => {
-        if (!str) return 0;
-        const [d, m, y] = str.split('/');
-        return new Date(y, m - 1, d).getTime();
-      };
-      return (parseData(a[col]) - parseData(b[col])) * (sortAsc ? 1 : -1);
-    } else {
-      return a[col].toString().localeCompare(b[col].toString(), 'it', { numeric: true }) * (sortAsc ? 1 : -1);
+    async function eseguiUndo() {
+      if (
+        !confirm(
+          'Vuoi annullare l\'ultima azione? Questo ripristinerà la prenotazione e il PDF eliminati.'
+        )
+      )
+        return;
+      document.getElementById('loader').classList.add('active');
+      try {
+        const response = await fetchConRetry(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'undo' }),
+        });
+        if (response.success) {
+          alert('✅ Azione annullata con successo!\n\n' + response.message);
+          document.getElementById('undoBtn').classList.remove('visible');
+          caricaPrenotazioni();
+        } else {
+          alert('❌ Errore durante l\'annullamento:\n' + response.error);
+        }
+      } catch (error) {
+        alert('❌ Errore: ' + error.message);
+      } finally {
+        document.getElementById('loader').classList.remove('active');
+      }
     }
-  });
-  mostraPrenotazioni(datiCopia);
-}
 
-function mostraPrenotazioni(prenotazioni) {
-  const tbody = document.getElementById('table-body');
-  tbody.innerHTML = '';
-  prenotazioni.forEach((p) => {
-    const badgeClass = p.stato === 'Completato' ? 'success' : p.stato === 'In corso' ? 'warning' : 'info';
-    tbody.innerHTML += `
+    async function fetchConRetry(url, options, retries = 3) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (error) {
+          if (i === retries - 1) throw error;
+          await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+        }
+      }
+    }
+
+    async function caricaPrenotazioni() {
+      document.getElementById('loader').classList.add('active');
+      try {
+        const data = await fetchConRetry(SCRIPT_URL + '?action=getAll');
+        prenotazioniGlobali = data.prenotazioni || [];
+        aggiornaStatistiche();
+        mostraPrenotazioni(filtraDashboard());
+        aggiornaAttivi();
+      } catch (error) {
+        alert('Errore caricamento dati: ' + error.message);
+      } finally {
+        document.getElementById('loader').classList.remove('active');
+      }
+    }
+
+    function aggiornaStatistiche() {
+      const oggi = new Date();
+      document.getElementById('stat-totali').textContent = prenotazioniGlobali.length;
+      document.getElementById('stat-completate').textContent = prenotazioniGlobali.filter((p) => p.stato === 'Completato').length;
+      document.getElementById('stat-corso').textContent = prenotazioniGlobali.filter((p) => p.stato === 'In corso').length;
+      document.getElementById('stat-future').textContent = prenotazioniGlobali.filter((p) => new Date(p.dataInizio.split('/').reverse().join('-')) > oggi).length;
+    }
+
+    function aggiornaAttivi() {
+      ['totali', 'completate', 'corso', 'future'].forEach((id) =>
+        document.getElementById('filter-' + id).classList.remove('active')
+      );
+      document.getElementById('filter-' + filtroAttivoDashboard).classList.add('active');
+    }
+
+    function filtraDashboard() {
+      const oggi = new Date();
+      if (filtroAttivoDashboard === 'totali') return prenotazioniGlobali;
+      if (filtroAttivoDashboard === 'completate')
+        return prenotazioniGlobali.filter((p) => p.stato === 'Completato');
+      if (filtroAttivoDashboard === 'corso')
+        return prenotazioniGlobali.filter((p) => p.stato === 'In corso');
+      if (filtroAttivoDashboard === 'future')
+        return prenotazioniGlobali.filter((p) => new Date(p.dataInizio.split('/').reverse().join('-')) > oggi);
+      return prenotazioniGlobali;
+    }
+
+    function applicaFiltroDashboard(filtro) {
+      filtroAttivoDashboard = filtro;
+      aggiornaAttivi();
+      mostraPrenotazioni(filtraDashboard());
+    }
+
+    // Ordinamento cliccando sulle intestazioni
+    function ordinaPer(col) {
+      if (sortCol === col) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = col;
+        sortAsc = true;
+      }
+      const datiCopia = [...filtraDashboard()];
+      datiCopia.sort((a, b) => {
+        if (col === 'dataInizio' || col === 'dataFine') {
+          const parseData = (str) => {
+            if (!str) return 0;
+            const [d, m, y] = str.split('/');
+            return new Date(y, m - 1, d).getTime();
+          };
+          return (parseData(a[col]) - parseData(b[col])) * (sortAsc ? 1 : -1);
+        } else {
+          return a[col].toString().localeCompare(b[col].toString(), 'it', { numeric: true }) * (sortAsc ? 1 : -1);
+        }
+      });
+      mostraPrenotazioni(datiCopia);
+    }
+
+    function mostraPrenotazioni(prenotazioni) {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+
+      prenotazioni.forEach((p) => {
+        const badgeClass = p.stato === 'Completato' ? 'success' : p.stato === 'In corso' ? 'warning' : 'info';
+        tbody.innerHTML += `
           <tr>
             <td><strong>${p.cliente}</strong><br><small>${p.codiceFiscale}</small></td>
             <td>${p.pulmino} <small>(${p.targa})</small></td>
@@ -177,65 +603,65 @@ function mostraPrenotazioni(prenotazioni) {
             </td>
           </tr>
         `;
-  });
-}
-
-// Resto funzioni modifica (apri/chiudi modal, submit form)
-
-function apriModifica(id) {
-  const p = prenotazioniGlobali.find(x => x.id == id);
-  if (!p) return;
-  document.getElementById('modalModifica').classList.add('active');
-  document.getElementById('mod-nome').value = p.cliente;
-  document.getElementById('mod-cf').value = p.codiceFiscale;
-  document.getElementById('mod-targa').value = p.targa;
-  document.getElementById('mod-data-inizio').value = p.dataInizio.split('/').reverse().join('-');
-  document.getElementById('mod-ora-inizio').value = p.oraInizio;
-  document.getElementById('mod-data-fine').value = p.dataFine.split('/').reverse().join('-');
-  document.getElementById('mod-ora-fine').value = p.oraFine;
-  document.getElementById('mod-cellulare').value = p.cellulare;
-  modificaId = id;
-}
-
-function chiudiModifica() {
-  document.getElementById('modalModifica').classList.remove('active');
-  modificaId = null;
-}
-
-document.getElementById('formModifica').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!modificaId) return;
-  document.getElementById('loader').classList.add('active');
-
-  const updates = {
-    cliente: document.getElementById('mod-nome').value.trim(),
-    codiceFiscale: document.getElementById('mod-cf').value.trim(),
-    targa: document.getElementById('mod-targa').value,
-    pulmino: document.getElementById('mod-targa').selectedOptions[0].text,
-    dataInizio: document.getElementById('mod-data-inizio').value,
-    oraInizio: document.getElementById('mod-ora-inizio').value,
-    dataFine: document.getElementById('mod-data-fine').value,
-    oraFine: document.getElementById('mod-ora-fine').value,
-    cellulare: document.getElementById('mod-cellulare').value.trim(),
-  };
-
-  try {
-    const response = await fetchConRetry(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'update', id: modificaId, updates }),
-    });
-    if (response.success) {
-      alert('📝 Prenotazione aggiornata!');
-      chiudiModifica();
-      caricaPrenotazioni();
-      document.getElementById('undoBtn').classList.add('visible');
-    } else {
-      alert('❌ Errore: ' + response.error);
+      });
     }
-  } catch (err) {
-    alert('❌ Errore: ' + err.message);
-  } finally {
-    document.getElementById('loader').classList.remove('active');
-  }
-});
-</script>
+
+    function apriModifica(id) {
+      const p = prenotazioniGlobali.find((x) => x.id == id);
+      if (!p) return;
+      document.getElementById('modalModifica').classList.add('active');
+      document.getElementById('mod-nome').value = p.cliente;
+      document.getElementById('mod-cf').value = p.codiceFiscale;
+      document.getElementById('mod-targa').value = p.targa;
+      document.getElementById('mod-data-inizio').value = p.dataInizio.split('/').reverse().join('-');
+      document.getElementById('mod-ora-inizio').value = p.oraInizio;
+      document.getElementById('mod-data-fine').value = p.dataFine.split('/').reverse().join('-');
+      document.getElementById('mod-ora-fine').value = p.oraFine;
+      document.getElementById('mod-cellulare').value = p.cellulare;
+      modificaId = id;
+    }
+
+    function chiudiModifica() {
+      document.getElementById('modalModifica').classList.remove('active');
+      modificaId = null;
+    }
+
+    document.getElementById('formModifica').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (!modificaId) return;
+      document.getElementById('loader').classList.add('active');
+
+      const updates = {
+        cliente: document.getElementById('mod-nome').value.trim(),
+        codiceFiscale: document.getElementById('mod-cf').value.trim(),
+        targa: document.getElementById('mod-targa').value,
+        pulmino: document.getElementById('mod-targa').selectedOptions[0].text,
+        dataInizio: document.getElementById('mod-data-inizio').value,
+        oraInizio: document.getElementById('mod-ora-inizio').value,
+        dataFine: document.getElementById('mod-data-fine').value,
+        oraFine: document.getElementById('mod-ora-fine').value,
+        cellulare: document.getElementById('mod-cellulare').value.trim(),
+      };
+
+      try {
+        const response = await fetchConRetry(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'update', id: modificaId, updates }),
+        });
+        if (response.success) {
+          alert('📝 Prenotazione aggiornata!');
+          chiudiModifica();
+          caricaPrenotazioni();
+          document.getElementById('undoBtn').classList.add('visible');
+        } else {
+          alert('❌ Errore: ' + response.error);
+        }
+      } catch (err) {
+        alert('❌ Errore: ' + err.message);
+      } finally {
+        document.getElementById('loader').classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>
