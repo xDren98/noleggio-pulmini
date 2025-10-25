@@ -104,6 +104,55 @@ function getDataAutista(tipo, i) {
   const aa = document.getElementById(`anno_${tipo}_${i}`).value;
   return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
 }
+// Aggiungi dopo le utility functions
+
+// Validazione visiva CF in tempo reale
+function setupValidazioneVisiva() {
+  const cfInputs = document.querySelectorAll('[id^="codice_fiscale_"]');
+  
+  cfInputs.forEach(input => {
+    input.addEventListener('input', function() {
+      const value = this.value.trim().toUpperCase();
+      this.value = value; // Forza maiuscole
+      
+      if (value.length === 0) {
+        this.classList.remove('valid', 'invalid');
+      } else if (value.length === 16 && validaCodiceFiscale(value)) {
+        this.classList.remove('invalid');
+        this.classList.add('valid');
+      } else if (value.length >= 16) {
+        this.classList.remove('valid');
+        this.classList.add('invalid');
+      }
+    });
+  });
+  
+  // Validazione telefono
+  const telInput = document.getElementById('cellulare');
+  if (telInput) {
+    telInput.addEventListener('input', function() {
+      const value = this.value.replace(/\s/g, '');
+      
+      if (value.length === 0) {
+        this.classList.remove('valid', 'invalid');
+      } else if (value.length === 10 && validaTelefono(value)) {
+        this.classList.remove('invalid');
+        this.classList.add('valid');
+      } else if (value.length >= 10) {
+        this.classList.remove('valid');
+        this.classList.add('invalid');
+      }
+    });
+  }
+}
+
+// Chiama dopo generazione form
+function mostraModuliAutisti() {
+  // ... codice esistente ...
+  
+  // Alla fine della funzione:
+  setupValidazioneVisiva();
+}
 
 // ============================================
 // LOGIN CLIENTE DA HOMEPAGE - CON ESTRAZIONE DATI
