@@ -421,6 +421,35 @@
     <div class="spinner"></div>
   </div>
 
+  <script>
+    const ADMIN_PASSWORD = "Imbriani2025+";
+
+    function tentaLoginAdmin() {
+      const passwordInput = document.getElementById("passwordInput");
+      const loginError = document.getElementById("loginError");
+      if (!passwordInput || !loginError) return;
+
+      const passwordInserita = passwordInput.value.trim();
+
+      if (passwordInserita === ADMIN_PASSWORD) {
+        document.getElementById("loginOverlay").style.display = "none";
+        document.getElementById("dashboardContent").style.display = "block";
+        loginError.style.display = "none";
+      } else {
+        loginError.style.display = "block";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginForm = document.getElementById("loginForm");
+      if (loginForm) {
+        loginForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          tentaLoginAdmin();
+        });
+      }
+    });
+  </script>
   <script src="scripts.js" defer></script>
 </body>
 </html>
