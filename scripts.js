@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.7.0 - Contact Required');
+console.log('Imbriani Noleggio - Versione codice: 2.8.0 - Enhanced Validation');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -19,6 +19,10 @@ const SCRIPTS = {
 
 const CONTATTO_PROPRIETARIO = '328 658 9618';
 
+// ============================================
+// VALIDAZIONI AVANZATE
+// ============================================
+
 function validaCodiceFiscale(cf) {
   const regex = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/;
   return regex.test(cf.toUpperCase());
@@ -28,6 +32,96 @@ function validaTelefono(tel) {
   const regex = /^[0-9]{10}$/;
   return regex.test(tel.replace(/\s/g, ''));
 }
+
+function validaNomeCognome(nomeCognome) {
+  const regex = /^[A-Za-zÀ-ÿ'\-\s]{2,}\s[A-Za-zÀ-ÿ'\-\s]{2,}$/;
+  if (!regex.test(nomeCognome.trim())) {
+    return { valid: false, error: "Inserisci nome e cognome validi (min 2 caratteri ciascuno)" };
+  }
+  return { valid: true };
+}
+
+function validaCivico(civico) {
+  const regex = /^\d{1,4}(\/[A-Za-z]|[A-Za-z]|\s?(bis|ter))?$/i;
+  return regex.test(civico.trim());
+}
+
+function validaDataReale(gg, mm, aa) {
+  const giorniMese = [31, (aa % 4 === 0 && (aa % 100 !== 0 || aa % 400 === 0)) ? 29 : 28, 
+                      31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (gg < 1 || gg > giorniMese[mm - 1]) {
+    return { valid: false, error: "Giorno non valido per questo mese" };
+  }
+  return { valid: true };
+}
+
+function verificaDuplicatiCF() {
+  const numAutisti = parseInt(document.getElementById('num_autisti').value);
+  const cfList = [];
+  
+  for (let i = 1; i <= numAutisti; i++) {
+    const cf = document.getElementById(`codice_fiscale_${i}`).value.trim().toUpperCase();
+    if (cf && cfList.includes(cf)) {
+      return { valid: false, duplicato: cf };
+    }
+    if (cf) cfList.push(cf);
+  }
+  return { valid: true };
+}
+
+function aggiungiIndicatore(inputId, type = 'default') {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  
+  let indicator = input.nextElementSibling;
+  if (!indicator || !indicator.classList.contains('field-indicator')) {
+    indicator = document.createElement('span');
+    indicator.className = 'field-indicator';
+    indicator.style.cssText = `
+      margin-left: 8px;
+      font-size: 18px;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+    `;
+    input.style.position = 'relative';
+    input.parentElement.style.position = 'relative';
+    input.parentElement.appendChild(indicator);
+  }
+  
+  input.addEventListener('input', function() {
+    const value = input.value.trim();
+    let isValid = false;
+    
+    if (type === 'cf') {
+      isValid = validaCodiceFiscale(value);
+    } else if (type === 'tel') {
+      isValid = validaTelefono(value);
+    } else if (type === 'nome') {
+      isValid = validaNomeCognome(value).valid;
+    } else if (type === 'civico') {
+      isValid = validaCivico(value);
+    }
+    
+    if (value.length > 0) {
+      if (isValid) {
+        indicator.textContent = '✅';
+        input.style.borderColor = 'var(--color-success)';
+      } else {
+        indicator.textContent = '❌';
+        input.style.borderColor = 'var(--color-error)';
+      }
+    } else {
+      indicator.textContent = '';
+      input.style.borderColor = 'var(--color-border)';
+    }
+  });
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
 
 function mostraErrore(messaggio) {
   const errorDiv = document.createElement('div');
@@ -86,6 +180,10 @@ function getDataAutista(tipo, i) {
   const aa = document.getElementById(`anno_${tipo}_${i}`).value;
   return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
 }
+
+// ============================================
+// LOGIN & NAVIGATION
+// ============================================
 
 document.getElementById('loginFormHomepage').addEventListener('submit', function(event) {
   event.preventDefault();
@@ -207,31 +305,8 @@ function mostraAvvisoContatto() {
   
   const banner = document.createElement('div');
   banner.id = 'contact-banner';
-  banner.style.cssText = `
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px 0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    animation: slideInRight 0.3s ease-out;
-  `;
-  banner.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <span style="font-size: 48px;">📞</span>
-      <div style="flex: 1;">
-        <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">Prima di continuare</h3>
-        <p style="margin: 0 0 12px 0; font-size: 14px; opacity: 0.9;">
-          Contatta il proprietario per concordare il prezzo del noleggio
-        </p>
-        <a href="tel:${CONTATTO_PROPRIETARIO.replace(/\s/g, '')}" 
-           style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #667eea; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; transition: transform 0.2s;">
-          <span class="material-icons" style="font-size: 20px;">phone</span>
-          ${CONTATTO_PROPRIETARIO}
-        </a>
-      </div>
-    </div>
-  `;
+  banner.style.cssText = `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); animation: slideInRight 0.3s ease-out;`;
+  banner.innerHTML = `<div style="display: flex; align-items: center; gap: 16px;"><span style="font-size: 48px;">📞</span><div style="flex: 1;"><h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">Prima di continuare</h3><p style="margin: 0 0 12px 0; font-size: 14px; opacity: 0.9;">Contatta il proprietario per concordare il prezzo del noleggio</p><a href="tel:${CONTATTO_PROPRIETARIO.replace(/\s/g, '')}" style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #667eea; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; transition: transform 0.2s;"><span class="material-icons" style="font-size: 20px;">phone</span>${CONTATTO_PROPRIETARIO}</a></div></div>`;
   const step2 = document.getElementById('step2');
   const selectContainer = step2.querySelector('#scelta_pulmino').parentElement;
   selectContainer.parentNode.insertBefore(banner, selectContainer.nextSibling);
@@ -243,6 +318,14 @@ function vaiStep4() {
   const numAutisti = parseInt(document.getElementById('num_autisti').value);
   const cellulare = document.getElementById('cellulare').value.trim();
   if (!validaTelefono(cellulare)) { mostraErrore('Inserisci un numero di cellulare valido (10 cifre)'); return; }
+  
+  // Verifica duplicati CF
+  const checkDuplicati = verificaDuplicatiCF();
+  if (!checkDuplicati.valid) {
+    mostraErrore(`Codice fiscale duplicato: ${checkDuplicati.duplicato}. Ogni autista deve avere un CF univoco.`);
+    return;
+  }
+  
   for (let i = 1; i <= numAutisti; i++) {
     const nomeCognome = document.getElementById(`nome_cognome_${i}`).value.trim();
     const dataNascita = getDataAutista('nascita', i);
@@ -254,21 +337,39 @@ function vaiStep4() {
     const numeroPatente = document.getElementById(`numero_patente_${i}`).value.trim();
     const dataInizioValiditaPatente = getDataAutista('inizio_validita_patente', i);
     const dataFineValiditaPatente = getDataAutista('fine_validita_patente', i);
+    
     if (!nomeCognome || !dataNascita || !luogoNascita || !comuneResidenza || !viaResidenza || !civicoResidenza || !numeroPatente || !dataInizioValiditaPatente || !dataFineValiditaPatente) {
       mostraErrore(`Compila tutti i campi obbligatori per l'autista ${i}`); return;
     }
+    
+    // Validazione nome avanzata
+    const nomeCheck = validaNomeCognome(nomeCognome);
+    if (!nomeCheck.valid) { mostraErrore(`Autista ${i}: ${nomeCheck.error}`); return; }
+    
+    // Validazione civico
+    if (!validaCivico(civicoResidenza)) { mostraErrore(`Civico non valido per l'autista ${i} (es: 12, 12A, 12/A)`); return; }
+    
     if (!validaCodiceFiscale(codiceFiscale)) { mostraErrore(`Codice fiscale non valido per l'autista ${i}`); return; }
-    if (nomeCognome.split(' ').length < 2) { mostraErrore(`Inserisci nome e cognome completi per l'autista ${i}`); return; }
+    
+    // Validazione data nascita
+    const [ggN, mmN, aaaN] = dataNascita.split('/').map(Number);
+    const dataCheck = validaDataReale(ggN, mmN, aaaN);
+    if (!dataCheck.valid) { mostraErrore(`Data di nascita autista ${i}: ${dataCheck.error}`); return; }
+    
     const inizioPatente = new Date(convertDateToIso(dataInizioValiditaPatente));
     const finePatente = new Date(convertDateToIso(dataFineValiditaPatente));
     const oggi = new Date();
+    
     if (finePatente < oggi) { mostraErrore(`La patente dell'autista ${i} è scaduta!`); return; }
     if (inizioPatente >= finePatente) { mostraErrore(`Le date della patente dell'autista ${i} non sono valide`); return; }
+    
     const nascita = new Date(convertDateToIso(dataNascita));
     const eta = Math.floor((oggi - nascita) / (365.25 * 24 * 60 * 60 * 1000));
+    
     if (eta < 18) { mostraErrore(`L'autista ${i} deve avere almeno 18 anni`); return; }
     if (eta > 100) { mostraErrore(`Verifica la data di nascita dell'autista ${i}`); return; }
   }
+  
   bookingData.numAutisti = numAutisti; bookingData.cellulare = cellulare; bookingData.autisti = [];
   for (let i = 1; i <= numAutisti; i++) {
     bookingData.autisti.push({
@@ -293,70 +394,23 @@ function mostraRiepilogo() {
 function confermaPrenotazione() {
   mostraLoading(true);
   const prenotazioneData = {
-    nomeCognome1: bookingData.autisti[0].nomeCognome,
-    dataNascita1: bookingData.autisti[0].dataNascita,
-    luogoNascita1: bookingData.autisti[0].luogoNascita,
-    codiceFiscale1: bookingData.autisti[0].codiceFiscale,
-    comuneResidenza1: bookingData.autisti[0].comuneResidenza,
-    viaResidenza1: bookingData.autisti[0].viaResidenza,
-    civicoResidenza1: bookingData.autisti[0].civicoResidenza,
-    numeroPatente1: bookingData.autisti[0].numeroPatente,
-    inizioValiditaPatente1: bookingData.autisti[0].dataInizioValiditaPatente,
-    fineValiditaPatente1: bookingData.autisti[0].dataFineValiditaPatente,
-    targaPulmino: bookingData.pulmino.targa,
-    oraRitiro: bookingData.oraRitiro,
-    oraArrivo: bookingData.oraArrivo,
-    giornoRitiro: bookingData.dataRitiro,
-    giornoArrivo: bookingData.dataArrivo,
-    cellulare: bookingData.cellulare,
-    dataContratto: new Date().toLocaleDateString('it-IT')
+    nomeCognome1: bookingData.autisti[0].nomeCognome, dataNascita1: bookingData.autisti[0].dataNascita, luogoNascita1: bookingData.autisti[0].luogoNascita, codiceFiscale1: bookingData.autisti[0].codiceFiscale, comuneResidenza1: bookingData.autisti[0].comuneResidenza, viaResidenza1: bookingData.autisti[0].viaResidenza, civicoResidenza1: bookingData.autisti[0].civicoResidenza, numeroPatente1: bookingData.autisti[0].numeroPatente, inizioValiditaPatente1: bookingData.autisti[0].dataInizioValiditaPatente, fineValiditaPatente1: bookingData.autisti[0].dataFineValiditaPatente, targaPulmino: bookingData.pulmino.targa, oraRitiro: bookingData.oraRitiro, oraArrivo: bookingData.oraArrivo, giornoRitiro: bookingData.dataRitiro, giornoArrivo: bookingData.dataArrivo, cellulare: bookingData.cellulare, dataContratto: new Date().toLocaleDateString('it-IT')
   };
   if (bookingData.autisti[1]) {
-    prenotazioneData.nomeCognome2 = bookingData.autisti[1].nomeCognome;
-    prenotazioneData.dataNascita2 = bookingData.autisti[1].dataNascita;
-    prenotazioneData.luogoNascita2 = bookingData.autisti[1].luogoNascita;
-    prenotazioneData.codiceFiscale2 = bookingData.autisti[1].codiceFiscale;
-    prenotazioneData.comuneResidenza2 = bookingData.autisti[1].comuneResidenza;
-    prenotazioneData.viaResidenza2 = bookingData.autisti[1].viaResidenza;
-    prenotazioneData.civicoResidenza2 = bookingData.autisti[1].civicoResidenza;
-    prenotazioneData.numeroPatente2 = bookingData.autisti[1].numeroPatente;
-    prenotazioneData.inizioValiditaPatente2 = bookingData.autisti[1].dataInizioValiditaPatente;
-    prenotazioneData.fineValiditaPatente2 = bookingData.autisti[1].dataFineValiditaPatente;
+    prenotazioneData.nomeCognome2 = bookingData.autisti[1].nomeCognome; prenotazioneData.dataNascita2 = bookingData.autisti[1].dataNascita; prenotazioneData.luogoNascita2 = bookingData.autisti[1].luogoNascita; prenotazioneData.codiceFiscale2 = bookingData.autisti[1].codiceFiscale; prenotazioneData.comuneResidenza2 = bookingData.autisti[1].comuneResidenza; prenotazioneData.viaResidenza2 = bookingData.autisti[1].viaResidenza; prenotazioneData.civicoResidenza2 = bookingData.autisti[1].civicoResidenza; prenotazioneData.numeroPatente2 = bookingData.autisti[1].numeroPatente; prenotazioneData.inizioValiditaPatente2 = bookingData.autisti[1].dataInizioValiditaPatente; prenotazioneData.fineValiditaPatente2 = bookingData.autisti[1].dataFineValiditaPatente;
   }
   if (bookingData.autisti[2]) {
-    prenotazioneData.nomeCognome3 = bookingData.autisti[2].nomeCognome;
-    prenotazioneData.dataNascita3 = bookingData.autisti[2].dataNascita;
-    prenotazioneData.luogoNascita3 = bookingData.autisti[2].luogoNascita;
-    prenotazioneData.codiceFiscale3 = bookingData.autisti[2].codiceFiscale;
-    prenotazioneData.comuneResidenza3 = bookingData.autisti[2].comuneResidenza;
-    prenotazioneData.viaResidenza3 = bookingData.autisti[2].viaResidenza;
-    prenotazioneData.civicoResidenza3 = bookingData.autisti[2].civicoResidenza;
-    prenotazioneData.numeroPatente3 = bookingData.autisti[2].numeroPatente;
-    prenotazioneData.inizioValiditaPatente3 = bookingData.autisti[2].dataInizioValiditaPatente;
-    prenotazioneData.fineValiditaPatente3 = bookingData.autisti[2].dataFineValiditaPatente;
+    prenotazioneData.nomeCognome3 = bookingData.autisti[2].nomeCognome; prenotazioneData.dataNascita3 = bookingData.autisti[2].dataNascita; prenotazioneData.luogoNascita3 = bookingData.autisti[2].luogoNascita; prenotazioneData.codiceFiscale3 = bookingData.autisti[2].codiceFiscale; prenotazioneData.comuneResidenza3 = bookingData.autisti[2].comuneResidenza; prenotazioneData.viaResidenza3 = bookingData.autisti[2].viaResidenza; prenotazioneData.civicoResidenza3 = bookingData.autisti[2].civicoResidenza; prenotazioneData.numeroPatente3 = bookingData.autisti[2].numeroPatente; prenotazioneData.inizioValiditaPatente3 = bookingData.autisti[2].dataInizioValiditaPatente; prenotazioneData.fineValiditaPatente3 = bookingData.autisti[2].dataFineValiditaPatente;
   }
   console.log('📤 Invio dati a Google Sheets:', prenotazioneData);
-  fetch(SCRIPTS.proxy + SCRIPTS.salvaPrenotazione, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(prenotazioneData)
-  })
+  fetch(SCRIPTS.proxy + SCRIPTS.salvaPrenotazione, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(prenotazioneData) })
   .then(r => r.json())
   .then(result => {
-    mostraLoading(false);
-    console.log('📥 Risposta server:', result);
-    if (result.success) {
-      mostraSuccesso('Prenotazione salvata con successo!');
-      setTimeout(() => mostraThankYou(), 1000);
-    } else {
-      mostraErrore('Errore durante il salvataggio: ' + (result.error || 'Errore sconosciuto'));
-    }
+    mostraLoading(false); console.log('📥 Risposta server:', result);
+    if (result.success) { mostraSuccesso('Prenotazione salvata con successo!'); setTimeout(() => mostraThankYou(), 1000); }
+    else { mostraErrore('Errore durante il salvataggio: ' + (result.error || 'Errore sconosciuto')); }
   })
-  .catch(err => {
-    mostraLoading(false);
-    console.error('❌ Errore connessione:', err);
-    mostraErrore('Errore di connessione: ' + err.message);
-  });
+  .catch(err => { mostraLoading(false); console.error('❌ Errore connessione:', err); mostraErrore('Errore di connessione: ' + err.message); });
 }
 
 function mostraThankYou() {
@@ -375,7 +429,16 @@ function mostraModuliAutisti() {
     popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
     popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente - 50, annoCorrente + 10);
     popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente + 15);
+    
+    // Aggiungi indicatori real-time
+    aggiungiIndicatore(`nome_cognome_${i}`, 'nome');
+    aggiungiIndicatore(`codice_fiscale_${i}`, 'cf');
+    aggiungiIndicatore(`civico_residenza_${i}`, 'civico');
   }
+  
+  // Indicatore cellulare
+  aggiungiIndicatore('cellulare', 'tel');
+  
   if (loggedCustomerData && loggedCustomerData.datiCompleti) {
     setTimeout(() => {
       const dati = loggedCustomerData.datiCompleti;
