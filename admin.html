@@ -14,16 +14,111 @@
       color: #333;
     }
     
+    /* LOGIN SCREEN */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    
+    .login-box {
+      background: white;
+      padding: 48px 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    
+    .login-box h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    .login-box p {
+      color: #666;
+      margin-bottom: 32px;
+    }
+    
+    .login-box input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 16px;
+      transition: border 0.3s;
+    }
+    
+    .login-box input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .login-box button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .login-error {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    
+    /* DASHBOARD */
     .header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 24px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
     .header h1 {
       font-size: 28px;
       margin-bottom: 8px;
+    }
+    
+    .logout-btn {
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid white;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
     }
     
     .container {
@@ -172,74 +267,6 @@
     
     .btn-icon:hover { background: #f3f4f6; }
     
-    .calendar-container {
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-top: 24px;
-    }
-    
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-    
-    .calendar-header h2 {
-      font-size: 20px;
-    }
-    
-    .calendar-nav {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    
-    .calendar-nav button {
-      padding: 8px 16px;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-    }
-    
-    .calendar-day {
-      aspect-ratio: 1;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      position: relative;
-    }
-    
-    .calendar-day.header {
-      border: none;
-      font-weight: 600;
-      color: #666;
-    }
-    
-    .calendar-day.occupied {
-      background: #fee2e2;
-      border-color: #fca5a5;
-    }
-    
-    .calendar-day.available {
-      background: #d1fae5;
-      border-color: #6ee7b7;
-    }
-    
     .loader {
       position: fixed;
       top: 0;
@@ -271,103 +298,116 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="container">
-      <h1>🚐 Dashboard Amministrativa</h1>
-      <p>Gestione prenotazioni Imbriani Noleggio</p>
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <h1>🔐 Accesso Admin</h1>
+      <p>Inserisci la password per accedere alla dashboard</p>
+      <div class="login-error" id="loginError">Password errata!</div>
+      <form id="loginForm">
+        <input 
+          type="password" 
+          id="passwordInput" 
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+        />
+        <button type="submit">Accedi</button>
+      </form>
     </div>
   </div>
 
-  <div class="container">
-    <!-- Statistiche -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon blue">📋</div>
-        <div class="stat-content">
-          <h3 id="stat-totali">0</h3>
-          <p>Prenotazioni Totali</p>
-        </div>
+  <!-- DASHBOARD -->
+  <div id="dashboardContent" style="display: none;">
+    <div class="header">
+      <div>
+        <h1>🚐 Dashboard Amministrativa</h1>
+        <p>Gestione prenotazioni Imbriani Noleggio</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon green">✅</div>
-        <div class="stat-content">
-          <h3 id="stat-completate">0</h3>
-          <p>Completate</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon orange">⏳</div>
-        <div class="stat-content">
-          <h3 id="stat-corso">0</h3>
-          <p>In Corso</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon purple">📅</div>
-        <div class="stat-content">
-          <h3 id="stat-future">0</h3>
-          <p>Future</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filtri -->
-    <div class="filters">
-      <input type="date" id="filter-data-inizio" placeholder="Data inizio">
-      <input type="date" id="filter-data-fine" placeholder="Data fine">
-      <select id="filter-pulmino">
-        <option value="">Tutti i pulmini</option>
-        <option value="EC787NM">Ducato Lungo</option>
-        <option value="DN391FW">Ducato Corto</option>
-        <option value="DL291XZ">Peugeot</option>
-      </select>
-      <select id="filter-stato">
-        <option value="">Tutti gli stati</option>
-        <option value="Prenotato">Prenotato</option>
-        <option value="In corso">In corso</option>
-        <option value="Completato">Completato</option>
-      </select>
-      <button onclick="applicaFiltri()">
-        <span class="material-icons">filter_list</span>
-        Applica Filtri
-      </button>
-      <button onclick="esportaCSV()" style="background: #22c55e;">
-        <span class="material-icons">download</span>
-        Esporta CSV
+      <button class="logout-btn" onclick="logout()">
+        <span class="material-icons">logout</span>
+        Esci
       </button>
     </div>
 
-    <!-- Tabella Prenotazioni -->
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Pulmino</th>
-            <th>Dal</th>
-            <th>Al</th>
-            <th>Cellulare</th>
-            <th>Stato</th>
-            <th>Azioni</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <!-- Popolato dinamicamente -->
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Calendario Disponibilità -->
-    <div class="calendar-container">
-      <div class="calendar-header">
-        <h2>📅 Calendario Disponibilità</h2>
-        <div class="calendar-nav">
-          <button onclick="cambiaMonth(-1)">← Precedente</button>
-          <span id="current-month">Gennaio 2025</span>
-          <button onclick="cambiaMonth(1)">Successivo →</button>
+    <div class="container">
+      <!-- Statistiche -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">📋</div>
+          <div class="stat-content">
+            <h3 id="stat-totali">0</h3>
+            <p>Prenotazioni Totali</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-content">
+            <h3 id="stat-completate">0</h3>
+            <p>Completate</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">⏳</div>
+          <div class="stat-content">
+            <h3 id="stat-corso">0</h3>
+            <p>In Corso</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">📅</div>
+          <div class="stat-content">
+            <h3 id="stat-future">0</h3>
+            <p>Future</p>
+          </div>
         </div>
       </div>
-      <div class="calendar-grid" id="calendar"></div>
+
+      <!-- Filtri -->
+      <div class="filters">
+        <input type="date" id="filter-data-inizio" placeholder="Data inizio">
+        <input type="date" id="filter-data-fine" placeholder="Data fine">
+        <select id="filter-pulmino">
+          <option value="">Tutti i pulmini</option>
+          <option value="EC787NM">Ducato Lungo</option>
+          <option value="DN391FW">Ducato Corto</option>
+          <option value="DL291XZ">Peugeot</option>
+        </select>
+        <select id="filter-stato">
+          <option value="">Tutti gli stati</option>
+          <option value="Prenotato">Prenotato</option>
+          <option value="In corso">In corso</option>
+          <option value="Completato">Completato</option>
+        </select>
+        <button onclick="applicaFiltri()">
+          <span class="material-icons">filter_list</span>
+          Applica Filtri
+        </button>
+        <button onclick="esportaCSV()" style="background: #22c55e;">
+          <span class="material-icons">download</span>
+          Esporta CSV
+        </button>
+      </div>
+
+      <!-- Tabella Prenotazioni -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Pulmino</th>
+              <th>Dal</th>
+              <th>Al</th>
+              <th>Cellulare</th>
+              <th>Stato</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Popolato dinamicamente -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -376,10 +416,61 @@
   </div>
 
   <script>
+    // 🔐 CONFIGURAZIONE PASSWORD
+    const PASSWORD_ADMIN = 'Imbriani2025+'; // ⚠️ CAMBIA QUESTA PASSWORD!
+    
+    // 🔗 URL SCRIPT ADMIN (da sostituire dopo deploy)
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1saUwj04dfzPqilrLz1GAfwha47Y-n5r6PG0hs7rGRnPexChTaAKrREQCryw3IOs/exec';
+    
     let prenotazioniGlobali = [];
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
+
+    // ============================================
+    // SISTEMA AUTENTICAZIONE
+    // ============================================
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const password = document.getElementById('passwordInput').value;
+      
+      if (password === PASSWORD_ADMIN) {
+        // Salva autenticazione nella sessione
+        sessionStorage.setItem('admin_auth', 'authenticated');
+        
+        // Mostra dashboard
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
+        
+        // Carica dati
+        caricaPrenotazioni();
+      } else {
+        // Mostra errore
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+        
+        setTimeout(() => {
+          document.getElementById('loginError').style.display = 'none';
+        }, 3000);
+      }
+    });
+
+    function logout() {
+      sessionStorage.removeItem('admin_auth');
+      location.reload();
+    }
+
+    // Verifica autenticazione all'avvio
+    window.onload = function() {
+      const isAuth = sessionStorage.getItem('admin_auth');
+      if (isAuth === 'authenticated') {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
+        caricaPrenotazioni();
+      }
+    };
+
+    // ============================================
+    // GESTIONE DATI
+    // ============================================
 
     async function fetchConRetry(url, options, retries = 3) {
       for (let i = 0; i < retries; i++) {
@@ -402,7 +493,6 @@
         prenotazioniGlobali = data.prenotazioni || [];
         aggiornaStatistiche();
         mostraPrenotazioni(prenotazioniGlobali);
-        generaCalendario();
       } catch (error) {
         alert('Errore caricamento dati: ' + error.message);
       } finally {
@@ -433,9 +523,6 @@
             <td>${p.cellulare}</td>
             <td><span class="badge ${badgeClass}">${p.stato}</span></td>
             <td class="actions">
-              <button class="btn-icon" onclick="modificaPrenotazione('${p.id}')" title="Modifica">
-                <span class="material-icons">edit</span>
-              </button>
               <button class="btn-icon" onclick="eliminaPrenotazione('${p.id}')" title="Elimina">
                 <span class="material-icons">delete</span>
               </button>
@@ -477,52 +564,6 @@
       a.click();
     }
 
-    function generaCalendario() {
-      const calendar = document.getElementById('calendar');
-      const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-      document.getElementById('current-month').textContent = `${monthNames[currentMonth]} ${currentYear}`;
-      
-      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-      
-      calendar.innerHTML = '';
-      ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].forEach(day => {
-        const header = document.createElement('div');
-        header.className = 'calendar-day header';
-        header.textContent = day;
-        calendar.appendChild(header);
-      });
-      
-      for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
-        const empty = document.createElement('div');
-        empty.className = 'calendar-day';
-        calendar.appendChild(empty);
-      }
-      
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'calendar-day available';
-        dayDiv.textContent = day;
-        
-        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const occupied = prenotazioniGlobali.some(p => dateStr >= p.dataInizio && dateStr <= p.dataFine);
-        if (occupied) dayDiv.className = 'calendar-day occupied';
-        
-        calendar.appendChild(dayDiv);
-      }
-    }
-
-    function cambiaMonth(offset) {
-      currentMonth += offset;
-      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-      generaCalendario();
-    }
-
-    async function modificaPrenotazione(id) {
-      alert('[translate:Feature] in sviluppo - Modifica prenotazione ' + id);
-    }
-
     async function eliminaPrenotazione(id) {
       if (!confirm('Sei sicuro di voler eliminare questa prenotazione?')) return;
       try {
@@ -536,8 +577,6 @@
         alert('Errore: ' + error.message);
       }
     }
-
-    window.onload = caricaPrenotazioni;
   </script>
 </body>
 </html>
