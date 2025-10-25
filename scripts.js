@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.1.2 - Complete with Data Extraction');
+console.log('Imbriani Noleggio - Versione codice: 2.2.0 - Complete with Cellulare');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -9,14 +9,10 @@ const pulmini = [
 let loggedCustomerData = null;
 let bookingData = {};
 
-// ============================================
-// ✅ CONFIGURAZIONE URL SCRIPTS
-// ============================================
-
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
-  datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec', // ✅ TUO URL
+  datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
   disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec'
 };
 
@@ -36,30 +32,66 @@ function validaTelefono(tel) {
 
 function mostraErrore(messaggio) {
   const errorDiv = document.createElement('div');
-  errorDiv.className = 'error-banner';
-  errorDiv.innerHTML = `
-    <span class="material-icons">error</span>
-    <span>${messaggio}</span>
+  errorDiv.style.cssText = `
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 16px 20px;
+    background: rgba(255, 230, 230, 0.95);
+    color: #c00;
+    border: 1px solid rgba(192, 0, 0, 0.3);
+    border-left: 4px solid #c00;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 10000;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideInRight 0.3s ease-out;
   `;
+  errorDiv.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
   document.body.prepend(errorDiv);
   
   setTimeout(() => {
-    errorDiv.style.animation = 'slideOut 0.3s ease-out';
+    errorDiv.style.transition = 'all 0.3s ease-out';
+    errorDiv.style.transform = 'translateX(450px)';
+    errorDiv.style.opacity = '0';
     setTimeout(() => errorDiv.remove(), 300);
   }, 4000);
 }
 
 function mostraSuccesso(messaggio) {
   const successDiv = document.createElement('div');
-  successDiv.className = 'success-banner';
-  successDiv.innerHTML = `
-    <span class="material-icons">check_circle</span>
-    <span>${messaggio}</span>
+  successDiv.style.cssText = `
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 16px 20px;
+    background: rgba(230, 255, 230, 0.95);
+    color: #0a0;
+    border: 1px solid rgba(0, 170, 0, 0.3);
+    border-left: 4px solid #0a0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 10000;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideInRight 0.3s ease-out;
   `;
+  successDiv.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
   document.body.prepend(successDiv);
   
   setTimeout(() => {
-    successDiv.style.animation = 'slideOut 0.3s ease-out';
+    successDiv.style.transition = 'all 0.3s ease-out';
+    successDiv.style.transform = 'translateX(450px)';
+    successDiv.style.opacity = '0';
     setTimeout(() => successDiv.remove(), 300);
   }, 4000);
 }
@@ -70,14 +102,51 @@ function mostraLoading(show = true) {
     if (!loader) {
       loader = document.createElement('div');
       loader.id = 'globalLoader';
-      loader.className = 'loader-overlay';
+      loader.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(4px);
+      `;
       loader.innerHTML = `
-        <div class="loader-spinner">
-          <div class="spinner"></div>
-          <p>Caricamento in corso...</p>
+        <div style="text-align: center; color: white;">
+          <div style="
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+          "></div>
+          <p style="font-size: 16px; font-weight: 500;">Caricamento in corso...</p>
         </div>
       `;
       document.body.appendChild(loader);
+      
+      // Aggiungi CSS per animazione spin
+      if (!document.getElementById('spinAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'spinAnimation';
+        style.textContent = `
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          @keyframes slideInRight {
+            from { transform: translateX(450px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
     }
     loader.style.display = 'flex';
   } else {
@@ -104,58 +173,9 @@ function getDataAutista(tipo, i) {
   const aa = document.getElementById(`anno_${tipo}_${i}`).value;
   return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
 }
-// Aggiungi dopo le utility functions
-
-// Validazione visiva CF in tempo reale
-function setupValidazioneVisiva() {
-  const cfInputs = document.querySelectorAll('[id^="codice_fiscale_"]');
-  
-  cfInputs.forEach(input => {
-    input.addEventListener('input', function() {
-      const value = this.value.trim().toUpperCase();
-      this.value = value; // Forza maiuscole
-      
-      if (value.length === 0) {
-        this.classList.remove('valid', 'invalid');
-      } else if (value.length === 16 && validaCodiceFiscale(value)) {
-        this.classList.remove('invalid');
-        this.classList.add('valid');
-      } else if (value.length >= 16) {
-        this.classList.remove('valid');
-        this.classList.add('invalid');
-      }
-    });
-  });
-  
-  // Validazione telefono
-  const telInput = document.getElementById('cellulare');
-  if (telInput) {
-    telInput.addEventListener('input', function() {
-      const value = this.value.replace(/\s/g, '');
-      
-      if (value.length === 0) {
-        this.classList.remove('valid', 'invalid');
-      } else if (value.length === 10 && validaTelefono(value)) {
-        this.classList.remove('invalid');
-        this.classList.add('valid');
-      } else if (value.length >= 10) {
-        this.classList.remove('valid');
-        this.classList.add('invalid');
-      }
-    });
-  }
-}
-
-// Chiama dopo generazione form
-function mostraModuliAutisti() {
-  // ... codice esistente ...
-  
-  // Alla fine della funzione:
-  setupValidazioneVisiva();
-}
 
 // ============================================
-// LOGIN CLIENTE DA HOMEPAGE - CON ESTRAZIONE DATI
+// LOGIN CLIENTE DA HOMEPAGE
 // ============================================
 
 document.getElementById('loginFormHomepage').addEventListener('submit', function(event) {
@@ -172,7 +192,6 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
 
   mostraLoading(true);
 
-  // ✅ CHIAMATE PARALLELE: prenotazioni + dati cliente
   Promise.all([
     fetch(SCRIPTS.proxy + SCRIPTS.prenotazioni, {
       method: 'POST',
@@ -193,7 +212,6 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     console.log('Prenotazioni:', dataPrenotazioni);
     console.log('Dati Cliente:', dataDatiCliente);
     
-    // Verifica prenotazioni
     if (!dataPrenotazioni.success) {
       mostraErrore('Errore nel recupero prenotazioni: ' + (dataPrenotazioni.error || 'Errore non specificato'));
       return;
@@ -203,7 +221,6 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
       return;
     }
 
-    // ✅ Salva dati completi del cliente
     loggedCustomerData = {
       cf: cf,
       datiCompleti: dataDatiCliente.success ? dataDatiCliente.cliente : null
@@ -260,10 +277,6 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
   });
 });
 
-// ============================================
-// NUOVA PRENOTAZIONE
-// ============================================
-
 document.getElementById('btnNewBooking').addEventListener('click', () => {
   loggedCustomerData = null;
   startNewBookingWithPreFill();
@@ -274,24 +287,17 @@ function startNewBookingWithPreFill() {
   const mainbox = document.getElementById('mainbox');
   mainbox.style.display = 'flex';
   showStep('step1');
-
   bookingData = {};
-
   if (loggedCustomerData) {
     document.getElementById('num_autisti').value = '1';
     mostraModuliAutisti();
   }
 }
 
-// ============================================
-// NAVIGAZIONE STEP
-// ============================================
-
 function showStep(stepId) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   const step = document.getElementById(stepId);
   if (step) step.classList.add('active');
-  
   updateBackButton();
 }
 
@@ -303,13 +309,11 @@ function updateBackButton() {
     backBtn.className = 'btn-back';
     backBtn.innerHTML = '<span class="material-icons">arrow_back</span> Indietro';
     backBtn.onclick = goBack;
-    
     const mainbox = document.getElementById('mainbox');
     if (mainbox) {
       mainbox.insertBefore(backBtn, mainbox.firstChild);
     }
   }
-  
   if (document.getElementById('step1').classList.contains('active') || 
       document.getElementById('homepage').style.display !== 'none') {
     backBtn.style.display = 'none';
@@ -331,10 +335,6 @@ function goBack() {
     document.getElementById('loginResultHomepage').innerHTML = '';
   }
 }
-
-// ============================================
-// STEP 1: VERIFICA DISPONIBILITÀ
-// ============================================
 
 function controllaDisponibilita() {
   const dataRitiroStr = getData('ritiro');
@@ -386,7 +386,6 @@ function controllaDisponibilita() {
     }
 
     const arrayPrenotazioni = data.prenotazioni;
-
     const disponibili = pulmini.filter(p => {
       return !arrayPrenotazioni.some(pren => {
         if (pren.targa !== p.targa) return false;
@@ -425,18 +424,10 @@ function controllaDisponibilita() {
   });
 }
 
-// ============================================
-// STEP 2 → STEP 3
-// ============================================
-
 function vaiStep3() {
   showStep('step3');
   mostraModuliAutisti();
 }
-
-// ============================================
-// STEP 3: VALIDAZIONE E PASSAGGIO A STEP 4
-// ============================================
 
 function vaiStep4() {
   const numAutisti = parseInt(document.getElementById('num_autisti').value);
@@ -527,10 +518,6 @@ function vaiStep4() {
   showStep('step4');
 }
 
-// ============================================
-// STEP 4: INVIO PRENOTAZIONE
-// ============================================
-
 document.addEventListener('DOMContentLoaded', function() {
   const btnApriModulo = document.getElementById('btnApriModulo');
   if (btnApriModulo) {
@@ -548,47 +535,23 @@ function inviaPrenotazione() {
   const formBaseUrl = `https://docs.google.com/forms/d/e/${formId}/viewform`;
 
   const ENTRY = {
-    nomeCognome1: "entry.1117372864",
-    dataNascita1: "entry.1463974346",
-    luogoNascita1: "entry.1633665128",
-    codiceFiscale1: "entry.36844075",
-    comuneResidenza1: "entry.115888402",
-    viaResidenza1: "entry.913323396",
-    civicoResidenza1: "entry.851213452",
-    numeroPatente1: "entry.15925456",
-    inizioValiditaPatente1: "entry.914754440",
-    fineValiditaPatente1: "entry.1373011243",
-    targaPulmino: "entry.1676855906",
-    oraRitiro: "entry.821083355",
-    oraArrivo: "entry.1888774437",
-    dataRitiro: "entry.517585546",
-    dataArrivo: "entry.810215127",
-    cellulare: "entry.1889382033",
-    dataContratto: "entry.1543960408",
-    nomeCognome2: "entry.1449762214",
-    dataNascita2: "entry.218826991",
-    luogoNascita2: "entry.572727319",
-    codiceFiscale2: "entry.850104184",
-    comuneResidenza2: "entry.702889962",
-    viaResidenza2: "entry.1362390417",
-    civicoResidenza2: "entry.269416573",
-    numeroPatente2: "entry.716259237",
-    inizioValiditaPatente2: "entry.1202607650",
+    nomeCognome1: "entry.1117372864", dataNascita1: "entry.1463974346", luogoNascita1: "entry.1633665128",
+    codiceFiscale1: "entry.36844075", comuneResidenza1: "entry.115888402", viaResidenza1: "entry.913323396",
+    civicoResidenza1: "entry.851213452", numeroPatente1: "entry.15925456", inizioValiditaPatente1: "entry.914754440",
+    fineValiditaPatente1: "entry.1373011243", targaPulmino: "entry.1676855906", oraRitiro: "entry.821083355",
+    oraArrivo: "entry.1888774437", dataRitiro: "entry.517585546", dataArrivo: "entry.810215127",
+    cellulare: "entry.1889382033", dataContratto: "entry.1543960408",
+    nomeCognome2: "entry.1449762214", dataNascita2: "entry.218826991", luogoNascita2: "entry.572727319",
+    codiceFiscale2: "entry.850104184", comuneResidenza2: "entry.702889962", viaResidenza2: "entry.1362390417",
+    civicoResidenza2: "entry.269416573", numeroPatente2: "entry.716259237", inizioValiditaPatente2: "entry.1202607650",
     fineValiditaPatente2: "entry.1335171224",
-    nomeCognome3: "entry.1756625997",
-    dataNascita3: "entry.724642237",
-    luogoNascita3: "entry.2055078159",
-    codiceFiscale3: "entry.1750806014",
-    comuneResidenza3: "entry.559362301",
-    viaResidenza3: "entry.656836588",
-    civicoResidenza3: "entry.1926018707",
-    numeroPatente3: "entry.724642237",
-    inizioValiditaPatente3: "entry.2055078159",
+    nomeCognome3: "entry.1756625997", dataNascita3: "entry.724642237", luogoNascita3: "entry.2055078159",
+    codiceFiscale3: "entry.1750806014", comuneResidenza3: "entry.559362301", viaResidenza3: "entry.656836588",
+    civicoResidenza3: "entry.1926018707", numeroPatente3: "entry.724642237", inizioValiditaPatente3: "entry.2055078159",
     fineValiditaPatente3: "entry.1750806014"
   };
 
   const params = new URLSearchParams();
-
   params.append(ENTRY.targaPulmino, bookingData.pulmino.targa);
   params.append(ENTRY.dataRitiro, bookingData.dataRitiro);
   params.append(ENTRY.oraRitiro, bookingData.oraRitiro);
@@ -641,7 +604,6 @@ function inviaPrenotazione() {
   }
 
   const urlCompleto = `${formBaseUrl}?${params.toString()}`;
-  
   const formWindow = window.open(urlCompleto, '_blank');
   
   if (!formWindow) {
@@ -661,21 +623,16 @@ function inviaPrenotazione() {
 function mostraThankYou() {
   document.getElementById('mainbox').innerHTML = `
     <div id="thankyou">
-      <span class="material-icons" style="font-size: 64px; color: #37b24d;">check_circle</span>
+      <span style="font-size: 64px;">✅</span>
       <h2>Prenotazione inviata!</h2>
       <p>Riceverai una conferma via email o SMS al numero ${bookingData.cellulare}.</p>
       <p>Grazie per aver scelto Imbriani Noleggio!</p>
       <button onclick="location.reload()" class="btn btn--primary">
-        <span class="material-icons">home</span>
-        Torna alla home
+        🏠 Torna alla home
       </button>
     </div>
   `;
 }
-
-// ============================================
-// GESTIONE MODULI AUTISTI CON PRECOMPILAZIONE
-// ============================================
 
 function mostraModuliAutisti() {
   const container = document.getElementById('autisti_container');
@@ -687,39 +644,30 @@ function mostraModuliAutisti() {
       <h3>Autista ${i}</h3>
       <label>Nome e Cognome *</label>
       <input type="text" id="nome_cognome_${i}" placeholder="Mario Rossi" required />
-      
       <label>Data di nascita *</label>
       <div class="date-inline">
         <select id="giorno_nascita_${i}"></select>
         <select id="mese_nascita_${i}"></select>
         <select id="anno_nascita_${i}"></select>
       </div>
-      
       <label>Luogo di nascita *</label>
       <input type="text" id="luogo_nascita_${i}" placeholder="Roma" required />
-      
       <label>Comune di residenza *</label>
       <input type="text" id="comune_residenza_${i}" placeholder="Milano" required />
-      
       <label>Via di residenza *</label>
       <input type="text" id="via_residenza_${i}" placeholder="Via Roma" required />
-      
       <label>Civico di residenza *</label>
       <input type="text" id="civico_residenza_${i}" placeholder="123" required />
-      
       <label>Codice fiscale *</label>
       <input type="text" id="codice_fiscale_${i}" placeholder="RSSMRA80A01H501U" required maxlength="16" style="text-transform: uppercase;" />
-      
       <label>Numero patente *</label>
       <input type="text" id="numero_patente_${i}" placeholder="AB1234567C" required />
-      
       <label>Data inizio validità patente *</label>
       <div class="date-inline">
         <select id="giorno_inizio_validita_patente_${i}"></select>
         <select id="mese_inizio_validita_patente_${i}"></select>
         <select id="anno_inizio_validita_patente_${i}"></select>
       </div>
-      
       <label>Data fine validità patente *</label>
       <div class="date-inline">
         <select id="giorno_fine_validita_patente_${i}"></select>
@@ -736,18 +684,14 @@ function mostraModuliAutisti() {
     popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente + 15);
   }
 
-  // ✅ PRECOMPILAZIONE COMPLETA DEL PRIMO AUTISTA SE LOGGATO
+  // ✅ PRECOMPILAZIONE COMPLETA + CELLULARE
   if (loggedCustomerData && loggedCustomerData.datiCompleti) {
     setTimeout(() => {
       const dati = loggedCustomerData.datiCompleti;
-      
-      console.log('=== PRECOMPILAZIONE AUTISTA 1 ===');
-      console.log('Dati disponibili:', dati);
+      console.log('=== PRECOMPILAZIONE AUTISTA 1 + CELLULARE ===', dati);
       
       const nomeInput = document.getElementById('nome_cognome_1');
-      if (nomeInput && dati.nomeCognome) {
-        nomeInput.value = dati.nomeCognome;
-      }
+      if (nomeInput && dati.nomeCognome) nomeInput.value = dati.nomeCognome;
       
       if (dati.dataNascita) {
         const [gg, mm, aaaa] = dati.dataNascita.split('/');
@@ -760,34 +704,22 @@ function mostraModuliAutisti() {
       }
       
       const luogoInput = document.getElementById('luogo_nascita_1');
-      if (luogoInput && dati.luogoNascita) {
-        luogoInput.value = dati.luogoNascita;
-      }
+      if (luogoInput && dati.luogoNascita) luogoInput.value = dati.luogoNascita;
       
       const cfInput = document.getElementById('codice_fiscale_1');
-      if (cfInput && dati.codiceFiscale) {
-        cfInput.value = dati.codiceFiscale;
-      }
+      if (cfInput && dati.codiceFiscale) cfInput.value = dati.codiceFiscale;
       
       const comuneInput = document.getElementById('comune_residenza_1');
-      if (comuneInput && dati.comuneResidenza) {
-        comuneInput.value = dati.comuneResidenza;
-      }
+      if (comuneInput && dati.comuneResidenza) comuneInput.value = dati.comuneResidenza;
       
       const viaInput = document.getElementById('via_residenza_1');
-      if (viaInput && dati.viaResidenza) {
-        viaInput.value = dati.viaResidenza;
-      }
+      if (viaInput && dati.viaResidenza) viaInput.value = dati.viaResidenza;
       
       const civicoInput = document.getElementById('civico_residenza_1');
-      if (civicoInput && dati.civicoResidenza) {
-        civicoInput.value = dati.civicoResidenza;
-      }
+      if (civicoInput && dati.civicoResidenza) civicoInput.value = dati.civicoResidenza;
       
       const patenteInput = document.getElementById('numero_patente_1');
-      if (patenteInput && dati.numeroPatente) {
-        patenteInput.value = dati.numeroPatente;
-      }
+      if (patenteInput && dati.numeroPatente) patenteInput.value = dati.numeroPatente;
       
       if (dati.dataInizioValiditaPatente) {
         const [gg, mm, aaaa] = dati.dataInizioValiditaPatente.split('/');
@@ -809,8 +741,14 @@ function mostraModuliAutisti() {
         if (selA && aaaa) selA.value = aaaa;
       }
       
-      mostraSuccesso('Dati del primo autista precompilati automaticamente!');
-      console.log('=== FINE PRECOMPILAZIONE ===');
+      // ✅ PRECOMPILA CELLULARE
+      const cellulareInput = document.getElementById('cellulare');
+      if (cellulareInput && dati.cellulare) {
+        cellulareInput.value = dati.cellulare;
+        console.log('✅ Cellulare precompilato:', dati.cellulare);
+      }
+      
+      mostraSuccesso('Dati del primo autista e cellulare precompilati automaticamente!');
     }, 150);
   }
 }
@@ -831,17 +769,11 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   for (let i = annoEnd; i >= annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
 }
 
-// ============================================
-// INIZIALIZZAZIONE
-// ============================================
-
 window.onload = () => {
   const annoCorrente = new Date().getFullYear();
   popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente + 1);
   popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente + 1);
   mostraModuliAutisti();
-
   document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
-  
   updateBackButton();
 };
