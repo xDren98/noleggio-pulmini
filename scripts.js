@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.0.0 - Bug Fix');
+console.log('Imbriani Noleggio - Versione codice: 2.0.1 - Complete');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -210,11 +210,15 @@ function startNewBookingWithPreFill() {
   // Reset booking data
   bookingData = {};
 
+  // Se l'utente è loggato, precompila il CF del primo autista
   if (loggedCustomerData) {
     document.getElementById('num_autisti').value = '1';
     mostraModuliAutisti();
     setTimeout(() => {
-      document.getElementById('codice_fiscale_1').value = loggedCustomerData.cf || '';
+      const cfInput = document.getElementById('codice_fiscale_1');
+      if (cfInput) {
+        cfInput.value = loggedCustomerData.cf || '';
+      }
     }, 100);
   }
 }
@@ -516,35 +520,136 @@ function inviaPrenotazione() {
     return;
   }
 
-  // Costruisci URL Google Form precompilato
-  const formBaseUrl = 'https://docs.google.com/forms/d/e/TU_FORM_ID_QUI/viewform';
+  // Form ID dal tuo Google Form
+  const formId = '11jQAzYFUg2Qgu-XyR5pj9hgzc992ZKeIeaHos2KBk7A';
+  const formBaseUrl = `https://docs.google.com/forms/d/e/${formId}/viewform`;
+
+  // Mappa entry ID dal tuo form
+  const ENTRY = {
+    // Autista 1
+    nomeCognome1: "entry.1117372864",
+    dataNascita1: "entry.1463974346",
+    luogoNascita1: "entry.1633665128",
+    codiceFiscale1: "entry.36844075",
+    comuneResidenza1: "entry.115888402",
+    viaResidenza1: "entry.913323396",
+    civicoResidenza1: "entry.851213452",
+    numeroPatente1: "entry.15925456",
+    inizioValiditaPatente1: "entry.914754440",
+    fineValiditaPatente1: "entry.1373011243",
+
+    // Dati prenotazione
+    targaPulmino: "entry.1676855906",
+    oraRitiro: "entry.821083355",
+    oraArrivo: "entry.1888774437",
+    dataRitiro: "entry.517585546",
+    dataArrivo: "entry.810215127",
+    cellulare: "entry.1889382033",
+    dataContratto: "entry.1543960408",
+
+    // Autista 2
+    nomeCognome2: "entry.1449762214",
+    dataNascita2: "entry.218826991",
+    luogoNascita2: "entry.572727319",
+    codiceFiscale2: "entry.850104184",
+    comuneResidenza2: "entry.702889962",
+    viaResidenza2: "entry.1362390417",
+    civicoResidenza2: "entry.269416573",
+    numeroPatente2: "entry.716259237",
+    inizioValiditaPatente2: "entry.1202607650",
+    fineValiditaPatente2: "entry.1335171224",
+
+    // Autista 3
+    nomeCognome3: "entry.1756625997",
+    dataNascita3: "entry.724642237",
+    luogoNascita3: "entry.2055078159",
+    codiceFiscale3: "entry.1750806014",
+    comuneResidenza3: "entry.559362301",
+    viaResidenza3: "entry.656836588",
+    civicoResidenza3: "entry.1926018707",
+    numeroPatente3: "entry.724642237",
+    inizioValiditaPatente3: "entry.2055078159",
+    fineValiditaPatente3: "entry.1750806014"
+  };
+
+  const params = new URLSearchParams();
+
+  // Dati pulmino e prenotazione
+  params.append(ENTRY.targaPulmino, bookingData.pulmino.targa);
+  params.append(ENTRY.dataRitiro, bookingData.dataRitiro);
+  params.append(ENTRY.oraRitiro, bookingData.oraRitiro);
+  params.append(ENTRY.dataArrivo, bookingData.dataArrivo);
+  params.append(ENTRY.oraArrivo, bookingData.oraArrivo);
+  params.append(ENTRY.cellulare, bookingData.cellulare);
   
-  // Esempio parametri (sostituisci con i tuoi entry ID dal form Google)
-  const params = new URLSearchParams({
-    'entry.123456': bookingData.pulmino.nome,
-    'entry.234567': bookingData.dataRitiro,
-    'entry.345678': bookingData.oraRitiro,
-    'entry.456789': bookingData.dataArrivo,
-    'entry.567890': bookingData.oraArrivo,
-    'entry.678901': bookingData.cellulare,
-    'entry.789012': bookingData.autisti[0].nomeCognome,
-    'entry.890123': bookingData.autisti[0].codiceFiscale
-    // Aggiungi altri campi necessari
-  });
+  // Data contratto (oggi)
+  const oggi = new Date();
+  const dataContratto = `${oggi.getDate().toString().padStart(2, '0')}/${(oggi.getMonth() + 1).toString().padStart(2, '0')}/${oggi.getFullYear()}`;
+  params.append(ENTRY.dataContratto, dataContratto);
+
+  // Primo autista (sempre presente)
+  const a1 = bookingData.autisti[0];
+  params.append(ENTRY.nomeCognome1, a1.nomeCognome);
+  params.append(ENTRY.dataNascita1, a1.dataNascita);
+  params.append(ENTRY.luogoNascita1, a1.luogoNascita);
+  params.append(ENTRY.codiceFiscale1, a1.codiceFiscale);
+  params.append(ENTRY.comuneResidenza1, a1.comuneResidenza);
+  params.append(ENTRY.viaResidenza1, a1.viaResidenza);
+  params.append(ENTRY.civicoResidenza1, a1.civicoResidenza);
+  params.append(ENTRY.numeroPatente1, a1.numeroPatente);
+  params.append(ENTRY.inizioValiditaPatente1, a1.dataInizioValiditaPatente);
+  params.append(ENTRY.fineValiditaPatente1, a1.dataFineValiditaPatente);
+
+  // Autista 2 (se presente)
+  if (bookingData.autisti[1]) {
+    const a2 = bookingData.autisti[1];
+    params.append(ENTRY.nomeCognome2, a2.nomeCognome);
+    params.append(ENTRY.dataNascita2, a2.dataNascita);
+    params.append(ENTRY.luogoNascita2, a2.luogoNascita);
+    params.append(ENTRY.codiceFiscale2, a2.codiceFiscale);
+    params.append(ENTRY.comuneResidenza2, a2.comuneResidenza);
+    params.append(ENTRY.viaResidenza2, a2.viaResidenza);
+    params.append(ENTRY.civicoResidenza2, a2.civicoResidenza);
+    params.append(ENTRY.numeroPatente2, a2.numeroPatente);
+    params.append(ENTRY.inizioValiditaPatente2, a2.dataInizioValiditaPatente);
+    params.append(ENTRY.fineValiditaPatente2, a2.dataFineValiditaPatente);
+  }
+
+  // Autista 3 (se presente)
+  if (bookingData.autisti[2]) {
+    const a3 = bookingData.autisti[2];
+    params.append(ENTRY.nomeCognome3, a3.nomeCognome);
+    params.append(ENTRY.dataNascita3, a3.dataNascita);
+    params.append(ENTRY.luogoNascita3, a3.luogoNascita);
+    params.append(ENTRY.codiceFiscale3, a3.codiceFiscale);
+    params.append(ENTRY.comuneResidenza3, a3.comuneResidenza);
+    params.append(ENTRY.viaResidenza3, a3.viaResidenza);
+    params.append(ENTRY.civicoResidenza3, a3.civicoResidenza);
+    params.append(ENTRY.numeroPatente3, a3.numeroPatente);
+    params.append(ENTRY.inizioValiditaPatente3, a3.dataInizioValiditaPatente);
+    params.append(ENTRY.fineValiditaPatente3, a3.dataFineValiditaPatente);
+  }
 
   const urlCompleto = `${formBaseUrl}?${params.toString()}`;
   
+  console.log('URL Form precompilato:', urlCompleto);
+  
   // Apri in nuova finestra
-  window.open(urlCompleto, '_blank');
+  const formWindow = window.open(urlCompleto, '_blank');
+  
+  if (!formWindow) {
+    mostraErrore('Pop-up bloccato! Consenti i pop-up per questo sito e riprova.');
+    return;
+  }
   
   mostraSuccesso('Modulo di prenotazione aperto! Completa l\'invio nella nuova finestra.');
   
-  // Dopo 2 secondi, mostra messaggio di conferma
+  // Dopo 3 secondi, chiedi conferma
   setTimeout(() => {
-    if (confirm('Hai completato l\'invio del modulo?')) {
+    if (confirm('Hai completato l\'invio del modulo?\n\nClicca OK se hai inviato, Annulla se devi ancora completare.')) {
       mostraThankYou();
     }
-  }, 2000);
+  }, 3000);
 }
 
 function mostraThankYou() {
@@ -623,6 +728,16 @@ function mostraModuliAutisti() {
     popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
     popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente - 50, annoCorrente + 10);
     popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente + 15);
+  }
+
+  // PRECOMPILAZIONE CF SE UTENTE LOGGATO
+  if (loggedCustomerData && loggedCustomerData.cf) {
+    setTimeout(() => {
+      const cfInput = document.getElementById('codice_fiscale_1');
+      if (cfInput) {
+        cfInput.value = loggedCustomerData.cf;
+      }
+    }, 50);
   }
 }
 
