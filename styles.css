@@ -1062,3 +1062,65 @@ input.invalid {
 .tooltip:hover::after {
   opacity: 1;
 }
+/* ============================================
+   RIEPILOGO PRENOTAZIONE
+   ============================================ */
+
+.riepilogo {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.riepilogo-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.riepilogo-section h3 {
+  margin: 0 0 20px 0;
+  color: var(--color-text);
+  font-size: var(--font-size-xl);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 10px;
+}
+
+.riepilogo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.riepilogo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.riepilogo-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.riepilogo-value {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.riepilogo-actions {
+  margin-top: 30px;
+}
+
+@media (max-width: 640px) {
+  .riepilogo-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .riepilogo-section {
+    padding: 16px;
+  }
+}
