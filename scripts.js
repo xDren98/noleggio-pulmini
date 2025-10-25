@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.6.0 - Direct to Sheets');
+console.log('Imbriani Noleggio - Versione codice: 2.7.0 - Contact Required');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -16,6 +16,8 @@ const SCRIPTS = {
   disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec',
   salvaPrenotazione: 'https://script.google.com/macros/s/AKfycbwy7ZO3hCMcjhPuOMFyJoJl_IRyDr_wfhALadDhFt__Yjg3FBFWqt7wbCjIm0iim9Ya/exec'
 };
+
+const CONTATTO_PROPRIETARIO = '328 658 9618';
 
 function validaCodiceFiscale(cf) {
   const regex = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/;
@@ -189,8 +191,50 @@ function controllaDisponibilita() {
     showStep('step2');
     const continuaBtn = document.getElementById('chiamaContinuaBtn');
     continuaBtn.disabled = true;
-    select.addEventListener('change', function () { continuaBtn.disabled = !this.value; if (this.value) bookingData.pulmino = pulmini.find(p => p.id === this.value); });
+    select.addEventListener('change', function () { 
+      continuaBtn.disabled = !this.value; 
+      if (this.value) {
+        bookingData.pulmino = pulmini.find(p => p.id === this.value);
+        mostraAvvisoContatto();
+      }
+    });
   }).catch(err => { mostraLoading(false); mostraErrore('Errore durante il controllo disponibilità: ' + err.message); });
+}
+
+function mostraAvvisoContatto() {
+  const existingBanner = document.getElementById('contact-banner');
+  if (existingBanner) existingBanner.remove();
+  
+  const banner = document.createElement('div');
+  banner.id = 'contact-banner';
+  banner.style.cssText = `
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: slideInRight 0.3s ease-out;
+  `;
+  banner.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-size: 48px;">📞</span>
+      <div style="flex: 1;">
+        <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">Prima di continuare</h3>
+        <p style="margin: 0 0 12px 0; font-size: 14px; opacity: 0.9;">
+          Contatta il proprietario per concordare il prezzo del noleggio
+        </p>
+        <a href="tel:${CONTATTO_PROPRIETARIO.replace(/\s/g, '')}" 
+           style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #667eea; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; transition: transform 0.2s;">
+          <span class="material-icons" style="font-size: 20px;">phone</span>
+          ${CONTATTO_PROPRIETARIO}
+        </a>
+      </div>
+    </div>
+  `;
+  const step2 = document.getElementById('step2');
+  const selectContainer = step2.querySelector('#scelta_pulmino').parentElement;
+  selectContainer.parentNode.insertBefore(banner, selectContainer.nextSibling);
 }
 
 function vaiStep3() { showStep('step3'); mostraModuliAutisti(); }
