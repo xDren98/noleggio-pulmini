@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.5.0 - Direct to Sheets');
+console.log('Imbriani Noleggio - Versione codice: 2.6.0 - Direct to Sheets');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -179,7 +179,7 @@ function controllaDisponibilita() {
     mostraLoading(false);
     if (!data.success) { mostraErrore('Errore nel recupero delle prenotazioni: ' + (data.error || 'Errore sconosciuto')); return; }
     const arrayPrenotazioni = data.prenotazioni;
-    const disponibili = pulmini.filter(p => { return !arrayPrenotazioni.some(pren => { if (pren.targa !== p.targa) return false; const inizio = new Date(pren.inizio); const fine = new Date(pren.fine); return !(fine <= dateRitiro || inizio >= dateArrivo); }); });
+    const disponibili = pulmini.filter(p => { return !arrayPrenotazioni.some(pren => { if (pren.targa !== p.targa) return false; const inizio = new Date(pren.inizio); const fine = new Date(pren.fine); return !(fine < dateRitiro || inizio > dateArrivo); }); });
     const select = document.getElementById('scelta_pulmino');
     if (!select) return;
     select.innerHTML = '<option value="">-- Seleziona un pulmino --</option>' + disponibili.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
@@ -248,7 +248,6 @@ function mostraRiepilogo() {
 
 function confermaPrenotazione() {
   mostraLoading(true);
-
   const prenotazioneData = {
     nomeCognome1: bookingData.autisti[0].nomeCognome,
     dataNascita1: bookingData.autisti[0].dataNascita,
@@ -268,7 +267,6 @@ function confermaPrenotazione() {
     cellulare: bookingData.cellulare,
     dataContratto: new Date().toLocaleDateString('it-IT')
   };
-
   if (bookingData.autisti[1]) {
     prenotazioneData.nomeCognome2 = bookingData.autisti[1].nomeCognome;
     prenotazioneData.dataNascita2 = bookingData.autisti[1].dataNascita;
@@ -281,7 +279,6 @@ function confermaPrenotazione() {
     prenotazioneData.inizioValiditaPatente2 = bookingData.autisti[1].dataInizioValiditaPatente;
     prenotazioneData.fineValiditaPatente2 = bookingData.autisti[1].dataFineValiditaPatente;
   }
-
   if (bookingData.autisti[2]) {
     prenotazioneData.nomeCognome3 = bookingData.autisti[2].nomeCognome;
     prenotazioneData.dataNascita3 = bookingData.autisti[2].dataNascita;
@@ -294,9 +291,7 @@ function confermaPrenotazione() {
     prenotazioneData.inizioValiditaPatente3 = bookingData.autisti[2].dataInizioValiditaPatente;
     prenotazioneData.fineValiditaPatente3 = bookingData.autisti[2].dataFineValiditaPatente;
   }
-
   console.log('📤 Invio dati a Google Sheets:', prenotazioneData);
-
   fetch(SCRIPTS.proxy + SCRIPTS.salvaPrenotazione, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -306,7 +301,6 @@ function confermaPrenotazione() {
   .then(result => {
     mostraLoading(false);
     console.log('📥 Risposta server:', result);
-    
     if (result.success) {
       mostraSuccesso('Prenotazione salvata con successo!');
       setTimeout(() => mostraThankYou(), 1000);
