@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.8.0 - Enhanced Validation');
+console.log('Imbriani Noleggio - Versione codice: 2.9.0 - Performance & UX Complete');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -18,6 +18,111 @@ const SCRIPTS = {
 };
 
 const CONTATTO_PROPRIETARIO = '328 658 9618';
+
+// ============================================
+// AUTO-SAVE SISTEMA
+// ============================================
+
+function salvaStatoTemporaneo() {
+  if (!bookingData || Object.keys(bookingData).length === 0) return;
+  try {
+    sessionStorage.setItem('imbriani_booking_temp', JSON.stringify(bookingData));
+    console.log('💾 Dati salvati temporaneamente');
+  } catch (e) {
+    console.error('Errore salvataggio temporaneo:', e);
+  }
+}
+
+function caricaStatoTemporaneo() {
+  try {
+    const saved = sessionStorage.getItem('imbriani_booking_temp');
+    if (saved) {
+      bookingData = JSON.parse(saved);
+      console.log('📂 Dati temporanei caricati');
+      return true;
+    }
+  } catch (e) {
+    console.error('Errore caricamento temporaneo:', e);
+  }
+  return false;
+}
+
+function cancellaStatoTemporaneo() {
+  try {
+    sessionStorage.removeItem('imbriani_booking_temp');
+    console.log('🗑️ Dati temporanei cancellati');
+  } catch (e) {
+    console.error('Errore cancellazione temporanea:', e);
+  }
+}
+
+// ============================================
+// INDICATORE PROGRESSO
+// ============================================
+
+function aggiornaIndicatoreProgresso(stepCorrente) {
+  let progressBar = document.getElementById('progress-indicator');
+  if (!progressBar) {
+    progressBar = document.createElement('div');
+    progressBar.id = 'progress-indicator';
+    progressBar.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--color-surface);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 500;
+    `;
+    document.body.prepend(progressBar);
+  }
+  
+  const stepNames = {
+    'step1': 'Date e Orari',
+    'step2': 'Selezione Pulmino',
+    'step3': 'Dati Autisti',
+    'step4': 'Conferma'
+  };
+  
+  const stepNumbers = {
+    'step1': 1,
+    'step2': 2,
+    'step3': 3,
+    'step4': 4
+  };
+  
+  const currentNum = stepNumbers[stepCorrente] || 1;
+  const currentName = stepNames[stepCorrente] || '';
+  const percentage = (currentNum / 4) * 100;
+  
+  progressBar.innerHTML = `
+    <div style="flex: 1;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <span style="color: var(--color-primary); font-weight: 600;">Step ${currentNum} di 4</span>
+        <span style="color: var(--color-text-secondary);">${currentName}</span>
+      </div>
+      <div style="height: 4px; background: var(--color-secondary); border-radius: 4px; overflow: hidden;">
+        <div style="height: 100%; background: var(--color-primary); width: ${percentage}%; transition: width 0.3s ease;"></div>
+      </div>
+    </div>
+  `;
+}
+
+function nascondiIndicatoreProgresso() {
+  const progressBar = document.getElementById('progress-indicator');
+  if (progressBar) progressBar.style.display = 'none';
+}
+
+function mostraIndicatoreProgresso() {
+  const progressBar = document.getElementById('progress-indicator');
+  if (progressBar) progressBar.style.display = 'flex';
+}
 
 // ============================================
 // VALIDAZIONI AVANZATE
@@ -116,6 +221,8 @@ function aggiungiIndicatore(inputId, type = 'default') {
       indicator.textContent = '';
       input.style.borderColor = 'var(--color-border)';
     }
+    
+    salvaStatoTemporaneo();
   });
 }
 
@@ -125,7 +232,7 @@ function aggiungiIndicatore(inputId, type = 'default') {
 
 function mostraErrore(messaggio) {
   const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `position: fixed; top: 24px; right: 24px; padding: 16px 20px; background: rgba(255, 230, 230, 0.95); color: #c00; border: 1px solid rgba(192, 0, 0, 0.3); border-left: 4px solid #c00; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000; font-size: 14px; font-weight: 500; max-width: 420px; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s ease-out;`;
+  errorDiv.style.cssText = `position: fixed; top: 80px; right: 24px; padding: 16px 20px; background: rgba(255, 230, 230, 0.95); color: #c00; border: 1px solid rgba(192, 0, 0, 0.3); border-left: 4px solid #c00; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000; font-size: 14px; font-weight: 500; max-width: 420px; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s ease-out;`;
   errorDiv.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
   document.body.prepend(errorDiv);
   setTimeout(() => { errorDiv.style.transition = 'all 0.3s ease-out'; errorDiv.style.transform = 'translateX(450px)'; errorDiv.style.opacity = '0'; setTimeout(() => errorDiv.remove(), 300); }, 4000);
@@ -133,7 +240,7 @@ function mostraErrore(messaggio) {
 
 function mostraSuccesso(messaggio) {
   const successDiv = document.createElement('div');
-  successDiv.style.cssText = `position: fixed; top: 24px; right: 24px; padding: 16px 20px; background: rgba(230, 255, 230, 0.95); color: #0a0; border: 1px solid rgba(0, 170, 0, 0.3); border-left: 4px solid #0a0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000; font-size: 14px; font-weight: 500; max-width: 420px; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s ease-out;`;
+  successDiv.style.cssText = `position: fixed; top: 80px; right: 24px; padding: 16px 20px; background: rgba(230, 255, 230, 0.95); color: #0a0; border: 1px solid rgba(0, 170, 0, 0.3); border-left: 4px solid #0a0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000; font-size: 14px; font-weight: 500; max-width: 420px; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s ease-out;`;
   successDiv.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
   document.body.prepend(successDiv);
   setTimeout(() => { successDiv.style.transition = 'all 0.3s ease-out'; successDiv.style.transform = 'translateX(450px)'; successDiv.style.opacity = '0'; setTimeout(() => successDiv.remove(), 300); }, 4000);
@@ -151,7 +258,7 @@ function mostraLoading(show = true) {
       if (!document.getElementById('spinAnimation')) {
         const style = document.createElement('style');
         style.id = 'spinAnimation';
-        style.textContent = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } @keyframes slideInRight { from { transform: translateX(450px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+        style.textContent = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } @keyframes slideInRight { from { transform: translateX(450px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }`;
         document.head.appendChild(style);
       }
     }
@@ -225,14 +332,32 @@ function startNewBookingWithPreFill() {
   mainbox.style.display = 'flex';
   showStep('step1');
   bookingData = {};
+  cancellaStatoTemporaneo();
   if (loggedCustomerData) { document.getElementById('num_autisti').value = '1'; mostraModuliAutisti(); }
 }
 
 function showStep(stepId) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  const step = document.getElementById(stepId);
-  if (step) step.classList.add('active');
-  updateBackButton();
+  const allSteps = document.querySelectorAll('.step');
+  allSteps.forEach(s => {
+    s.style.animation = 'fadeOut 0.2s ease-out';
+    setTimeout(() => s.classList.remove('active'), 200);
+  });
+  
+  setTimeout(() => {
+    const step = document.getElementById(stepId);
+    if (step) {
+      step.classList.add('active');
+      step.style.animation = 'fadeIn 0.3s ease-in';
+    }
+    updateBackButton();
+    
+    if (stepId === 'step1' || stepId === 'step2' || stepId === 'step3' || stepId === 'step4') {
+      aggiornaIndicatoreProgresso(stepId);
+      mostraIndicatoreProgresso();
+    } else {
+      nascondiIndicatoreProgresso();
+    }
+  }, 220);
 }
 
 function updateBackButton() {
@@ -257,7 +382,7 @@ function goBack() {
   if (document.getElementById('step4').classList.contains('active')) showStep('step3');
   else if (document.getElementById('step3').classList.contains('active')) showStep('step2');
   else if (document.getElementById('step2').classList.contains('active')) showStep('step1');
-  else { document.getElementById('mainbox').style.display = 'none'; document.getElementById('homepage').style.display = 'block'; document.getElementById('loginResultHomepage').innerHTML = ''; }
+  else { document.getElementById('mainbox').style.display = 'none'; document.getElementById('homepage').style.display = 'block'; document.getElementById('loginResultHomepage').innerHTML = ''; nascondiIndicatoreProgresso(); }
 }
 
 function controllaDisponibilita() {
@@ -272,6 +397,7 @@ function controllaDisponibilita() {
   const domani = new Date(); domani.setDate(domani.getDate() + 1); domani.setHours(0, 0, 0, 0);
   if (dateRitiro < domani) { mostraErrore("La data di ritiro deve essere almeno da domani in poi."); return; }
   bookingData.dataRitiro = dataRitiroStr; bookingData.oraRitiro = oraRitiro; bookingData.dataArrivo = dataArrivoStr; bookingData.oraArrivo = oraArrivo;
+  salvaStatoTemporaneo();
   mostraLoading(true);
   fetch(SCRIPTS.proxy + SCRIPTS.disponibilita, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'getPrenotazioni' }) })
   .then(response => response.json())
@@ -293,6 +419,7 @@ function controllaDisponibilita() {
       continuaBtn.disabled = !this.value; 
       if (this.value) {
         bookingData.pulmino = pulmini.find(p => p.id === this.value);
+        salvaStatoTemporaneo();
         mostraAvvisoContatto();
       }
     });
@@ -319,7 +446,6 @@ function vaiStep4() {
   const cellulare = document.getElementById('cellulare').value.trim();
   if (!validaTelefono(cellulare)) { mostraErrore('Inserisci un numero di cellulare valido (10 cifre)'); return; }
   
-  // Verifica duplicati CF
   const checkDuplicati = verificaDuplicatiCF();
   if (!checkDuplicati.valid) {
     mostraErrore(`Codice fiscale duplicato: ${checkDuplicati.duplicato}. Ogni autista deve avere un CF univoco.`);
@@ -342,16 +468,13 @@ function vaiStep4() {
       mostraErrore(`Compila tutti i campi obbligatori per l'autista ${i}`); return;
     }
     
-    // Validazione nome avanzata
     const nomeCheck = validaNomeCognome(nomeCognome);
     if (!nomeCheck.valid) { mostraErrore(`Autista ${i}: ${nomeCheck.error}`); return; }
     
-    // Validazione civico
     if (!validaCivico(civicoResidenza)) { mostraErrore(`Civico non valido per l'autista ${i} (es: 12, 12A, 12/A)`); return; }
     
     if (!validaCodiceFiscale(codiceFiscale)) { mostraErrore(`Codice fiscale non valido per l'autista ${i}`); return; }
     
-    // Validazione data nascita
     const [ggN, mmN, aaaN] = dataNascita.split('/').map(Number);
     const dataCheck = validaDataReale(ggN, mmN, aaaN);
     if (!dataCheck.valid) { mostraErrore(`Data di nascita autista ${i}: ${dataCheck.error}`); return; }
@@ -376,6 +499,7 @@ function vaiStep4() {
       nomeCognome: document.getElementById(`nome_cognome_${i}`).value.trim(), dataNascita: getDataAutista('nascita', i), luogoNascita: document.getElementById(`luogo_nascita_${i}`).value.trim(), comuneResidenza: document.getElementById(`comune_residenza_${i}`).value.trim(), viaResidenza: document.getElementById(`via_residenza_${i}`).value.trim(), civicoResidenza: document.getElementById(`civico_residenza_${i}`).value.trim(), codiceFiscale: document.getElementById(`codice_fiscale_${i}`).value.trim().toUpperCase(), numeroPatente: document.getElementById(`numero_patente_${i}`).value.trim(), dataInizioValiditaPatente: getDataAutista('inizio_validita_patente', i), dataFineValiditaPatente: getDataAutista('fine_validita_patente', i)
     });
   }
+  salvaStatoTemporaneo();
   mostraSuccesso('Dati validati con successo!'); mostraRiepilogo(); showStep('step4');
 }
 
@@ -407,14 +531,20 @@ function confermaPrenotazione() {
   .then(r => r.json())
   .then(result => {
     mostraLoading(false); console.log('📥 Risposta server:', result);
-    if (result.success) { mostraSuccesso('Prenotazione salvata con successo!'); setTimeout(() => mostraThankYou(), 1000); }
+    if (result.success) { 
+      cancellaStatoTemporaneo();
+      mostraSuccesso('Prenotazione salvata con successo!'); 
+      setTimeout(() => mostraThankYou(), 1000); 
+    }
     else { mostraErrore('Errore durante il salvataggio: ' + (result.error || 'Errore sconosciuto')); }
   })
   .catch(err => { mostraLoading(false); console.error('❌ Errore connessione:', err); mostraErrore('Errore di connessione: ' + err.message); });
 }
 
 function mostraThankYou() {
-  document.getElementById('mainbox').innerHTML = `<div id="thankyou" style="text-align: center; padding: 40px;"><span style="font-size: 80px;">🎉</span><h2 style="margin: 20px 0;">Prenotazione Confermata!</h2><p style="font-size: 18px; margin: 20px 0;">Grazie per aver scelto <strong>Imbriani Noleggio</strong></p><p style="color: var(--color-text-secondary); margin: 20px 0;">Riceverai una conferma via SMS al numero <strong>${bookingData.cellulare}</strong></p><div style="background: var(--color-secondary); padding: 20px; border-radius: 12px; margin: 30px 0;"><p style="margin: 0;"><strong>📋 Riepilogo:</strong></p><p style="margin: 8px 0; font-size: 16px;">${bookingData.pulmino.nome}</p><p style="margin: 5px 0;">🚗 Targa: <strong>${bookingData.pulmino.targa}</strong></p><p style="margin: 5px 0;">📅 Dal ${bookingData.dataRitiro} alle ${bookingData.oraRitiro}</p><p style="margin: 5px 0;">📅 Al ${bookingData.dataArrivo} alle ${bookingData.oraArrivo}</p><p style="margin: 5px 0;">📱 Contatto: <strong>${bookingData.cellulare}</strong></p></div><button onclick="location.reload()" class="btn btn--primary btn--lg" style="margin-top: 20px;">🏠 Torna alla Home</button></div>`;
+  nascondiIndicatoreProgresso();
+  const cfPrimoAutista = bookingData.autisti[0].codiceFiscale;
+  document.getElementById('mainbox').innerHTML = `<div id="thankyou" style="text-align: center; padding: 40px; animation: fadeIn 0.5s ease-in;"><span style="font-size: 80px;">🎉</span><h2 style="margin: 20px 0;">Prenotazione Confermata!</h2><p style="font-size: 18px; margin: 20px 0;">Grazie per aver scelto <strong>Imbriani Noleggio</strong></p><div style="background: var(--color-bg-1); padding: 20px; border-radius: 12px; margin: 30px 0; border: 1px solid var(--color-border);"><p style="margin: 0;"><strong>📋 Riepilogo:</strong></p><p style="margin: 8px 0; font-size: 16px;">${bookingData.pulmino.nome}</p><p style="margin: 5px 0;">🚗 Targa: <strong>${bookingData.pulmino.targa}</strong></p><p style="margin: 5px 0;">📅 Dal ${bookingData.dataRitiro} alle ${bookingData.oraRitiro}</p><p style="margin: 5px 0;">📅 Al ${bookingData.dataArrivo} alle ${bookingData.oraArrivo}</p><p style="margin: 5px 0;">📱 Contatto: <strong>${bookingData.cellulare}</strong></p></div><div style="background: var(--color-bg-3); padding: 24px; border-radius: 12px; margin: 30px 0; border: 1px solid var(--color-success); text-align: left;"><h3 style="margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;"><span class="material-icons" style="color: var(--color-success);">info</span>Gestisci la tua prenotazione</h3><p style="margin: 0 0 12px 0; font-size: 14px; line-height: 1.6;">Puoi <strong>visualizzare, verificare e gestire</strong> la tua prenotazione in qualsiasi momento accedendo alla homepage con il tuo Codice Fiscale:</p><div style="background: var(--color-surface); padding: 16px; border-radius: 8px; margin: 12px 0; border: 2px dashed var(--color-success);"><p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase;">Il tuo Codice Fiscale</p><p style="margin: 0; font-size: 20px; font-weight: 700; font-family: monospace; color: var(--color-primary); letter-spacing: 2px;">${cfPrimoAutista}</p></div><p style="margin: 12px 0 0 0; font-size: 13px; color: var(--color-text-secondary);">💡 <strong>Suggerimento:</strong> Salva questo codice per accedere rapidamente alle tue prenotazioni</p></div><button onclick="location.reload()" class="btn btn--primary btn--lg" style="margin-top: 20px;"><span class="material-icons">home</span> Torna alla Home</button></div>`;
 }
 
 function mostraModuliAutisti() {
@@ -430,13 +560,11 @@ function mostraModuliAutisti() {
     popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente - 50, annoCorrente + 10);
     popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente + 15);
     
-    // Aggiungi indicatori real-time
     aggiungiIndicatore(`nome_cognome_${i}`, 'nome');
     aggiungiIndicatore(`codice_fiscale_${i}`, 'cf');
     aggiungiIndicatore(`civico_residenza_${i}`, 'civico');
   }
   
-  // Indicatore cellulare
   aggiungiIndicatore('cellulare', 'tel');
   
   if (loggedCustomerData && loggedCustomerData.datiCompleti) {
@@ -511,4 +639,5 @@ window.onload = () => {
   mostraModuliAutisti();
   document.getElementById('num_autisti').addEventListener('change', mostraModuliAutisti);
   updateBackButton();
+  nascondiIndicatoreProgresso();
 };
