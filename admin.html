@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard - Imbriani Noleggio</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
   <style>
-    /* STILI: COME RICHIESTO, INTEGRATI PER CHIAREZZA */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f5f5;
       color: #333;
     }
+
     .login-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -262,6 +262,13 @@
     .btn-secondary:hover {
       background: #ddd;
     }
+    /* Responsive al mobile */
+    @media (max-width: 600px) {
+      .modal-box {
+        padding: 20px;
+        min-width: 95vw;
+      }
+    }
   </style>
 </head>
 <body>
@@ -395,13 +402,13 @@
         <table>
           <thead>
             <tr>
-              <th onclick="ordinaPer('cliente')">Cliente</th>
-              <th onclick="ordinaPer('pulmino')">Pulmino</th>
-              <th onclick="ordinaPer('dataInizio')">Dal</th>
-              <th onclick="ordinaPer('dataFine')">Al</th>
-              <th onclick="ordinaPer('cellulare')">Cellulare</th>
-              <th onclick="ordinaPer('stato')">Stato</th>
-              <th>Azioni</th>
+              <th onclick="ordinaPer('cliente')" data-label="Cliente">Cliente</th>
+              <th onclick="ordinaPer('pulmino')" data-label="Pulmino">Pulmino</th>
+              <th onclick="ordinaPer('dataInizio')" data-label="Dal">Dal</th>
+              <th onclick="ordinaPer('dataFine')" data-label="Al">Al</th>
+              <th onclick="ordinaPer('cellulare')" data-label="Cellulare">Cellulare</th>
+              <th onclick="ordinaPer('stato')" data-label="Stato">Stato</th>
+              <th data-label="Azioni">Azioni</th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
@@ -414,254 +421,6 @@
     <div class="spinner"></div>
   </div>
 
-  <script>
-    const VERSIONE = 'Admin Dashboard v2.3';
-    console.log(VERSIONE);
-
-    const PASSWORD_ADMIN = 'Imbriani2025+';
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1saUwj04dfzPqilrLz1GAfwha47Y-n5r6PG0hs7rGRnPexChTaAKrREQCryw3IOs/exec';
-    let prenotazioniGlobali = [];
-    let filtroAttivoDashboard = 'totali';
-    let sortCol = null,
-      sortAsc = true;
-    let modificaId = null;
-
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const password = document.getElementById('passwordInput').value;
-      if (password === PASSWORD_ADMIN) {
-        sessionStorage.setItem('admin_auth', 'authenticated');
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('dashboardContent').style.display = 'block';
-        caricaPrenotazioni();
-        verificaUndo();
-        aggiornaAttivi();
-      } else {
-        document.getElementById('loginError').style.display = 'block';
-        document.getElementById('passwordInput').value = '';
-        setTimeout(() => {
-          document.getElementById('loginError').style.display = 'none';
-        }, 3000);
-      }
-    });
-    function logout() {
-      sessionStorage.removeItem('admin_auth');
-      location.reload();
-    }
-    window.onload = function() {
-      const isAuth = sessionStorage.getItem('admin_auth');
-      if (isAuth === 'authenticated') {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('dashboardContent').style.display = 'block';
-        caricaPrenotazioni();
-        verificaUndo();
-        aggiornaAttivi();
-      }
-    };
-
-    async function verificaUndo() {
-      try {
-        const response = await fetchConRetry(SCRIPT_URL + '?action=canUndo');
-        if (response.canUndo) {
-          document.getElementById('undoBtn').classList.add('visible');
-        } else {
-          document.getElementById('undoBtn').classList.remove('visible');
-        }
-      } catch (error) {
-        console.error('Errore verifica undo:', error);
-      }
-    }
-    async function eseguiUndo() {
-      if (
-        !confirm(
-          'Vuoi annullare l\'ultima azione? Questo ripristinerà la prenotazione e il PDF eliminati.'
-        )
-      )
-        return;
-      document.getElementById('loader').classList.add('active');
-      try {
-        const response = await fetchConRetry(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'undo' }),
-        });
-        if (response.success) {
-          alert('✅ Azione annullata con successo!\n\n' + response.message);
-          document.getElementById('undoBtn').classList.remove('visible');
-          caricaPrenotazioni();
-        } else {
-          alert('❌ Errore durante l\'annullamento:\n' + response.error);
-        }
-      } catch (error) {
-        alert('❌ Errore: ' + error.message);
-      } finally {
-        document.getElementById('loader').classList.remove('active');
-      }
-    }
-
-    async function fetchConRetry(url, options, retries = 3) {
-      for (let i = 0; i < retries; i++) {
-        try {
-          const response = await fetch(url, options);
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          return await response.json();
-        } catch (error) {
-          if (i === retries - 1) throw error;
-          await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
-        }
-      }
-    }
-
-    async function caricaPrenotazioni() {
-      document.getElementById('loader').classList.add('active');
-      try {
-        const data = await fetchConRetry(SCRIPT_URL + '?action=getAll');
-        prenotazioniGlobali = data.prenotazioni || [];
-        aggiornaStatistiche();
-        mostraPrenotazioni(filtraDashboard());
-        aggiornaAttivi();
-      } catch (error) {
-        alert('Errore caricamento dati: ' + error.message);
-      } finally {
-        document.getElementById('loader').classList.remove('active');
-      }
-    }
-
-    function aggiornaStatistiche() {
-      const oggi = new Date();
-      document.getElementById('stat-totali').textContent = prenotazioniGlobali.length;
-      document.getElementById('stat-completate').textContent = prenotazioniGlobali.filter((p) => p.stato === 'Completato').length;
-      document.getElementById('stat-corso').textContent = prenotazioniGlobali.filter((p) => p.stato === 'In corso').length;
-      document.getElementById('stat-future').textContent = prenotazioniGlobali.filter((p) => new Date(p.dataInizio.split('/').reverse().join('-')) > oggi).length;
-    }
-
-    function aggiornaAttivi() {
-      ['totali', 'completate', 'corso', 'future'].forEach((id) =>
-        document.getElementById('filter-' + id).classList.remove('active')
-      );
-      document.getElementById('filter-' + filtroAttivoDashboard).classList.add('active');
-    }
-
-    function filtraDashboard() {
-      const oggi = new Date();
-      if (filtroAttivoDashboard === 'totali') return prenotazioniGlobali;
-      if (filtroAttivoDashboard === 'completate')
-        return prenotazioniGlobali.filter((p) => p.stato === 'Completato');
-      if (filtroAttivoDashboard === 'corso')
-        return prenotazioniGlobali.filter((p) => p.stato === 'In corso');
-      if (filtroAttivoDashboard === 'future')
-        return prenotazioniGlobali.filter((p) => new Date(p.dataInizio.split('/').reverse().join('-')) > oggi);
-      return prenotazioniGlobali;
-    }
-
-    function applicaFiltroDashboard(filtro) {
-      filtroAttivoDashboard = filtro;
-      aggiornaAttivi();
-      mostraPrenotazioni(filtraDashboard());
-    }
-
-    // Ordinamento cliccando sulle intestazioni
-    function ordinaPer(col) {
-      if (sortCol === col) {
-        sortAsc = !sortAsc;
-      } else {
-        sortCol = col;
-        sortAsc = true;
-      }
-      const datiCopia = [...filtraDashboard()];
-      datiCopia.sort((a, b) => {
-        if (col === 'dataInizio' || col === 'dataFine') {
-          const parseData = (str) => {
-            if (!str) return 0;
-            const [d, m, y] = str.split('/');
-            return new Date(y, m - 1, d).getTime();
-          };
-          return (parseData(a[col]) - parseData(b[col])) * (sortAsc ? 1 : -1);
-        } else {
-          return a[col].toString().localeCompare(b[col].toString(), 'it', { numeric: true }) * (sortAsc ? 1 : -1);
-        }
-      });
-      mostraPrenotazioni(datiCopia);
-    }
-
-    function mostraPrenotazioni(prenotazioni) {
-      const tbody = document.getElementById('table-body');
-      tbody.innerHTML = '';
-
-      prenotazioni.forEach((p) => {
-        const badgeClass = p.stato === 'Completato' ? 'success' : p.stato === 'In corso' ? 'warning' : 'info';
-        tbody.innerHTML += `
-          <tr>
-            <td><strong>${p.cliente}</strong><br><small>${p.codiceFiscale}</small></td>
-            <td>${p.pulmino} <small>(${p.targa})</small></td>
-            <td>${p.dataInizio} ${p.oraInizio}</td>
-            <td>${p.dataFine} ${p.oraFine}</td>
-            <td>${p.cellulare}</td>
-            <td><span class="badge ${badgeClass}">${p.stato}</span></td>
-            <td class="actions">
-              <button class="btn-icon" onclick="apriModifica('${p.id}')" title="Modifica"><span class="material-icons">edit</span></button>
-              <button class="btn-icon" onclick="eliminaPrenotazione('${p.id}')" title="Elimina"><span class="material-icons">delete</span></button>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function apriModifica(id) {
-      const p = prenotazioniGlobali.find((x) => x.id == id);
-      if (!p) return;
-      document.getElementById('modalModifica').classList.add('active');
-      document.getElementById('mod-nome').value = p.cliente;
-      document.getElementById('mod-cf').value = p.codiceFiscale;
-      document.getElementById('mod-targa').value = p.targa;
-      document.getElementById('mod-data-inizio').value = p.dataInizio.split('/').reverse().join('-');
-      document.getElementById('mod-ora-inizio').value = p.oraInizio;
-      document.getElementById('mod-data-fine').value = p.dataFine.split('/').reverse().join('-');
-      document.getElementById('mod-ora-fine').value = p.oraFine;
-      document.getElementById('mod-cellulare').value = p.cellulare;
-      modificaId = id;
-    }
-
-    function chiudiModifica() {
-      document.getElementById('modalModifica').classList.remove('active');
-      modificaId = null;
-    }
-
-    document.getElementById('formModifica').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      if (!modificaId) return;
-      document.getElementById('loader').classList.add('active');
-
-      const updates = {
-        cliente: document.getElementById('mod-nome').value.trim(),
-        codiceFiscale: document.getElementById('mod-cf').value.trim(),
-        targa: document.getElementById('mod-targa').value,
-        pulmino: document.getElementById('mod-targa').selectedOptions[0].text,
-        dataInizio: document.getElementById('mod-data-inizio').value,
-        oraInizio: document.getElementById('mod-ora-inizio').value,
-        dataFine: document.getElementById('mod-data-fine').value,
-        oraFine: document.getElementById('mod-ora-fine').value,
-        cellulare: document.getElementById('mod-cellulare').value.trim(),
-      };
-
-      try {
-        const response = await fetchConRetry(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'update', id: modificaId, updates }),
-        });
-        if (response.success) {
-          alert('📝 Prenotazione aggiornata!');
-          chiudiModifica();
-          caricaPrenotazioni();
-          document.getElementById('undoBtn').classList.add('visible');
-        } else {
-          alert('❌ Errore: ' + response.error);
-        }
-      } catch (err) {
-        alert('❌ Errore: ' + err.message);
-      } finally {
-        document.getElementById('loader').classList.remove('active');
-      }
-    });
-  </script>
+  <script src="scripts.js" defer></script>
 </body>
 </html>
