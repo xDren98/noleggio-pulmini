@@ -1,6 +1,6 @@
-// ui.js - funzioni per la gestione messaggi e loader UI
-const VERSION_UI = "2.9.0";
-console.log(`[ui.js] Versione codice: ${VERSION_UI}`);
+// ui.js - gestione messaggi, banner e loader UI
+const VERSION = "2.9.0";
+console.log(`[ui.js] Versione codice: ${VERSION}`);
 
 function mostraErrore(msg) {
   const box = document.getElementById('banner_errore');
@@ -28,9 +28,4 @@ function nascondiLoading() {
   if (loader) loader.style.display = 'none';
 }
 
-export {
-  mostraErrore,
-  mostraSuccesso,
-  mostraLoading,
-  nascondiLoading,
-};
+export { mostraErrore, mostraSuccesso, mostraLoading, nascondiLoading };
