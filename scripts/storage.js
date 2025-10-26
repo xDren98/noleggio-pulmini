@@ -1,32 +1,34 @@
-// storage.js - gestione salvataggio temporaneo su sessionStorage
-const VERSION = "2.9.0";
-console.log(`[storage.js] Versione codice: ${VERSION}`);
+// storage.js
 
-function salvaStatoTemporaneo(bookingData) {
+export function salvaStatoTemporaneo(bookingData) {
   if (!bookingData || Object.keys(bookingData).length === 0) return;
   try {
-    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    sessionStorage.setItem('imbriani_booking_temp', JSON.stringify(bookingData));
+    console.log('💾 Dati salvati temporaneamente');
   } catch (e) {
-    console.warn('Salvataggio stato temporaneo fallito', e);
+    console.error('Errore salvataggio temporaneo:', e);
   }
 }
 
-function caricaStatoTemporaneo() {
+export function caricaStatoTemporaneo() {
   try {
-    const data = sessionStorage.getItem('bookingData');
-    return data ? JSON.parse(data) : null;
+    const saved = sessionStorage.getItem('imbriani_booking_temp');
+    if (saved) {
+      const dati = JSON.parse(saved);
+      console.log('📂 Dati temporanei caricati');
+      return dati;
+    }
   } catch (e) {
-    console.warn('Caricamento stato temporaneo fallito', e);
-    return null;
+    console.error('Errore caricamento temporaneo:', e);
   }
+  return null;
 }
 
-function cancellaStatoTemporaneo() {
+export function cancellaStatoTemporaneo() {
   try {
-    sessionStorage.removeItem('bookingData');
+    sessionStorage.removeItem('imbriani_booking_temp');
+    console.log('🗑️ Dati temporanei cancellati');
   } catch (e) {
-    console.warn('Cancellazione stato temporaneo fallita', e);
+    console.error('Errore cancellazione temporanea:', e);
   }
 }
-
-export { salvaStatoTemporaneo, caricaStatoTemporaneo, cancellaStatoTemporaneo };
