@@ -12,38 +12,4 @@ export const SCRIPTS = {
   salvaPrenotazione: 'https://script.google.com/macros/s/AKfycbwy7ZO3hCMcjhPuOMFyJoJl_IRyDr_wfhALadDhFt__Yjg3FBFWqt7wbCjIm0iim9Ya/exec'
 };
 
-export async function fetchPrenotazioni(cf) {
-  const response = await fetch(SCRIPTS.proxy + SCRIPTS.prenotazioni, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cf })
-  });
-  return response.json();
-}
-
-export async function fetchDatiCliente(cf) {
-  const response = await fetch(SCRIPTS.proxy + SCRIPTS.datiCliente, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cf })
-  });
-  return response.json();
-}
-
-export async function fetchDisponibilita() {
-  const response = await fetch(SCRIPTS.proxy + SCRIPTS.disponibilita, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getPrenotazioni' })
-  });
-  return response.json();
-}
-
-export async function salvaPrenotazioneApi(prenotazioneData) {
-  const response = await fetch(SCRIPTS.proxy + SCRIPTS.salvaPrenotazione, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(prenotazioneData)
-  });
-  return response.json();
-}
+export const CONTATTO_PROPRIETARIO = '328 658 9618';
