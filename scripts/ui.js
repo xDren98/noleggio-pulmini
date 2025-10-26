@@ -1,4 +1,4 @@
-// ui.js - gestione messaggi, banner e loader UI
+// ui.js - gestione messaggi e visualizzazione UI
 const VERSION = "2.9.0";
 console.log(`[ui.js] Versione codice: ${VERSION}`);
 
@@ -28,4 +28,28 @@ function nascondiLoading() {
   if (loader) loader.style.display = 'none';
 }
 
-export { mostraErrore, mostraSuccesso, mostraLoading, nascondiLoading };
+// Funzione per mostrare le card prenotazioni
+function mostraPrenotazioni(prenotazioni) {
+  const container = document.getElementById('prenotazioni_container');
+  if (!container) return;
+  container.innerHTML = ''; // pulisco
+
+  prenotazioni.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'prenotazione-card';
+
+    const statoClass = p.stato ? p.stato.toLowerCase().replace(/\s/g, '-') : '';
+
+    card.innerHTML = `
+      <h3 class="prenotazione-nome">${p.nomeCliente || 'Cliente'}</h3>
+      <p><strong>Dal:</strong> ${p.dal || 'N/D'}</p>
+      <p><strong>Al:</strong> ${p.al || 'N/D'}</p>
+      <p><strong>Veicolo:</strong> ${p.targa || 'N/D'}</p>
+      <p class="stato-prenotazione ${statoClass}"><strong>Stato:</strong> ${p.stato || 'N/D'}</p>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+export { mostraErrore, mostraSuccesso, mostraLoading, nascondiLoading, mostraPrenotazioni };
