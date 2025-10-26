@@ -1,4 +1,3 @@
-// main.js
 import { caricaStatoTemporaneo, cancellaStatoTemporaneo } from './storage.js';
 import { validaCodiceFiscale } from './validation.js';
 import { fetchPrenotazioni, fetchDatiCliente, fetchDisponibilita, salvaPrenotazioneApi } from './api.js';
@@ -31,7 +30,7 @@ window.onload = () => {
   popolaDatePicker('ritiro');
   popolaDatePicker('arrivo');
 
-  // Chiamata di esempio per caricamento dati cliente post-login:
+  // Esempio chiamata fetch dati cliente post login:
   /*
   if (loggedCustomerData && loggedCustomerData.cf) {
     mostraLoading(true);
