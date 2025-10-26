@@ -1,4 +1,6 @@
 // storage.js - gestione salvataggio locale con sessionStorage
+const VERSION_STORAGE = "2.9.0";
+console.log(`[storage.js] Versione codice: ${VERSION_STORAGE}`);
 
 function salvaStatoTemporaneo(bookingData) {
   if (!bookingData || Object.keys(bookingData).length === 0) return;
