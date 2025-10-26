@@ -1,3 +1,5 @@
+// main.js
+
 import { caricaStatoTemporaneo, cancellaStatoTemporaneo } from './storage.js';
 import { validaCodiceFiscale } from './validation.js';
 import { fetchPrenotazioni, fetchDatiCliente, fetchDisponibilita, salvaPrenotazioneApi } from './api.js';
@@ -11,26 +13,22 @@ window.onload = () => {
     resetBooking();
   }
 
-  document.getElementById('btnCheckDisponibilita').addEventListener('click', () => {
-    controllaDisponibilita();
-  });
+  const btnCheck = document.getElementById('btnCheckDisponibilita');
+  if (btnCheck) btnCheck.addEventListener('click', controllaDisponibilita);
 
-  document.getElementById('btnStep3').addEventListener('click', () => {
-    vaiStep3();
-  });
+  const btnStep2 = document.getElementById('chiamaContinuaBtn');
+  if (btnStep2) btnStep2.addEventListener('click', vaiStep3);
 
-  document.getElementById('btnStep4').addEventListener('click', () => {
-    vaiStep4();
-  });
+  const btnStep3 = document.getElementById('vaiStep4Btn');
+  if (btnStep3) btnStep3.addEventListener('click', vaiStep4);
 
-  document.getElementById('btnConfermaPrenotazione').addEventListener('click', () => {
-    confermaPrenotazione();
-  });
+  // Il bottone di conferma prenotazione è creato dinamicamente nel riepilogo con onclick,
+  // quindi non serve qui un event listener statico.
 
   popolaDatePicker('ritiro');
   popolaDatePicker('arrivo');
 
-  // Esempio chiamata fetch dati cliente post login:
+  // Esempio di fetch dati cliente su login - da abilitare se serve
   /*
   if (loggedCustomerData && loggedCustomerData.cf) {
     mostraLoading(true);
