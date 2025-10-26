@@ -1,8 +1,29 @@
-const CONTATTO_PROPRIETARIO = '328 658 9618';
+import { salvaStatoTemporaneo } from './storage.js';
+import { validaCodiceFiscale, validaTelefono, validaNomeCognome, validaCivico } from './validation.js';
+import { CONTATTO_PROPRIETARIO } from './api.js';
 
 export function mostraErrore(messaggio) {
   const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `position: fixed; top: 80px; right: 24px; padding: 16px 20px; background: rgba(255, 230, 230, 0.95); color: #c00; border: 1px solid rgba(192, 0, 0, 0.3); border-left: 4px solid #c00; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000; font-size: 14px; font-weight: 500; max-width: 420px; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s ease-out;`;
+  errorDiv.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    padding: 16px 20px;
+    background: rgba(255, 230, 230, 0.95);
+    color: #c00;
+    border: 1px solid rgba(192, 0, 0, 0.3);
+    border-left: 4px solid #c00;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 10000;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideInRight 0.3s ease-out;
+  `;
   errorDiv.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
   document.body.prepend(errorDiv);
   setTimeout(() => {
@@ -15,7 +36,26 @@ export function mostraErrore(messaggio) {
 
 export function mostraSuccesso(messaggio) {
   const successDiv = document.createElement('div');
-  successDiv.style.cssText = `position: fixed; top: 80px; right: 24px; padding: 16px 20px; background: rgba(230, 255, 230, 0.95); color: #0a0; border: 1px solid rgba(0, 170, 0, 0.3); border-left: 4px solid #0a0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000; font-size: 14px; font-weight: 500; max-width: 420px; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s ease-out;`;
+  successDiv.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    padding: 16px 20px;
+    background: rgba(230, 255, 230, 0.95);
+    color: #0a0;
+    border: 1px solid rgba(0, 170, 0, 0.3);
+    border-left: 4px solid #0a0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 10000;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideInRight 0.3s ease-out;
+  `;
   successDiv.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
   document.body.prepend(successDiv);
   setTimeout(() => {
@@ -32,8 +72,17 @@ export function mostraLoading(show = true) {
     if (!loader) {
       loader = document.createElement('div');
       loader.id = 'globalLoader';
-      loader.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px);`;
-      loader.innerHTML = `<div style="text-align: center; color: white;"><div style="border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff; border-radius: 50%; width: 56px; height: 56px; animation: spin 0.8s linear infinite; margin: 0 auto 20px;"></div><p style="font-size: 16px; font-weight: 500;">Caricamento in corso...</p></div>`;
+      loader.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9999; backdrop-filter: blur(4px);
+      `;
+      loader.innerHTML = `
+        <div style="text-align: center; color: white;">
+          <div style="border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff; border-radius: 50%; width: 56px; height: 56px; animation: spin 0.8s linear infinite; margin: 0 auto 20px;"></div>
+          <p style="font-size: 16px; font-weight: 500;">Caricamento in corso...</p>
+        </div>`;
       document.body.appendChild(loader);
       if (!document.getElementById('spinAnimation')) {
         const style = document.createElement('style');
@@ -48,32 +97,8 @@ export function mostraLoading(show = true) {
       }
     }
     loader.style.display = 'flex';
-  } else {
-    if (loader) loader.style.display = 'none';
-  }
-}
-
-// Nuova funzione aggiunta
-export function popolaDatePicker(prefix) {
-  const giornoSelect = document.getElementById(`giorno_${prefix}`);
-  const meseSelect = document.getElementById(`mese_${prefix}`);
-  const annoSelect = document.getElementById(`anno_${prefix}`);
-
-  if (!giornoSelect || !meseSelect || !annoSelect) return;
-
-  giornoSelect.innerHTML = '<option value="">gg</option>';
-  meseSelect.innerHTML = '<option value="">mm</option>';
-  annoSelect.innerHTML = '<option value="">aaaa</option>';
-
-  for (let g = 1; g <= 31; g++) {
-    giornoSelect.innerHTML += `<option value="${g.toString().padStart(2, '0')}">${g.toString().padStart(2, '0')}</option>`;
-  }
-  for (let m = 1; m <= 12; m++) {
-    meseSelect.innerHTML += `<option value="${m.toString().padStart(2, '0')}">${m.toString().padStart(2, '0')}</option>`;
-  }
-  const annoCorrente = new Date().getFullYear();
-  for (let a = annoCorrente; a >= annoCorrente - 100; a--) {
-    annoSelect.innerHTML += `<option value="${a}">${a}</option>`;
+  } else if (loader) {
+    loader.style.display = 'none';
   }
 }
 
@@ -83,18 +108,11 @@ export function aggiornaIndicatoreProgresso(stepCorrente) {
     progressBar = document.createElement('div');
     progressBar.id = 'progress-indicator';
     progressBar.style.cssText = `
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      background: var(--color-surface);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 1000;
+      position: fixed; top: 0; left: 0; width: 100%; background: var(--color-surface);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000;
       padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 14px;
-      font-weight: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 14px; font-weight: 500;
     `;
     document.body.prepend(progressBar);
   }
@@ -106,12 +124,7 @@ export function aggiornaIndicatoreProgresso(stepCorrente) {
     'step4': 'Conferma'
   };
 
-  const stepNumbers = {
-    'step1': 1,
-    'step2': 2,
-    'step3': 3,
-    'step4': 4
-  };
+  const stepNumbers = { 'step1': 1, 'step2': 2, 'step3': 3, 'step4': 4 };
 
   const currentNum = stepNumbers[stepCorrente] || 1;
   const currentName = stepNames[stepCorrente] || '';
@@ -146,28 +159,81 @@ export function mostraAvvisoContatto() {
 
   const banner = document.createElement('div');
   banner.id = 'contact-banner';
-  banner.style.cssText = `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); animation: slideInRight 0.3s ease-out;`;
+  banner.style.cssText = `
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: slideInRight 0.3s ease-out;
+  `;
   banner.innerHTML = `
     <div style="display: flex; align-items: center; gap: 16px;">
       <span style="font-size: 48px;">📞</span>
       <div style="flex: 1;">
         <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">Prima di continuare</h3>
         <p style="margin: 0 0 12px 0; font-size: 14px; opacity: 0.9;">Contatta il proprietario per concordare il prezzo del noleggio</p>
-        <a href="tel:${CONTATTO_PROPRIETARIO.replace(/\s/g, '')}" style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #667eea; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; transition: transform 0.2s;">
+        <a href="tel:${CONTATTO_PROPRIETARIO.replace(/\s/g, '')}"
+            style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #667eea; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; transition: transform 0.2s;">
           <span class="material-icons" style="font-size: 20px;">phone</span>${CONTATTO_PROPRIETARIO}
         </a>
       </div>
     </div>
   `;
-
   const step2 = document.getElementById('step2');
   const selectContainer = step2.querySelector('#scelta_pulmino').parentElement;
   selectContainer.parentNode.insertBefore(banner, selectContainer.nextSibling);
 }
 
-export function showStep(stepId) {
-  const steps = document.querySelectorAll('.step');
-  steps.forEach(step => {
-    step.style.display = (step.id === stepId) ? 'block' : 'none';
+export function aggiungiIndicatore(inputId, type = 'default') {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  let indicator = input.nextElementSibling;
+  if (!indicator || !indicator.classList.contains('field-indicator')) {
+    indicator = document.createElement('span');
+    indicator.className = 'field-indicator';
+    indicator.style.cssText = `
+      margin-left: 8px;
+      font-size: 18px;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+    `;
+    input.style.position = 'relative';
+    input.parentElement.style.position = 'relative';
+    input.parentElement.appendChild(indicator);
+  }
+
+  input.addEventListener('input', function () {
+    const value = input.value.trim();
+    let isValid = false;
+
+    if (type === 'cf') {
+      isValid = validaCodiceFiscale(value);
+    } else if (type === 'tel') {
+      isValid = validaTelefono(value);
+    } else if (type === 'nome') {
+      isValid = validaNomeCognome(value).valid;
+    } else if (type === 'civico') {
+      isValid = validaCivico(value);
+    }
+
+    if (value.length > 0) {
+      if (isValid) {
+        indicator.textContent = '✅';
+        input.style.borderColor = 'var(--color-success)';
+      } else {
+        indicator.textContent = '❌';
+        input.style.borderColor = 'var(--color-error)';
+      }
+    } else {
+      indicator.textContent = '';
+      input.style.borderColor = 'var(--color-border)';
+    }
+
+    salvaStatoTemporaneo();
   });
 }
