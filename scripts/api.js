@@ -1,6 +1,6 @@
-// api.js - gestione chiamate API Google Apps Script e proxy
-const VERSION_API = "2.9.1";
-console.log(`[api.js] Versione codice: ${VERSION_API}`);
+// api.js - gestione comunicazione con Google Apps Script API tramite POST
+const VERSION = "2.9.0";
+console.log(`[api.js] Versione codice: ${VERSION}`);
 
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
@@ -10,38 +10,30 @@ const SCRIPTS = {
   salvaPrenotazione: 'https://script.google.com/macros/s/AKfycbwy7ZO3hCMcjhPuOMFyJoJl_IRyDr_wfhALadDhFt__Yjg3FBFWqt7wbCjIm0iim9Ya/exec'
 };
 
-async function fetchPrenotazioni(params) {
-  const url = `${SCRIPTS.proxy}${SCRIPTS.prenotazioni}`;
-  const response = await fetch(url, {
+async function fetchJsonPost(url, params) {
+  const response = await fetch(`${SCRIPTS.proxy}${url}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params)
   });
+  if (!response.ok) throw new Error('Errore fetch API');
+  return response.json();
+}
 
-  if (!response.ok) throw new Error('Errore fetch prenotazioni');
-
-  return await response.json();
+async function fetchPrenotazioni(params) {
+  return fetchJsonPost(SCRIPTS.prenotazioni, params);
 }
 
 async function fetchDatiCliente(params) {
-  const url = `${SCRIPTS.proxy}${SCRIPTS.datiCliente}?${new URLSearchParams(params)}`;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Errore fetch dati cliente');
-  return response.json();
+  return fetchJsonPost(SCRIPTS.datiCliente, params);
 }
 
 async function fetchDisponibilita(params) {
-  const url = `${SCRIPTS.proxy}${SCRIPTS.disponibilita}?${new URLSearchParams(params)}`;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Errore fetch disponibilità');
-  return response.json();
+  return fetchJsonPost(SCRIPTS.disponibilita, params);
 }
 
 async function salvaPrenotazione(params) {
-  const url = `${SCRIPTS.proxy}${SCRIPTS.salvaPrenotazione}?${new URLSearchParams(params)}`;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Errore salvataggio prenotazione');
-  return response.json();
+  return fetchJsonPost(SCRIPTS.salvaPrenotazione, params);
 }
 
 export { fetchPrenotazioni, fetchDatiCliente, fetchDisponibilita, salvaPrenotazione };
