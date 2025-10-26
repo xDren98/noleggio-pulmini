@@ -1,4 +1,6 @@
 // booking.js - gestione dati e stato prenotazione
+const VERSION_BOOKING = "2.9.0";
+console.log(`[booking.js] Versione codice: ${VERSION_BOOKING}`);
 
 let bookingData = {};
 
