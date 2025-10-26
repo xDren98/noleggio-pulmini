@@ -11,8 +11,17 @@ const SCRIPTS = {
 async function fetchPrenotazioni(params) {
   const url = `${SCRIPTS.proxy}${SCRIPTS.prenotazioni}?${new URLSearchParams(params)}`;
   const response = await fetch(url);
-  if (!response.ok) throw new Error('Errore fetch prenotazioni');
-  return response.json();
+  const text = await response.text();
+  console.log('Raw response:', text);  // log della risposta
+  if (!response.ok) {
+    throw new Error('Errore fetch prenotazioni');
+  }
+  // Prova a parseare la risposta solo se è JSON valido:
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('Response non è JSON valido');
+  }
 }
 
 async function fetchDatiCliente(params) {
