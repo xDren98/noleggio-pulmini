@@ -1,5 +1,5 @@
 // main.js - Entry point dell'app Imbriani Noleggio
-const VERSION = "2.9.1"; // aggiorna questa versione se cambia il codice
+const VERSION = "2.9.2"; // aggiorna questa versione se cambia il codice
 console.log(`Imbriani Noleggio - Versione codice ${VERSION}`);
 
 import { fetchPrenotazioni, salvaPrenotazione, fetchDisponibilita } from './api.js';
