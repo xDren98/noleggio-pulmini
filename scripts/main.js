@@ -2,11 +2,10 @@
 const VERSION = "2.9.1"; // aggiorna questa versione se cambia il codice
 console.log(`Imbriani Noleggio - Versione codice ${VERSION}`);
 
-// Import moduli
 import { fetchPrenotazioni, salvaPrenotazione, fetchDisponibilita } from './api.js';
-import { salvaStatoTemporaneo, caricaStatoTemporaneo, cancellaStatoTemporaneo } from './storage.js';
+import { salvaStatoTemporaneo, caricaStatoTemporaneo } from './storage.js';
 import { mostraErrore, mostraSuccesso, mostraLoading, nascondiLoading } from './ui.js';
-import { validaCodiceFiscale, validaTelefono, validaNomeCognome } from './validation.js';
+import { validaCodiceFiscale, validaTelefono } from './validation.js';
 import { initBooking, aggiornaDatiBooking, getBookingData, aggiornaAutisti, setAutista, impostaDatiRiepilogo } from './booking.js';
 
 window.onload = () => {
@@ -24,13 +23,10 @@ window.onload = () => {
   });
 
   document.getElementById('verificaDisponibilitaBtn').addEventListener('click', verificaDisponibilita);
-
   document.getElementById('chiamaContinuaBtn').addEventListener('click', vaiStep3);
-
   document.getElementById('num_autisti').addEventListener('change', () => {
     aggiornaAutistiContainer();
   });
-
   document.getElementById('vaiStep4Btn').addEventListener('click', vaiStep4);
 
   document.getElementById('loginFormHomepage').addEventListener('submit', async (e) => {
@@ -44,15 +40,22 @@ window.onload = () => {
 
     mostraLoading();
     try {
-      const prenotazioni = await fetchPrenotazioni({ cf: cfInput });
+      const response = await fetchPrenotazioni({ cf: cfInput });
       nascondiLoading();
-      mostraSuccesso(`Trovate ${prenotazioni.length} prenotazioni.`);
-      aggiornaDatiBooking('prenotazioni', prenotazioni);
-      salvaStatoTemporaneo(getBookingData());
 
-      const loginResultBox = document.getElementById('loginResultHomepage');
-      loginResultBox.textContent = `Trovate ${prenotazioni.length} prenotazioni.`;
+      // Controllo che response esista e abbia campo prenotazioni
+      if (response && Array.isArray(response.prenotazioni)) {
+        const prenotazioni = response.prenotazioni;
+        mostraSuccesso(`Trovate ${prenotazioni.length} prenotazioni.`);
+        aggiornaDatiBooking('prenotazioni', prenotazioni);
+        salvaStatoTemporaneo(getBookingData());
 
+        const loginResultBox = document.getElementById('loginResultHomepage');
+        loginResultBox.textContent = `Trovate ${prenotazioni.length} prenotazioni.`;
+      } else {
+        mostraErrore('Nessuna prenotazione trovata o risposta non valida.');
+        console.warn('Response fetchPrenotazioni senza campo prenotazioni', response);
+      }
     } catch (err) {
       nascondiLoading();
       mostraErrore('Errore nella ricerca prenotazioni.');
@@ -80,20 +83,25 @@ async function verificaDisponibilita() {
       giornoArr, meseArr, annoArr, oraArr
     };
 
-    const disponibilita = await fetchDisponibilita(params);
+    const response = await fetchDisponibilita(params);
     nascondiLoading();
 
-    document.getElementById('num_disponibili').textContent = disponibilita.length;
-    const scelta = document.getElementById('scelta_pulmino');
-    scelta.innerHTML = '';
-    disponibilita.forEach(p => {
-      const option = document.createElement('option');
-      option.value = p.id;
-      option.textContent = `${p.nome} - ${p.targa}`;
-      scelta.appendChild(option);
-    });
+    if (response && Array.isArray(response)) {
+      const disponibilita = response;
+      document.getElementById('num_disponibili').textContent = disponibilita.length;
+      const scelta = document.getElementById('scelta_pulmino');
+      scelta.innerHTML = '';
+      disponibilita.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id;
+        option.textContent = `${p.nome} - ${p.targa}`;
+        scelta.appendChild(option);
+      });
 
-    document.getElementById('chiamaContinuaBtn').disabled = false;
+      document.getElementById('chiamaContinuaBtn').disabled = false;
+    } else {
+      mostraErrore('Nessuna disponibilità trovata o risposta non valida.');
+    }
   } catch (err) {
     nascondiLoading();
     mostraErrore('Errore nella verifica disponibilità');
