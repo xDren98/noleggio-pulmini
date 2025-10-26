@@ -1,12 +1,13 @@
 // main.js - Entry point dell'app Imbriani Noleggio
 const VERSION = "2.9.0"; // aggiorna questa versione se cambia il codice
 console.log(`Imbriani Noleggio - Versione codice ${VERSION}`);
+
 // Import moduli
 import { fetchPrenotazioni, salvaPrenotazione, fetchDisponibilita } from './api.js';
 import { salvaStatoTemporaneo, caricaStatoTemporaneo, cancellaStatoTemporaneo } from './storage.js';
 import { mostraErrore, mostraSuccesso, mostraLoading, nascondiLoading } from './ui.js';
 import { validaCodiceFiscale, validaTelefono, validaNomeCognome } from './validation.js';
-import { initBooking, aggiornaDatiBooking, getBookingData } from './booking.js';
+import { initBooking, aggiornaDatiBooking, getBookingData, aggiornaAutisti, setAutista, impostaDatiRiepilogo } from './booking.js';
 
 window.onload = () => {
   initBooking();
@@ -17,27 +18,21 @@ window.onload = () => {
     console.log('Stato caricato dal salvataggio temporaneo', datiSalvati);
   }
 
-  // Mostra prenotazione se clicchi 'Prenota ora'
   document.getElementById('btnNewBooking').addEventListener('click', () => {
     document.getElementById('homepage').style.display = 'none';
     document.getElementById('mainbox').style.display = 'block';
   });
 
-  // Verifica disponibilità
   document.getElementById('verificaDisponibilitaBtn').addEventListener('click', verificaDisponibilita);
 
-  // Continua a step 3
   document.getElementById('chiamaContinuaBtn').addEventListener('click', vaiStep3);
 
-  // Cambia numero autisti e aggiorna UI
   document.getElementById('num_autisti').addEventListener('change', () => {
     aggiornaAutistiContainer();
   });
 
-  // Continua a step 4
   document.getElementById('vaiStep4Btn').addEventListener('click', vaiStep4);
 
-  // Form login
   document.getElementById('loginFormHomepage').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -54,7 +49,7 @@ window.onload = () => {
       mostraSuccesso(`Trovate ${prenotazioni.length} prenotazioni.`);
       aggiornaDatiBooking('prenotazioni', prenotazioni);
       salvaStatoTemporaneo(getBookingData());
-      // TODO: Aggiorna UI con prenotazioni ricevute
+      // TODO: qui aggiorna UI con prenotazioni ricevute (aggiungi a seconda delle tue esigenze)
     } catch (err) {
       nascondiLoading();
       mostraErrore('Errore nella ricerca prenotazioni.');
@@ -63,11 +58,9 @@ window.onload = () => {
   });
 };
 
-// Funzione per gestire verifica disponibilità
 async function verificaDisponibilita() {
   mostraLoading();
 
-  // Preleva le date e orari selezionati
   const giornoRit = document.getElementById('giorno_ritiro').value;
   const meseRit = document.getElementById('mese_ritiro').value;
   const annoRit = document.getElementById('anno_ritiro').value;
@@ -78,10 +71,7 @@ async function verificaDisponibilita() {
   const annoArr = document.getElementById('anno_arrivo').value;
   const oraArr = document.getElementById('ora_arrivo').value;
 
-  // TODO: Costruire oggetto date/ora e validare correttezza
-
   try {
-    // Esempio chiamata disponibilità (sostituisci con logica reale)
     const params = {
       giornoRit, meseRit, annoRit, oraRit,
       giornoArr, meseArr, annoArr, oraArr
@@ -90,7 +80,6 @@ async function verificaDisponibilita() {
     const disponibilita = await fetchDisponibilita(params);
     nascondiLoading();
 
-    // Aggiorna UI con numero e pulmini disponibili
     document.getElementById('num_disponibili').textContent = disponibilita.length;
     const scelta = document.getElementById('scelta_pulmino');
     scelta.innerHTML = '';
@@ -101,7 +90,6 @@ async function verificaDisponibilita() {
       scelta.appendChild(option);
     });
 
-    // Abilita il bottone continua
     document.getElementById('chiamaContinuaBtn').disabled = false;
   } catch (err) {
     nascondiLoading();
@@ -110,16 +98,23 @@ async function verificaDisponibilita() {
   }
 }
 
-// Funzione per avanzare allo step 3
 function vaiStep3() {
+  // Aggiorna dati scelti prenotazione step 2
+  const pulminoSel = document.getElementById('scelta_pulmino');
+  const pulminoScelto = pulminoSel.options[pulminoSel.selectedIndex];
+  aggiornaDatiBooking('pulminoScelto', {
+    id: pulminoSel.value,
+    nome: pulminoScelto ? pulminoScelto.textContent : ''
+  });
+
   mostraStep('step3');
 }
 
-// Aggiorna container autisti in base al numero selezionato
 function aggiornaAutistiContainer() {
   const container = document.getElementById('autisti_container');
   container.innerHTML = '';
   const n = parseInt(document.getElementById('num_autisti').value, 10);
+  aggiornaAutisti(n);
 
   for (let i = 1; i <= n; i++) {
     const label = document.createElement('label');
@@ -128,18 +123,29 @@ function aggiornaAutistiContainer() {
     input.type = 'text';
     input.id = `autista_nome_${i}`;
     input.placeholder = `Nome e cognome autista ${i}`;
+    input.addEventListener('change', () => {
+      setAutista(i - 1, input.value);
+    });
     container.appendChild(label);
     container.appendChild(input);
   }
 }
 
-// Avanza allo step 4 (riepilogo dati)
 function vaiStep4() {
-  // TODO: raccogliere dati da form e popolare riepilogo
+  // Preleva dati da form step 3
+  const cellulare = document.getElementById('cellulare').value.trim();
+  if (!validaTelefono(cellulare)) {
+    mostraErrore('Telefono non valido');
+    return;
+  }
+  aggiornaDatiBooking('telefono', cellulare);
+
+  // Mostra step 4 riepilogo con dati aggiornati
+  impostaDatiRiepilogo();
+
   mostraStep('step4');
 }
 
-// Funzione generica per nascondere tutti gli step e mostrare quello selezionato
 function mostraStep(stepId) {
   const steps = document.querySelectorAll('.step');
   steps.forEach(step => step.classList.remove('active'));
