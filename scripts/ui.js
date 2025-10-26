@@ -1,5 +1,8 @@
+// ui.js - funzioni per la gestione messaggi e loader UI
+
 function mostraErrore(msg) {
   const box = document.getElementById('banner_errore');
+  if (!box) return;
   box.textContent = msg;
   box.classList.add('show');
   setTimeout(() => box.classList.remove('show'), 5000);
@@ -7,22 +10,21 @@ function mostraErrore(msg) {
 
 function mostraSuccesso(msg) {
   const box = document.getElementById('banner_successo');
+  if (!box) return;
   box.textContent = msg;
   box.classList.add('show');
   setTimeout(() => box.classList.remove('show'), 5000);
 }
 
 function mostraLoading() {
-  const box = document.getElementById('loader');
-  if (box) box.style.display = 'block';
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'block';
 }
 
 function nascondiLoading() {
-  const box = document.getElementById('loader');
-  if (box) box.style.display = 'none';
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'none';
 }
-
-// Altre funzioni di UI qui...
 
 export {
   mostraErrore,
