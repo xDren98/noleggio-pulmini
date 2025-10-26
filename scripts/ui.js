@@ -142,3 +142,10 @@ export function mostraAvvisoContatto() {
   const selectContainer = step2.querySelector('#scelta_pulmino').parentElement;
   selectContainer.parentNode.insertBefore(banner, selectContainer.nextSibling);
 }
+
+export function showStep(stepId) {
+  const steps = document.querySelectorAll('.step');
+  steps.forEach(step => {
+    step.style.display = (step.id === stepId) ? 'block' : 'none';
+  });
+}
