@@ -1,14 +1,16 @@
-// Importa moduli
-import { fetchPrenotazioni, salvaPrenotazione } from './api.js';
+// main.js - Entry point dell'app Imbriani Noleggio
+
+// Import moduli (assicurati di aver creato i file corrispondenti in scripts/)
+import { fetchPrenotazioni, salvaPrenotazione, fetchDisponibilita } from './api.js';
 import { salvaStatoTemporaneo, caricaStatoTemporaneo, cancellaStatoTemporaneo } from './storage.js';
 import { mostraErrore, mostraSuccesso, mostraLoading, nascondiLoading } from './ui.js';
 import { validaCodiceFiscale, validaTelefono, validaNomeCognome } from './validation.js';
 import { initBooking, aggiornaDatiBooking, getBookingData } from './booking.js';
 
-// Inizializzazione all'avvio
 window.onload = () => {
   initBooking();
 
+  // Carica stato da storage locale
   const datiSalvati = caricaStatoTemporaneo();
   if (datiSalvati) {
     aggiornaDatiBooking('salvati', datiSalvati);
@@ -16,7 +18,7 @@ window.onload = () => {
   }
 };
 
-// Esempio evento submit form login
+// Form login
 document.getElementById('loginFormHomepage').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -33,10 +35,13 @@ document.getElementById('loginFormHomepage').addEventListener('submit', async (e
     mostraSuccesso(`Trovate ${prenotazioni.length} prenotazioni.`);
     aggiornaDatiBooking('prenotazioni', prenotazioni);
     salvaStatoTemporaneo(getBookingData());
-    // aggiorna UI con prenotazioni
+    // TODO: Aggiorna UI con prenotazioni ricevute
   } catch (err) {
     nascondiLoading();
     mostraErrore('Errore nella ricerca prenotazioni.');
     console.error(err);
   }
 });
+
+// Qui puoi aggiungere altri event listeners e iniziative
+
