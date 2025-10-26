@@ -1,4 +1,6 @@
 // api.js - gestione chiamate API Google Apps Script e proxy
+const VERSION_API = "2.9.0";
+console.log(`[api.js] Versione codice: ${VERSION_API}`);
 
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
