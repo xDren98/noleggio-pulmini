@@ -1,4 +1,4 @@
-// api.js - gestione comunicazione con Google Apps Script API tramite POST
+// api.js - chiamate API Google Apps Script con POST JSON
 const VERSION = "2.9.0";
 console.log(`[api.js] Versione codice: ${VERSION}`);
 
@@ -16,7 +16,11 @@ async function fetchJsonPost(url, params) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params)
   });
-  if (!response.ok) throw new Error('Errore fetch API');
+  if (!response.ok) {
+    const text = await response.text();
+    console.error('Errore fetchJsonPost:', text);
+    throw new Error(`Errore fetch API: ${response.status} ${response.statusText}`);
+  }
   return response.json();
 }
 
@@ -36,4 +40,9 @@ async function salvaPrenotazione(params) {
   return fetchJsonPost(SCRIPTS.salvaPrenotazione, params);
 }
 
-export { fetchPrenotazioni, fetchDatiCliente, fetchDisponibilita, salvaPrenotazione };
+export {
+  fetchPrenotazioni,
+  fetchDatiCliente,
+  fetchDisponibilita,
+  salvaPrenotazione
+};
