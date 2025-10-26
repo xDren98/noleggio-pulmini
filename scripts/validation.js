@@ -1,5 +1,3 @@
-// validation.js
-
 export function validaCodiceFiscale(cf) {
   const regex = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/;
   return regex.test(cf.toUpperCase());
@@ -35,7 +33,6 @@ export function validaDataReale(gg, mm, aa) {
   return { valid: true };
 }
 
-// Uso astratto per verificaDuplicatiCF con dati forniti dal chiamante
 export function verificaDuplicatiCF(numAutisti, getCF) {
   const cfList = [];
   for (let i = 1; i <= numAutisti; i++) {
