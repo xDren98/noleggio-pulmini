@@ -1,5 +1,3 @@
-// api.js
-
 export const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
   { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
