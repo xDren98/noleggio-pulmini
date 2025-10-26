@@ -1,5 +1,11 @@
 // api.js
 
+export const pulmini = [
+  { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
+  { id: "ducato_corto", nome: "Fiat Ducato (Passo corto)", targa: "DN391FW" },
+  { id: "peugeot", nome: "Peugeot Expert Tepee", targa: "DL291XZ" }
+];
+
 export const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
