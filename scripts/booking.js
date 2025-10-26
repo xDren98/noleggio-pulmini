@@ -1,23 +1,23 @@
+// booking.js - gestione dati e stato prenotazione
+
 let bookingData = {};
 
-// Inizializza dati prenotazione
 function initBooking() {
   bookingData = {
     step: 1,
     clienti: [],
-    dateRitiro: null,
-    dateConsegna: null,
+    dataRitiro: null,
+    dataArrivo: null,
     pulminoScelto: null,
-    // altri dati...
+    telefono: null,
+    // Altri campi...
   };
 }
 
-// Aggiorna dati prenotazione
 function aggiornaDatiBooking(campo, valore) {
   bookingData[campo] = valore;
 }
 
-// Recupera dati prenotazione
 function getBookingData() {
   return bookingData;
 }
