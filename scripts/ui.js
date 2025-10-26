@@ -53,6 +53,30 @@ export function mostraLoading(show = true) {
   }
 }
 
+// Nuova funzione aggiunta
+export function popolaDatePicker(prefix) {
+  const giornoSelect = document.getElementById(`giorno_${prefix}`);
+  const meseSelect = document.getElementById(`mese_${prefix}`);
+  const annoSelect = document.getElementById(`anno_${prefix}`);
+
+  if (!giornoSelect || !meseSelect || !annoSelect) return;
+
+  giornoSelect.innerHTML = '<option value="">gg</option>';
+  meseSelect.innerHTML = '<option value="">mm</option>';
+  annoSelect.innerHTML = '<option value="">aaaa</option>';
+
+  for (let g = 1; g <= 31; g++) {
+    giornoSelect.innerHTML += `<option value="${g.toString().padStart(2, '0')}">${g.toString().padStart(2, '0')}</option>`;
+  }
+  for (let m = 1; m <= 12; m++) {
+    meseSelect.innerHTML += `<option value="${m.toString().padStart(2, '0')}">${m.toString().padStart(2, '0')}</option>`;
+  }
+  const annoCorrente = new Date().getFullYear();
+  for (let a = annoCorrente; a >= annoCorrente - 100; a--) {
+    annoSelect.innerHTML += `<option value="${a}">${a}</option>`;
+  }
+}
+
 export function aggiornaIndicatoreProgresso(stepCorrente) {
   let progressBar = document.getElementById('progress-indicator');
   if (!progressBar) {
