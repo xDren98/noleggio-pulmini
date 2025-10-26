@@ -1,4 +1,3 @@
-// booking.js
 import { salvaStatoTemporaneo, cancellaStatoTemporaneo } from './storage.js';
 import { mostraErrore, mostraSuccesso, mostraLoading, mostraAvvisoContatto, showStep, aggiornaIndicatoreProgresso, nascondiIndicatoreProgresso } from './ui.js';
 import { validaTelefono, validaNomeCognome, validaCivico, validaCodiceFiscale, validaDataReale, verificaDuplicatiCF } from './validation.js';
@@ -343,7 +342,7 @@ function mostraThankYou() {
     </div>`;
 }
 
-// Funzione di utilità per ricavare dati da DOM (giorno/mese/anno)
+// Funzioni di utilità
 function getData(prefix) {
   const gg = document.getElementById('giorno_' + prefix)?.value;
   const mm = document.getElementById('mese_' + prefix)?.value;
@@ -356,6 +355,12 @@ function getDataAutista(tipo, i) {
   const mm = document.getElementById(`mese_${tipo}_${i}`)?.value;
   const aa = document.getElementById(`anno_${tipo}_${i}`)?.value;
   return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
+}
+
+function convertDateToIso(dateEuro) {
+  const parts = dateEuro.split('/');
+  if (parts.length !== 3) return '';
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
 
 // Funzione per popolare i moduli autisti dinamicamente
@@ -459,10 +464,4 @@ export function mostraModuliAutisti() {
       mostraSuccesso('Dati del primo autista e cellulare precompilati automaticamente!');
     }, 150);
   }
-}
-
-function convertDateToIso(dateEuro) {
-  const parts = dateEuro.split('/');
-  if (parts.length !== 3) return '';
-  return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
