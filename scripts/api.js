@@ -1,3 +1,5 @@
+// api.js - gestione chiamate API Google Apps Script e proxy
+
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
@@ -7,19 +9,31 @@ const SCRIPTS = {
 };
 
 async function fetchPrenotazioni(params) {
-  let url = SCRIPTS.proxy + SCRIPTS.prenotazioni + '?' + new URLSearchParams(params).toString();
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Fetch prenotazioni fallito.');
-  return await res.json();
+  const url = `${SCRIPTS.proxy}${SCRIPTS.prenotazioni}?${new URLSearchParams(params)}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Errore fetch prenotazioni');
+  return response.json();
 }
 
-async function salvaPrenotazione(dati) {
-  let url = SCRIPTS.proxy + SCRIPTS.salvaPrenotazione + '?' + new URLSearchParams(dati).toString();
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Salvataggio prenotazione fallito.');
-  return await res.json();
+async function fetchDatiCliente(params) {
+  const url = `${SCRIPTS.proxy}${SCRIPTS.datiCliente}?${new URLSearchParams(params)}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Errore fetch dati cliente');
+  return response.json();
 }
 
-// altri fetch simili qui...
+async function fetchDisponibilita(params) {
+  const url = `${SCRIPTS.proxy}${SCRIPTS.disponibilita}?${new URLSearchParams(params)}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Errore fetch disponibilità');
+  return response.json();
+}
 
-export { SCRIPTS, fetchPrenotazioni, salvaPrenotazione };
+async function salvaPrenotazione(params) {
+  const url = `${SCRIPTS.proxy}${SCRIPTS.salvaPrenotazione}?${new URLSearchParams(params)}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Errore salvataggio prenotazione');
+  return response.json();
+}
+
+export { fetchPrenotazioni, fetchDatiCliente, fetchDisponibilita, salvaPrenotazione };
