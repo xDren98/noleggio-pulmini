@@ -1,5 +1,3 @@
-// storage.js
-
 export function salvaStatoTemporaneo(bookingData) {
   if (!bookingData || Object.keys(bookingData).length === 0) return;
   try {
