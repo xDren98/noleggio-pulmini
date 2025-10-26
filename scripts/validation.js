@@ -1,3 +1,5 @@
+// validation.js - funzioni di validazione form
+
 function validaCodiceFiscale(cf) {
   if (!cf) return false;
   const regex = /^[A-Z0-9]{16}$/i;
