@@ -1,6 +1,6 @@
 // validation.js - funzioni di validazione form
-const VERSION_VALIDATION = "2.9.0";
-console.log(`[validation.js] Versione codice: ${VERSION_VALIDATION}`);
+const VERSION = "2.9.0";
+console.log(`[validation.js] Versione codice: ${VERSION}`);
 
 function validaCodiceFiscale(cf) {
   if (!cf) return false;
