@@ -1,1186 +1,187 @@
+/* Font e palette colori */
 body {
   font-family: 'Poppins', sans-serif;
   background: #f7f7f7;
+  color: #2c5d2a;
   margin: 0;
   min-height: 100vh;
   padding: 0;
 }
-#mainbox {
+
+/* Contenitori principali */
+#mainbox, .container {
   max-width: 700px;
   margin: 32px auto 54px;
   background: #fff;
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 2px 10px rgba(44, 93, 42, 0.07);
   padding: 26px 20px 28px;
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
-header {
+
+/* Header */
+header, .header {
   max-width: 700px;
   margin: 0 auto 10px;
   padding-top: 10px;
   text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px 10px;
 }
-header h1 {
+
+/* Titoli header */
+header h1, .header h1 {
   font-weight: 700;
   font-size: 2em;
-  color: #37b24d;
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
+  color: #fff;
 }
-header p {
+
+/* Slogan */
+header p, .slogan {
   font-weight: 600;
   font-size: 1em;
-  color: #516551;
+  color: #d0d7ff;
   margin: 0 0 10px 0;
 }
-.step {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-}
-.step.active {
-  display: flex;
-}
-label {
-  font-weight: 600;
-  font-size: 1.02em;
-  color: #2c5d2a;
-  margin-bottom: 2px;
-  display: flex;
+
+/* Bottoni principali */
+button, .btn, .btn-main, #btnNewBooking {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.05em;
+  padding: 12px 25px;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-.material-icons {
-  font-size: 20px;
-  color: #37b24d;
-}
-select, input[type=tel], input[type=text] {
-  width: 100%;
-  min-height: 43px;
-  padding: 7px 10px;
-  font-size: 1em;
-  border-radius: 10px;
-  border: 1.4px solid #72b972;
-  color: #2c5d2a;
-  background-color: #f9fff7;
-  font-family: 'Poppins', sans-serif;
-}
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-}
-button {
-  background-color: #37c559;
-  color: #fff;
-  font-weight: 700;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  font-size: 1.05em;
-  padding: 11px 25px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  box-shadow: 0 2px 6px #86e8a2aa;
-  transition: all 0.2s;
-}
-button:hover:not(:disabled) {
-  background-color: #24943d;
-  box-shadow: 0 2px 12px #30af5640;
-  transform: scale(1.02);
-}
-button:disabled {
-  background-color: #b7d6b7;
-  cursor: not-allowed;
-  color: #5c995c;
-}
-#disponibili_box {
-  font-weight: 700;
-  font-size: 1.1em;
-  color: #2e7f2e;
-}
-.autista {
-  background-color: #eafbe9;
-  border: 1.5px solid #b2e4b2;
-  border-radius: 10px;
-  padding: 14px 15px;
-  box-shadow: 0 1px 6px #bfe9be47;
-  margin-bottom: 12px;
-}
-h3 {
-  font-weight: 700;
-  color: #27802a;
-  border-bottom: 2px solid #6fd24f;
-  margin-bottom: 6px;
-  padding-bottom: 3px;
-}
-#thankyou {
-  background: #e1f9d9;
-  border-radius: 12px;
-  box-shadow: 0 0 14px #8ddd4833;
-  text-align: center;
-  padding: 30px 12px;
-}
-#thankyou h2 {
-  color: #3dab35;
-  font-weight: 700;
-  margin-bottom: 9px;
-}
-#thankyou p {
-  color: #2b6e21;
-  font-weight: 600;
-  font-size: 1.13em;
-}
-#loginResultHomepage {
-  margin-top: 10px;
-  font-weight: 600;
-  color: #2c5d2a;
-}
-@media (max-width: 700px) {
-  #mainbox,
-  header {
-    max-width: 100vw;
-    padding: 0 2vw;
-  }
-  .actions {
-    flex-direction: column;
-  }
-}
-.dataora-row {
-  display: flex;
-  gap: 16px;
-  align-items: flex-end;
-  margin-bottom: 10px;
-}
-.data-col {
-  display: flex;
-  flex-direction: column;
-  flex: 2;
-  min-width: 190px;
-}
-.ora-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 110px;
-}
-.date-inline {
-  display: flex;
-  gap: 7px;
-}
-/* ========================================
-   STILI PER LE PRENOTAZIONI
-   ======================================== */
-
-.prenotazioni-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.prenotazioni-container h3 {
-  color: #27802a;
-  margin-bottom: 8px;
-  font-size: 1.2em;
-}
-
-.prenotazione-card {
-  background: linear-gradient(135deg, #eafbe9 0%, #f9fff7 100%);
-  border: 1.5px solid #b2e4b2;
-  padding: 14px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(55, 178, 77, 0.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
   transition: all 0.3s ease;
 }
 
-.prenotazione-card:hover {
-  box-shadow: 0 4px 16px rgba(55, 178, 77, 0.2);
+button:hover:not(:disabled), .btn-main:hover, #btnNewBooking:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #694598 100%);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(85, 104, 211, 0.45);
 }
 
-.prenotazione-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1em;
-  color: #2c5d2a;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #6fd24f;
-}
-
-.prenotazione-header .material-icons {
-  font-size: 20px;
-  color: #37b24d;
-}
-
-.prenotazione-date {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.date-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9em;
-  color: #2c5d2a;
-}
-
-.date-item .material-icons {
-  font-size: 16px;
-  color: #37b24d;
-}
-
-.prenotazione-stato {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 10px;
-  border-radius: 16px;
-  font-weight: 600;
-  font-size: 0.85em;
-}
-
-.status--success {
-  background-color: rgba(55, 178, 77, 0.15);
-  color: #27802a;
-  border: 1px solid rgba(55, 178, 77, 0.3);
-}
-
-.status--warning {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.status--info {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #2563eb;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-#btnNewBookingFromLogin {
-  margin-top: 12px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
-}
-
-#btnNewBookingFromLogin .material-icons {
-  font-size: 20px;
-}
-
-/* Responsive per mobile */
-@media (max-width: 600px) {
-  .prenotazione-card {
-    padding: 14px;
-  }
-  
-  .prenotazione-header {
-    font-size: 1em;
-  }
-  
-  .date-item {
-    font-size: 0.9em;
-  }
-  
-  .status {
-    font-size: 0.85em;
-    padding: 5px 10px;
-  }
-}
-/* ========================================
-   STILI PER LA HOMEPAGE
-   ======================================== */
-
-#homepage {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-#homepage h1 {
-  text-align: center;
-  font-size: 2em;
-  margin-bottom: 8px;
-}
-
-#homepage p {
-  text-align: center;
+button:disabled {
+  background-color: #b7b7b7;
+  cursor: not-allowed;
   color: #666;
-  font-size: 1.1em;
-  margin-bottom: 30px;
 }
 
-/* Form di login homepage */
-#loginFormHomepage {
-  max-width: 500px;
-  margin: 0 auto 30px auto;
-}
-
-#loginFormHomepage label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: #2c5d2a;
-}
-
-#cfInputHomepage {
+/* Input e select */
+input[type="text"], input[type="tel"], select {
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #b2e4b2;
-  border-radius: 8px;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
   font-size: 1em;
-  margin-bottom: 12px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  color: #333;
+  background-color: #fff;
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.3s ease;
 }
 
-#cfInputHomepage:focus {
+input:focus, select:focus {
   outline: none;
-  border-color: #37b24d;
-  box-shadow: 0 0 0 3px rgba(55, 178, 77, 0.1);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
-#loginFormHomepage button[type="submit"] {
-  width: 100%;
-  padding: 12px 20px;
-  background: #37b24d;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1em;
+/* Labels */
+label {
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  font-size: 1em;
+  color: #444;
+  margin-bottom: 6px;
+  display: block;
 }
 
-#loginFormHomepage button[type="submit]:hover {
-  background: #2d9a3e;
-  transform: translateY(-1px);
-}
-
-#loginFormHomepage button[type="submit]:active {
-  transform: translateY(0);
-}
-
-#loginResultHomepage {
-  margin-top: 20px;
-  text-align: center;
-  color: #2c5d2a;
-  font-weight: 500;
-}
-
-/* Sezione nuovo cliente */
-.new-client-section {
-  max-width: 500px;
-  margin: 50px auto 0 auto;
-  padding-top: 40px;
-  border-top: 2px solid #e0e0e0;
-  text-align: center;
+/* Messaggi di errore e successo */
+.error-banner, .success-banner, .login-error {
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: slideIn 0.3s ease-out;
+  max-width: 420px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-}
-
-.new-client-section p {
-  margin-bottom: 16px;
-  font-size: 1em;
-}
-
-#btnNewBooking {
-  padding: 12px 24px;
-  background: #37b24d;
+  gap: 12px;
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  z-index: 10000;
   color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
-#btnNewBooking:hover {
-  background: #2d9a3e;
-  transform: translateY(-1px);
+.error-banner, .login-error {
+  background: #dc2626;
+  border: 1px solid #b91c1c;
 }
 
-#btnNewBooking:active {
-  transform: translateY(0);
+.success-banner {
+  background: #22c55e;
+  border: 1px solid #15803d;
 }
 
-/* Responsive per mobile */
-@media (max-width: 600px) {
-  #homepage {
-    padding: 30px 16px;
+/* Modali */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.26);
+  z-index: 99999;
+  justify-content: center; align-items: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+  padding: 40px 36px;
+  max-width: 400px;
+  width: 90vw;
+  text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  #mainbox, .container, header, .header {
+    max-width: 95vw;
+    padding: 0 12px;
   }
   
-  #homepage h1 {
-    font-size: 1.6em;
-  }
-  
-  #homepage p {
+  button, .btn-main {
     font-size: 1em;
-  }
-  
-  #cfInputHomepage {
-    padding: 10px 14px;
-  }
-  
-  #loginFormHomepage button[type="submit"],
-  #btnNewBooking {
-    padding: 10px 18px;
+    padding: 12px 20px;
   }
 }
-/* ========================================
-   MIGLIORAMENTI HOMEPAGE
-   ======================================== */
 
-#homepage h1 .material-icons {
-  font-size: 1.2em;
+/* Icone Material */
+.material-icons {
+  font-size: 20px;
+  color: #667eea;
   vertical-align: middle;
-  color: #37b24d;
   margin-right: 8px;
 }
 
-#loginFormHomepage button[type="submit"],
-#btnNewBooking {
-  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.2);
-}
-
-#loginFormHomepage button[type="submit"]:hover,
-#btnNewBooking:hover {
-  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.3);
-}
-
-#cfInputHomepage:focus {
-  border-color: #37b24d;
-  box-shadow: 0 0 0 4px rgba(55, 178, 77, 0.15);
-}
-
-#homepage {
-  padding-top: 60px;
-}
-
-#homepage p:first-of-type {
-  font-size: 1.05em;
-  color: #555;
-  margin-bottom: 40px;
-  line-height: 1.6;
-}
-/* Miglioramenti pulsante prenota */
-#btnNewBooking {
-  padding: 14px 28px;
-  background: linear-gradient(135deg, #37b24d 0%, #2d9a3e 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.05em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.25);
-}
-
-#btnNewBooking:hover {
-  background: linear-gradient(135deg, #2d9a3e 0%, #27802a 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(55, 178, 77, 0.35);
-}
-
-#btnNewBooking:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.2);
-}
-
-#btnNewBooking .material-icons {
-  font-size: 22px;
-}
-#homepage h2 {
-  font-size: 1.3em;
-  font-weight: 600;
-  color: #2c5d2a;
-  margin-bottom: 12px;
-}
-.input-with-icon {
-  position: relative;
-}
-
-.input-with-icon .material-icons {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6c757d;
-  font-size: 20px;
-  pointer-events: none;
-}
-
-.input-with-icon #cfInputHomepage {
-  padding-left: 44px;
-}
-.badge-new {
-  background: rgba(255, 255, 255, 0.3);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75em;
-  margin-left: 8px;
-  font-weight: 700;
-}
-/* ========================================
-   LOADING OVERLAY
-   ======================================== */
-
-.loader-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.loader-spinner {
-  text-align: center;
-  color: white;
-}
-
-.spinner {
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #37b24d;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loader-spinner p {
-  font-weight: 600;
-  font-size: 1.1em;
-}
-
-/* ========================================
-   ERROR E SUCCESS BANNERS
-   ======================================== */
-
-.error-banner,
-.success-banner {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 14px 24px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  z-index: 10000;
-  animation: slideIn 0.3s ease-out;
-  max-width: 90%;
-}
-
-.error-banner {
-  background: #f44336;
-  color: white;
-}
-
-.success-banner {
-  background: #37b24d;
-  color: white;
-}
-
-.error-banner .material-icons,
-.success-banner .material-icons {
-  font-size: 24px;
-  color: white;
-}
-
+/* Animazioni */
 @keyframes slideIn {
-  from {
-    transform: translateX(-50%) translateY(-100px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(-50%) translateY(-100px);
-    opacity: 0;
-  }
-}
-
-/* ========================================
-   BACK BUTTON
-   ======================================== */
-
-.btn-back {
-  background: transparent;
-  border: 2px solid #37b24d;
-  color: #37b24d;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s ease;
-  margin-bottom: 12px;
-}
-
-.btn-back:hover {
-  background: #37b24d;
-  color: white;
-  transform: translateX(-4px);
-}
-
-.btn-back .material-icons {
-  font-size: 20px;
-}
-
-/* ========================================
-   THANK YOU PAGE
-   ======================================== */
-
-#thankyou {
-  background: linear-gradient(135deg, #e1f9d9 0%, #f9fff7 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(55, 178, 77, 0.15);
-  text-align: center;
-  padding: 40px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-#thankyou h2 {
-  color: #27802a;
-  font-weight: 700;
-  margin: 0;
-  font-size: 1.8em;
-}
-
-#thankyou p {
-  color: #2b6e21;
-  font-weight: 500;
-  font-size: 1.1em;
-  margin: 0;
-  line-height: 1.6;
-}
-
-#thankyou button {
-  margin-top: 16px;
-}
-
-/* ========================================
-   RESPONSIVE FIXES
-   ======================================== */
-
-@media (max-width: 600px) {
-  .error-banner,
-  .success-banner {
-    top: 10px;
-    padding: 12px 16px;
-    font-size: 0.9em;
-  }
-  
-  .btn-back {
-    font-size: 0.9em;
-    padding: 6px 12px;
-  }
-}
-
-/* ========================================
-   INPUT VALIDATION STATES
-   ======================================== */
-
-input:invalid:not(:placeholder-shown) {
-  border-color: #f44336;
-}
-
-input:valid:not(:placeholder-shown) {
-  border-color: #37b24d;
-}
-
-select:invalid {
-  color: #999;
-}
-
-select:valid {
-  color: #2c5d2a;
-}
-/* ============================================
-   LOADER OVERLAY
-   ============================================ */
-
-.loader-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(31, 33, 33, 0.85);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: fadeIn 0.2s ease-in;
-}
-
-.loader-spinner {
-  text-align: center;
-  color: var(--color-text);
-}
-
-.loader-spinner p {
-  margin-top: 16px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.spinner {
-  border: 4px solid rgba(50, 184, 198, 0.2);
-  border-top: 4px solid var(--color-primary);
-  border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* ============================================
-   BANNER SUCCESSO/ERRORE
-   ============================================ */
-
-.error-banner,
-.success-banner {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  padding: 16px 20px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: var(--shadow-lg);
-  z-index: 10000;
-  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  max-width: 420px;
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  backdrop-filter: blur(8px);
-}
-
-.error-banner {
-  background: rgba(var(--color-error-rgb), 0.15);
-  color: var(--color-error);
-  border: 1px solid rgba(var(--color-error-rgb), 0.3);
-  border-left: 4px solid var(--color-error);
-}
-
-.success-banner {
-  background: rgba(var(--color-success-rgb), 0.15);
-  color: var(--color-success);
-  border: 1px solid rgba(var(--color-success-rgb), 0.3);
-  border-left: 4px solid var(--color-success);
-}
-
-.error-banner .material-icons,
-.success-banner .material-icons {
-  font-size: 24px;
-  flex-shrink: 0;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(450px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(450px);
-    opacity: 0;
-  }
-}
-
-/* Responsive: banner mobile */
-@media (max-width: 640px) {
-  .error-banner,
-  .success-banner {
-    top: 16px;
-    right: 16px;
-    left: 16px;
-    max-width: none;
-    font-size: var(--font-size-sm);
-  }
-  
-  @keyframes slideIn {
-    from {
-      transform: translateY(-100px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideOut {
-    from {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateY(-100px);
-      opacity: 0;
-    }
-  }
-}
-
-/* ============================================
-   BOTTONE INDIETRO
-   ============================================ */
-
-.btn-back {
-  position: fixed;
-  top: 24px;
-  left: 24px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: 10px 16px;
-  border-radius: var(--radius-base);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  color: var(--color-text);
-  transition: all var(--duration-fast) var(--ease-standard);
-  z-index: 100;
-  box-shadow: var(--shadow-sm);
-  font-size: var(--font-size-sm);
-}
-
-.btn-back:hover {
-  background: var(--color-secondary-hover);
-  transform: translateX(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-back:active {
-  transform: translateX(-1px);
-}
-
-.btn-back .material-icons {
-  font-size: 20px;
-}
-
-@media (max-width: 640px) {
-  .btn-back {
-    top: 16px;
-    left: 16px;
-    padding: 8px 12px;
-    font-size: var(--font-size-xs);
-  }
-  
-  .btn-back .material-icons {
-    font-size: 18px;
-  }
-}
-
-/* ============================================
-   ANIMAZIONI SMOOTH PER STEP
-   ============================================ */
-
-.step {
-  animation: fadeInStep 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes fadeInStep {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ============================================
-   STATO DI FOCUS MIGLIORATO
-   ============================================ */
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: var(--focus-outline);
-  outline-offset: 2px;
-  box-shadow: var(--focus-ring);
-}
-
-/* Rimuovi outline per mouse click ma mantienilo per tastiera */
-input:focus:not(:focus-visible),
-select:focus:not(:focus-visible),
-textarea:focus:not(:focus-visible) {
-  outline: none;
-  box-shadow: none;
-}
-
-/* ============================================
-   STATI DI VALIDAZIONE INPUT
-   ============================================ */
-
-input.valid {
-  border-color: var(--color-success);
-}
-
-input.invalid {
-  border-color: var(--color-error);
-}
-
-/* Icona di validazione */
-input.valid,
-input.invalid {
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px;
-  padding-right: 40px;
-}
-
-input.valid {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2337b24d' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
-}
-
-input.invalid {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23c0152f' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='15' y1='9' x2='9' y2='15'%3E%3C/line%3E%3Cline x1='9' y1='9' x2='15' y2='15'%3E%3C/line%3E%3C/svg%3E");
-}
-
-/* ============================================
-   PULSANTI DISABILITATI
-   ============================================ */
-
-.btn:disabled,
-.btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* ============================================
-   TOOLTIP HELPER (per futuri hint)
-   ============================================ */
-
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 12px;
-  background: var(--color-text);
-  color: var(--color-background);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-xs);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--duration-fast);
-}
-
-.tooltip:hover::after {
-  opacity: 1;
-}
-/* ============================================
-   RIEPILOGO PRENOTAZIONE
-   ============================================ */
-
-.riepilogo {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.riepilogo-section {
-  background: var(--color-surface);
-  border: 1px solid var(--color-card-border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.riepilogo-section h3 {
-  margin: 0 0 20px 0;
-  color: var(--color-text);
-  font-size: var(--font-size-xl);
-  border-bottom: 2px solid var(--color-primary);
-  padding-bottom: 10px;
-}
-
-.riepilogo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.riepilogo-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.riepilogo-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-}
-
-.riepilogo-value {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text);
-}
-
-.riepilogo-actions {
-  margin-top: 30px;
-}
-
-@media (max-width: 640px) {
-  .riepilogo-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .riepilogo-section {
-    padding: 16px;
-  }
-}
-@media (max-width: 600px) {
-  body, #mainbox {
-    padding: 10px;
-    margin: 0 auto;
-  }
-
-  .dataora-row {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .table-container {
-    overflow-x: auto;
-  }
-
-  table {
-    min-width: 600px;
-  }
-
-  button {
-    padding: 16px 20px;
-    font-size: 1.2em;
-  }
-
-  header h1 {
-    font-size: 1.5em;
-  }
-
-  header p,
-  p, label {
-    font-size: 1em;
-  }
-}
-
-@media (max-width: 480px) {
-  table, thead, tbody, th, td, tr {
-    display: block;
-  }
-  thead tr {
-    display: none;
-  }
-  tr {
-    margin-bottom: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 12px;
-  }
-  td {
-    padding-left: 50%;
-    position: relative;
-  }
-  td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 16px;
-    top: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
+  from {opacity: 0; transform: translateX(30px);}
+  to {opacity: 1; transform: translateX(0);}
 }
