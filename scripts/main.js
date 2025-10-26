@@ -1,5 +1,5 @@
 // main.js - Entry point dell'app Imbriani Noleggio
-const VERSION = "2.9.0"; // aggiorna questa versione se cambia il codice
+const VERSION = "2.9.1"; // aggiorna questa versione se cambia il codice
 console.log(`Imbriani Noleggio - Versione codice ${VERSION}`);
 
 // Import moduli
@@ -49,11 +49,14 @@ window.onload = () => {
       mostraSuccesso(`Trovate ${prenotazioni.length} prenotazioni.`);
       aggiornaDatiBooking('prenotazioni', prenotazioni);
       salvaStatoTemporaneo(getBookingData());
-      // TODO: qui aggiorna UI con prenotazioni ricevute (aggiungi a seconda delle tue esigenze)
+
+      const loginResultBox = document.getElementById('loginResultHomepage');
+      loginResultBox.textContent = `Trovate ${prenotazioni.length} prenotazioni.`;
+
     } catch (err) {
       nascondiLoading();
       mostraErrore('Errore nella ricerca prenotazioni.');
-      console.error(err);
+      console.error('Dettaglio errore login:', err.message, err.stack);
     }
   });
 };
@@ -99,7 +102,6 @@ async function verificaDisponibilita() {
 }
 
 function vaiStep3() {
-  // Aggiorna dati scelti prenotazione step 2
   const pulminoSel = document.getElementById('scelta_pulmino');
   const pulminoScelto = pulminoSel.options[pulminoSel.selectedIndex];
   aggiornaDatiBooking('pulminoScelto', {
@@ -132,7 +134,6 @@ function aggiornaAutistiContainer() {
 }
 
 function vaiStep4() {
-  // Preleva dati da form step 3
   const cellulare = document.getElementById('cellulare').value.trim();
   if (!validaTelefono(cellulare)) {
     mostraErrore('Telefono non valido');
@@ -140,7 +141,6 @@ function vaiStep4() {
   }
   aggiornaDatiBooking('telefono', cellulare);
 
-  // Mostra step 4 riepilogo con dati aggiornati
   impostaDatiRiepilogo();
 
   mostraStep('step4');
