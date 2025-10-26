@@ -1,5 +1,3 @@
-// ui.js
-
 const CONTATTO_PROPRIETARIO = '328 658 9618';
 
 export function mostraErrore(messaggio) {
