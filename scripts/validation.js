@@ -22,11 +22,7 @@ export function validaCivico(civico) {
 }
 
 export function validaDataReale(gg, mm, aa) {
-  const giorniMese = [
-    31,
-    (aa % 4 === 0 && (aa % 100 !== 0 || aa % 400 === 0)) ? 29 : 28,
-    31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-  ];
+  const giorniMese = [31, (aa % 4 === 0 && (aa % 100 !== 0 || aa % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   if (gg < 1 || gg > giorniMese[mm - 1]) {
     return { valid: false, error: "Giorno non valido per questo mese" };
   }
@@ -36,7 +32,7 @@ export function validaDataReale(gg, mm, aa) {
 export function verificaDuplicatiCF(numAutisti, getCF) {
   const cfList = [];
   for (let i = 1; i <= numAutisti; i++) {
-    const cf = getCF(i);
+    const cf = getCF(i).trim().toUpperCase();
     if (cf && cfList.includes(cf)) {
       return { valid: false, duplicato: cf };
     }
