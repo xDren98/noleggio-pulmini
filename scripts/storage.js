@@ -1,12 +1,12 @@
-// storage.js - gestione salvataggio locale con sessionStorage
-const VERSION_STORAGE = "2.9.0";
-console.log(`[storage.js] Versione codice: ${VERSION_STORAGE}`);
+// storage.js - gestione salvataggio temporaneo su sessionStorage
+const VERSION = "2.9.0";
+console.log(`[storage.js] Versione codice: ${VERSION}`);
 
 function salvaStatoTemporaneo(bookingData) {
   if (!bookingData || Object.keys(bookingData).length === 0) return;
   try {
     sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
-  } catch(e) {
+  } catch (e) {
     console.warn('Salvataggio stato temporaneo fallito', e);
   }
 }
@@ -15,7 +15,7 @@ function caricaStatoTemporaneo() {
   try {
     const data = sessionStorage.getItem('bookingData');
     return data ? JSON.parse(data) : null;
-  } catch(e) {
+  } catch (e) {
     console.warn('Caricamento stato temporaneo fallito', e);
     return null;
   }
@@ -24,7 +24,7 @@ function caricaStatoTemporaneo() {
 function cancellaStatoTemporaneo() {
   try {
     sessionStorage.removeItem('bookingData');
-  } catch(e) {
+  } catch (e) {
     console.warn('Cancellazione stato temporaneo fallita', e);
   }
 }
