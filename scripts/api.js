@@ -1,5 +1,5 @@
 // api.js - gestione chiamate API Google Apps Script e proxy
-const VERSION_API = "2.9.0";
+const VERSION_API = "2.9.1";
 console.log(`[api.js] Versione codice: ${VERSION_API}`);
 
 const SCRIPTS = {
@@ -11,19 +11,16 @@ const SCRIPTS = {
 };
 
 async function fetchPrenotazioni(params) {
-  const url = `${SCRIPTS.proxy}${SCRIPTS.prenotazioni}?${new URLSearchParams(params)}`;
-  const response = await fetch(url);
-  const text = await response.text();
-  console.log('Raw response:', text);  // log della risposta
-  if (!response.ok) {
-    throw new Error('Errore fetch prenotazioni');
-  }
-  // Prova a parseare la risposta solo se è JSON valido:
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error('Response non è JSON valido');
-  }
+  const url = `${SCRIPTS.proxy}${SCRIPTS.prenotazioni}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
+
+  if (!response.ok) throw new Error('Errore fetch prenotazioni');
+
+  return await response.json();
 }
 
 async function fetchDatiCliente(params) {
