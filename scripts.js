@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.8');
+console.log('Imbriani Noleggio - Versione codice: 2.2.9');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -26,13 +26,8 @@ function validaCodiceFiscale(cf) {
   return regex.test(cf.toUpperCase());
 }
 
-function validaTelefono(tel) {
-  const regex = /^[0-9]{10}$/;
-  return regex.test(tel.replace(/\s/g, ''));
-}
-
 function mostraErrore(messaggio) {
-  if(document.querySelector('.error-banner')) return;
+  if (document.querySelector('.error-banner')) return;
   const errorDiv = document.createElement('div');
   errorDiv.className = 'error-banner';
   errorDiv.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
@@ -41,7 +36,7 @@ function mostraErrore(messaggio) {
 }
 
 function mostraSuccesso(messaggio) {
-  if(document.querySelector('.success-banner')) return;
+  if (document.querySelector('.success-banner')) return;
   const successDiv = document.createElement('div');
   successDiv.className = 'success-banner';
   successDiv.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
@@ -211,6 +206,7 @@ function mostraDatiCliente(dati) {
   document.getElementById('contenutoPersonale').innerHTML = html;
 }
 
+// FUNZIONI MODIFICA E CANCELLA: usano l'URL di gestione!
 function modificaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
   const formHtml = `
@@ -219,7 +215,7 @@ function modificaPrenotazione(p) {
       <label>Nome <input type="text" name="Nome" value="${p.nomeCognome || ''}" required></label>
       <label>Data di nascita <input type="text" name="Data di nascita" value="${p['Data di nascita'] || ''}" required></label>
       <label>Luogo di nascita <input type="text" name="Luogo di nascita" value="${p['Luogo di nascita'] || ''}" required></label>
-      <label>Numero patente <input type="text" name="Numero di patente" value="${p['Numero di patente'] || ''}" required></label>
+      <label>Numero di patente <input type="text" name="Numero di patente" value="${p['Numero di patente'] || ''}" required></label>
       <label>Data inizio validità patente <input type="text" name="Data inizio validità patente" value="${p['Data inizio validità patente'] || ''}" required></label>
       <label>Scadenza patente <input type="text" name="Scadenza patente" value="${p['Scadenza patente'] || ''}" required></label>
       <label>Ora inizio noleggio <input type="text" name="Ora inizio noleggio" value="${p['Ora inizio noleggio'] || ''}" required></label>
@@ -236,9 +232,13 @@ function modificaPrenotazione(p) {
     const formData = new FormData(this);
     const obj = {};
     formData.forEach((v, k) => obj[k] = v);
+
+    // LOG dati inviati
+    console.log('DATI MODIFICA INVIATI:', obj);
+
     fetchWithProxy(SCRIPTS.manageBooking, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(obj)
     })
     .then(r => r.text())
@@ -259,9 +259,13 @@ function cancellaPrenotazione(p) {
     dataFine: p['Giorno fine noleggio'],
     delete: true
   };
+
+  // LOG dati inviati
+  console.log('DATI CANCELLAZIONE INVIATI:', obj);
+
   fetchWithProxy(SCRIPTS.manageBooking, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(obj)
   })
   .then(r => r.text())
@@ -271,8 +275,6 @@ function cancellaPrenotazione(p) {
   })
   .catch(err => mostraErrore('Errore cancellazione: ' + err.message));
 }
-
-
 
 document.getElementById('btnNewBooking').addEventListener('click', () => {
   loggedCustomerData = null;
