@@ -5,6 +5,17 @@ body {
   min-height: 100vh;
   padding: 0;
 }
+.card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #37b24d15;
+  padding: 40px 32px 32px 32px;
+  margin: 30px auto;
+  max-width: 600px;
+}
+@media (max-width: 700px) {
+  .card { padding: 18px 6vw 24px 6vw; }
+}
 #mainbox {
   max-width: 700px;
   margin: 32px auto 54px;
@@ -173,7 +184,6 @@ h3 {
 /* ========================================
    STILI PER LE PRENOTAZIONI
    ======================================== */
-
 .prenotazioni-container {
   display: flex;
   flex-direction: column;
@@ -183,13 +193,11 @@ h3 {
   margin-left: auto;
   margin-right: auto;
 }
-
 .prenotazioni-container h3 {
   color: #27802a;
   margin-bottom: 8px;
   font-size: 1.2em;
 }
-
 .prenotazione-card {
   background: linear-gradient(135deg, #eafbe9 0%, #f9fff7 100%);
   border: 1.5px solid #b2e4b2;
@@ -198,12 +206,10 @@ h3 {
   box-shadow: 0 2px 6px rgba(55, 178, 77, 0.1);
   transition: all 0.3s ease;
 }
-
 .prenotazione-card:hover {
   box-shadow: 0 4px 16px rgba(55, 178, 77, 0.2);
   transform: translateY(-2px);
 }
-
 .prenotazione-header {
   display: flex;
   align-items: center;
@@ -214,19 +220,16 @@ h3 {
   padding-bottom: 8px;
   border-bottom: 2px solid #6fd24f;
 }
-
 .prenotazione-header .material-icons {
   font-size: 20px;
   color: #37b24d;
 }
-
 .prenotazione-date {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-bottom: 10px;
 }
-
 .date-item {
   display: flex;
   align-items: center;
@@ -234,17 +237,14 @@ h3 {
   font-size: 0.9em;
   color: #2c5d2a;
 }
-
 .date-item .material-icons {
   font-size: 16px;
   color: #37b24d;
 }
-
 .prenotazione-stato {
   display: flex;
   justify-content: flex-end;
 }
-
 .status {
   display: inline-flex;
   align-items: center;
@@ -253,25 +253,21 @@ h3 {
   font-weight: 600;
   font-size: 0.85em;
 }
-
 .status--success {
   background-color: rgba(55, 178, 77, 0.15);
   color: #27802a;
   border: 1px solid rgba(55, 178, 77, 0.3);
 }
-
 .status--warning {
   background-color: rgba(245, 158, 11, 0.15);
   color: #d97706;
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
-
 .status--info {
   background-color: rgba(59, 130, 246, 0.15);
   color: #2563eb;
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
-
 #btnNewBookingFromLogin {
   margin-top: 12px;
   width: 100%;
@@ -281,25 +277,20 @@ h3 {
   gap: 6px;
   padding: 10px 16px;
 }
-
 #btnNewBookingFromLogin .material-icons {
   font-size: 20px;
 }
-
 /* Responsive per mobile */
 @media (max-width: 600px) {
   .prenotazione-card {
     padding: 14px;
   }
-  
   .prenotazione-header {
     font-size: 1em;
   }
-  
   .date-item {
     font-size: 0.9em;
   }
-  
   .status {
     font-size: 0.85em;
     padding: 5px 10px;
@@ -308,39 +299,33 @@ h3 {
 /* ========================================
    STILI PER LA HOMEPAGE
    ======================================== */
-
 #homepage {
   max-width: 600px;
   margin: 0 auto;
   padding: 40px 20px;
 }
-
 #homepage h1 {
   text-align: center;
   font-size: 2em;
   margin-bottom: 8px;
 }
-
 #homepage p {
   text-align: center;
   color: #666;
   font-size: 1.1em;
   margin-bottom: 30px;
 }
-
 /* Form di login homepage */
 #loginFormHomepage {
   max-width: 500px;
   margin: 0 auto 30px auto;
 }
-
 #loginFormHomepage label {
   display: block;
   font-weight: 500;
   margin-bottom: 8px;
   color: #2c5d2a;
 }
-
 #cfInputHomepage {
   width: 100%;
   padding: 12px 16px;
@@ -350,13 +335,11 @@ h3 {
   margin-bottom: 12px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
 #cfInputHomepage:focus {
   outline: none;
   border-color: #37b24d;
   box-shadow: 0 0 0 3px rgba(55, 178, 77, 0.1);
 }
-
 #loginFormHomepage button[type="submit"] {
   width: 100%;
   padding: 12px 20px;
@@ -369,23 +352,19 @@ h3 {
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
 }
-
-#loginFormHomepage button[type="submit]:hover {
+#loginFormHomepage button[type="submit"]:hover {
   background: #2d9a3e;
   transform: translateY(-1px);
 }
-
-#loginFormHomepage button[type="submit]:active {
+#loginFormHomepage button[type="submit"]:active {
   transform: translateY(0);
 }
-
 #loginResultHomepage {
   margin-top: 20px;
   text-align: center;
   color: #2c5d2a;
   font-weight: 500;
 }
-
 /* Sezione nuovo cliente */
 .new-client-section {
   max-width: 500px;
@@ -398,12 +377,10 @@ h3 {
   align-items: center;
   justify-content: center;
 }
-
 .new-client-section p {
   margin-bottom: 16px;
   font-size: 1em;
 }
-
 #btnNewBooking {
   padding: 12px 24px;
   background: #37b24d;
@@ -418,34 +395,27 @@ h3 {
   align-items: center;
   justify-content: center;
 }
-
 #btnNewBooking:hover {
   background: #2d9a3e;
   transform: translateY(-1px);
 }
-
 #btnNewBooking:active {
   transform: translateY(0);
 }
-
 /* Responsive per mobile */
 @media (max-width: 600px) {
   #homepage {
     padding: 30px 16px;
   }
-  
   #homepage h1 {
     font-size: 1.6em;
   }
-  
   #homepage p {
     font-size: 1em;
   }
-  
   #cfInputHomepage {
     padding: 10px 14px;
   }
-  
   #loginFormHomepage button[type="submit"],
   #btnNewBooking {
     padding: 10px 18px;
@@ -454,71 +424,6 @@ h3 {
 /* ========================================
    MIGLIORAMENTI HOMEPAGE
    ======================================== */
-
-#homepage h1 .material-icons {
-  font-size: 1.2em;
-  vertical-align: middle;
-  color: #37b24d;
-  margin-right: 8px;
-}
-
-#loginFormHomepage button[type="submit"],
-#btnNewBooking {
-  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.2);
-}
-
-#loginFormHomepage button[type="submit"]:hover,
-#btnNewBooking:hover {
-  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.3);
-}
-
-#cfInputHomepage:focus {
-  border-color: #37b24d;
-  box-shadow: 0 0 0 4px rgba(55, 178, 77, 0.15);
-}
-
-#homepage {
-  padding-top: 60px;
-}
-
-#homepage p:first-of-type {
-  font-size: 1.05em;
-  color: #555;
-  margin-bottom: 40px;
-  line-height: 1.6;
-}
-/* Miglioramenti pulsante prenota */
-#btnNewBooking {
-  padding: 14px 28px;
-  background: linear-gradient(135deg, #37b24d 0%, #2d9a3e 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.05em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.25);
-}
-
-#btnNewBooking:hover {
-  background: linear-gradient(135deg, #2d9a3e 0%, #27802a 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(55, 178, 77, 0.35);
-}
-
-#btnNewBooking:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.2);
-}
-
-#btnNewBooking .material-icons {
-  font-size: 22px;
-}
 #homepage h2 {
   font-size: 1.3em;
   font-weight: 600;
@@ -528,7 +433,6 @@ h3 {
 .input-with-icon {
   position: relative;
 }
-
 .input-with-icon .material-icons {
   position: absolute;
   left: 14px;
@@ -538,7 +442,6 @@ h3 {
   font-size: 20px;
   pointer-events: none;
 }
-
 .input-with-icon #cfInputHomepage {
   padding-left: 44px;
 }
@@ -553,7 +456,6 @@ h3 {
 /* ========================================
    LOADING OVERLAY
    ======================================== */
-
 .loader-overlay {
   position: fixed;
   top: 0;
@@ -565,126 +467,95 @@ h3 {
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  backdrop-filter: blur(4px);
 }
-
 .loader-spinner {
   text-align: center;
   color: white;
 }
-
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
   border-top: 4px solid #37b24d;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 16px;
+  width: 56px;
+  height: 56px;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
 }
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-.loader-spinner p {
-  font-weight: 600;
-  font-size: 1.1em;
-}
-
-/* ========================================
-   ERROR E SUCCESS BANNERS
-   ======================================== */
-
 .error-banner,
 .success-banner {
   position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 14px 24px;
-  border-radius: 10px;
+  top: 24px;
+  right: 24px;
+  padding: 16px 20px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   z-index: 10000;
-  animation: slideIn 0.3s ease-out;
-  max-width: 90%;
+  animation: slideInRight 0.3s ease-out;
+  max-width: 420px;
+  font-size: 14px;
 }
-
 .error-banner {
-  background: #f44336;
-  color: white;
+  background: rgba(255, 230, 230, 0.95);
+  color: #c00;
+  border: 1px solid rgba(192, 0, 0, 0.3);
+  border-left: 4px solid #c00;
 }
-
 .success-banner {
-  background: #37b24d;
-  color: white;
+  background: rgba(230, 255, 230, 0.95);
+  color: #0a0;
+  border: 1px solid rgba(0, 170, 0, 0.3);
+  border-left: 4px solid #0a0;
 }
-
-.error-banner .material-icons,
-.success-banner .material-icons {
-  font-size: 24px;
-  color: white;
+@keyframes slideInRight {
+  from { transform: translateX(450px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-50%) translateY(-100px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(450px); opacity: 0; }
 }
-
-@keyframes slideOut {
-  from {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(-50%) translateY(-100px);
-    opacity: 0;
-  }
-}
-
 /* ========================================
    BACK BUTTON
    ======================================== */
-
 .btn-back {
-  background: transparent;
-  border: 2px solid #37b24d;
-  color: #37b24d;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 600;
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  background: white;
+  border: 1px solid #37b24d;
+  padding: 10px 16px;
+  border-radius: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  font-weight: 600;
+  color: #37b24d;
+  box-shadow: 0 2px 8px #37b24d55;
   transition: all 0.3s ease;
-  margin-bottom: 12px;
+  z-index: 10000;
+  font-size: 1em;
 }
-
 .btn-back:hover {
   background: #37b24d;
   color: white;
-  transform: translateX(-4px);
+  transform: translateX(-2px);
 }
-
 .btn-back .material-icons {
-  font-size: 20px;
+  font-size: 22px;
 }
-
 /* ========================================
    THANK YOU PAGE
    ======================================== */
-
 #thankyou {
   background: linear-gradient(135deg, #e1f9d9 0%, #f9fff7 100%);
   border-radius: 16px;
@@ -696,14 +567,12 @@ h3 {
   align-items: center;
   gap: 16px;
 }
-
 #thankyou h2 {
   color: #27802a;
   font-weight: 700;
   margin: 0;
   font-size: 1.8em;
 }
-
 #thankyou p {
   color: #2b6e21;
   font-weight: 500;
@@ -711,15 +580,26 @@ h3 {
   margin: 0;
   line-height: 1.6;
 }
-
 #thankyou button {
   margin-top: 16px;
+  background: #37b24d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 1.1em;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #37b24dcc;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
-
-/* ========================================
-   RESPONSIVE FIXES
-   ======================================== */
-
+#thankyou button:hover {
+  background: #2d9a3e;
+  transform: translateY(-2px);
+}
+#thankyou button:active {
+  transform: translateY(0);
+}
 @media (max-width: 600px) {
   .error-banner,
   .success-banner {
@@ -727,321 +607,47 @@ h3 {
     padding: 12px 16px;
     font-size: 0.9em;
   }
-  
-  .btn-back {
-    font-size: 0.9em;
-    padding: 6px 12px;
-  }
-}
-
-/* ========================================
-   INPUT VALIDATION STATES
-   ======================================== */
-
-input:invalid:not(:placeholder-shown) {
-  border-color: #f44336;
-}
-
-input:valid:not(:placeholder-shown) {
-  border-color: #37b24d;
-}
-
-select:invalid {
-  color: #999;
-}
-
-select:valid {
-  color: #2c5d2a;
-}
-/* ============================================
-   LOADER OVERLAY
-   ============================================ */
-
-.loader-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(31, 33, 33, 0.85);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: fadeIn 0.2s ease-in;
-}
-
-.loader-spinner {
-  text-align: center;
-  color: var(--color-text);
-}
-
-.loader-spinner p {
-  margin-top: 16px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.spinner {
-  border: 4px solid rgba(50, 184, 198, 0.2);
-  border-top: 4px solid var(--color-primary);
-  border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* ============================================
-   BANNER SUCCESSO/ERRORE
-   ============================================ */
-
-.error-banner,
-.success-banner {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  padding: 16px 20px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: var(--shadow-lg);
-  z-index: 10000;
-  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  max-width: 420px;
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  backdrop-filter: blur(8px);
-}
-
-.error-banner {
-  background: rgba(var(--color-error-rgb), 0.15);
-  color: var(--color-error);
-  border: 1px solid rgba(var(--color-error-rgb), 0.3);
-  border-left: 4px solid var(--color-error);
-}
-
-.success-banner {
-  background: rgba(var(--color-success-rgb), 0.15);
-  color: var(--color-success);
-  border: 1px solid rgba(var(--color-success-rgb), 0.3);
-  border-left: 4px solid var(--color-success);
-}
-
-.error-banner .material-icons,
-.success-banner .material-icons {
-  font-size: 24px;
-  flex-shrink: 0;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(450px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(450px);
-    opacity: 0;
-  }
-}
-
-/* Responsive: banner mobile */
-@media (max-width: 640px) {
-  .error-banner,
-  .success-banner {
-    top: 16px;
-    right: 16px;
-    left: 16px;
-    max-width: none;
-    font-size: var(--font-size-sm);
-  }
-  
-  @keyframes slideIn {
-    from {
-      transform: translateY(-100px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideOut {
-    from {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateY(-100px);
-      opacity: 0;
-    }
-  }
-}
-
-/* ============================================
-   BOTTONE INDIETRO
-   ============================================ */
-
-.btn-back {
-  position: fixed;
-  top: 24px;
-  left: 24px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: 10px 16px;
-  border-radius: var(--radius-base);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  color: var(--color-text);
-  transition: all var(--duration-fast) var(--ease-standard);
-  z-index: 100;
-  box-shadow: var(--shadow-sm);
-  font-size: var(--font-size-sm);
-}
-
-.btn-back:hover {
-  background: var(--color-secondary-hover);
-  transform: translateX(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-back:active {
-  transform: translateX(-1px);
-}
-
-.btn-back .material-icons {
-  font-size: 20px;
-}
-
-@media (max-width: 640px) {
   .btn-back {
     top: 16px;
     left: 16px;
     padding: 8px 12px;
-    font-size: var(--font-size-xs);
+    font-size: 0.9em;
   }
-  
   .btn-back .material-icons {
     font-size: 18px;
   }
 }
-
-/* ============================================
-   ANIMAZIONI SMOOTH PER STEP
-   ============================================ */
-
-.step {
-  animation: fadeInStep 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+/* ========================================
+   INPUT VALIDATION STATES
+   ======================================== */
+input:invalid:not(:placeholder-shown) {
+  border-color: #f44336;
 }
-
-@keyframes fadeInStep {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+input:valid:not(:placeholder-shown) {
+  border-color: #37b24d;
 }
-
-/* ============================================
-   STATO DI FOCUS MIGLIORATO
-   ============================================ */
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: var(--focus-outline);
-  outline-offset: 2px;
-  box-shadow: var(--focus-ring);
+select:invalid {
+  color: #999;
 }
-
-/* Rimuovi outline per mouse click ma mantienilo per tastiera */
-input:focus:not(:focus-visible),
-select:focus:not(:focus-visible),
-textarea:focus:not(:focus-visible) {
-  outline: none;
-  box-shadow: none;
+select:valid {
+  color: #2c5d2a;
 }
-
-/* ============================================
-   STATI DI VALIDAZIONE INPUT
-   ============================================ */
-
-input.valid {
-  border-color: var(--color-success);
-}
-
-input.invalid {
-  border-color: var(--color-error);
-}
-
-/* Icona di validazione */
-input.valid,
-input.invalid {
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px;
-  padding-right: 40px;
-}
-
-input.valid {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2337b24d' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
-}
-
-input.invalid {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23c0152f' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='15' y1='9' x2='9' y2='15'%3E%3C/line%3E%3Cline x1='9' y1='9' x2='15' y2='15'%3E%3C/line%3E%3C/svg%3E");
-}
-
-/* ============================================
+/* ========================================
    PULSANTI DISABILITATI
-   ============================================ */
-
+   ======================================== */
 .btn:disabled,
 .btn[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
 }
-
-/* ============================================
-   TOOLTIP HELPER (per futuri hint)
-   ============================================ */
-
+/* ========================================
+   TOOLTIP HELPER
+   ======================================== */
 .tooltip {
   position: relative;
   display: inline-block;
 }
-
 .tooltip::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -1058,19 +664,16 @@ input.invalid {
   pointer-events: none;
   transition: opacity var(--duration-fast);
 }
-
 .tooltip:hover::after {
   opacity: 1;
 }
-/* ============================================
+/* ========================================
    RIEPILOGO PRENOTAZIONE
-   ============================================ */
-
+   ======================================== */
 .riepilogo {
   max-width: 800px;
   margin: 0 auto;
 }
-
 .riepilogo-section {
   background: var(--color-surface);
   border: 1px solid var(--color-card-border);
@@ -1078,7 +681,6 @@ input.invalid {
   padding: 24px;
   margin-bottom: 20px;
 }
-
 .riepilogo-section h3 {
   margin: 0 0 20px 0;
   color: var(--color-text);
@@ -1086,40 +688,33 @@ input.invalid {
   border-bottom: 2px solid var(--color-primary);
   padding-bottom: 10px;
 }
-
 .riepilogo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
-
 .riepilogo-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .riepilogo-label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
 }
-
 .riepilogo-value {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
 }
-
 .riepilogo-actions {
   margin-top: 30px;
 }
-
 @media (max-width: 640px) {
   .riepilogo-grid {
     grid-template-columns: 1fr;
   }
-  
   .riepilogo-section {
     padding: 16px;
   }
