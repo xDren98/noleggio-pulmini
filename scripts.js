@@ -239,6 +239,45 @@ function renderPrenotazioni(prenotazioni) {
   }
   clearAndAppend(container, wrap);
 }
+/* =========================
+   ROUTING CON HISTORY API
+========================= */
+function routeTo(view, stepId) {
+  const home = document.getElementById('homepage');
+  const area = document.getElementById('areaPersonale');
+  const main = document.getElementById('mainbox');
+
+  if (view === 'home') {
+    if (home) home.style.display = 'block';
+    if (area) area.style.display = 'none';
+    if (main) main.style.display = 'none';
+  } else if (view === 'area') {
+    if (home) home.style.display = 'none';
+    if (area) area.style.display = 'block';
+    if (main) main.style.display = 'none';
+  } else if (view === 'wizard') {
+    if (home) home.style.display = 'none';
+    if (area) area.style.display = 'none';
+    if (main) main.style.display = 'flex';
+    if (stepId) showStep(stepId, { skipPush: true });
+  }
+}
+
+function initHistory() {
+  const hash = (location.hash || '').replace('#', '');
+  if (!history.state) {
+    if (hash === 'area') history.replaceState({ view: 'area' }, '', '#area');
+    else if (/^step[1-4]$/.test(hash)) history.replaceState({ view: 'wizard', step: hash }, '', '#' + hash);
+    else history.replaceState({ view: 'home' }, '', '#home');
+  }
+  const st = history.state || { view: 'home' };
+  routeTo(st.view, st.step);
+
+  window.addEventListener('popstate', (ev) => {
+    const state = ev.state || { view: 'home' };
+    routeTo(state.view, state.step);
+  });
+}
 
 /* =========================
    LOGIN E AREA PERSONALE
@@ -253,8 +292,8 @@ function setupAreaPersonale() {
   if (btnDati) btnDati.addEventListener('click', () => { renderDatiCliente(loggedCustomerData?.datiCompleti || null); });
   if (btnLogout) btnLogout.addEventListener('click', () => {
     loggedCustomerData = null;
-    const area = document.getElementById('areaPersonale'); if (area) area.style.display = 'none';
-    const home = document.getElementById('homepage'); if (home) home.style.display = 'block';
+routeTo('area');
+history.pushState({ view: 'area' }, '', '#area');
     const cont = document.getElementById('contenutoPersonale'); if (cont) cont.innerHTML = '';
   });
   if (btnNewBookingAP) btnNewBookingAP.addEventListener('click', () => startNewBookingWithPreFill());
@@ -381,12 +420,16 @@ async function cancellaPrenotazione(p) {
 /* =========================
    WIZARD: STEP 1 -> 4
 ========================= */
-function showStep(stepId) {
+function showStep(stepId, opts = {}) {
   qsa('.step').forEach(s => s.classList.remove('active'));
   const step = document.getElementById(stepId);
   if (step) step.classList.add('active');
   updateBackButton();
+  if (!opts.skipPush) {
+    history.pushState({ view: 'wizard', step: stepId }, '', '#' + stepId);
+  }
 }
+
 function updateBackButton() {
   let backBtn = document.getElementById('backBtn');
   if (!backBtn) {
@@ -401,15 +444,9 @@ function updateBackButton() {
   else backBtn.style.display = 'flex';
 }
 function goBack() {
-  if (qs('#step4')?.classList.contains('active')) showStep('step3');
-  else if (qs('#step3')?.classList.contains('active')) showStep('step2');
-  else if (qs('#step2')?.classList.contains('active')) showStep('step1');
-  else {
-    const main = document.getElementById('mainbox'); if (main) main.style.display = 'none';
-    const home = document.getElementById('homepage'); if (home) home.style.display = 'block';
-    const res = document.getElementById('loginResultHomepage'); if (res) res.textContent = '';
-  }
+  history.back();
 }
+
 
 /* Step 1: controlla disponibilità */
 async function controllaDisponibilita() {
@@ -832,15 +869,17 @@ function mostraThankYou() {
 /* =========================
    BOOTSTRAP
 ========================= */
+
 function startNewBookingWithPreFill() {
-  const home = document.getElementById('homepage'); if (home) home.style.display = 'none';
-  const mainbox = document.getElementById('mainbox'); if (mainbox) mainbox.style.display = 'flex';
-  showStep('step1');
+routeTo('wizard', 'step1');
+history.pushState({ view: 'wizard', step: 'step1' }, '', '#step1');
+showStep('step1', { skipPush: true });
   bookingData = bookingData || {};
   bookingData.autisti = bookingData.autisti || [];
 }
 function bootstrap() {
   // Login
+   initHistory();
   const formLogin = document.getElementById('loginFormHomepage');
   if (formLogin) formLogin.addEventListener('submit', handleLoginSubmit);
 
