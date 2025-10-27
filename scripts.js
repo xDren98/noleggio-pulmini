@@ -824,6 +824,52 @@ async function handleDeletePrenotazione(idPrenotazione) {
     mostraLoading(false);
   }
 }
+// ========== STEP 1 — Controlla Disponibilità ==========
+async function controllaDisponibilita() {
+  const dataR = qs('#data_ritiro')?.value || '';
+  const dataA = qs('#data_arrivo')?.value || '';
+  const oraR = qs('#ora_partenza')?.value || '';
+  const oraA = qs('#ora_arrivo')?.value || '';
+  
+  if (!dataR || !dataA) return mostraErrore('Compila le date');
+  if (new Date(dataR) > new Date(dataA)) {
+    return mostraErrore('Data fine precedente a data inizio');
+  }
+  
+  bookingData.dataRitiro = dataR;
+  bookingData.dataArrivo = dataA;
+  bookingData.oraRitiro = oraR;
+  bookingData.oraArrivo = oraA;
+  sessionStorage.setItem('imbriani_booking_draft', JSON.stringify(bookingData));
+  
+  mostraLoading(true);
+  try {
+    const res = await apiPostDisponibilita({ 
+      dataRitiro: dataR, 
+      dataArrivo: dataA, 
+      oraRitiro: oraR, 
+      oraArrivo: oraA 
+    });
+    
+    console.log(`⚡ Disponibilità caricata in ${res.executionTime || 'N/A'}ms (cache: ${res.cached || false})`);
+    
+    const vehicles = Array.isArray(res.vehicles) && res.vehicles.length 
+      ? res.vehicles 
+      : pulmini;
+    
+    renderPulminiCards(vehicles);
+    routeTo('wizard', 'step2');
+    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
+  } catch (err) {
+    console.error(err);
+    mostraErrore('Errore verifica disponibilità, uso catalogo base');
+    renderPulminiCards(pulmini);
+    routeTo('wizard', 'step2');
+    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
+  } finally {
+    mostraLoading(false);
+  }
+}
 
 // ========== STEP 2 — Card veicoli ==========
 function renderPulminiCards(vehicles) {
