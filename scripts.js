@@ -518,6 +518,7 @@ function vaiStep4() {
   showStep('step4');
   mostraRiepilogoPrenotazione();
 }
+
 function mostraRiepilogoPrenotazione() {
   const container = document.getElementById('riepilogo_container');
   if (!container) return;
