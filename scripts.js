@@ -1,5 +1,5 @@
 /* Imbriani Noleggio – scripts.js FINALE OTTIMIZZATO
-   Versione 5.3.0 COMPLETA
+   Versione 5.3.0 COMPLETA - CORRETTO
    
    INTEGRAZIONI v3.3.2 + OTTIMIZZAZIONI APPS SCRIPT:
    - History API completa con routeTo()
@@ -669,7 +669,7 @@ async function handleUpdatePrenotazione(idPrenotazione) {
 }
 
 async function handleDeletePrenotazione(idPrenotazione) {
-  if (!confirm('Confermi l'eliminazione?')) return;
+  if (!confirm('Confermi l\'eliminazione?')) return;
   
   mostraLoading(true);
   try {
@@ -1032,7 +1032,7 @@ function continuaStep3() {
   
   const eta = calcolaEta(a1.dataNascita);
   if (eta < 18 || eta > 100) {
-    return mostraErrore('L\'autista deve avere tra 18 e 100 anni');
+    return mostraErrore("L'autista deve avere tra 18 e 100 anni"); // ⬅️ CORRETTO
   }
   
   if (!a1.comuneResidenza || !a1.viaResidenza) {
@@ -1043,7 +1043,7 @@ function continuaStep3() {
   const oggi = new Date();
   const finePatente = new Date(a1.dataFineValiditaPatente);
   if (finePatente < oggi) {
-    return mostraErrore('La patente dell\'autista 1 è scaduta');
+    return mostraErrore("La patente dell'autista 1 è scaduta"); // ⬅️ CORRETTO
   }
   
   // Verifica coerenza date patente
@@ -1159,7 +1159,7 @@ async function inviaPrenotazione() {
       }
     } catch (err) {
       console.error(err);
-      mostraErrore(err.message || 'Errore durante l'invio');
+      mostraErrore(err.message || 'Errore durante l\'invio'); // ⬅️ CORRETTO
     } finally {
       mostraLoading(false);
     }
