@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.3 - Complete with Cellulare');
+console.log('Imbriani Noleggio - Versione codice: 2.2.4');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -612,6 +612,30 @@ function inviaPrenotazione() {
     mostraErrore('Dati prenotazione incompleti. Riprova dall\'inizio.');
     return;
   }
+
+  mostraLoading(true);
+
+  fetch('https://script.google.com/macros/s/AKfycbwy7ZO3hCMcjhPuOMFyJoJl_IRyDr_wfhALadDhFt__Yjg3FBFWqt7wbCjIm0iim9Ya/exec', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bookingData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    mostraLoading(false);
+    if (data.success) {
+      mostraSuccesso('Prenotazione inviata con successo! PDF creato.');
+      mostraThankYou();
+    } else {
+      mostraErrore('Errore nell\'invio: ' + (data.error || 'Errore sconosciuto'));
+    }
+  })
+  .catch(err => {
+    mostraLoading(false);
+    mostraErrore('Errore di rete: ' + err.message);
+  });
+}
+
 
   const formId = '11jQAzYFUg2Qgu-XyR5pj9hgzc992ZKeIeaHos2KBk7A';
   const formBaseUrl = `https://docs.google.com/forms/d/e/${formId}/viewform`;
