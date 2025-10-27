@@ -12,7 +12,7 @@
 /* =========================
    CONFIG E COSTANTI
 ========================= */
-console.log('Imbriani Noleggio - Versione codice: 3.3.0');
+console.log('Imbriani Noleggio - Versione codice: 3.3.1');
 
 const pulmini = [
   { id: 'ducato_lungo', nome: 'Fiat Ducato (Passo lungo)', targa: 'EC787NM' },
@@ -439,9 +439,7 @@ function updateBackButton() {
     const mainbox = document.getElementById('mainbox');
     if (mainbox) mainbox.insertBefore(backBtn, mainbox.firstChild);
   }
-  const isHomeVisible = (document.getElementById('homepage')?.style.display !== 'none');
-  if (qs('#step1')?.classList.contains('active') || isHomeVisible) backBtn.style.display = 'none';
-  else backBtn.style.display = 'flex';
+  backBtn.style.display = 'flex';
 }
 function goBack() {
   history.back();
@@ -836,14 +834,18 @@ async function inviaPrenotazione() {
     }
 
     if (res?.success) {
-      // Se il server restituisce l’ID, conservalo per eventuali azioni successive
-      const createdId = res.idPrenotazione || res.id || res.bookingId || null;
-      if (createdId) console.log('Nuova prenotazione ID:', createdId);
-      mostraSuccesso('Prenotazione inviata correttamente.'); 
-      mostraThankYou();
-    } else {
-      mostraErrore(res?.error || 'Invio prenotazione non riuscito.');
-    }
+  const createdId = res.idPrenotazione || res.id || res.bookingId || null;
+  if (createdId) console.log('Nuova prenotazione ID:', createdId);
+  mostraSuccesso('Prenotazione inviata correttamente.');
+  // reset stato prenotazione
+  bookingData = {};
+  // naviga a home e aggiorna cronologia/hash
+  routeTo('home');
+  history.pushState({ view: 'home' }, '', '#home');
+} else {
+  mostraErrore(res?.error || 'Invio prenotazione non riuscito.');
+}
+
   } catch (e) {
     console.error(e);
     mostraErrore('Errore di rete o server durante l’invio.');
@@ -880,6 +882,15 @@ showStep('step1', { skipPush: true });
 function bootstrap() {
   // Login
    initHistory();
+   // Click sul titolo → Home
+const title = document.querySelector('header h1');
+if (title) {
+  title.style.cursor = 'pointer';
+  title.addEventListener('click', () => {
+    routeTo('home');
+    history.pushState({ view: 'home' }, '', '#home');
+  });
+}
   const formLogin = document.getElementById('loginFormHomepage');
   if (formLogin) formLogin.addEventListener('submit', handleLoginSubmit);
 
