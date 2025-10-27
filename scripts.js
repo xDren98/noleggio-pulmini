@@ -210,12 +210,45 @@ function fetchWithProxy(url, options = {}) {
   return fetch(SCRIPTS.proxy + url, options); 
 }
 
-function withTimeout(promise, ms = 15000) {
+function withTimeout(promise, ms = 30000) { // ⬅️ AUMENTATO A 30 SECONDI
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('timeout')), ms);
     promise.then(v => { clearTimeout(t); resolve(v); })
           .catch(e => { clearTimeout(t); reject(e); });
   });
+}
+
+async function fetchJSON(url, options = {}) {
+  const maxRetries = 2; // ⬅️ RETRY AUTOMATICO
+  let lastError = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`📡 Tentativo ${attempt}/${maxRetries} per ${url}`);
+      
+      const res = await withTimeout(
+        fetchWithProxy(url, options), 
+        options.timeout || 30000 // ⬅️ 30 secondi default
+      );
+      
+      if (!res.ok) throw new Error(`http_${res.status}`);
+      
+      const json = await res.json();
+      console.log(`✅ Successo tentativo ${attempt}`);
+      return json;
+      
+    } catch (err) {
+      lastError = err;
+      console.warn(`⚠️ Tentativo ${attempt} fallito:`, err.message);
+      
+      if (attempt < maxRetries) {
+        // Aspetta 2 secondi prima di riprovare
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+  }
+  
+  throw lastError || new Error('Tutti i tentativi falliti');
 }
 
 async function fetchJSON(url, options = {}) {
