@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.5');
+console.log('Imbriani Noleggio - Versione codice: 2.2.6');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -13,12 +13,13 @@ const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbxiaQopj8bJ30oEmznJSVMRDoFGmxE8HITe18MUhb_LwZO1HYY6VrY49FsHJaih2Q/exec',
   datiCliente: 'https://script.google.com/macros/s/AKfycbwdLNztRhf5FFieplQbVXaPyKD2WzO2ChLZ7ky5Z0XYvRfWfOmQjqbOL_ditw5_3Z0/exec',
-  disponibilita: 'https://script.google.com/macros/s/AKfycbx-Rb1kq4XCEBcR2HfD7n2sv0pvw0XFxVvffmJGL9n8d5qaofObjFnnotKyI3Jkf-4/exec'
+  disponibilita: 'https://script.google.com/macros/s/AKfycbx-Rb1kq4XCEBcR2HfD7n2sv0pvw0XFxVvffmJGL9n8d5qaofObjFnnotKyI3Jkf-4/exec',
+  manageBooking: 'https://script.google.com/macros/s/AKfycbzI333v9xIlu2Ac0ThUnLhzK0PrxXyNSybL9g4pvmK6eR5UGPAlVgK8WukLq90AzYM/exec'
 };
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
+// ===============================
+// FUNZIONI UTILI ESISTENTI (validazioni e UI)
+// ===============================
 
 function validaCodiceFiscale(cf) {
   const regex = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/;
@@ -31,69 +32,21 @@ function validaTelefono(tel) {
 }
 
 function mostraErrore(messaggio) {
+  if(document.querySelector('.error-banner')) return; // evita duplicati
   const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `
-    position: fixed;
-    top: 24px;
-    right: 24px;
-    padding: 16px 20px;
-    background: rgba(255, 230, 230, 0.95);
-    color: #c00;
-    border: 1px solid rgba(192, 0, 0, 0.3);
-    border-left: 4px solid #c00;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    z-index: 10000;
-    font-size: 14px;
-    font-weight: 500;
-    max-width: 420px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: slideInRight 0.3s ease-out;
-  `;
+  errorDiv.className = 'error-banner';
   errorDiv.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
   document.body.prepend(errorDiv);
-  
-  setTimeout(() => {
-    errorDiv.style.transition = 'all 0.3s ease-out';
-    errorDiv.style.transform = 'translateX(450px)';
-    errorDiv.style.opacity = '0';
-    setTimeout(() => errorDiv.remove(), 300);
-  }, 4000);
+  setTimeout(() => errorDiv.remove(), 4000);
 }
 
 function mostraSuccesso(messaggio) {
+  if(document.querySelector('.success-banner')) return; // evita duplicati
   const successDiv = document.createElement('div');
-  successDiv.style.cssText = `
-    position: fixed;
-    top: 24px;
-    right: 24px;
-    padding: 16px 20px;
-    background: rgba(230, 255, 230, 0.95);
-    color: #0a0;
-    border: 1px solid rgba(0, 170, 0, 0.3);
-    border-left: 4px solid #0a0;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    z-index: 10000;
-    font-size: 14px;
-    font-weight: 500;
-    max-width: 420px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: slideInRight 0.3s ease-out;
-  `;
+  successDiv.className = 'success-banner';
   successDiv.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
   document.body.prepend(successDiv);
-  
-  setTimeout(() => {
-    successDiv.style.transition = 'all 0.3s ease-out';
-    successDiv.style.transform = 'translateX(450px)';
-    successDiv.style.opacity = '0';
-    setTimeout(() => successDiv.remove(), 300);
-  }, 4000);
+  setTimeout(() => successDiv.remove(), 4000);
 }
 
 function mostraLoading(show = true) {
@@ -102,86 +55,29 @@ function mostraLoading(show = true) {
     if (!loader) {
       loader = document.createElement('div');
       loader.id = 'globalLoader';
-      loader.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        backdrop-filter: blur(4px);
-      `;
+      loader.className = 'loader-overlay';
       loader.innerHTML = `
-        <div style="text-align: center; color: white;">
-          <div style="
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #fff;
-            border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 20px;
-          "></div>
-          <p style="font-size: 16px; font-weight: 500;">Caricamento in corso...</p>
-        </div>
-      `;
+        <div class="loader-spinner">
+          <div class="spinner"></div>
+          <p>Caricamento in corso...</p>
+        </div>`;
       document.body.appendChild(loader);
-      
-      // Aggiungi CSS per animazione spin
-      if (!document.getElementById('spinAnimation')) {
-        const style = document.createElement('style');
-        style.id = 'spinAnimation';
-        style.textContent = `
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          @keyframes slideInRight {
-            from { transform: translateX(450px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-          }
-        `;
-        document.head.appendChild(style);
-      }
     }
     loader.style.display = 'flex';
-  } else {
-    if (loader) loader.style.display = 'none';
+  } else if (loader) {
+    loader.style.display = 'none';
   }
 }
 
-function convertDateToIso(dateEuro) {
-  let parts = dateEuro.split('/');
-  if (parts.length !== 3) return '';
-  return `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
-
-function getData(prefix) {
-  const gg = document.getElementById('giorno_' + prefix).value;
-  const mm = document.getElementById('mese_' + prefix).value;
-  const aa = document.getElementById('anno_' + prefix).value;
-  return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
-}
-
-function getDataAutista(tipo, i) {
-  const gg = document.getElementById(`giorno_${tipo}_${i}`).value;
-  const mm = document.getElementById(`mese_${tipo}_${i}`).value;
-  const aa = document.getElementById(`anno_${tipo}_${i}`).value;
-  return gg && mm && aa ? `${gg}/${mm}/${aa}` : '';
-}
-
-// ============================================
-// LOGIN CLIENTE DA HOMEPAGE
-// ============================================
+// ===============================
+// GESTIONE LOGIN CLIENTE DA HOMEPAGE
+// ===============================
 
 document.getElementById('loginFormHomepage').addEventListener('submit', function(event) {
   event.preventDefault();
 
-  const cf = document.getElementById('cfInputHomepage').value.trim().toUpperCase();
+  const cfInput = document.getElementById('cfInputHomepage');
+  const cf = cfInput.value.trim().toUpperCase();
   const loginResult = document.getElementById('loginResultHomepage');
   loginResult.textContent = '';
 
@@ -197,21 +93,16 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cf })
-    }).then(r => r.text()).then(t => JSON.parse(t)),
-    
+    }).then(r => r.json()),
+
     fetch(SCRIPTS.proxy + SCRIPTS.datiCliente, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cf })
-    }).then(r => r.text()).then(t => JSON.parse(t))
-  ])
-  .then(([dataPrenotazioni, dataDatiCliente]) => {
+    }).then(r => r.json())
+  ]).then(([dataPrenotazioni, dataDatiCliente]) => {
     mostraLoading(false);
-    
-    console.log('=== DEBUG LOGIN ===');
-    console.log('Prenotazioni:', dataPrenotazioni);
-    console.log('Dati Cliente:', dataDatiCliente);
-    
+
     if (!dataPrenotazioni.success) {
       mostraErrore('Errore nel recupero prenotazioni: ' + (dataPrenotazioni.error || 'Errore non specificato'));
       return;
@@ -227,55 +118,172 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     };
 
     const nomeCliente = loggedCustomerData.datiCompleti?.nomeCognome || '';
-    mostraSuccesso(`Benvenuto ${nomeCliente}! Trovate ${dataPrenotazioni.prenotazioni.length} prenotazioni.`);
+    mostraSuccesso(`Benvenuto ${nomeCliente}!`);
 
-    let listaPrenotazioniHtml = '<div class="prenotazioni-container"><h3>Le tue prenotazioni:</h3>';
+    // Nascondi homepage e mostra area personale
+    document.getElementById('homepage').style.display = 'none';
+    document.getElementById('mainbox').style.display = 'none';
+    document.getElementById('areaPersonale').style.display = 'block';
 
-    dataPrenotazioni.prenotazioni.forEach(item => {
-      let statoClass = '';
-      if (item.stato === 'Prenotato') statoClass = 'status--info';
-      else if (item.stato === 'In corso') statoClass = 'status--warning';
-      else if (item.stato === 'Completato') statoClass = 'status--success';
+    setupAreaPersonale();
 
-      listaPrenotazioniHtml += `
-        <div class="card prenotazione-card">
-          <div class="card__body">
-            <div class="prenotazione-header">
-              <span class="material-icons">directions_bus</span>
-              <strong>${item.targa || 'N/D'}</strong>
-            </div>
-            <div class="prenotazione-date">
-              <div class="date-item">
-                <span class="material-icons">event</span>
-                <span><strong>Dal:</strong> ${item.dal || 'N/D'}</span>
-              </div>
-              <div class="date-item">
-                <span class="material-icons">event</span>
-                <span><strong>Al:</strong> ${item.al || 'N/D'}</span>
-              </div>
-            </div>
-            <div class="prenotazione-stato">
-              <span class="status ${statoClass}">${item.stato || 'N/D'}</span>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-
-    listaPrenotazioniHtml += '</div><button id="btnNewBookingFromLogin" class="btn btn--primary"><span class="material-icons">add</span> Prenota un nuovo noleggio</button>';
-
-    loginResult.innerHTML = listaPrenotazioniHtml;
-
-    document.getElementById('btnNewBookingFromLogin').addEventListener('click', () => {
-      startNewBookingWithPreFill();
-    });
-  })
-  .catch(err => {
+  }).catch(err => {
     mostraLoading(false);
-    console.error('Errore login:', err);
     mostraErrore('Errore durante la ricerca: ' + err.message);
   });
 });
+
+// ===============================
+// GESTIONE AREA PERSONALE
+// ===============================
+
+function setupAreaPersonale() {
+  document.getElementById('contenutoPersonale').innerHTML = '';
+
+  document.getElementById('btnVisualizzaPrenotazioni').onclick = () => {
+    caricaPrenotazioniCliente(loggedCustomerData.cf);
+  };
+
+  document.getElementById('btnVisualizzaDati').onclick = () => {
+    mostraDatiCliente(loggedCustomerData.datiCompleti);
+  };
+
+  document.getElementById('btnLogout').onclick = () => {
+    loggedCustomerData = null;
+    bookingData = {};
+    document.getElementById('areaPersonale').style.display = 'none';
+    document.getElementById('homepage').style.display = 'block';
+    document.getElementById('contenutoPersonale').innerHTML = '';
+    document.getElementById('cfInputHomepage').value = '';
+  };
+}
+
+function caricaPrenotazioniCliente(cf) {
+  mostraLoading(true);
+
+  fetch(SCRIPTS.proxy + SCRIPTS.prenotazioni, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cf }),
+  })
+  .then(r => r.json())
+  .then(data => {
+    mostraLoading(false);
+    if (!data.success) {
+      mostraErrore('Errore recupero prenotazioni: ' + (data.error || 'Sconosciuto'));
+      return;
+    }
+    if (!data.prenotazioni || data.prenotazioni.length === 0) {
+      document.getElementById('contenutoPersonale').innerHTML = '<p>Nessuna prenotazione trovata.</p>';
+      return;
+    }
+
+    let html = '<h3>Le tue prenotazioni</h3>';
+    html += data.prenotazioni.map(p => {
+      return `
+        <div class="prenotazione-card">
+          <strong>${p.nomeCognome || 'N/D'}</strong><br/>
+          Dal: ${p['Giorno inizio noleggio'] || 'N/D'} - Al: ${p['Giorno fine noleggio'] || 'N/D'}<br/>
+          Stato: ${p.stato || 'N/D'}<br/>
+          Targa: ${p.targa || 'N/D'}
+          <div style="margin-top:10px;">
+            <button onclick='modificaPrenotazione(${JSON.stringify(p)})'>Modifica</button>
+            <button onclick='cancellaPrenotazione(${JSON.stringify(p)})'>Cancella</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('contenutoPersonale').innerHTML = html;
+  })
+  .catch(err => {
+    mostraLoading(false);
+    mostraErrore('Errore caricamento prenotazioni: ' + err.message);
+  });
+}
+
+function mostraDatiCliente(dati) {
+  if (!dati) {
+    document.getElementById('contenutoPersonale').innerHTML = '<p>Dati cliente non disponibili.</p>';
+    return;
+  }
+  const html = `
+    <h3>I tuoi dati</h3>
+    <p><strong>Nome e Cognome:</strong> ${dati.nomeCognome}</p>
+    <p><strong>Data di Nascita:</strong> ${dati.dataNascita}</p>
+    <p><strong>Codice Fiscale:</strong> ${dati.codiceFiscale}</p>
+    <p><strong>Numero Patente:</strong> ${dati.numeroPatente}</p>
+    <p><strong>Validità Patente:</strong> dal ${dati.dataInizioValiditaPatente} al ${dati.dataFineValiditaPatente}</p>
+  `;
+  document.getElementById('contenutoPersonale').innerHTML = html;
+}
+
+function modificaPrenotazione(p) {
+  if (typeof p === 'string') p = JSON.parse(p);
+
+  const formHtml = `
+    <h3>Modifica prenotazione</h3>
+    <form id="formModificaPrenotazione">
+      <label>Nome <input type="text" name="Nome" value="${p.nomeCognome || ''}" required></label>
+      <label>Data di nascita <input type="text" name="Data di nascita" value="${p['Data di nascita'] || ''}" required></label>
+      <label>Luogo di nascita <input type="text" name="Luogo di nascita" value="${p['Luogo di nascita'] || ''}" required></label>
+      <label>Numero patente <input type="text" name="Numero di patente" value="${p['Numero di patente'] || ''}" required></label>
+      <label>Data inizio validità patente <input type="text" name="Data inizio validità patente" value="${p['Data inizio validità patente'] || ''}" required></label>
+      <label>Scadenza patente <input type="text" name="Scadenza patente" value="${p['Scadenza patente'] || ''}" required></label>
+      <label>Ora inizio noleggio <input type="text" name="Ora inizio noleggio" value="${p['Ora inizio noleggio'] || ''}" required></label>
+      <label>Ora fine noleggio <input type="text" name="Ora fine noleggio" value="${p['Ora fine noleggio'] || ''}" required></label>
+      <input type="hidden" name="cf" value="${p['Codice fiscale']}">
+      <input type="hidden" name="dataInizio" value="${p['Giorno inizio noleggio']}">
+      <input type="hidden" name="dataFine" value="${p['Giorno fine noleggio']}">
+      <button type="submit">Aggiorna</button>
+    </form>
+  `;
+
+  document.getElementById('contenutoPersonale').innerHTML = formHtml;
+
+  document.getElementById('formModificaPrenotazione').onsubmit = function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const obj = {};
+    formData.forEach((v, k) => obj[k] = v);
+
+    fetch(SCRIPTS.manageBooking, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(obj)
+    })
+    .then(r => r.text())
+    .then(msg => {
+      mostraSuccesso(msg);
+      caricaPrenotazioniCliente(obj.cf);
+    })
+    .catch(err => mostraErrore('Errore aggiornamento: ' + err.message));
+  };
+}
+
+function cancellaPrenotazione(p) {
+  if (typeof p === 'string') p = JSON.parse(p);
+  if (!confirm('Sei sicuro di cancellare questa prenotazione?')) return;
+
+  const obj = {
+    cf: p['Codice fiscale'],
+    dataInizio: p['Giorno inizio noleggio'],
+    dataFine: p['Giorno fine noleggio'],
+    delete: true
+  };
+
+  fetch(SCRIPTS.manageBooking, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(obj)
+  })
+  .then(r => r.text())
+  .then(msg => {
+    mostraSuccesso(msg);
+    caricaPrenotazioniCliente(obj.cf);
+  })
+  .catch(err => mostraErrore('Errore cancellazione: ' + err.message));
+}
 
 document.getElementById('btnNewBooking').addEventListener('click', () => {
   loggedCustomerData = null;
