@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.9');
+console.log('Imbriani Noleggio - Versione codice: 2.3.0');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -207,12 +207,14 @@ function mostraDatiCliente(dati) {
 }
 
 // FUNZIONI MODIFICA E CANCELLA: usano l'URL di gestione!
+
 function modificaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
+
   const formHtml = `
     <h3>Modifica prenotazione</h3>
     <form id="formModificaPrenotazione">
-      <label>Nome <input type="text" name="Nome" value="${p.nomeCognome || ''}" required></label>
+      <label>Nome <input type="text" name="Nome" value="${p.Nome || ''}" required></label>
       <label>Data di nascita <input type="text" name="Data di nascita" value="${p['Data di nascita'] || ''}" required></label>
       <label>Luogo di nascita <input type="text" name="Luogo di nascita" value="${p['Luogo di nascita'] || ''}" required></label>
       <label>Numero di patente <input type="text" name="Numero di patente" value="${p['Numero di patente'] || ''}" required></label>
@@ -220,9 +222,7 @@ function modificaPrenotazione(p) {
       <label>Scadenza patente <input type="text" name="Scadenza patente" value="${p['Scadenza patente'] || ''}" required></label>
       <label>Ora inizio noleggio <input type="text" name="Ora inizio noleggio" value="${p['Ora inizio noleggio'] || ''}" required></label>
       <label>Ora fine noleggio <input type="text" name="Ora fine noleggio" value="${p['Ora fine noleggio'] || ''}" required></label>
-      <input type="hidden" name="cf" value="${p['Codice fiscale']}">
-      <input type="hidden" name="dataInizio" value="${p['Giorno inizio noleggio']}">
-      <input type="hidden" name="dataFine" value="${p['Giorno fine noleggio']}">
+      <input type="hidden" name="idPrenotazione" value="${p['ID prenotazione']}">
       <button type="submit">Aggiorna</button>
     </form>
   `;
@@ -233,7 +233,6 @@ function modificaPrenotazione(p) {
     const obj = {};
     formData.forEach((v, k) => obj[k] = v);
 
-    // LOG dati inviati
     console.log('DATI MODIFICA INVIATI:', obj);
 
     fetchWithProxy(SCRIPTS.manageBooking, {
@@ -244,7 +243,7 @@ function modificaPrenotazione(p) {
     .then(r => r.text())
     .then(msg => {
       mostraSuccesso(msg);
-      caricaPrenotazioniCliente(obj.cf);
+      caricaPrenotazioniCliente(obj.idPrenotazione);
     })
     .catch(err => mostraErrore('Errore aggiornamento: ' + err.message));
   };
@@ -252,15 +251,14 @@ function modificaPrenotazione(p) {
 
 function cancellaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
+
   if (!confirm('Sei sicuro di cancellare questa prenotazione?')) return;
+
   const obj = {
-    cf: p['Codice fiscale'],
-    dataInizio: p['Giorno inizio noleggio'],
-    dataFine: p['Giorno fine noleggio'],
+    idPrenotazione: p['ID prenotazione'],
     delete: true
   };
 
-  // LOG dati inviati
   console.log('DATI CANCELLAZIONE INVIATI:', obj);
 
   fetchWithProxy(SCRIPTS.manageBooking, {
@@ -271,7 +269,7 @@ function cancellaPrenotazione(p) {
   .then(r => r.text())
   .then(msg => {
     mostraSuccesso(msg);
-    caricaPrenotazioniCliente(obj.cf);
+    caricaPrenotazioniCliente(obj.idPrenotazione);
   })
   .catch(err => mostraErrore('Errore cancellazione: ' + err.message));
 }
