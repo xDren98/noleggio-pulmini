@@ -3,405 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Area Personale - Prenotazioni</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; background: #f9f9f9; }
-    h1, h2 { color: #005a87; }
-    label { display: block; margin-top: 12px; }
-    input, select { padding: 8px; width: 100%; max-width: 400px; margin-top: 4px; }
-    button { margin-top: 12px; padding: 10px 20px; background-color: #0077cc; color: white; border: none; cursor: pointer; border-radius: 4px; }
-    button:hover { background-color: #005a87; }
-    .hidden { display: none; }
-    .prenotazione-card { background: white; padding: 15px; margin: 12px 0; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .prenotazione-card h3 { margin-top: 0; }
-    .btn-group { margin-top: 10px; }
-    .btn-group button { margin-right: 8px; }
-    .errore { color: red; margin-top: 10px; }
-    .successo { color: green; margin-top: 10px; }
-    .area-dati, .area-prenotazioni { margin-top: 20px; }
-    textarea { width: 100%; height: 80px; margin-top: 8px; }
-  </style>
+  <title>Imbriani Noleggio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Area Personale</h1>
-  
-  <!-- Login con Codice Fiscale -->
-  <div id="login-section">
-    <h2>Login</h2>
-    <label for="cf-input">Codice Fiscale:</label>
-    <input type="text" id="cf-input" placeholder="Inserisci codice fiscale" maxlength="16" />
-    <button id="btn-login">Entra</button>
-    <div id="login-error" class="errore hidden"></div>
-  </div>
-  
-  <!-- Menu Area Personale -->
-  <div id="menu-area" class="hidden">
-    <button id="btn-mie-prenotazioni">Le mie Prenotazioni</button>
-    <button id="btn-mia-anagrafica">La mia Anagrafica</button>
-    <button id="btn-logout">Logout</button>
-  </div>
+  <header>
+    <h1>
+      <span class="material-icons">directions_bus</span>
+      Imbriani Noleggio
+    </h1>
+    <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
+  </header>
+  <main>
+    <!-- HOME PAGE -->
+    <section id="homepage" class="card">
+      <h2>Hai già prenotato con noi?</h2>
+      <p>Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
+      <form id="loginFormHomepage">
+        <div class="input-with-icon">
+          <span class="material-icons">person</span>
+          <input type="text" id="cfInputHomepage" placeholder="Codice fiscale" required maxlength="16" />
+        </div>
+        <button type="submit">Accedi</button>
+      </form>
+      <div id="loginResultHomepage"></div>
+      <hr />
+      <h2>Prima volta con noi?</h2>
+      <p>
+        Prenota ora il tuo pulmino.
+        <button id="btnNewBooking">
+          <span class="material-icons">add_circle</span>
+          Prenota ora
+          <span class="badge-new">Facile!</span>
+        </button>
+      </p>
+    </section>
 
-  <!-- Sezione Prenotazioni -->
-  <div id="prenotazioni-section" class="hidden area-prenotazioni">
-    <h2>Le mie Prenotazioni</h2>
-    <div id="prenotazioni-list"></div>
-    <button id="btn-torna-menu-pre" style="margin-top:15px;">Torna al menu</button>
-  </div>
-
-  <!-- Sezione Anagrafica -->
-  <div id="anagrafica-section" class="hidden area-dati">
-    <h2>La mia Anagrafica</h2>
-    <div id="anagrafica-display"></div>
-    <button id="btn-torna-menu-an" style="margin-top:15px;">Torna al menu</button>
-  </div>
-
-  <!-- Modale Modifica Prenotazione -->
-  <div id="modale-modifica" class="hidden" style="background:#fff; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding: 20px; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 450px; z-index:100;">
-    <h3>Modifica Prenotazione</h3>
-    <form id="form-modifica">
-      <label for="mod-nome">Nome:</label>
-      <input type="text" id="mod-nome" name="Nome" required />
-
-      <label for="mod-data-nascita">Data di nascita:</label>
-      <input type="date" id="mod-data-nascita" name="Data di nascita" />
-
-      <label for="mod-luogo-nascita">Luogo di nascita:</label>
-      <input type="text" id="mod-luogo-nascita" name="Luogo di nascita" />
-
-      <label for="mod-numero-patente">Numero di patente:</label>
-      <input type="text" id="mod-numero-patente" name="Numero di patente" />
-
-      <label for="mod-data-inizio-patente">Data inizio validità patente:</label>
-      <input type="date" id="mod-data-inizio-patente" name="Data inizio validità patente" />
-
-      <label for="mod-scadenza-patente">Scadenza patente:</label>
-      <input type="date" id="mod-scadenza-patente" name="Scadenza patente" />
-
-      <label for="mod-ora-inizio-noleggio">Ora inizio noleggio:</label>
-      <input type="time" id="mod-ora-inizio-noleggio" name="Ora inizio noleggio" />
-
-      <label for="mod-ora-fine-noleggio">Ora fine noleggio:</label>
-      <input type="time" id="mod-ora-fine-noleggio" name="Ora fine noleggio" />
-
-      <div style="margin-top: 12px;">
-        <button type="submit">Salva</button>
-        <button type="button" id="btn-delete" style="background:#d9534f;">Elimina</button>
-        <button type="button" id="btn-cancel" style="background:#777; margin-left: 10px;">Annulla</button>
-      </div>
-    </form>
-    <div id="modale-message" class="successo errore" style="margin-top:10px;"></div>
-  </div>
-
-  <script>
-    (function() {
-      const cfInput = document.getElementById("cf-input");
-      const btnLogin = document.getElementById("btn-login");
-      const loginError = document.getElementById("login-error");
-      const loginSection = document.getElementById("login-section");
-
-      const menuArea = document.getElementById("menu-area");
-      const btnMiePrenotazioni = document.getElementById("btn-mie-prenotazioni");
-      const btnMiaAnagrafica = document.getElementById("btn-mia-anagrafica");
-      const btnLogout = document.getElementById("btn-logout");
-
-      const prenotazioniSection = document.getElementById("prenotazioni-section");
-      const prenotazioniList = document.getElementById("prenotazioni-list");
-      const btnTornaMenuPre = document.getElementById("btn-torna-menu-pre");
-
-      const anagraficaSection = document.getElementById("anagrafica-section");
-      const anagraficaDisplay = document.getElementById("anagrafica-display");
-      const btnTornaMenuAn = document.getElementById("btn-torna-menu-an");
-
-      const modaleModifica = document.getElementById("modale-modifica");
-      const formModifica = document.getElementById("form-modifica");
-      const btnDelete = document.getElementById("btn-delete");
-      const btnCancel = document.getElementById("btn-cancel");
-      const modaleMessage = document.getElementById("modale-message");
-
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzI333v9xIlu2Ac0ThUnLhzK0PrxXyNSybL9g4pvmK6eR5UGPAlVgK8WukLq90AzYM/exec";
-
-      let loggedCf = null;
-      let prenotazioniUtente = [];
-      let prenotazioneSelezionata = null;
-      let datiAnagrafici = null;
-
-      // Funzione per validare codice fiscale base (lunghezza e caratteri)
-      function validaCodiceFiscale(cf) {
-        return /^[A-Z0-9]{16}$/i.test(cf);
-      }
-
-      // Evento login
-      btnLogin.addEventListener("click", async () => {
-        loginError.classList.add("hidden");
-        const cf = cfInput.value.trim().toUpperCase();
-        if (!validaCodiceFiscale(cf)) {
-          loginError.textContent = "Codice fiscale non valido.";
-          loginError.classList.remove("hidden");
-          return;
-        }
-        // Simulazione login: carica prenotazioni e dati anagrafici
-        loggedCf = cf;
-        await caricaPrenotazioni(cf);
-        await caricaAnagrafica(cf);
-        loginSection.classList.add("hidden");
-        menuArea.classList.remove("hidden");
-        prenotazioniSection.classList.add("hidden");
-        anagraficaSection.classList.add("hidden");
-      });
-
-      // Logout
-      btnLogout.addEventListener("click", () => {
-        loggedCf = null;
-        prenotazioniUtente = [];
-        prenotazioneSelezionata = null;
-        datiAnagrafici = null;
-        loginSection.classList.remove("hidden");
-        menuArea.classList.add("hidden");
-        prenotazioniSection.classList.add("hidden");
-        anagraficaSection.classList.add("hidden");
-        prenotazioniList.innerHTML = "";
-        anagraficaDisplay.innerHTML = "";
-        cfInput.value = "";
-      });
-
-      // Mostra prenotazioni
-      btnMiePrenotazioni.addEventListener("click", () => {
-        mostraPrenotazioni();
-        prenotazioniSection.classList.remove("hidden");
-        menuArea.classList.add("hidden");
-        anagraficaSection.classList.add("hidden");
-      });
-      btnTornaMenuPre.addEventListener("click", () => {
-        prenotazioniSection.classList.add("hidden");
-        menuArea.classList.remove("hidden");
-      });
-
-      // Mostra anagrafica
-      btnMiaAnagrafica.addEventListener("click", () => {
-        mostraAnagrafica();
-        anagraficaSection.classList.remove("hidden");
-        menuArea.classList.add("hidden");
-        prenotazioniSection.classList.add("hidden");
-      });
-      btnTornaMenuAn.addEventListener("click", () => {
-        anagraficaSection.classList.add("hidden");
-        menuArea.classList.remove("hidden");
-      });
-
-      // Carica prenotazioni da Google Sheet tramite proxy (da implementare il fetch reale)
-      async function caricaPrenotazioni(cf) {
-        // Per test simuliamo caricamento
-        try {
-          // TODO: sostituire con vero fetch da API o backend
-          // Qui si dovrebbe filtrare lato backend, per ora simuliamo:
-          prenotazioniUtente = await fetchPrenotazioniSimulate(cf);
-          console.log("Prenotazioni caricate:", prenotazioniUtente);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-
-      // Carica anagrafica (idem simile)
-      async function caricaAnagrafica(cf) {
-        // Simulazione caricamento dati anagrafici per cf
-        datiAnagrafici = await fetchDatiAnagraficiSimulati(cf);
-      }
-
-      // Mostra lista prenotazioni
-      function mostraPrenotazioni() {
-        prenotazioniList.innerHTML = "";
-        if (prenotazioniUtente.length === 0) {
-          prenotazioniList.textContent = "Nessuna prenotazione trovata.";
-          return;
-        }
-        prenotazioniUtente.forEach((p, idx) => {
-          const card = document.createElement("div");
-          card.className = "prenotazione-card";
-          card.innerHTML = `
-            <h3>${p["Nome"]} - ${p["Giorno inizio noleggio"]} - ${p["Giorno fine noleggio"]}</h3>
-            <p><strong>Patente:</strong> ${p["Numero di patente"]} (Scadenza: ${p["Scadenza patente"]})</p>
-            <p><strong>Orario noleggio:</strong> da ${p["Ora inizio noleggio"]} a ${p["Ora fine noleggio"]}</p>
-            <div class="btn-group">
-              <button onclick="modificaPrenotazione(${idx})">Modifica</button>
-              <button onclick="eliminaPrenotazione(${idx})" style="background:#d9534f;">Elimina</button>
+    <!-- FORM DI PRENOTAZIONE -->
+    <section id="mainbox" style="display:none;" class="card">
+      <!-- STEP 1 -->
+      <div id="step1" class="step active">
+        <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
+        <div class="dataora-row">
+          <div class="data-col">
+            <label><span class="material-icons">calendar_month</span> Data ritiro</label>
+            <div class="date-inline">
+              <select id="giorno_ritiro"></select>
+              <select id="mese_ritiro"></select>
+              <select id="anno_ritiro"></select>
             </div>
-          `;
-          prenotazioniList.appendChild(card);
-        });
-      }
+          </div>
+          <div class="ora-col">
+            <label><span class="material-icons">access_time</span> Ora ritiro</label>
+            <select id="ora_partenza">
+              <option value="08:00">08:00</option>
+              <option value="12:00">12:00</option>
+              <option value="16:00">16:00</option>
+              <option value="20:00">20:00</option>
+            </select>
+          </div>
+        </div>
+        <div class="dataora-row">
+          <div class="data-col">
+            <label><span class="material-icons">calendar_month</span> Data arrivo</label>
+            <div class="date-inline">
+              <select id="giorno_arrivo"></select>
+              <select id="mese_arrivo"></select>
+              <select id="anno_arrivo"></select>
+            </div>
+          </div>
+          <div class="ora-col">
+            <label><span class="material-icons">access_time</span> Ora arrivo</label>
+            <select id="ora_arrivo">
+              <option value="08:00">08:00</option>
+              <option value="12:00">12:00</option>
+              <option value="16:00">16:00</option>
+              <option value="20:00">20:00</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button onclick="controllaDisponibilita()">
+            <span class="material-icons">search</span>
+            Verifica disponibilità
+          </button>
+        </div>
+      </div>
 
-      // Funzione apertura modale modifica
-      window.modificaPrenotazione = function(idx) {
-        prenotazioneSelezionata = prenotazioniUtente[idx];
-        if(!prenotazioneSelezionata) return;
+      <!-- STEP 2 -->
+      <div id="step2" class="step">
+        <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
+        <label for="scelta_pulmino">
+          <span class="material-icons">directions_bus</span> Scegli il pulmino:
+        </label>
+        <select id="scelta_pulmino"></select>
+        <div class="actions">
+          <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled>
+            <span class="material-icons">arrow_forward</span>
+            Continua
+          </button>
+        </div>
+      </div>
 
-        formModifica["Nome"].value = prenotazioneSelezionata["Nome"] || "";
-        formModifica["Data di nascita"].value = formatDataInput(prenotazioneSelezionata["Data di nascita"]) || "";
-        formModifica["Luogo di nascita"].value = prenotazioneSelezionata["Luogo di nascita"] || "";
-        formModifica["Numero di patente"].value = prenotazioneSelezionata["Numero di patente"] || "";
-        formModifica["Data inizio validità patente"].value = formatDataInput(prenotazioneSelezionata["Data inizio validità patente"]) || "";
-        formModifica["Scadenza patente"].value = formatDataInput(prenotazioneSelezionata["Scadenza patente"]) || "";
-        formModifica["Ora inizio noleggio"].value = prenotazioneSelezionata["Ora inizio noleggio"] || "";
-        formModifica["Ora fine noleggio"].value = prenotazioneSelezionata["Ora fine noleggio"] || "";
+      <!-- STEP 3 -->
+      <div id="step3" class="step">
+        <label><span class="material-icons">group</span> Inserisci i dati autisti:</label>
+        <select id="num_autisti">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+        <div id="autisti_container"></div>
+        <label><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
+        <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
+        <div class="actions">
+          <button onclick="vaiStep4()">
+            <span class="material-icons">arrow_forward</span>
+            Continua
+          </button>
+        </div>
+      </div>
 
-        modaleMessage.textContent = "";
-        modaleMessage.className = "";
-        modaleModifica.classList.remove("hidden");
-      };
-
-      btnCancel.addEventListener("click", () => {
-        modaleModifica.classList.add("hidden");
-      });
-
-      // Form submit per modifica
-      formModifica.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if(!prenotazioneSelezionata) return;
-
-        const datiDaInviare = {
-          cf: loggedCf,
-          dataInizio: prenotazioneSelezionata["Giorno inizio noleggio"],
-          dataFine: prenotazioneSelezionata["Giorno fine noleggio"],
-        };
-
-        const campiModificabili = [
-          "Nome",
-          "Data di nascita",
-          "Luogo di nascita",
-          "Numero di patente",
-          "Data inizio validità patente",
-          "Scadenza patente",
-          "Ora inizio noleggio",
-          "Ora fine noleggio"
-        ];
-
-        campiModificabili.forEach(campo => {
-          datiDaInviare[campo] = formModifica[campo].value;
-        });
-
-        modaleMessage.textContent = "Invio in corso...";
-        try {
-          const res = await fetch(WEB_APP_URL, {
-            method: "POST",
-            body: JSON.stringify(datiDaInviare),
-            headers: { "Content-Type": "application/json" }
-          });
-          const json = await res.json();
-          if(json.status === "ok"){
-            modaleMessage.textContent = "Modifica effettuata con successo.";
-            aggiornaListaPrenotazioni(datiDaInviare);
-            setTimeout(() => modaleModifica.classList.add("hidden"), 1500);
-          } else {
-            modaleMessage.className = "errore";
-            modaleMessage.textContent = "Errore: " + json.message;
-          }
-        } catch (ex) {
-          modaleMessage.className = "errore";
-          modaleMessage.textContent = "Errore nella richiesta.";
-        }
-      });
-
-      // Funzione elimina prenotazione
-      window.eliminaPrenotazione = async function(idx) {
-        if (!confirm("Sei sicuro di voler eliminare questa prenotazione?")) return;
-        const p = prenotazioniUtente[idx];
-        if(!p) return;
-
-        const datiDaInviare = {
-          cf: loggedCf,
-          dataInizio: p["Giorno inizio noleggio"],
-          dataFine: p["Giorno fine noleggio"],
-          delete: true
-        };
-
-        try {
-          const res = await fetch(WEB_APP_URL, {
-            method: "POST",
-            body: JSON.stringify(datiDaInviare),
-            headers: { "Content-Type": "application/json" }
-          });
-          const json = await res.json();
-          if(json.status === "ok"){
-            alert("Prenotazione eliminata con successo.");
-            prenotazioniUtente.splice(idx, 1);
-            mostraPrenotazioni();
-          } else {
-            alert("Errore: " + json.message);
-          }
-        } catch (ex) {
-          alert("Errore nella richiesta.");
-        }
-      };
-
-      // Aggiorna la lista interna dopo modifica
-      function aggiornaListaPrenotazioni(dati) {
-        let foundIndex = prenotazioniUtente.findIndex(p => 
-          p["Giorno inizio noleggio"] === dati.dataInizio &&
-          p["Giorno fine noleggio"] === dati.dataFine &&
-          p["Codice fiscale"] === dati.cf);
-        if(foundIndex !== -1){
-          prenotazioniUtente[foundIndex] = {...prenotazioniUtente[foundIndex], ...dati};
-          mostraPrenotazioni();
-        }
-      }
-
-      // Mostra anagrafica utente in modo semplice
-      function mostraAnagrafica() {
-        if (!datiAnagrafici) {
-          anagraficaDisplay.textContent = "Nessun dato anagrafico disponibile.";
-          return;
-        }
-        let html = `<p><strong>Nome:</strong> ${datiAnagrafici.Nome || ""}</p>`;
-        html += `<p><strong>Data di nascita:</strong> ${datiAnagrafici["Data di nascita"] || ""}</p>`;
-        html += `<p><strong>Luogo di nascita:</strong> ${datiAnagrafici["Luogo di nascita"] || ""}</p>`;
-        html += `<p><strong>Codice fiscale:</strong> ${loggedCf}</p>`;
-        html += `<p><strong>Numero di patente:</strong> ${datiAnagrafici["Numero di patente"] || ""}</p>`;
-        html += `<p><strong>Data inizio validità patente:</strong> ${datiAnagrafici["Data inizio validità patente"] || ""}</p>`;
-        html += `<p><strong>Scadenza patente:</strong> ${datiAnagrafici["Scadenza patente"] || ""}</p>`;
-        anagraficaDisplay.innerHTML = html;
-      }
-
-      // Utility per formattare data da formato dd/mm/yyyy a yyyy-mm-dd per input date
-      function formatDataInput(dataStr) {
-        if(!dataStr) return "";
-        const parts = dataStr.split("/");
-        if(parts.length !== 3) return "";
-        return `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
-      }
-
-      // Simulazioni: sostituisci con fetch vero a backend o API per prenotazioni e anagrafica
-      async function fetchPrenotazioniSimulate(cf) {
-        // TODO: implementa caricamento reale prenotazioni
-        // Per test simuliamo qualche dato
-        return [
-          {
-            "Nome": "Salvatore Ciurlia",
-            "Giorno inizio noleggio": "24/10/2025",
-            "Giorno fine noleggio": "26/10/2025",
-            "Numero di patente": "LE5661529X",
-            "Scadenza patente": "08/11/2029",
-            "Ora inizio noleggio": "08:00",
-            "Ora fine noleggio": "18:00",
-            "Codice fiscale": cf,
-            "Data di nascita": "29/03/1970",
-            "Luogo di nascita": "Carmiano",
-            "Data inizio validità patente": "28/11/2024"
-          }
-        ];
-      }
-
-      async function fetchDatiAnagraficiSimulati(cf) {
-        // TODO: implementa caricamento reale dati anagrafici
-        return {
-          "Nome": "Salvatore Ciurlia",
-          "Data di nascita": "29/03/1970",
-          "Luogo di nascita": "Carmiano",
-          "Numero di patente": "LE5661529X",
-          "Data inizio validità patente": "28/11/2024",
-          "Scadenza patente": "08/11/2029"
-        };
-      }
-    })();
-  </script>
+      <!-- STEP 4 -->
+      <div id="step4" class="step">
+        <h2>Verifica Dati</h2>
+        <p>Controlla attentamente i dati prima di confermare la prenotazione</p>
+        <div id="riepilogo_container"></div>
+      </div>
+    </section>
+  </main>
+  <script src="scripts.js" defer></script>
 </body>
 </html>
