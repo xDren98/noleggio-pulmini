@@ -785,89 +785,41 @@ async function handleDeletePrenotazione(idPrenotazione) {
     
     mostraSuccesso('Prenotazione eliminata con successo');
     
-    // ⬇️ FIX: Aspetta 500ms per dare tempo al server di aggiornare
+    // ⬇️ FIX: Aspetta 500ms per dare tempo al server
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // ⬇️ FIX: Invalida cache manualmente forzando timestamp
-    const cacheKey = 'prenotazioni_' + loggedCustomerData.codiceFiscale;
-    sessionStorage.removeItem(cacheKey);
-    
-    // Ricarica dati freschi (bypassa cache)
+    // ⬇️ FIX: Ricarica dati freschi dal server (bypassa cache)
     if (loggedCustomerData && loggedCustomerData.codiceFiscale) {
-      mostraLoading(true);
       try {
         const prenotazioniRes = await apiPostPrenotazioni(loggedCustomerData.codiceFiscale);
         
-        // Svuota e ricarica mappa
+        // Svuota e ricarica mappa con dati freschi
         prenotazioniMap.clear();
         if (Array.isArray(prenotazioniRes.prenotazioni)) {
           prenotazioniRes.prenotazioni.forEach(p => {
-            if (p['ID prenotazione']) prenotazioniMap.set(p['ID prenotazione'], p);
+            if (p['ID prenotazione']) {
+              prenotazioniMap.set(p['ID prenotazione'], p);
+            }
           });
         }
         
-        console.log('📋 Prenotazioni ricaricate:', prenotazioniMap.size);
+        console.log('✅ Prenotazioni ricaricate:', prenotazioniMap.size);
         
-        // Rendi area personale
+        // ⬇️ FIX: Ri-renderizza area personale con dati aggiornati
         renderAreaPersonale();
+        
+        // Torna alla vista area personale
         routeTo('area');
+        history.pushState({ view: 'area' }, '', '#area');
         
       } catch (err) {
         console.error('❌ Errore ricaricamento:', err);
-      } finally {
-        mostraLoading(false);
+        mostraErrore('Prenotazione eliminata, ma errore ricaricamento lista');
       }
     }
   } catch (err) {
     console.error('❌ Errore DELETE:', err);
     mostraErrore(err.message || 'Impossibile eliminare la prenotazione');
-  } finally {
-    mostraLoading(false);
-  }
-}
-
-// ========== STEP 1 — Date/Orari ==========
-async function controllaDisponibilita() {
-  const dataR = qs('#data_ritiro')?.value || '';
-  const dataA = qs('#data_arrivo')?.value || '';
-  const oraR = qs('#ora_partenza')?.value || '';
-  const oraA = qs('#ora_arrivo')?.value || '';
-  
-  if (!dataR || !dataA) return mostraErrore('Compila le date');
-  if (new Date(dataR) > new Date(dataA)) {
-    return mostraErrore('Data fine precedente a data inizio');
-  }
-  
-  bookingData.dataRitiro = dataR;
-  bookingData.dataArrivo = dataA;
-  bookingData.oraRitiro = oraR;
-  bookingData.oraArrivo = oraA;
-  sessionStorage.setItem('imbriani_booking_draft', JSON.stringify(bookingData));
-  
-  mostraLoading(true);
-  try {
-    const res = await apiPostDisponibilita({ 
-      dataRitiro: dataR, 
-      dataArrivo: dataA, 
-      oraRitiro: oraR, 
-      oraArrivo: oraA 
-    });
-    
-    console.log(`⚡ Disponibilità caricata in ${res.executionTime || 'N/A'}ms (cache: ${res.cached || false})`);
-    
-    const vehicles = Array.isArray(res.vehicles) && res.vehicles.length 
-      ? res.vehicles 
-      : pulmini;
-    
-    renderPulminiCards(vehicles);
-    routeTo('wizard', 'step2');
-    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
-  } catch (err) {
-    console.error(err);
-    mostraErrore('Errore verifica disponibilità, uso catalogo base');
-    renderPulminiCards(pulmini);
-    routeTo('wizard', 'step2');
-    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
   } finally {
     mostraLoading(false);
   }
@@ -1426,5 +1378,5 @@ window.ImbrianiApp = {
   mostraSuccesso,
   bookingData: () => bookingData,
   loggedUser: () => loggedCustomerData,
-  version: '5.3.4'
+  version: '5.3.5'
 };
