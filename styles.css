@@ -1032,3 +1032,33 @@ function mostraRiepilogo() {
   
   clearAndAppend(root, ...elements);
 }
+/* Uniforma TUTTI gli input del form autisti */
+.form-autista input[type="text"],
+.form-autista input[type="date"],
+.form-autista input[type="tel"],
+.form-autista input[type="email"],
+.form-autista input {
+  width: 100% !important;
+  padding: 10px !important;
+  margin-bottom: 15px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  font-size: 16px !important;
+  box-sizing: border-box !important;
+  background-color: white !important;
+}
+
+/* Rimuovi bordi verdi */
+.form-autista input:focus {
+  outline: none !important;
+  border-color: #4CAF50 !important;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2) !important;
+}
+
+/* Label uniformi */
+.form-autista label {
+  display: block !important;
+  margin-bottom: 5px !important;
+  font-weight: 500 !important;
+  color: #333 !important;
+}

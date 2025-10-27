@@ -988,95 +988,123 @@ function buildAutistaForm(index, prefill = {}) {
     finePatenteISO = convertDateToIso(finePatenteISO);
   }
   
+  // Stile uniforme per tutti gli input
+  const inputStyle = 'width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; background: white;';
+  const labelStyle = 'display: block; margin-bottom: 5px; font-weight: 500; color: #333;';
+  
   const container = el('div', { 
     class: 'card form-autista', 
-    dataset: { index } 
+    dataset: { index },
+    style: 'margin-bottom: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;'
   },
-    el('h4', { text: `Autista ${index}` }),
+    el('h4', { text: `👤 Autista ${index}`, style: 'margin-top: 0; color: #4CAF50;' }),
     
-    el('label', {}, 'Nome e Cognome ', 
-      el('input', { 
-        id: `nome_${index}`, 
-        value: asString(prefill.nomeCognome, ''), 
-        required: true,
-        placeholder: 'Mario Rossi'
-      })
-    ),
+    // Nome e Cognome
+    el('label', { style: labelStyle }, 'Nome e Cognome'),
+    el('input', { 
+      id: `nome_${index}`, 
+      type: 'text',
+      value: asString(prefill.nomeCognome, ''), 
+      required: true,
+      placeholder: 'Mario Rossi',
+      style: inputStyle
+    }),
     
-    el('label', {}, 'Data di nascita'),
+    // Data di nascita
+    el('label', { style: labelStyle }, 'Data di nascita'),
     el('input', { 
       id: `data_nascita_${index}`, 
       type: 'date', 
       value: dataNascitaISO,
       required: true,
-      max: new Date().toISOString().split('T')[0]
+      max: new Date().toISOString().split('T')[0],
+      style: inputStyle
     }),
     
-    el('label', {}, 'Luogo di nascita ', 
-      el('input', { 
-        id: `luogo_${index}`, 
-        value: asString(prefill.luogoNascita, ''), 
-        required: true 
-      })
-    ),
+    // Luogo di nascita
+    el('label', { style: labelStyle }, 'Luogo di nascita'),
+    el('input', { 
+      id: `luogo_${index}`, 
+      type: 'text',
+      value: asString(prefill.luogoNascita, ''), 
+      required: true,
+      style: inputStyle
+    }),
     
-    el('label', {}, 'Codice fiscale ', 
-      el('input', { 
-        id: `cf_${index}`, 
-        value: asString(prefill.codiceFiscale, ''), 
-        required: true,
-        maxlength: 16,
-        style: 'text-transform: uppercase'
-      })
-    ),
+    // Codice fiscale
+    el('label', { style: labelStyle }, 'Codice fiscale'),
+    el('input', { 
+      id: `cf_${index}`, 
+      type: 'text',
+      value: asString(prefill.codiceFiscale, ''), 
+      required: true,
+      maxlength: 16,
+      placeholder: 'RSSMRA90A01H501T',
+      style: inputStyle + ' text-transform: uppercase;'
+    }),
     
-    el('label', {}, 'Comune di residenza ', 
-      el('input', { 
-        id: `comune_residenza_${index}`, 
-        value: asString(prefill.comuneResidenza, ''), 
-        required: true 
-      })
-    ),
+    // Comune di residenza
+    el('label', { style: labelStyle }, 'Comune di residenza'),
+    el('input', { 
+      id: `comune_residenza_${index}`, 
+      type: 'text',
+      value: asString(prefill.comuneResidenza, ''), 
+      required: true,
+      style: inputStyle
+    }),
     
-    el('label', {}, 'Via di residenza ', 
-      el('input', { 
-        id: `via_residenza_${index}`, 
-        value: asString(prefill.viaResidenza, ''), 
-        required: true,
-        placeholder: 'Garibaldi (senza Via/Viale)'
-      })
-    ),
+    // Via di residenza
+    el('label', { style: labelStyle }, 'Via di residenza'),
+    el('input', { 
+      id: `via_residenza_${index}`, 
+      type: 'text',
+      value: asString(prefill.viaResidenza, ''), 
+      required: true,
+      placeholder: 'Garibaldi (senza Via/Viale)',
+      style: inputStyle
+    }),
     
-    el('label', {}, 'Civico di residenza ', 
-      el('input', { 
-        id: `civico_residenza_${index}`, 
-        value: asString(prefill.civicoResidenza, ''), 
-        required: true 
-      })
-    ),
+    // Civico di residenza
+    el('label', { style: labelStyle }, 'Civico di residenza'),
+    el('input', { 
+      id: `civico_residenza_${index}`, 
+      type: 'text',
+      value: asString(prefill.civicoResidenza, ''), 
+      required: true,
+      placeholder: '10',
+      style: inputStyle
+    }),
     
-    el('label', {}, 'Numero di patente ', 
-      el('input', { 
-        id: `patente_${index}`, 
-        value: asString(prefill.numeroPatente, ''), 
-        required: true 
-      })
-    ),
+    // Numero di patente
+    el('label', { style: labelStyle }, 'Numero di patente'),
+    el('input', { 
+      id: `patente_${index}`, 
+      type: 'text',
+      value: asString(prefill.numeroPatente, ''), 
+      required: true,
+      placeholder: 'RM1234567A',
+      style: inputStyle
+    }),
     
-    el('label', {}, 'Data inizio validità patente'),
+    // Data inizio validità patente
+    el('label', { style: labelStyle }, 'Data inizio validità patente'),
     el('input', { 
       id: `data_inizio_pat_${index}`, 
       type: 'date', 
       value: inizioPatenteISO,
-      required: true
+      required: true,
+      style: inputStyle
     }),
     
-    el('label', {}, 'Scadenza patente'),
+    // Scadenza patente
+    el('label', { style: labelStyle }, 'Scadenza patente'),
     el('input', { 
       id: `data_fine_pat_${index}`, 
       type: 'date', 
       value: finePatenteISO,
-      required: true
+      required: true,
+      min: new Date().toISOString().split('T')[0],
+      style: inputStyle
     })
   );
   
