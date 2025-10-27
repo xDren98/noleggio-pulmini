@@ -390,9 +390,63 @@ async function handleLogin(cf) {
       apiPostPrenotazioni(cf)
     ]);
     
-    if (!dati || !dati.cliente) throw new Error('Nessun cliente trovato');
+    console.log('🔍 Risposta datiCliente:', dati); // DEBUG
+    console.log('🔍 Risposta prenotazioni:', prenotazioniRes); // DEBUG
     
-    const cliente = dati.cliente;
+    // FIX: verifica struttura risposta
+    if (!dati || (!dati.cliente && !dati.nome)) {
+      throw new Error('Nessun cliente trovato');
+    }
+    
+    // Supporta sia dati.cliente che dati direttamente
+    const cliente = dati.cliente || dati;
+    
+    loggedCustomerData = {
+      nome: asString(cliente.nomeCognome || cliente.nome, ''),
+      dataNascita: asString(cliente.dataNascita, ''),
+      luogoNascita: asString(cliente.luogoNascita, ''),
+      codiceFiscale: cf.toUpperCase(),
+      comuneResidenza: asString(cliente.comuneResidenza, ''),
+      viaResidenza: asString(cliente.viaResidenza, ''),
+      civicoResidenza: asString(cliente.civicoResidenza, ''),
+      numeroPatente: asString(cliente.numeroPatente, ''),
+      dataInizioValiditaPatente: asString(cliente.dataInizioValiditaPatente, ''),
+      dataFineValiditaPatente: asString(cliente.dataFineValiditaPatente, ''),
+      cellulare: asString(cliente.cellulare, '')
+    };
+    
+    console.log('👤 loggedCustomerData:', loggedCustomerData); // DEBUG
+    
+    prenotazioniMap.clear();
+    if (Array.isArray(prenotazioniRes.prenotazioni)) {
+      prenotazioniRes.prenotazioni.forEach(p => {
+        if (p['ID prenotazione']) prenotazioniMap.set(p['ID prenotazione'], p);
+      });
+    }
+    
+    console.log('📋 prenotazioniMap size:', prenotazioniMap.size); // DEBUG
+    
+    sessionStorage.setItem('imbriani_logged_user', JSON.stringify(loggedCustomerData));
+    renderAreaPersonale();
+    routeTo('area');
+    history.pushState({ view: 'area' }, '', '#area');
+    
+    // Mostra performance se disponibile
+    if (dati.executionTime) {
+      console.log(`⚡ Login completato in ${dati.executionTime}ms (cache: ${dati.cached || false})`);
+    }
+    if (prenotazioniRes.executionTime) {
+      console.log(`⚡ Prenotazioni caricate in ${prenotazioniRes.executionTime}ms (cache: ${prenotazioniRes.cached || false})`);
+    }
+    
+    mostraSuccesso(`Benvenuto, ${loggedCustomerData.nome}!`);
+  } catch (err) {
+    console.error('❌ Errore login:', err);
+    mostraErrore(err.message || 'Errore login');
+  } finally {
+    mostraLoading(false);
+  }
+}
     
     loggedCustomerData = {
       nome: asString(cliente.nomeCognome || cliente.nome, ''),
@@ -1317,5 +1371,5 @@ window.ImbrianiApp = {
   mostraSuccesso,
   bookingData: () => bookingData,
   loggedUser: () => loggedCustomerData,
-  version: '5.3.0'
+  version: '5.3.1'
 };
