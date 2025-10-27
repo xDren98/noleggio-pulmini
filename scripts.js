@@ -206,8 +206,6 @@ function mostraDatiCliente(dati) {
   document.getElementById('contenutoPersonale').innerHTML = html;
 }
 
-// FUNZIONI MODIFICA E CANCELLA: usano l'URL di gestione!
-
 function modificaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
 
@@ -226,6 +224,7 @@ function modificaPrenotazione(p) {
       <button type="submit">Aggiorna</button>
     </form>
   `;
+
   document.getElementById('contenutoPersonale').innerHTML = formHtml;
   document.getElementById('formModificaPrenotazione').onsubmit = function(e) {
     e.preventDefault();
@@ -273,6 +272,9 @@ function cancellaPrenotazione(p) {
   })
   .catch(err => mostraErrore('Errore cancellazione: ' + err.message));
 }
+
+// Le restanti funzioni continuano come da codice originale (startNewBookingWithPreFill, showStep, updateBackButton, goBack, etc.)
+
 
 document.getElementById('btnNewBooking').addEventListener('click', () => {
   loggedCustomerData = null;
