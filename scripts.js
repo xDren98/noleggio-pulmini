@@ -11,15 +11,11 @@ let bookingData = {};
 
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
-  prenotazioni: 'https://script.google.com/macros/s/AKfycbxiaQopj8bJ30oEmznJSVMRDoFGmxE8HITe18MUhb_LwZO1HYY6VrY49FsHJaih2Q/exec',
+  prenotazioni: 'https://script.google.com/macros/s/AKfycbx8vOsfdliS4e5odoRMkvCwaWY7SowSkgtW0zTuvqDIu4R99sUEixlLSW7Y9MyvNWk/exec',
   datiCliente: 'https://script.google.com/macros/s/AKfycbwdLNztRhf5FFieplQbVXaPyKD2WzO2ChLZ7ky5Z0XYvRfWfOmQjqbOL_ditw5_3Z0/exec',
   disponibilita: 'https://script.google.com/macros/s/AKfycbx-Rb1kq4XCEBcR2HfD7n2sv0pvw0XFxVvffmJGL9n8d5qaofObjFnnotKyI3Jkf-4/exec',
   manageBooking: 'https://script.google.com/macros/s/AKfycbzI333v9xIlu2Ac0ThUnLhzK0PrxXyNSybL9g4pvmK6eR5UGPAlVgK8WukLq90AzYM/exec'
 };
-
-// ===============================
-// FUNZIONI UTILI ESISTENTI (validazioni e UI)
-// ===============================
 
 function validaCodiceFiscale(cf) {
   const regex = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/;
@@ -32,7 +28,7 @@ function validaTelefono(tel) {
 }
 
 function mostraErrore(messaggio) {
-  if(document.querySelector('.error-banner')) return; // evita duplicati
+  if(document.querySelector('.error-banner')) return;
   const errorDiv = document.createElement('div');
   errorDiv.className = 'error-banner';
   errorDiv.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
@@ -41,7 +37,7 @@ function mostraErrore(messaggio) {
 }
 
 function mostraSuccesso(messaggio) {
-  if(document.querySelector('.success-banner')) return; // evita duplicati
+  if(document.querySelector('.success-banner')) return;
   const successDiv = document.createElement('div');
   successDiv.className = 'success-banner';
   successDiv.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
@@ -69,10 +65,6 @@ function mostraLoading(show = true) {
   }
 }
 
-// ===============================
-// GESTIONE LOGIN CLIENTE DA HOMEPAGE
-// ===============================
-
 document.getElementById('loginFormHomepage').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -88,14 +80,15 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
 
   mostraLoading(true);
 
+  // Chiama la web app per dati cliente e prenotazioni insieme
   Promise.all([
-    fetch(SCRIPTS.proxy + SCRIPTS.prenotazioni, {
+    fetch(SCRIPTS.prenotazioni, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cf })
     }).then(r => r.json()),
 
-    fetch(SCRIPTS.proxy + SCRIPTS.datiCliente, {
+    fetch(SCRIPTS.datiCliente, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cf })
@@ -107,6 +100,7 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
       mostraErrore('Errore nel recupero prenotazioni: ' + (dataPrenotazioni.error || 'Errore non specificato'));
       return;
     }
+
     if (!dataPrenotazioni.prenotazioni || dataPrenotazioni.prenotazioni.length === 0) {
       mostraErrore('Nessuna prenotazione trovata per questo codice fiscale.');
       return;
@@ -120,7 +114,6 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     const nomeCliente = loggedCustomerData.datiCompleti?.nomeCognome || '';
     mostraSuccesso(`Benvenuto ${nomeCliente}!`);
 
-    // Nascondi homepage e mostra area personale
     document.getElementById('homepage').style.display = 'none';
     document.getElementById('mainbox').style.display = 'none';
     document.getElementById('areaPersonale').style.display = 'block';
@@ -132,10 +125,6 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
     mostraErrore('Errore durante la ricerca: ' + err.message);
   });
 });
-
-// ===============================
-// GESTIONE AREA PERSONALE
-// ===============================
 
 function setupAreaPersonale() {
   document.getElementById('contenutoPersonale').innerHTML = '';
@@ -161,7 +150,7 @@ function setupAreaPersonale() {
 function caricaPrenotazioniCliente(cf) {
   mostraLoading(true);
 
-  fetch(SCRIPTS.proxy + SCRIPTS.prenotazioni, {
+  fetch(SCRIPTS.prenotazioni, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cf }),
@@ -214,13 +203,13 @@ function mostraDatiCliente(dati) {
     <p><strong>Codice Fiscale:</strong> ${dati.codiceFiscale}</p>
     <p><strong>Numero Patente:</strong> ${dati.numeroPatente}</p>
     <p><strong>Validità Patente:</strong> dal ${dati.dataInizioValiditaPatente} al ${dati.dataFineValiditaPatente}</p>
+    <p><strong>Cellulare:</strong> ${dati.cellulare}</p>
   `;
   document.getElementById('contenutoPersonale').innerHTML = html;
 }
 
 function modificaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
-
   const formHtml = `
     <h3>Modifica prenotazione</h3>
     <form id="formModificaPrenotazione">
@@ -238,15 +227,12 @@ function modificaPrenotazione(p) {
       <button type="submit">Aggiorna</button>
     </form>
   `;
-
   document.getElementById('contenutoPersonale').innerHTML = formHtml;
-
   document.getElementById('formModificaPrenotazione').onsubmit = function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     const obj = {};
     formData.forEach((v, k) => obj[k] = v);
-
     fetch(SCRIPTS.manageBooking, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -264,14 +250,12 @@ function modificaPrenotazione(p) {
 function cancellaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
   if (!confirm('Sei sicuro di cancellare questa prenotazione?')) return;
-
   const obj = {
     cf: p['Codice fiscale'],
     dataInizio: p['Giorno inizio noleggio'],
     dataFine: p['Giorno fine noleggio'],
     delete: true
   };
-
   fetch(SCRIPTS.manageBooking, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
