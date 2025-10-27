@@ -774,22 +774,49 @@ async function handleDeletePrenotazione(idPrenotazione) {
       idPrenotazione 
     });
     
-    // ⬇️ FIX: Controlla se success è false PRIMA di procedere
     if (!res || !res.success) {
       throw new Error(res?.error || 'Errore eliminazione');
     }
     
     console.log(`⚡ Delete completato in ${res.executionTime || 'N/A'}ms`);
     
-    // Rimuovi dalla mappa locale SUBITO
+    // ⬇️ FIX: Rimuovi dalla mappa locale SUBITO
     prenotazioniMap.delete(idPrenotazione);
     
     mostraSuccesso('Prenotazione eliminata con successo');
     
-    // Ricarica dati freschi SOLO se login è attivo
+    // ⬇️ FIX: Aspetta 500ms per dare tempo al server di aggiornare
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // ⬇️ FIX: Invalida cache manualmente forzando timestamp
+    const cacheKey = 'prenotazioni_' + loggedCustomerData.codiceFiscale;
+    sessionStorage.removeItem(cacheKey);
+    
+    // Ricarica dati freschi (bypassa cache)
     if (loggedCustomerData && loggedCustomerData.codiceFiscale) {
-      // ⬇️ FIX: Passa CF valido
-      await handleLogin(loggedCustomerData.codiceFiscale);
+      mostraLoading(true);
+      try {
+        const prenotazioniRes = await apiPostPrenotazioni(loggedCustomerData.codiceFiscale);
+        
+        // Svuota e ricarica mappa
+        prenotazioniMap.clear();
+        if (Array.isArray(prenotazioniRes.prenotazioni)) {
+          prenotazioniRes.prenotazioni.forEach(p => {
+            if (p['ID prenotazione']) prenotazioniMap.set(p['ID prenotazione'], p);
+          });
+        }
+        
+        console.log('📋 Prenotazioni ricaricate:', prenotazioniMap.size);
+        
+        // Rendi area personale
+        renderAreaPersonale();
+        routeTo('area');
+        
+      } catch (err) {
+        console.error('❌ Errore ricaricamento:', err);
+      } finally {
+        mostraLoading(false);
+      }
     }
   } catch (err) {
     console.error('❌ Errore DELETE:', err);
@@ -798,53 +825,6 @@ async function handleDeletePrenotazione(idPrenotazione) {
     mostraLoading(false);
   }
 }
-// ========== STEP 1 — Date/Orari (SEMPLIFICATO CON INPUT DATE) ==========
-async function controllaDisponibilita() {
-  const dataR = qs('#data_ritiro')?.value || '';
-  const dataA = qs('#data_arrivo')?.value || '';
-  const oraR = qs('#ora_partenza')?.value || '';
-  const oraA = qs('#ora_arrivo')?.value || '';
-  
-  if (!dataR || !dataA) return mostraErrore('Compila le date');
-  if (new Date(dataR) > new Date(dataA)) {
-    return mostraErrore('Data fine precedente a data inizio');
-  }
-  
-  bookingData.dataRitiro = dataR;
-  bookingData.dataArrivo = dataA;
-  bookingData.oraRitiro = oraR;
-  bookingData.oraArrivo = oraA;
-  sessionStorage.setItem('imbriani_booking_draft', JSON.stringify(bookingData));
-  
-  mostraLoading(true);
-  try {
-    const res = await apiPostDisponibilita({ 
-      dataRitiro: dataR, 
-      dataArrivo: dataA, 
-      oraRitiro: oraR, 
-      oraArrivo: oraA 
-    });
-    
-    console.log(`⚡ Disponibilità caricata in ${res.executionTime || 'N/A'}ms (cache: ${res.cached || false})`);
-    
-    const vehicles = Array.isArray(res.vehicles) && res.vehicles.length 
-      ? res.vehicles 
-      : pulmini;
-    
-    renderPulminiCards(vehicles);
-    routeTo('wizard', 'step2');
-    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
-  } catch (err) {
-    console.error(err);
-    mostraErrore('Errore verifica disponibilità, uso catalogo base');
-    renderPulminiCards(pulmini);
-    routeTo('wizard', 'step2');
-    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
-  } finally {
-    mostraLoading(false);
-  }
-}
-
 
 // ========== STEP 2 — Card veicoli ==========
 function renderPulminiCards(vehicles) {
@@ -1148,15 +1128,15 @@ function mostraRiepilogo() {
   
   const elements = [
     el('div', { class: 'card' },
-      el('h3', { text: '🚐 Veicolo' }),
+      el('h3', { text: 'Veicolo' }),  // ⬅️ RIMUOVI 🚐
       rItem('Modello', bookingData.pulmino?.nome),
       rItem('Targa', bookingData.pulmino?.targa),
       
-      el('h3', { text: '📅 Periodo' }),
+      el('h3', { text: 'Periodo' }),  // ⬅️ RIMUOVI 📅
       rItem('Ritiro', `${dateToItalian(bookingData.dataRitiro)} ore ${bookingData.oraRitiro}`),
       rItem('Consegna', `${dateToItalian(bookingData.dataArrivo)} ore ${bookingData.oraArrivo}`),
       
-      el('h3', { text: '👤 Autista Principale' }),
+      el('h3', { text: 'Autista Principale' }),  // ⬅️ RIMUOVI 👤
       rItem('Nome', a1.nomeCognome),
       rItem('Nascita', `${dateToItalian(a1.dataNascita)} - ${a1.luogoNascita}`),
       rItem('Codice Fiscale', a1.codiceFiscale),
@@ -1164,7 +1144,7 @@ function mostraRiepilogo() {
       rItem('Patente', a1.numeroPatente),
       rItem('Validità patente', `${dateToItalian(a1.dataInizioValiditaPatente)} → ${dateToItalian(a1.dataFineValiditaPatente)}`),
       
-      el('h3', { text: '📞 Contatto' }),
+      el('h3', { text: 'Contatto' }),  // ⬅️ RIMUOVI 📞
       rItem('Cellulare', bookingData.cellulare)
     )
   ];
@@ -1175,7 +1155,7 @@ function mostraRiepilogo() {
       if (a.nomeCognome || a.codiceFiscale) {
         elements.push(
           el('div', { class: 'card' },
-            el('h3', { text: `👤 Autista ${i + 1}` }),
+            el('h3', { text: `Autista ${i + 1}` }),  // ⬅️ RIMUOVI 👤
             rItem('Nome', a.nomeCognome),
             rItem('CF', a.codiceFiscale),
             rItem('Patente', a.numeroPatente)
@@ -1371,5 +1351,5 @@ window.ImbrianiApp = {
   mostraSuccesso,
   bookingData: () => bookingData,
   loggedUser: () => loggedCustomerData,
-  version: '5.3.3'
+  version: '5.3.4'
 };

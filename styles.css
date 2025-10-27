@@ -985,3 +985,50 @@ select:valid {
     padding: 24px 20px;
   }
 }
+function mostraRiepilogo() {
+  const root = qs('#riepilogo-content');
+  if (!root) return;
+  
+  const a1 = bookingData.autisti[0] || {};
+  
+  const elements = [
+    el('div', { class: 'card' },
+      el('h3', { text: 'Veicolo' }),  // ⬅️ RIMUOVI 🚐
+      rItem('Modello', bookingData.pulmino?.nome),
+      rItem('Targa', bookingData.pulmino?.targa),
+      
+      el('h3', { text: 'Periodo' }),  // ⬅️ RIMUOVI 📅
+      rItem('Ritiro', `${dateToItalian(bookingData.dataRitiro)} ore ${bookingData.oraRitiro}`),
+      rItem('Consegna', `${dateToItalian(bookingData.dataArrivo)} ore ${bookingData.oraArrivo}`),
+      
+      el('h3', { text: 'Autista Principale' }),  // ⬅️ RIMUOVI 👤
+      rItem('Nome', a1.nomeCognome),
+      rItem('Nascita', `${dateToItalian(a1.dataNascita)} - ${a1.luogoNascita}`),
+      rItem('Codice Fiscale', a1.codiceFiscale),
+      rItem('Residenza', `${a1.viaResidenza} ${a1.civicoResidenza}, ${a1.comuneResidenza}`),
+      rItem('Patente', a1.numeroPatente),
+      rItem('Validità patente', `${dateToItalian(a1.dataInizioValiditaPatente)} → ${dateToItalian(a1.dataFineValiditaPatente)}`),
+      
+      el('h3', { text: 'Contatto' }),  // ⬅️ RIMUOVI 📞
+      rItem('Cellulare', bookingData.cellulare)
+    )
+  ];
+  
+  if (bookingData.autisti.length > 1) {
+    for (let i = 1; i < bookingData.autisti.length; i++) {
+      const a = bookingData.autisti[i];
+      if (a.nomeCognome || a.codiceFiscale) {
+        elements.push(
+          el('div', { class: 'card' },
+            el('h3', { text: `Autista ${i + 1}` }),  // ⬅️ RIMUOVI 👤
+            rItem('Nome', a.nomeCognome),
+            rItem('CF', a.codiceFiscale),
+            rItem('Patente', a.numeroPatente)
+          )
+        );
+      }
+    }
+  }
+  
+  clearAndAppend(root, ...elements);
+}
