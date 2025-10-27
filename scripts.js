@@ -62,6 +62,19 @@ function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel
 function asString(x, fb = 'ND') { return x == null ? fb : String(x); }
 function pad2(n) { return String(n).padStart(2, '0'); }
 
+// === Utility residenza e veicolo ===
+function sanitizeStreet(s) {
+  return String(s || '').replace(/^\s*(via|viale|v\.|p\.?zza|piazza)\s+/i, '');
+}
+function sanitizeBookingResidence(b) {
+  if (!b || !Array.isArray(b.autisti)) return;
+  b.autisti = b.autisti.map(a => ({ ...a, viaResidenza: sanitizeStreet(a.viaResidenza) }));
+}
+function getPulminoById(id){
+  const p = pulmini.find(x => x.id === id);
+  return p ? { id: p.id, nome: p.nome, targa: p.targa || '' } : { id, nome: '', targa: '' };
+}
+
 /* =========================
    VALIDAZIONI E FORMAT
 ========================= */
@@ -362,6 +375,9 @@ function modificaPrenotazione(p) {
     el('label', {}, el('span', { text: 'Nome ' }), el('input', { type: 'text', name: 'Nome', value: asString(p.Nome || p.nomeCognome || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Data di nascita ' }), el('input', { type: 'text', name: 'Data di nascita', value: asString(p['Data di nascita'] || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Luogo di nascita ' }), el('input', { type: 'text', name: 'Luogo di nascita', value: asString(p['Luogo di nascita'] || ''), required: 'true' })),
+    el('label', {}, el('span', { text: 'Comune di residenza ' }), el('input', { type: 'text', name: 'Comune di residenza', value: asString(p['Comune di residenza'] || ''), required: 'true' })),
+    el('label', {}, el('span', { text: 'Via di residenza ' }), el('input', { type: 'text', name: 'Via di residenza', value: asString(p['Via di residenza'] || ''), required: 'true' })),
+    el('label', {}, el('span', { text: 'Civico di residenza ' }), el('input', { type: 'text', name: 'Civico di residenza', value: asString(p['Civico di residenza'] || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Numero di patente ' }), el('input', { type: 'text', name: 'Numero di patente', value: asString(p['Numero di patente'] || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Data inizio validità patente ' }), el('input', { type: 'text', name: 'Data inizio validità patente', value: asString(p['Data inizio validità patente'] || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Scadenza patente ' }), el('input', { type: 'text', name: 'Scadenza patente', value: asString(p['Scadenza patente'] || ''), required: 'true' })),
@@ -379,6 +395,7 @@ function modificaPrenotazione(p) {
     const data = {};
     new FormData(form).forEach((v, k) => data[k] = v);
     try {
+      if (data['Via di residenza'] !== undefined) data['Via di residenza'] = sanitizeStreet(data['Via di residenza']);
       mostraLoading(true);
       const msg = await apiManageBooking(data);
       if (msg?.success) {
@@ -517,7 +534,7 @@ function getAutistaFromForm(i) {
     dataNascita: getDataAutista('nascita', i) || '',
     luogoNascita: document.getElementById(`luogo_nascita_${i}`)?.value?.trim() || '',
     comuneResidenza: document.getElementById(`comune_residenza_${i}`)?.value?.trim() || '',
-    viaResidenza: document.getElementById(`via_residenza_${i}`)?.value?.trim() || '',
+    viaResidenza: sanitizeStreet(document.getElementById(`via_residenza_${i}`)?.value?.trim() || ''),
     civicoResidenza: document.getElementById(`civico_residenza_${i}`)?.value?.trim() || '',
     codiceFiscale: document.getElementById(`codice_fiscale_${i}`)?.value?.trim().toUpperCase() || '',
     numeroPatente: document.getElementById(`numero_patente_${i}`)?.value?.trim() || '',
@@ -803,6 +820,7 @@ async function inviaPrenotazione() {
     mostraLoading(true);
 
     // Payload minimale per CREATE: l’ID lo genera l’Apps Script
+    sanitizeBookingResidence(bookingData);
     const payload = {
       action: 'create',
       cf: loggedCustomerData?.cf || '',
