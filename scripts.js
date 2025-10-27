@@ -1,5 +1,5 @@
 // Versione aggiornata e completa del JS
-console.log('Imbriani Noleggio - Versione codice: 2.4.1');
+console.log('Imbriani Noleggio - Versione codice: 2.4.2');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -71,7 +71,9 @@ function mostraLoading(show = true) {
 // Login e recupero prenotazioni
 document.getElementById('loginFormHomepage').addEventListener('submit', function(event) {
   event.preventDefault();
+  console.log("Submit login form triggered");
   const cf = document.getElementById('cfInputHomepage').value.trim().toUpperCase();
+  console.log("CF inserito:", cf);
   const loginResult = document.getElementById('loginResultHomepage');
   loginResult.textContent = '';
 
