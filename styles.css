@@ -62,12 +62,39 @@ header h1 {
   font-size: 2em;
   color: var(--color-primary);
   margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+header h1:hover {
+  transform: scale(1.02);
+  color: var(--color-primary-dark);
 }
 header p {
   font-weight: 600;
   font-size: 1em;
   color: var(--color-text-secondary);
   margin: 0 0 10px 0;
+}
+.slogan {
+  font-style: italic;
+  font-size: 0.95em;
+}
+
+/* =====================================================================
+   Visibility states (routing)
+===================================================================== */
+[data-section] {
+  display: none;
+}
+[data-section]:not(.hidden) {
+  display: block;
+}
+.hidden {
+  display: none !important;
 }
 
 /* =====================================================================
@@ -85,8 +112,14 @@ header p {
   gap: 18px;
 }
 
-.step { display: none; flex-direction: column; gap: 12px; }
-.step.active { display: flex; }
+.step { 
+  display: none; 
+  flex-direction: column; 
+  gap: 12px; 
+}
+.step:not(.hidden) { 
+  display: flex; 
+}
 
 label {
   font-weight: 600;
@@ -98,9 +131,12 @@ label {
   gap: 8px;
 }
 
-.material-icons { font-size: 20px; color: var(--color-primary); }
+.material-icons { 
+  font-size: 20px; 
+  color: var(--color-primary); 
+}
 
-select, input[type=tel], input[type=text], input[type=time] {
+select, input[type=tel], input[type=text], input[type=time], input[type=date] {
   width: 100%;
   min-height: 43px;
   padding: 7px 10px;
@@ -110,12 +146,45 @@ select, input[type=tel], input[type=text], input[type=time] {
   color: var(--color-text);
   background-color: #f9fff7;
   font-family: 'Poppins', sans-serif;
+  transition: all var(--duration-fast);
 }
 
-.date-inline { display: flex; gap: 7px; }
+select:focus, input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(55, 178, 77, 0.1);
+}
 
-/* Actions / buttons */
-.actions { display: flex; gap: 10px; margin-top: 6px; }
+.date-inline, .date-selects { 
+  display: flex; 
+  gap: 7px; 
+  margin-bottom: 12px;
+}
+.date-inline select, .date-selects select {
+  flex: 1;
+  min-width: 0;
+}
+
+/* =====================================================================
+   Help text
+===================================================================== */
+.help-text {
+  font-size: 13px;
+  color: #7f8c8d;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+/* =====================================================================
+   Actions / buttons
+===================================================================== */
+.actions { 
+  display: flex; 
+  gap: 10px; 
+  margin-top: 6px; 
+}
+
 .btn, button {
   background-color: #37c559;
   color: #fff;
@@ -127,213 +196,654 @@ select, input[type=tel], input[type=text], input[type=time] {
   padding: 11px 25px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   box-shadow: 0 2px 6px #86e8a2aa;
   transition: all var(--duration-fast);
+  font-family: 'Poppins', sans-serif;
 }
+
 .btn:hover:not(:disabled), button:hover:not(:disabled) {
   background-color: #24943d;
   box-shadow: 0 2px 12px #30af5640;
   transform: scale(1.02);
 }
+
 .btn:disabled, button:disabled {
   background-color: #b7d6b7;
   cursor: not-allowed;
   color: #5c995c;
+  opacity: 0.6;
+  pointer-events: none;
 }
-.btn--primary { background: var(--color-primary); }
-.btn--secondary { background: #2ea44f; }
-.btn--danger { background: #cf3b3b; }
+
+.btn--primary { 
+  background: var(--color-primary); 
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.btn--secondary { 
+  background: #2ea44f; 
+}
+.btn--secondary:hover:not(:disabled) {
+  background: #258a3f;
+}
+
+.btn--danger { 
+  background: #cf3b3b; 
+}
+.btn--danger:hover:not(:disabled) {
+  background: #a82f2f;
+}
+
+.btn--sm {
+  padding: 8px 16px;
+  font-size: 0.9em;
+}
 
 /* =====================================================================
    Home
 ===================================================================== */
-#homepage { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
-#homepage h2 { font-size: 1.3em; font-weight: 600; color: var(--color-text); margin-bottom: 12px; }
-#homepage p { color: #666; font-size: 1.05em; margin-bottom: 18px; text-align: left; }
-
-.input-with-icon { position: relative; }
-.input-with-icon .material-icons {
-  position: absolute; left: 14px; top: 50%;
-  transform: translateY(-50%); color: #6c757d; font-size: 20px; pointer-events: none;
+#homepage { 
+  max-width: 600px; 
+  margin: 0 auto; 
+  padding: 40px 20px; 
 }
-.input-with-icon input { padding-left: 44px; }
 
-#loginResultHomepage { margin-top: 10px; font-weight: 600; color: var(--color-text); }
+#homepage h2 { 
+  font-size: 1.3em; 
+  font-weight: 600; 
+  color: var(--color-text); 
+  margin-bottom: 12px; 
+}
+
+#homepage p { 
+  color: #666; 
+  font-size: 1.05em; 
+  margin-bottom: 18px; 
+  text-align: left; 
+}
+
+#homepage hr {
+  border: none;
+  border-top: 2px solid var(--color-card-border);
+  margin: 32px 0;
+}
+
+.input-with-icon { 
+  position: relative; 
+  margin-bottom: 12px;
+}
+
+.input-with-icon .material-icons {
+  position: absolute; 
+  left: 14px; 
+  top: 50%;
+  transform: translateY(-50%); 
+  color: #6c757d; 
+  font-size: 20px; 
+  pointer-events: none;
+}
+
+.input-with-icon input { 
+  padding-left: 44px; 
+}
+
+#loginResultHomepage { 
+  margin-top: 10px; 
+  font-weight: 600; 
+  color: var(--color-text); 
+}
 
 /* =====================================================================
-   Prenotazioni list
+   Area personale
 ===================================================================== */
-.prenotazioni-container {
+#area-personale-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.welcome-card {
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+  border: 1.5px solid var(--color-card-border);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.1);
+}
+
+.welcome-card h2 {
+  margin-top: 0;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.welcome-card h2::before {
+  content: '👋';
+  font-size: 28px;
+}
+
+.prenotazioni-card {
+  background: white;
+  border: 1px solid var(--color-card-border);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+}
+
+.prenotazioni-lista {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 16px;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
 }
-.prenotazioni-container h3 {
-  color: #27802a;
-  margin-bottom: 8px;
-  font-size: 1.2em;
-}
-.prenotazione-card {
-  background: linear-gradient(135deg, #eafbe9 0%, #f9fff7 100%);
-  border: 1.5px solid #b2e4b2;
-  padding: 14px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(55, 178, 77, 0.1);
+
+.prenotazione-item {
+  background: #f9fff7;
+  border: 1.5px solid #d6fadd;
+  padding: 16px;
+  border-radius: var(--radius-md);
   transition: all 0.3s ease;
 }
-.prenotazione-card:hover {
-  box-shadow: 0 4px 16px rgba(55, 178, 77, 0.2);
+
+.prenotazione-item:hover {
+  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.15);
   transform: translateY(-2px);
+  border-color: var(--color-primary);
 }
-.prenotazione-header {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 1em; color: var(--color-text);
-  margin-bottom: 10px; padding-bottom: 8px;
-  border-bottom: 2px solid #6fd24f;
+
+.prenotazione-item strong {
+  display: block;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+  font-size: 1.05em;
 }
-.prenotazione-date { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.date-item { display: flex; align-items: center; gap: 6px; font-size: .95em; color: var(--color-text); }
-.date-item .material-icons { font-size: 16px; color: var(--color-primary); }
-.prenotazione-stato { display: flex; justify-content: flex-end; }
-.status { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 16px; font-weight: 600; font-size: 0.85em; }
-.status--success { background-color: rgba(55, 178, 77, 0.15); color: #27802a; border: 1px solid rgba(55, 178, 77, 0.3); }
-.status--warning { background-color: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.3); }
-.status--info { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+.prenotazione-item p {
+  margin: 4px 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95em;
+}
+
+.prenotazione-item button {
+  margin-top: 12px;
+}
+
+/* =====================================================================
+   Card veicoli (Step 2)
+===================================================================== */
+.pulmini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.card-pulmino {
+  background: linear-gradient(135deg, #f9fff7 0%, #eafbe9 100%);
+  border: 2px solid #d6fadd;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-pulmino:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(55, 178, 77, 0.2);
+  border-color: var(--color-primary);
+}
+
+.card-pulmino:focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.card-pulmino.selected {
+  border-color: #27ae60;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
+}
+
+.card-pulmino.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #27ae60;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.4);
+}
+
+.card-pulmino .card-title {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 1.05em;
+  margin-bottom: 4px;
+}
+
+.card-pulmino .card-sub {
+  color: var(--color-text-secondary);
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-pulmino .card-sub::before {
+  content: '🚐';
+  font-size: 16px;
+}
+
+/* =====================================================================
+   Form autisti (Step 3)
+===================================================================== */
+.form-autista {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.1);
+}
+
+.form-autista h4 {
+  margin-top: 0;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15em;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-card-border);
+}
+
+.form-autista h4::before {
+  content: '👤';
+  font-size: 20px;
+}
+
+.form-autista label {
+  margin-top: 12px;
+}
+
+.form-autista input,
+.form-autista select {
+  margin-bottom: 8px;
+}
+
+/* =====================================================================
+   Riepilogo prenotazione (Step 4)
+===================================================================== */
+.riepilogo { 
+  max-width: 800px; 
+  margin: 0 auto; 
+}
+
+#riepilogo-content .card {
+  background: linear-gradient(135deg, #f9fff7 0%, #eafbe9 100%);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(55, 178, 77, 0.1);
+}
+
+#riepilogo-content .card h3 {
+  margin: 0 0 16px 0; 
+  color: var(--color-primary); 
+  font-size: 1.2em; 
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-primary); 
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#riepilogo-content .card h3::before {
+  font-size: 24px;
+}
+
+#riepilogo-content .card:nth-child(1) h3::before {
+  content: '🚐';
+}
+
+#riepilogo-content .card:nth-child(2) h3::before {
+  content: '📅';
+}
+
+#riepilogo-content .card:nth-child(3) h3::before {
+  content: '👤';
+}
+
+#riepilogo-content .card:nth-child(4) h3::before {
+  content: '📞';
+}
+
+#riepilogo-content p {
+  margin: 8px 0;
+  color: var(--color-text);
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+
+#riepilogo-content p strong {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  min-width: 160px;
+  display: inline-block;
+}
+
+/* =====================================================================
+   Modale conferma (integrazione v3.3.2)
+===================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 28px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease-out;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: var(--color-text);
+  font-size: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.modal-content h3::before {
+  content: '⚠️';
+  font-size: 28px;
+}
+
+.modal-content p {
+  margin: 16px 0 24px;
+  color: var(--color-text-secondary);
+  font-size: 1.05em;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.modal-actions button {
+  flex: 1;
+  max-width: 180px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { 
+    transform: scale(0.9); 
+    opacity: 0; 
+  }
+  to { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}
+
+/* Chiusura modale su click backdrop */
+.modal-overlay {
+  cursor: pointer;
+}
+
+.modal-content {
+  cursor: default;
+}
 
 /* =====================================================================
    Loader overlay
 ===================================================================== */
 .loader-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.72); display: flex; align-items: center; justify-content: center;
-  z-index: 9999; backdrop-filter: blur(4px);
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  background: rgba(0, 0, 0, 0.72); 
+  display: none;
+  align-items: center; 
+  justify-content: center;
+  z-index: 9999; 
+  backdrop-filter: blur(4px);
 }
-.loader-spinner { text-align: center; color: white; }
+
+.loader-spinner { 
+  text-align: center; 
+  color: white; 
+}
+
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
   border-top: 4px solid var(--color-primary);
   border-radius: 50%;
-  width: 56px; height: 56px;
-  animation: spin 0.8s linear infinite; margin: 0 auto 20px;
+  width: 56px; 
+  height: 56px;
+  animation: spin 0.8s linear infinite; 
+  margin: 0 auto 20px;
 }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.loader-text {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0;
+}
+
+@keyframes spin { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
+}
 
 /* =====================================================================
    Banners
 ===================================================================== */
 .error-banner, .success-banner {
-  position: fixed; top: 24px; right: 24px; padding: 16px 20px; border-radius: 12px;
-  display: flex; align-items: center; gap: 12px; font-weight: 600;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000;
-  animation: slideInRight 0.3s ease-out; max-width: 420px; font-size: 14px;
+  position: fixed; 
+  top: 24px; 
+  right: 24px; 
+  padding: 16px 20px; 
+  border-radius: 12px;
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+  z-index: 10000;
+  animation: slideInRight 0.3s ease-out; 
+  max-width: 420px; 
+  font-size: 14px;
 }
-.error-banner { background: rgba(255,230,230,0.95); color: #c00; border: 1px solid rgba(192,0,0,0.3); border-left: 4px solid #c00; }
-.success-banner { background: rgba(230,255,230,0.95); color: #0a0; border: 1px solid rgba(0,170,0,0.3); border-left: 4px solid #0a0; }
-@keyframes slideInRight { from { transform: translateX(450px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.error-banner { 
+  background: rgba(255,230,230,0.95); 
+  color: #c00; 
+  border: 1px solid rgba(192,0,0,0.3); 
+  border-left: 4px solid #c00; 
+}
+
+.success-banner { 
+  background: rgba(230,255,230,0.95); 
+  color: #0a0; 
+  border: 1px solid rgba(0,170,0,0.3); 
+  border-left: 4px solid #0a0; 
+}
+
+.banner-ico {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.banner-msg {
+  flex: 1;
+}
+
+@keyframes slideInRight { 
+  from { 
+    transform: translateX(450px); 
+    opacity: 0; 
+  } 
+  to { 
+    transform: translateX(0); 
+    opacity: 1; 
+  } 
+}
 
 /* =====================================================================
    Back button
 ===================================================================== */
 .btn-back {
-  position: fixed; top: 24px; left: 24px; background: white; border: 1px solid var(--color-primary);
-  padding: 10px 16px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;
-  font-weight: 600; color: var(--color-primary); box-shadow: 0 2px 8px #37b24d55; transition: all .3s; z-index: 10000; font-size: 1em;
-}
-.btn-back:hover { background: var(--color-primary); color: #fff; transform: translateX(-2px); }
-.btn-back .material-icons { font-size: 22px; }
-
-/* =====================================================================
-   Riepilogo prenotazione
-===================================================================== */
-.riepilogo { max-width: 800px; margin: 0 auto; }
-.riepilogo-section {
-  background: #fafdff;
-  border: 1px solid var(--color-card-border);
-  border-radius: var(--radius-lg);
-  padding: 26px 18px 18px 18px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 10px #86e8a22a;
-}
-.riepilogo-section h3 {
-  margin: 0 0 24px 0; color: #178d3e; font-size: 1.2em; font-weight: 700;
-  border-bottom: 2px solid var(--color-primary); padding-bottom: 10px;
-}
-.riepilogo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 14px 24px; margin-bottom: 24px; }
-.riepilogo-item { padding: 4px 0; display: flex; flex-direction: column; gap: 4px; }
-.riepilogo-label { font-weight: 500; color: #27802a; display: inline-block; min-width: 100px; }
-.riepilogo-value { font-weight: 600; color: #222; display: inline-block; }
-.riepilogo-autisti { display: flex; flex-direction: column; gap: 14px; }
-.riepilogo-autista {
-  background: #eafbe9; border-radius: 8px; padding: 10px 14px 12px; border: 1px solid #d6fadd; box-shadow: 0 1px 4px #bfe9be2c;
+  position: fixed; 
+  top: 24px; 
+  left: 24px; 
+  background: white; 
+  border: 1px solid var(--color-primary);
+  padding: 10px 16px; 
+  border-radius: 14px; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  font-weight: 600; 
+  color: var(--color-primary); 
+  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.3); 
+  transition: all .3s; 
+  z-index: 10000; 
+  font-size: 1em;
+  font-family: 'Poppins', sans-serif;
 }
 
-/* =====================================================================
-   Modale conferma
-===================================================================== */
-.modal-conferma {
-  position: fixed; top:0; left:0; width:100vw; height:100vh; z-index: 12000; display: none;
-  align-items: center; justify-content: center;
+.btn-back:hover { 
+  background: var(--color-primary); 
+  color: #fff; 
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.4);
 }
-.modal-conferma__backdrop {
-  position: absolute; background: rgba(44, 93, 42, 0.18); backdrop-filter: blur(2.5px);
-  width: 100vw; height: 100vh; left:0; top:0;
+
+.btn-back .material-icons { 
+  font-size: 22px; 
 }
-.modal-conferma__content {
-  position: relative; background: #fff; border-radius: 16px; padding: 37px 34px 28px;
-  box-shadow: 0 4px 32px #15792b33; min-width: 330px; z-index: 1;
-  display: flex; flex-direction: column; align-items: center; animation: fadeInConfirm .3s;
-}
-.modal-conferma__actions { margin-top: 22px; display: flex; gap: 10px; }
-@keyframes fadeInConfirm { from { opacity: 0; transform: translateY(24px);} to { opacity:1; transform: none;} }
 
 /* =====================================================================
    Thank you
 ===================================================================== */
 #thankyou {
   background: linear-gradient(135deg, #e1f9d9 0%, #f9fff7 100%);
-  border-radius: 16px; box-shadow: 0 4px 20px rgba(55,178,77,0.15);
-  text-align: center; padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 16px;
+  border-radius: 16px; 
+  box-shadow: 0 4px 20px rgba(55,178,77,0.15);
+  text-align: center; 
+  padding: 40px 24px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 16px;
 }
-#thankyou h2 { color: #27802a; font-weight: 700; margin: 0; font-size: 1.8em; }
-#thankyou p { color: #2b6e21; font-weight: 500; font-size: 1.1em; margin: 0; line-height: 1.6; }
+
+#thankyou h2 { 
+  color: #27802a; 
+  font-weight: 700; 
+  margin: 0; 
+  font-size: 1.8em; 
+}
+
+#thankyou p { 
+  color: #2b6e21; 
+  font-weight: 500; 
+  font-size: 1.1em; 
+  margin: 0; 
+  line-height: 1.6; 
+}
+
 #thankyou button {
-  margin-top: 16px; background: var(--color-primary); color: #fff; border: none; border-radius: 12px;
-  padding: 12px 24px; font-weight: 700; font-size: 1.1em; cursor: pointer; box-shadow: 0 2px 8px #37b24dcc;
+  margin-top: 16px; 
+  background: var(--color-primary); 
+  color: #fff; 
+  border: none; 
+  border-radius: 12px;
+  padding: 12px 24px; 
+  font-weight: 700; 
+  font-size: 1.1em; 
+  cursor: pointer; 
+  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.8);
   transition: background .3s, transform .2s;
 }
-#thankyou button:hover { background: var(--color-primary-dark); transform: translateY(-2px); }
-#thankyou button:active { transform: translateY(0); }
+
+#thankyou button:hover { 
+  background: var(--color-primary-dark); 
+  transform: translateY(-2px); 
+}
+
+#thankyou button:active { 
+  transform: translateY(0); 
+}
 
 /* =====================================================================
    States / helpers
 ===================================================================== */
-input:invalid:not(:placeholder-shown) { border-color: #f44336; }
-input:valid:not(:placeholder-shown) { border-color: var(--color-primary); }
-select:invalid { color: #999; }
-select:valid { color: var(--color-text); }
-
-.btn:disabled, .btn[disabled] { opacity: .6; cursor: not-allowed; pointer-events: none; }
-
-/* =====================================================================
-   Responsive
-===================================================================== */
-@media (max-width: 700px) {
-  #mainbox, header { max-width: 100vw; padding: 0 2vw; }
-  .actions { flex-direction: column; }
+input:invalid:not(:placeholder-shown) { 
+  border-color: #f44336; 
 }
-@media (max-width: 600px) {
-  .error-banner, .success-banner { top: 10px; padding: 12px 16px; font-size: .9em; }
-  .btn-back { top: 16px; left: 16px; padding: 8px 12px; font-size: .9em; }
-  .btn-back .material-icons { font-size: 18px; }
-  #homepage { padding: 30px 16px; }
-  #homepage h1 { font-size: 1.6em; }
-  #homepage p { font-size: 1em; }
+
+input:valid:not(:placeholder-shown) { 
+  border-color: var(--color-primary); 
 }
+
+select:invalid { 
+  color: #999; 
+}
+
+select:valid { 
+  color: var(--color-text); 
+}
+
 /* Evidenziazione campi obbligatori */
 .field-error {
   border-color: #f44336 !important;
@@ -347,6 +857,14 @@ select:valid { color: var(--color-text); }
   color: #c62828;
   font-size: 0.9em;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field-error-msg::before {
+  content: '⚠️';
+  font-size: 14px;
 }
 
 .field-inline {
@@ -361,7 +879,109 @@ select:valid { color: var(--color-text); }
   30%, 50%, 70% { transform: translateX(-4px); }
   40%, 60% { transform: translateX(4px); }
 }
+
 .field-error-animate {
   animation: fieldShake 0.35s ease-in-out;
 }
-``
+
+/* =====================================================================
+   Card comune per moduli secondari
+===================================================================== */
+.card-sm {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: white;
+  border: 1px solid var(--color-card-border);
+}
+
+/* =====================================================================
+   Responsive
+===================================================================== */
+@media (max-width: 700px) {
+  #mainbox, header { 
+    max-width: 100vw; 
+    padding: 0 2vw; 
+  }
+  
+  .actions { 
+    flex-direction: column; 
+  }
+  
+  .actions button {
+    width: 100%;
+  }
+  
+  .pulmini-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .date-inline,
+  .date-selects {
+    flex-direction: column;
+  }
+  
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .modal-actions button {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .error-banner, .success-banner { 
+    top: 10px; 
+    right: 10px;
+    left: 10px;
+    max-width: calc(100vw - 20px);
+    padding: 12px 16px; 
+    font-size: .9em; 
+  }
+  
+  .btn-back { 
+    top: 16px; 
+    left: 16px; 
+    padding: 8px 12px; 
+    font-size: .9em; 
+  }
+  
+  .btn-back .material-icons { 
+    font-size: 18px; 
+  }
+  
+  #homepage { 
+    padding: 30px 16px; 
+  }
+  
+  header h1 { 
+    font-size: 1.6em; 
+  }
+  
+  header p { 
+    font-size: 0.9em; 
+  }
+  
+  .card {
+    padding: 24px 16px;
+  }
+  
+  #riepilogo-content p strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-autista {
+    padding: 16px;
+  }
+  
+  .card-pulmino {
+    padding: 16px;
+  }
+  
+  .modal-content {
+    padding: 24px 20px;
+  }
+}

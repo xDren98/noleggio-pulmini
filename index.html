@@ -30,7 +30,15 @@
       <form id="form-login" novalidate>
         <div class="input-with-icon">
           <span class="material-icons" aria-hidden="true">person</span>
-          <input type="text" id="cf-login" placeholder="Codice fiscale" required maxlength="16" aria-describedby="cfHelp" style="text-transform: uppercase;" />
+          <input 
+            type="text" 
+            id="cf-login" 
+            placeholder="Codice fiscale" 
+            required 
+            maxlength="16" 
+            aria-describedby="cfHelp" 
+            style="text-transform: uppercase;" 
+          />
         </div>
         <div id="cfHelp" class="help-text">Inserisci 16 caratteri, saranno convertiti in maiuscolo.</div>
         <button type="submit" class="btn btn--primary">Accedi</button>
@@ -54,7 +62,7 @@
 
     <!-- MODIFICA PRENOTAZIONE -->
     <section id="modifica-prenotazione" data-section class="card hidden" aria-labelledby="modifica-title">
-      <button class="btn-back" data-target="area-personale">← Indietro</button>
+      <button class="btn-back" aria-label="Torna all'area personale">← Indietro</button>
       <h2 id="modifica-title">Modifica prenotazione</h2>
       <div id="modifica-form-content"></div>
     </section>
@@ -72,16 +80,16 @@
           Data ritiro
         </label>
         <div class="date-inline">
-          <select id="giorno_ritiro" aria-label="Giorno ritiro"></select>
-          <select id="mese_ritiro" aria-label="Mese ritiro"></select>
-          <select id="anno_ritiro" aria-label="Anno ritiro"></select>
+          <select id="giorno_ritiro" aria-label="Giorno ritiro" required></select>
+          <select id="mese_ritiro" aria-label="Mese ritiro" required></select>
+          <select id="anno_ritiro" aria-label="Anno ritiro" required></select>
         </div>
 
         <label for="ora_partenza">
           <span class="material-icons" aria-hidden="true">schedule</span>
           Ora ritiro
         </label>
-        <select id="ora_partenza">
+        <select id="ora_partenza" required>
           <option value="08:00">08:00</option>
           <option value="12:00">12:00</option>
           <option value="16:00">16:00</option>
@@ -93,16 +101,16 @@
           Data arrivo
         </label>
         <div class="date-inline">
-          <select id="giorno_arrivo" aria-label="Giorno arrivo"></select>
-          <select id="mese_arrivo" aria-label="Mese arrivo"></select>
-          <select id="anno_arrivo" aria-label="Anno arrivo"></select>
+          <select id="giorno_arrivo" aria-label="Giorno arrivo" required></select>
+          <select id="mese_arrivo" aria-label="Mese arrivo" required></select>
+          <select id="anno_arrivo" aria-label="Anno arrivo" required></select>
         </div>
 
         <label for="ora_arrivo">
           <span class="material-icons" aria-hidden="true">schedule</span>
           Ora arrivo
         </label>
-        <select id="ora_arrivo">
+        <select id="ora_arrivo" required>
           <option value="08:00">08:00</option>
           <option value="12:00">12:00</option>
           <option value="16:00">16:00</option>
@@ -116,9 +124,9 @@
 
       <!-- STEP 2: Scelta pulmino (CARD) -->
       <div id="step2" class="step hidden" data-step aria-labelledby="s2-title">
-        <button class="btn-back" data-target="step1">← Indietro</button>
+        <button class="btn-back" data-target="step1" aria-label="Torna a selezione date">← Indietro</button>
         <h3 id="s2-title">Scegli il pulmino</h3>
-        <div id="lista-pulmini" class="pulmini-grid"></div>
+        <div id="lista-pulmini" class="pulmini-grid" role="group" aria-label="Lista veicoli disponibili"></div>
         <div class="actions" style="margin-top: 16px;">
           <button id="btn-step2-continua" class="btn btn--primary" disabled>Continua</button>
         </div>
@@ -126,7 +134,7 @@
 
       <!-- STEP 3: Dati autisti -->
       <div id="step3" class="step hidden" data-step aria-labelledby="s3-title">
-        <button class="btn-back" data-target="step2">← Indietro</button>
+        <button class="btn-back" data-target="step2" aria-label="Torna a selezione veicolo">← Indietro</button>
         <h3 id="s3-title">Dati autista/i</h3>
 
         <label for="numero-autisti">
@@ -143,7 +151,15 @@
           <span class="material-icons" aria-hidden="true">call</span>
           Cellulare
         </label>
-        <input type="tel" id="cellulare" placeholder="Es. 3201234567" />
+        <input 
+          type="tel" 
+          id="cellulare" 
+          placeholder="Es. 3201234567" 
+          pattern="[0-9]{9,15}"
+          aria-describedby="cellHelp"
+          required 
+        />
+        <div id="cellHelp" class="help-text">Inserisci da 9 a 15 cifre senza spazi.</div>
 
         <div id="autisti-container" style="margin-top: 10px;"></div>
 
@@ -154,9 +170,9 @@
 
       <!-- STEP 4: Riepilogo e invio -->
       <div id="step4" class="step hidden" data-step aria-labelledby="s4-title">
-        <button class="btn-back" data-target="step3">← Indietro</button>
+        <button class="btn-back" data-target="step3" aria-label="Torna a dati autisti">← Indietro</button>
         <h3 id="s4-title">Riepilogo</h3>
-        <div id="riepilogo-content"></div>
+        <div id="riepilogo-content" role="region" aria-label="Riepilogo prenotazione"></div>
         <div class="actions" style="margin-top: 16px;">
           <button id="btn-invia-prenotazione" class="btn btn--primary">Invia prenotazione</button>
         </div>

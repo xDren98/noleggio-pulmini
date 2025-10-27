@@ -1,13 +1,16 @@
-/* Imbriani Noleggio – scripts.js COMPLETO ALLINEATO HTML
-   Versione 5.2.0 FINALE
+/* Imbriani Noleggio – scripts.js COMPLETO INTEGRATO
+   Versione 5.3.0 FINALE
+   - Integrazione completa v3.3.2: History API, validazioni estese, modale conferma
+   - Preservazione dati autisti, tendine date parametrizzate, fallback API
    - Proxy CORS, card veicoli, residenza completa, login area personale
-   - ID allineati al tuo index.html (giorno_ritiro/mese_ritiro/anno_ritiro, ecc.)
    - Date con select gg/mm/aaaa, orari fissi 08/12/16/20
+   - Anni patente estesi (+20), validazione età 18-100, patente scaduta
 */
 'use strict';
-console.log('Imbriani Noleggio - v5.2.0 FINALE');
+console.log('Imbriani Noleggio - v5.3.0 INTEGRATO FINALE');
 
-// Endpoints (tutti via proxy)
+
+// ========== ENDPOINTS (tutti via proxy) ==========
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
   datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
@@ -16,17 +19,21 @@ const SCRIPTS = {
   manageBooking: 'https://script.google.com/macros/s/AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ/exec'
 };
 
+
 const pulmini = [
   { id: 'ducato_lungo', nome: 'Fiat Ducato (Passo lungo)', targa: 'EC787NM' },
   { id: 'ducato_corto', nome: 'Fiat Ducato (Passo corto)', targa: 'DN391FW' },
   { id: 'peugeot', nome: 'Peugeot Expert Tepee', targa: 'DL291XZ' }
 ];
 
+
 let loggedCustomerData = null;
 let bookingData = {};
 const prenotazioniMap = new Map();
+let autistiCache = []; // Cache per preservare dati al cambio numero
 
-/* ========== UTILITY ========== */
+
+// ========== UTILITY DOM ==========
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -48,43 +55,103 @@ function el(tag, attrs = {}, ...children) {
   }
   return node;
 }
-function clearAndAppend(container, ...nodes) { if (container) container.replaceChildren(...nodes); }
-function qs(sel, root = document) { return root.querySelector(sel); }
-function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
-function asString(x, fb = '') { return x == null ? fb : String(x); }
 
-function sanitizeStreet(s) { return String(s || '').replace(/^\s*(via|viale|v\.|p\.?zza|piazza)\s+/i, ''); }
-function sanitizeBookingResidence(b) {
-  if (!b || !Array.isArray(b.autisti)) return;
-  b.autisti = b.autisti.map(a => ({ ...a, viaResidenza: sanitizeStreet(a.viaResidenza) }));
+function clearAndAppend(container, ...nodes) { 
+  if (container) container.replaceChildren(...nodes); 
 }
 
-function validaCodiceFiscale(cf) { return /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/.test(String(cf || '').toUpperCase()); }
-function validaTelefono(tel) { return /^[0-9]{9,15}$/.test(String(tel || '').replace(/\s+/g, '')); }
+function qs(sel, root = document) { return root.querySelector(sel); }
+function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+function asString(x, fb = 'ND') { return x == null || x === '' ? fb : String(x); }
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+
+// ========== SANITIZE & VALIDATION ==========
+function sanitizeStreet(s) { 
+  return String(s || '').replace(/^\s*(via|viale|v\.|p\.?zza|piazza)\s+/i, ''); 
+}
+
+function sanitizeBookingResidence(b) {
+  if (!b || !Array.isArray(b.autisti)) return;
+  b.autisti = b.autisti.map(a => ({ 
+    ...a, 
+    viaResidenza: sanitizeStreet(a.viaResidenza) 
+  }));
+}
+
+function validaCodiceFiscale(cf) { 
+  return /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/.test(String(cf || '').toUpperCase()); 
+}
+
+function validaTelefono(tel) { 
+  return /^[0-9]{9,15}$/.test(String(tel || '').replace(/\s+/g, '')); 
+}
+
+function validaNomeCognome(nome) {
+  const parts = String(nome || '').trim().split(/\s+/);
+  return parts.length >= 2 && parts.every(p => p.length >= 2);
+}
+
+function calcolaEta(dataNascita) {
+  if (!dataNascita) return 0;
+  const oggi = new Date();
+  const nascita = new Date(dataNascita);
+  let eta = oggi.getFullYear() - nascita.getFullYear();
+  const m = oggi.getMonth() - nascita.getMonth();
+  if (m < 0 || (m === 0 && oggi.getDate() < nascita.getDate())) eta--;
+  return eta;
+}
+
 function convertDateToIso(ddmmyyyy) {
   if (!ddmmyyyy || !/^\d{2}\/\d{2}\/\d{4}$/.test(ddmmyyyy)) return '';
   const [dd, mm, yyyy] = ddmmyyyy.split('/');
   return `${yyyy}-${mm}-${dd}`;
 }
 
-/* ========== BANNER & LOADER ========== */
+function dateToItalian(isoDate) {
+  if (!isoDate) return 'ND';
+  const [y, m, d] = isoDate.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+
+// ========== BANNER & LOADER ==========
 function mostraErrore(msg) {
   if (qs('.error-banner')) return;
-  const div = el('div', { class: 'error-banner' }, el('span', { class: 'banner-ico', text: '⚠️' }), el('span', { class: 'banner-msg', text: asString(msg) }));
+  const div = el('div', { class: 'error-banner', role: 'alert', 'aria-live': 'assertive' }, 
+    el('span', { class: 'banner-ico', text: '⚠️' }), 
+    el('span', { class: 'banner-msg', text: asString(msg, 'Errore') })
+  );
   document.body.prepend(div);
   setTimeout(() => div.remove(), 4500);
 }
+
 function mostraSuccesso(msg) {
   if (qs('.success-banner')) return;
-  const div = el('div', { class: 'success-banner' }, el('span', { class: 'banner-ico', text: '✅' }), el('span', { class: 'banner-msg', text: asString(msg) }));
+  const div = el('div', { class: 'success-banner', role: 'status', 'aria-live': 'polite' }, 
+    el('span', { class: 'banner-ico', text: '✅' }), 
+    el('span', { class: 'banner-msg', text: asString(msg, 'Successo') })
+  );
   document.body.prepend(div);
   setTimeout(() => div.remove(), 3200);
 }
+
 function mostraLoading(show = true) {
   let overlay = qs('#globalLoader');
   if (show) {
     if (!overlay) {
-      overlay = el('div', { id: 'globalLoader', class: 'loader-overlay' }, el('div', { class: 'loader-spinner' }, el('div', { class: 'spinner' }), el('p', { class: 'loader-text', text: 'Caricamento…' })));
+      overlay = el('div', { 
+        id: 'globalLoader', 
+        class: 'loader-overlay',
+        role: 'status',
+        'aria-live': 'polite',
+        'aria-busy': 'true'
+      }, 
+        el('div', { class: 'loader-spinner' }, 
+          el('div', { class: 'spinner' }), 
+          el('p', { class: 'loader-text', text: 'Caricamento…' })
+        )
+      );
       document.body.append(overlay);
     }
     overlay.style.display = 'flex';
@@ -93,114 +160,244 @@ function mostraLoading(show = true) {
   }
 }
 
-/* ========== FETCH / API ========== */
-function fetchWithProxy(url, options = {}) { return fetch(SCRIPTS.proxy + encodeURIComponent(url), options); }
+
+// ========== MODALE CONFERMA ==========
+function buildModalConferma(onConfirm) {
+  const existing = qs('#modal-conferma');
+  if (existing) existing.remove();
+
+  const modal = el('div', { 
+    id: 'modal-conferma', 
+    class: 'modal-overlay',
+    role: 'dialog',
+    'aria-modal': 'true',
+    'aria-labelledby': 'modal-title'
+  },
+    el('div', { class: 'modal-content' },
+      el('h3', { id: 'modal-title', text: 'Conferma Prenotazione' }),
+      el('p', { text: 'Sei sicuro di voler inviare questa prenotazione?' }),
+      el('div', { class: 'modal-actions' },
+        el('button', { 
+          class: 'btn btn--secondary', 
+          onclick: () => modal.remove() 
+        }, 'Annulla'),
+        el('button', { 
+          class: 'btn btn--primary', 
+          onclick: () => { modal.remove(); onConfirm(); } 
+        }, 'Conferma')
+      )
+    )
+  );
+
+  // Click su backdrop chiude modale
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.remove();
+  });
+
+  document.body.append(modal);
+}
+
+
+// ========== FETCH / API ==========
+function fetchWithProxy(url, options = {}) { 
+  // NON usiamo encodeURIComponent come in v3.3.2
+  return fetch(SCRIPTS.proxy + url, options); 
+}
+
 function withTimeout(promise, ms = 15000) {
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('timeout')), ms);
-    promise.then(v => { clearTimeout(t); resolve(v); }).catch(e => { clearTimeout(t); reject(e); });
+    promise.then(v => { clearTimeout(t); resolve(v); })
+          .catch(e => { clearTimeout(t); reject(e); });
   });
 }
+
 async function fetchJSON(url, options = {}) {
   const res = await withTimeout(fetchWithProxy(url, options), options.timeout || 15000);
   if (!res.ok) throw new Error(`http_${res.status}`);
-  try { return await res.json(); } catch { return {}; }
+  try { return await res.json(); } 
+  catch { return {}; }
 }
-async function apiPostDatiCliente(cf) { return fetchJSON(SCRIPTS.datiCliente, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cf }) }); }
-async function apiPostPrenotazioni(cf) { return fetchJSON(SCRIPTS.prenotazioni, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cf }) }); }
-async function apiPostDisponibilita(payload) { return fetchJSON(SCRIPTS.disponibilita, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload || {}) }); }
-async function apiManageBooking(payload) { return fetchJSON(SCRIPTS.manageBooking, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload || {}) }); }
 
-/* ========== DATE HELPER ========== */
-function popolaSelectDate() {
-  const oggi = new Date();
-  const annoCorrente = oggi.getFullYear();
+async function apiPostDatiCliente(cf) { 
+  return fetchJSON(SCRIPTS.datiCliente, { 
+    method: 'POST', 
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify({ cf }) 
+  }); 
+}
+
+async function apiPostPrenotazioni(cf) { 
+  return fetchJSON(SCRIPTS.prenotazioni, { 
+    method: 'POST', 
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify({ cf }) 
+  }); 
+}
+
+async function apiPostDisponibilita(payload) { 
+  return fetchJSON(SCRIPTS.disponibilita, { 
+    method: 'POST', 
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify(payload || {}) 
+  }); 
+}
+
+async function apiManageBooking(payload) {
+  // Tentativo primario su manageBooking
+  try {
+    const res = await fetchJSON(SCRIPTS.manageBooking, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(payload || {}) 
+    });
+    if (res.success) return res;
+    throw new Error(res.error || 'Errore API primaria');
+  } catch (err) {
+    console.warn('Fallback su endpoint prenotazioni:', err);
+    // Fallback su prenotazioni
+    return fetchJSON(SCRIPTS.prenotazioni, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(payload || {}) 
+    });
+  }
+}
+
+
+// ========== DATE HELPER PARAMETRIZZATO ==========
+function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
+  const sGiorno = qs(`#${giornoId}`);
+  const sMese = qs(`#${meseId}`);
+  const sAnno = qs(`#${annoId}`);
   
-  [['giorno_ritiro', 'giorno_arrivo'], ['mese_ritiro', 'mese_arrivo'], ['anno_ritiro', 'anno_arrivo']].forEach(([id1, id2]) => {
-    const s1 = qs(`#${id1}`), s2 = qs(`#${id2}`);
-    if (!s1 || !s2) return;
-    
-    if (id1.startsWith('giorno')) {
-      for (let i = 1; i <= 31; i++) {
-        s1.add(new Option(String(i).padStart(2, '0'), i));
-        s2.add(new Option(String(i).padStart(2, '0'), i));
-      }
-      s1.value = oggi.getDate();
-      s2.value = oggi.getDate();
-    } else if (id1.startsWith('mese')) {
-      const mesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-      mesi.forEach((m, i) => {
-        s1.add(new Option(m, i + 1));
-        s2.add(new Option(m, i + 1));
-      });
-      s1.value = oggi.getMonth() + 1;
-      s2.value = oggi.getMonth() + 1;
-    } else if (id1.startsWith('anno')) {
-      for (let y = annoCorrente; y <= annoCorrente + 1; y++) {
-        s1.add(new Option(y, y));
-        s2.add(new Option(y, y));
-      }
-      s1.value = annoCorrente;
-      s2.value = annoCorrente;
+  if (!sGiorno || !sMese || !sAnno) return;
+  
+  const oggi = new Date();
+  
+  // Giorni
+  for (let i = 1; i <= 31; i++) {
+    sGiorno.add(new Option(pad2(i), i));
+  }
+  sGiorno.value = oggi.getDate();
+  
+  // Mesi
+  const mesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  mesi.forEach((m, i) => {
+    sMese.add(new Option(m, i + 1));
+  });
+  sMese.value = oggi.getMonth() + 1;
+  
+  // Anni
+  for (let y = annoStart; y <= annoEnd; y++) {
+    sAnno.add(new Option(y, y));
+  }
+  sAnno.value = oggi.getFullYear();
+}
+
+function getData(prefix) {
+  const g = qs(`#giorno_${prefix}`)?.value;
+  const m = qs(`#mese_${prefix}`)?.value;
+  const a = qs(`#anno_${prefix}`)?.value;
+  if (!g || !m || !a) return '';
+  return `${a}-${pad2(m)}-${pad2(g)}`;
+}
+
+function getDataAutista(tipo, i) {
+  // tipo: 'nascita' | 'inizio_pat' | 'fine_pat'
+  const g = qs(`#giorno_${tipo}_${i}`)?.value;
+  const m = qs(`#mese_${tipo}_${i}`)?.value;
+  const a = qs(`#anno_${tipo}_${i}`)?.value;
+  if (!g || !m || !a) return '';
+  return `${a}-${pad2(m)}-${pad2(g)}`;
+}
+
+function setSelectValue(id, val) {
+  const sel = qs(`#${id}`);
+  if (!sel || !val) return;
+  sel.value = val;
+}
+
+function setDataToSelects(prefix, isoDate) {
+  if (!isoDate) return;
+  const [y, m, d] = isoDate.split('-');
+  setSelectValue(`giorno_${prefix}`, parseInt(d, 10));
+  setSelectValue(`mese_${prefix}`, parseInt(m, 10));
+  setSelectValue(`anno_${prefix}`, parseInt(y, 10));
+}
+
+
+// ========== ROUTING HISTORY API ==========
+function routeTo(view, stepId = null) {
+  qsa('[data-section]').forEach(s => s.style.display = 'none');
+  qsa('[data-step]').forEach(s => s.classList.add('hidden'));
+  
+  if (view === 'home') {
+    const home = qs('#homepage');
+    if (home) home.style.display = 'block';
+  } else if (view === 'area') {
+    const area = qs('#area-personale');
+    if (area) area.style.display = 'block';
+  } else if (view === 'wizard') {
+    const wizard = qs('#mainbox');
+    if (wizard) wizard.style.display = 'block';
+    if (stepId) {
+      const step = qs(`#${stepId}`);
+      if (step) step.classList.remove('hidden');
+    }
+  } else if (view === 'modifica') {
+    const mod = qs('#modifica-prenotazione');
+    if (mod) mod.style.display = 'block';
+  }
+}
+
+function initHistory() {
+  const hash = window.location.hash.slice(1);
+  if (hash === 'area') {
+    routeTo('area');
+  } else if (hash.startsWith('step')) {
+    routeTo('wizard', hash);
+  } else {
+    routeTo('home');
+  }
+  
+  window.addEventListener('popstate', (e) => {
+    if (e.state?.view) {
+      routeTo(e.state.view, e.state.step);
+    } else {
+      routeTo('home');
     }
   });
 }
-function getDateFromSelects(gg, mm, aa) {
-  const g = qs(`#${gg}`)?.value, m = qs(`#${mm}`)?.value, a = qs(`#${aa}`)?.value;
-  if (!g || !m || !a) return '';
-  return `${a}-${String(m).padStart(2, '0')}-${String(g).padStart(2, '0')}`;
-}
-/* ========== ROUTING ========== */
-function showSection(id) {
-  qsa('[data-section]').forEach(s => s.style.display = 'none');
-  const target = qs(`#${id}`);
-  if (target) {
-    target.style.display = 'block';
-    history.pushState({ section: id }, '', `#${id}`);
-  }
-}
-function showStep(id) {
-  qsa('[data-step]').forEach(s => s.classList.add('hidden'));
-  const target = qs(`#${id}`);
-  if (target) target.classList.remove('hidden');
-}
-window.addEventListener('popstate', (e) => {
-  if (e.state?.section) showSection(e.state.section);
-  else showSection('homepage');
-});
 
-function logout() {
-  loggedCustomerData = null;
-  bookingData = {};
-  prenotazioniMap.clear();
-  sessionStorage.clear();
-  showSection('homepage');
-  mostraSuccesso('Logout effettuato');
-}
 
-/* ========== LOGIN ========== */
+// ========== LOGIN ==========
 async function handleLogin(cf) {
   if (!cf || cf.length < 11) throw new Error('Inserisci un codice fiscale valido');
   if (!validaCodiceFiscale(cf)) throw new Error('Codice fiscale non valido');
   
   mostraLoading(true);
   try {
-    const [dati, prenotazioniRes] = await Promise.all([apiPostDatiCliente(cf), apiPostPrenotazioni(cf)]);
+    const [dati, prenotazioniRes] = await Promise.all([
+      apiPostDatiCliente(cf), 
+      apiPostPrenotazioni(cf)
+    ]);
     
     if (!dati || !dati.nome) throw new Error('Nessun cliente trovato');
     
     loggedCustomerData = {
-      nome: asString(dati.nome),
-      dataNascita: asString(dati.dataNascita),
-      luogoNascita: asString(dati.luogoNascita),
+      nome: asString(dati.nome, ''),
+      dataNascita: asString(dati.dataNascita, ''),
+      luogoNascita: asString(dati.luogoNascita, ''),
       codiceFiscale: cf.toUpperCase(),
-      comuneResidenza: asString(dati.comuneResidenza),
-      viaResidenza: asString(dati.viaResidenza),
-      civicoResidenza: asString(dati.civicoResidenza),
-      numeroPatente: asString(dati.numeroPatente),
-      dataInizioValiditaPatente: asString(dati.dataInizioValiditaPatente),
-      dataFineValiditaPatente: asString(dati.dataFineValiditaPatente),
-      cellulare: asString(dati.cellulare)
+      comuneResidenza: asString(dati.comuneResidenza, ''),
+      viaResidenza: asString(dati.viaResidenza, ''),
+      civicoResidenza: asString(dati.civicoResidenza, ''),
+      numeroPatente: asString(dati.numeroPatente, ''),
+      dataInizioValiditaPatente: asString(dati.dataInizioValiditaPatente, ''),
+      dataFineValiditaPatente: asString(dati.dataFineValiditaPatente, ''),
+      cellulare: asString(dati.cellulare, '')
     };
     
     prenotazioniMap.clear();
@@ -212,7 +409,8 @@ async function handleLogin(cf) {
     
     sessionStorage.setItem('imbriani_logged_user', JSON.stringify(loggedCustomerData));
     renderAreaPersonale();
-    showSection('area-personale');
+    routeTo('area');
+    history.pushState({ view: 'area' }, '', '#area');
     mostraSuccesso(`Benvenuto, ${loggedCustomerData.nome}`);
   } catch (err) {
     console.error(err);
@@ -222,6 +420,19 @@ async function handleLogin(cf) {
   }
 }
 
+function logout() {
+  loggedCustomerData = null;
+  bookingData = {};
+  autistiCache = [];
+  prenotazioniMap.clear();
+  sessionStorage.clear();
+  routeTo('home');
+  history.pushState({ view: 'home' }, '', '#home');
+  mostraSuccesso('Logout effettuato');
+}
+
+
+// ========== AREA PERSONALE ==========
 function renderAreaPersonale() {
   const root = qs('#area-personale-content');
   if (!root || !loggedCustomerData) return;
@@ -230,8 +441,14 @@ function renderAreaPersonale() {
     el('div', { class: 'card welcome-card' },
       el('h2', { text: `Benvenuto, ${loggedCustomerData.nome}!` }),
       el('p', { text: `CF: ${loggedCustomerData.codiceFiscale}` }),
-      el('button', { class: 'btn btn--primary', onclick: startNewBookingWithPreFill }, 'Nuova Prenotazione'),
-      el('button', { class: 'btn btn--secondary', onclick: logout }, 'Esci')
+      el('button', { 
+        class: 'btn btn--primary', 
+        onclick: startNewBookingWithPreFill 
+      }, 'Nuova Prenotazione'),
+      el('button', { 
+        class: 'btn btn--secondary', 
+        onclick: logout 
+      }, 'Esci')
     ),
     el('div', { class: 'card prenotazioni-card' },
       el('h3', { text: 'Le tue prenotazioni' }),
@@ -249,7 +466,10 @@ function renderPrenotazioniLista() {
       el('div', { class: 'prenotazione-item card-sm' },
         el('strong', { text: `ID: ${id}` }),
         el('p', { text: `Veicolo: ${asString(p.Targa)} • ${asString(p['Giorno inizio noleggio'])} - ${asString(p['Giorno fine noleggio'])}` }),
-        el('button', { class: 'btn btn--sm', onclick: () => modificaPrenotazione(id) }, 'Modifica')
+        el('button', { 
+          class: 'btn btn--sm', 
+          onclick: () => modificaPrenotazione(id) 
+        }, 'Modifica')
       )
     );
   });
@@ -259,29 +479,36 @@ function renderPrenotazioniLista() {
 function startNewBookingWithPreFill() {
   if (!loggedCustomerData) return;
   
-  bookingData = {
-    pulmino: null,
-    targa: '',
-    autisti: [{
-      nomeCognome: loggedCustomerData.nome,
-      dataNascita: loggedCustomerData.dataNascita,
-      luogoNascita: loggedCustomerData.luogoNascita,
-      codiceFiscale: loggedCustomerData.codiceFiscale,
-      comuneResidenza: loggedCustomerData.comuneResidenza,
-      viaResidenza: loggedCustomerData.viaResidenza,
-      civicoResidenza: loggedCustomerData.civicoResidenza,
-      numeroPatente: loggedCustomerData.numeroPatente,
-      dataInizioValiditaPatente: loggedCustomerData.dataInizioValiditaPatente,
-      dataFineValiditaPatente: loggedCustomerData.dataFineValiditaPatente
-    }],
-    cellulare: loggedCustomerData.cellulare
-  };
+  const a0 = bookingData.autisti?.[0] || {};
+  const vuoto = !a0 || Object.values(a0).every(v => !v);
+  
+  if (vuoto) {
+    bookingData = {
+      pulmino: null,
+      targa: '',
+      autisti: [{
+        nomeCognome: loggedCustomerData.nome,
+        dataNascita: loggedCustomerData.dataNascita,
+        luogoNascita: loggedCustomerData.luogoNascita,
+        codiceFiscale: loggedCustomerData.codiceFiscale,
+        comuneResidenza: loggedCustomerData.comuneResidenza,
+        viaResidenza: loggedCustomerData.viaResidenza,
+        civicoResidenza: loggedCustomerData.civicoResidenza,
+        numeroPatente: loggedCustomerData.numeroPatente,
+        dataInizioValiditaPatente: loggedCustomerData.dataInizioValiditaPatente,
+        dataFineValiditaPatente: loggedCustomerData.dataFineValiditaPatente
+      }],
+      cellulare: loggedCustomerData.cellulare
+    };
+  }
   
   sessionStorage.setItem('imbriani_booking_draft', JSON.stringify(bookingData));
-  showSection('mainbox');
-  showStep('step1');
+  routeTo('wizard', 'step1');
+  history.pushState({ view: 'wizard', step: 'step1' }, '', '#step1');
 }
 
+
+// ========== MODIFICA PRENOTAZIONE ==========
 async function modificaPrenotazione(idPrenotazione) {
   const p = prenotazioniMap.get(idPrenotazione);
   if (!p) return mostraErrore('Prenotazione non trovata');
@@ -291,30 +518,102 @@ async function modificaPrenotazione(idPrenotazione) {
   
   clearAndAppend(root,
     el('h3', { text: `Modifica prenotazione ${idPrenotazione}` }),
-    el('form', { id: 'form-modifica', onsubmit: (e) => { e.preventDefault(); handleUpdatePrenotazione(idPrenotazione); } },
-      el('label', {}, 'Nome ', el('input', { name: 'Nome', value: asString(p.Nome), required: true })),
-      el('label', {}, 'Data di nascita ', el('input', { name: 'Data di nascita', type: 'date', value: convertDateToIso(p['Data di nascita']), required: true })),
-      el('label', {}, 'Luogo di nascita ', el('input', { name: 'Luogo di nascita', value: asString(p['Luogo di nascita']), required: true })),
-      el('label', {}, 'Codice fiscale ', el('input', { name: 'Codice fiscale', value: asString(p['Codice fiscale']), required: true })),
+    el('form', { 
+      id: 'form-modifica', 
+      onsubmit: (e) => { 
+        e.preventDefault(); 
+        handleUpdatePrenotazione(idPrenotazione); 
+      } 
+    },
+      el('label', {}, 'Nome ', el('input', { 
+        name: 'Nome', 
+        value: asString(p.Nome, ''), 
+        required: true 
+      })),
+      el('label', {}, 'Data di nascita ', el('input', { 
+        name: 'Data di nascita', 
+        type: 'date', 
+        value: convertDateToIso(p['Data di nascita']), 
+        required: true 
+      })),
+      el('label', {}, 'Luogo di nascita ', el('input', { 
+        name: 'Luogo di nascita', 
+        value: asString(p['Luogo di nascita'], ''), 
+        required: true 
+      })),
+      el('label', {}, 'Codice fiscale ', el('input', { 
+        name: 'Codice fiscale', 
+        value: asString(p['Codice fiscale'], ''), 
+        required: true 
+      })),
       
-      el('label', {}, 'Comune di residenza ', el('input', { name: 'Comune di residenza', value: asString(p['Comune di residenza']), required: true })),
-      el('label', {}, 'Via di residenza ', el('input', { name: 'Via di residenza', value: asString(p['Via di residenza']), required: true })),
-      el('label', {}, 'Civico di residenza ', el('input', { name: 'Civico di residenza', value: asString(p['Civico di residenza']), required: true })),
+      el('label', {}, 'Comune di residenza ', el('input', { 
+        name: 'Comune di residenza', 
+        value: asString(p['Comune di residenza'], ''), 
+        required: true 
+      })),
+      el('label', {}, 'Via di residenza ', el('input', { 
+        name: 'Via di residenza', 
+        value: asString(p['Via di residenza'], ''), 
+        required: true 
+      })),
+      el('label', {}, 'Civico di residenza ', el('input', { 
+        name: 'Civico di residenza', 
+        value: asString(p['Civico di residenza'], ''), 
+        required: true 
+      })),
       
-      el('label', {}, 'Numero di patente ', el('input', { name: 'Numero di patente', value: asString(p['Numero di patente']), required: true })),
-      el('label', {}, 'Data inizio validità patente ', el('input', { name: 'Data inizio validità patente', type: 'date', value: convertDateToIso(p['Data inizio validità patente']), required: true })),
-      el('label', {}, 'Scadenza patente ', el('input', { name: 'Scadenza patente', type: 'date', value: convertDateToIso(p['Scadenza patente']), required: true })),
+      el('label', {}, 'Numero di patente ', el('input', { 
+        name: 'Numero di patente', 
+        value: asString(p['Numero di patente'], ''), 
+        required: true 
+      })),
+      el('label', {}, 'Data inizio validità patente ', el('input', { 
+        name: 'Data inizio validità patente', 
+        type: 'date', 
+        value: convertDateToIso(p['Data inizio validità patente']), 
+        required: true 
+      })),
+      el('label', {}, 'Scadenza patente ', el('input', { 
+        name: 'Scadenza patente', 
+        type: 'date', 
+        value: convertDateToIso(p['Scadenza patente']), 
+        required: true 
+      })),
       
-      el('label', {}, 'Ora inizio noleggio ', el('input', { name: 'Ora inizio noleggio', type: 'time', value: asString(p['Ora inizio noleggio']), required: true })),
-      el('label', {}, 'Ora fine noleggio ', el('input', { name: 'Ora fine noleggio', type: 'time', value: asString(p['Ora fine noleggio']), required: true })),
-      el('label', {}, 'Cellulare ', el('input', { name: 'Cellulare', type: 'tel', value: asString(p.Cellulare), required: true })),
+      el('label', {}, 'Ora inizio noleggio ', el('input', { 
+        name: 'Ora inizio noleggio', 
+        type: 'time', 
+        value: asString(p['Ora inizio noleggio'], ''), 
+        required: true 
+      })),
+      el('label', {}, 'Ora fine noleggio ', el('input', { 
+        name: 'Ora fine noleggio', 
+        type: 'time', 
+        value: asString(p['Ora fine noleggio'], ''), 
+        required: true 
+      })),
+      el('label', {}, 'Cellulare ', el('input', { 
+        name: 'Cellulare', 
+        type: 'tel', 
+        value: asString(p.Cellulare, ''), 
+        required: true 
+      })),
       
-      el('button', { type: 'submit', class: 'btn btn--primary' }, 'Salva Modifiche'),
-      el('button', { type: 'button', class: 'btn btn--danger', onclick: () => handleDeletePrenotazione(idPrenotazione) }, 'Elimina')
+      el('button', { 
+        type: 'submit', 
+        class: 'btn btn--primary' 
+      }, 'Salva Modifiche'),
+      el('button', { 
+        type: 'button', 
+        class: 'btn btn--danger', 
+        onclick: () => handleDeletePrenotazione(idPrenotazione) 
+      }, 'Elimina')
     )
   );
   
-  showSection('modifica-prenotazione');
+  routeTo('modifica');
+  history.pushState({ view: 'modifica' }, '', '#modifica');
 }
 
 async function handleUpdatePrenotazione(idPrenotazione) {
@@ -326,7 +625,11 @@ async function handleUpdatePrenotazione(idPrenotazione) {
   
   mostraLoading(true);
   try {
-    const res = await apiManageBooking({ action: 'update', idPrenotazione, ...data });
+    const res = await apiManageBooking({ 
+      action: 'update', 
+      idPrenotazione, 
+      ...data 
+    });
     if (!res.success) throw new Error(res.error || 'Errore aggiornamento');
     
     mostraSuccesso('Prenotazione aggiornata');
@@ -344,7 +647,10 @@ async function handleDeletePrenotazione(idPrenotazione) {
   
   mostraLoading(true);
   try {
-    const res = await apiManageBooking({ action: 'delete', idPrenotazione });
+    const res = await apiManageBooking({ 
+      action: 'delete', 
+      idPrenotazione 
+    });
     if (!res.success) throw new Error(res.error || 'Errore eliminazione');
     
     mostraSuccesso('Prenotazione eliminata');
@@ -356,15 +662,19 @@ async function handleDeletePrenotazione(idPrenotazione) {
     mostraLoading(false);
   }
 }
-/* ========== STEP 1 — Date/Orari ========== */
+
+
+// ========== STEP 1 — Date/Orari ==========
 async function controllaDisponibilita() {
-  const dataR = getDateFromSelects('giorno_ritiro', 'mese_ritiro', 'anno_ritiro');
-  const dataA = getDateFromSelects('giorno_arrivo', 'mese_arrivo', 'anno_arrivo');
+  const dataR = getData('ritiro');
+  const dataA = getData('arrivo');
   const oraR = qs('#ora_partenza')?.value || '';
   const oraA = qs('#ora_arrivo')?.value || '';
   
   if (!dataR || !dataA) return mostraErrore('Compila le date');
-  if (new Date(dataR) > new Date(dataA)) return mostraErrore('Data fine precedente a data inizio');
+  if (new Date(dataR) > new Date(dataA)) {
+    return mostraErrore('Data fine precedente a data inizio');
+  }
   
   bookingData.dataRitiro = dataR;
   bookingData.dataArrivo = dataA;
@@ -374,28 +684,45 @@ async function controllaDisponibilita() {
   
   mostraLoading(true);
   try {
-    const res = await apiPostDisponibilita({ dataRitiro: dataR, dataArrivo: dataA, oraRitiro: oraR, oraArrivo: oraA });
-    const vehicles = Array.isArray(res.vehicles) && res.vehicles.length ? res.vehicles : pulmini;
+    const res = await apiPostDisponibilita({ 
+      dataRitiro: dataR, 
+      dataArrivo: dataA, 
+      oraRitiro: oraR, 
+      oraArrivo: oraA 
+    });
+    const vehicles = Array.isArray(res.vehicles) && res.vehicles.length 
+      ? res.vehicles 
+      : pulmini;
     
     renderPulminiCards(vehicles);
-    showStep('step2');
+    routeTo('wizard', 'step2');
+    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
   } catch (err) {
     console.error(err);
     mostraErrore('Errore verifica disponibilità, uso catalogo base');
     renderPulminiCards(pulmini);
-    showStep('step2');
+    routeTo('wizard', 'step2');
+    history.pushState({ view: 'wizard', step: 'step2' }, '', '#step2');
   } finally {
     mostraLoading(false);
   }
 }
 
-/* ========== STEP 2 — Card veicoli ========== */
+
+// ========== STEP 2 — Card veicoli ==========
 function renderPulminiCards(vehicles) {
   const root = qs('#lista-pulmini');
   if (!root) return;
   
   clearAndAppend(root, ...vehicles.map(v =>
-    el('div', { class: 'card-pulmino', dataset: { id: v.id, targa: v.targa || '' }, onclick: () => selectPulmino(v) },
+    el('div', { 
+      class: 'card-pulmino', 
+      dataset: { id: v.id, targa: v.targa || '' }, 
+      onclick: () => selectPulmino(v),
+      tabindex: 0,
+      role: 'button',
+      'aria-label': `Seleziona ${v.nome}`
+    },
       el('div', { class: 'card-title', text: v.nome }),
       el('div', { class: 'card-sub', text: `Targa: ${v.targa || '-'}` })
     )
@@ -416,148 +743,424 @@ function selectPulmino(v) {
 }
 
 function continuaStep2() {
-  if (!bookingData.pulmino || !bookingData.pulmino.id) return mostraErrore('Seleziona un veicolo');
+  if (!bookingData.pulmino || !bookingData.pulmino.id) {
+    return mostraErrore('Seleziona un veicolo');
+  }
+  
+  if (!bookingData.autisti || !bookingData.autisti.length) {
+    bookingData.autisti = [{}];
+  }
+  
   mostraModuliAutisti();
-  showStep('step3');
+  routeTo('wizard', 'step3');
+  history.pushState({ view: 'wizard', step: 'step3' }, '', '#step3');
 }
 
-/* ========== STEP 3 — Autisti con residenza ========== */
+
+// ========== STEP 3 — Autisti con residenza ==========
+function saveAutistiFromForm(maxCount) {
+  autistiCache = [];
+  for (let i = 1; i <= maxCount; i++) {
+    const a = getAutistaFromForm(i);
+    if (a.nomeCognome || a.codiceFiscale) {
+      autistiCache.push(a);
+    }
+  }
+}
+
+function fillAutistaToForm(i, a) {
+  if (!a) return;
+  
+  setSelectValue(`nome_${i}`, a.nomeCognome);
+  setDataToSelects(`nascita_${i}`, a.dataNascita);
+  setSelectValue(`luogo_${i}`, a.luogoNascita);
+  setSelectValue(`cf_${i}`, a.codiceFiscale);
+  setSelectValue(`comune_residenza_${i}`, a.comuneResidenza);
+  setSelectValue(`via_residenza_${i}`, a.viaResidenza);
+  setSelectValue(`civico_residenza_${i}`, a.civicoResidenza);
+  setSelectValue(`patente_${i}`, a.numeroPatente);
+  setDataToSelects(`inizio_pat_${i}`, a.dataInizioValiditaPatente);
+  setDataToSelects(`fine_pat_${i}`, a.dataFineValiditaPatente);
+}
+
 function mostraModuliAutisti() {
   const root = qs('#autisti-container');
   if (!root) return;
   
   const numAutisti = bookingData.autisti?.length || 1;
-  clearAndAppend(root, ...Array.from({ length: numAutisti }, (_, i) => buildAutistaForm(i + 1, bookingData.autisti?.[i] || {})));
+  
+  // Salva dati correnti
+  saveAutistiFromForm(3);
+  
+  // Merge cache con bookingData
+  for (let i = 0; i < numAutisti; i++) {
+    if (autistiCache[i]) {
+      bookingData.autisti[i] = { 
+        ...bookingData.autisti[i], 
+        ...autistiCache[i] 
+      };
+    }
+  }
+  
+  clearAndAppend(root, 
+    ...Array.from({ length: numAutisti }, (_, i) => 
+      buildAutistaForm(i + 1, bookingData.autisti?.[i] || {})
+    )
+  );
   
   const selectNum = qs('#numero-autisti');
   if (selectNum) {
     selectNum.value = numAutisti;
     selectNum.onchange = (e) => {
       const n = Math.min(3, Math.max(1, parseInt(e.target.value, 10) || 1));
-      bookingData.autisti = Array.from({ length: n }, (_, i) => bookingData.autisti?.[i] || {});
+      
+      // Salva stato corrente
+      saveAutistiFromForm(numAutisti);
+      
+      // Ridimensiona array
+      bookingData.autisti = Array.from({ length: n }, (_, i) => 
+        autistiCache[i] || bookingData.autisti?.[i] || {}
+      );
+      
       mostraModuliAutisti();
     };
   }
 }
 
 function buildAutistaForm(index, prefill = {}) {
-  return el('div', { class: 'card form-autista', dataset: { index } },
+  const annoCorrente = new Date().getFullYear();
+  
+  const container = el('div', { 
+    class: 'card form-autista', 
+    dataset: { index } 
+  },
     el('h4', { text: `Autista ${index}` }),
-    el('label', {}, 'Nome e Cognome ', el('input', { id: `nome_${index}`, value: asString(prefill.nomeCognome), required: true })),
-    el('label', {}, 'Data di nascita ', el('input', { id: `data_${index}`, type: 'date', value: asString(prefill.dataNascita), required: true })),
-    el('label', {}, 'Luogo di nascita ', el('input', { id: `luogo_${index}`, value: asString(prefill.luogoNascita), required: true })),
-    el('label', {}, 'Codice fiscale ', el('input', { id: `cf_${index}`, value: asString(prefill.codiceFiscale), required: true })),
     
-    el('label', {}, 'Comune di residenza ', el('input', { id: `comune_residenza_${index}`, value: asString(prefill.comuneResidenza), required: true })),
-    el('label', {}, 'Via di residenza ', el('input', { id: `via_residenza_${index}`, value: asString(prefill.viaResidenza), required: true })),
-    el('label', {}, 'Civico di residenza ', el('input', { id: `civico_residenza_${index}`, value: asString(prefill.civicoResidenza), required: true })),
+    el('label', {}, 'Nome e Cognome ', 
+      el('input', { 
+        id: `nome_${index}`, 
+        value: asString(prefill.nomeCognome, ''), 
+        required: true,
+        placeholder: 'Mario Rossi'
+      })
+    ),
     
-    el('label', {}, 'Numero di patente ', el('input', { id: `patente_${index}`, value: asString(prefill.numeroPatente), required: true })),
-    el('label', {}, 'Data inizio validità patente ', el('input', { id: `inizio_pat_${index}`, type: 'date', value: asString(prefill.dataInizioValiditaPatente), required: true })),
-    el('label', {}, 'Scadenza patente ', el('input', { id: `fine_pat_${index}`, type: 'date', value: asString(prefill.dataFineValiditaPatente), required: true }))
+    // Data nascita con tendine
+    el('label', {}, 'Data di nascita'),
+    el('div', { class: 'date-selects' },
+      el('select', { id: `giorno_nascita_${index}`, required: true }),
+      el('select', { id: `mese_nascita_${index}`, required: true }),
+      el('select', { id: `anno_nascita_${index}`, required: true })
+    ),
+    
+    el('label', {}, 'Luogo di nascita ', 
+      el('input', { 
+        id: `luogo_${index}`, 
+        value: asString(prefill.luogoNascita, ''), 
+        required: true 
+      })
+    ),
+    
+    el('label', {}, 'Codice fiscale ', 
+      el('input', { 
+        id: `cf_${index}`, 
+        value: asString(prefill.codiceFiscale, ''), 
+        required: true,
+        maxlength: 16,
+        style: 'text-transform: uppercase'
+      })
+    ),
+    
+    el('label', {}, 'Comune di residenza ', 
+      el('input', { 
+        id: `comune_residenza_${index}`, 
+        value: asString(prefill.comuneResidenza, ''), 
+        required: true 
+      })
+    ),
+    
+    el('label', {}, 'Via di residenza ', 
+      el('input', { 
+        id: `via_residenza_${index}`, 
+        value: asString(prefill.viaResidenza, ''), 
+        required: true,
+        placeholder: 'Garibaldi (senza Via/Viale)'
+      })
+    ),
+    
+    el('label', {}, 'Civico di residenza ', 
+      el('input', { 
+        id: `civico_residenza_${index}`, 
+        value: asString(prefill.civicoResidenza, ''), 
+        required: true 
+      })
+    ),
+    
+    el('label', {}, 'Numero di patente ', 
+      el('input', { 
+        id: `patente_${index}`, 
+        value: asString(prefill.numeroPatente, ''), 
+        required: true 
+      })
+    ),
+    
+    // Data inizio patente
+    el('label', {}, 'Data inizio validità patente'),
+    el('div', { class: 'date-selects' },
+      el('select', { id: `giorno_inizio_pat_${index}`, required: true }),
+      el('select', { id: `mese_inizio_pat_${index}`, required: true }),
+      el('select', { id: `anno_inizio_pat_${index}`, required: true })
+    ),
+    
+    // Data fine patente
+    el('label', {}, 'Scadenza patente'),
+    el('div', { class: 'date-selects' },
+      el('select', { id: `giorno_fine_pat_${index}`, required: true }),
+      el('select', { id: `mese_fine_pat_${index}`, required: true }),
+      el('select', { id: `anno_fine_pat_${index}`, required: true })
+    )
   );
+  
+  // Popola tendine date
+  setTimeout(() => {
+    // Data nascita: 1900 - annoCorrente-18
+    popolaTendineData(
+      `giorno_nascita_${index}`, 
+      `mese_nascita_${index}`, 
+      `anno_nascita_${index}`, 
+      1900, 
+      annoCorrente - 18
+    );
+    if (prefill.dataNascita) {
+      setDataToSelects(`nascita_${index}`, prefill.dataNascita);
+    }
+    
+    // Data inizio patente: annoCorrente-50 - annoCorrente
+    popolaTendineData(
+      `giorno_inizio_pat_${index}`, 
+      `mese_inizio_pat_${index}`, 
+      `anno_inizio_pat_${index}`, 
+      annoCorrente - 50, 
+      annoCorrente
+    );
+    if (prefill.dataInizioValiditaPatente) {
+      setDataToSelects(`inizio_pat_${index}`, prefill.dataInizioValiditaPatente);
+    }
+    
+    // Data fine patente: annoCorrente - annoCorrente+20 (ESTESO)
+    popolaTendineData(
+      `giorno_fine_pat_${index}`, 
+      `mese_fine_pat_${index}`, 
+      `anno_fine_pat_${index}`, 
+      annoCorrente, 
+      annoCorrente + 20
+    );
+    if (prefill.dataFineValiditaPatente) {
+      setDataToSelects(`fine_pat_${index}`, prefill.dataFineValiditaPatente);
+    }
+  }, 0);
+  
+  return container;
 }
 
 function getAutistaFromForm(index) {
   return {
     nomeCognome: qs(`#nome_${index}`)?.value.trim() || '',
-    dataNascita: qs(`#data_${index}`)?.value || '',
+    dataNascita: getDataAutista('nascita', index),
     luogoNascita: qs(`#luogo_${index}`)?.value.trim() || '',
     codiceFiscale: qs(`#cf_${index}`)?.value.trim().toUpperCase() || '',
     comuneResidenza: qs(`#comune_residenza_${index}`)?.value.trim() || '',
     viaResidenza: qs(`#via_residenza_${index}`)?.value.trim() || '',
     civicoResidenza: qs(`#civico_residenza_${index}`)?.value.trim() || '',
     numeroPatente: qs(`#patente_${index}`)?.value.trim() || '',
-    dataInizioValiditaPatente: qs(`#inizio_pat_${index}`)?.value || '',
-    dataFineValiditaPatente: qs(`#fine_pat_${index}`)?.value || ''
+    dataInizioValiditaPatente: getDataAutista('inizio_pat', index),
+    dataFineValiditaPatente: getDataAutista('fine_pat', index)
   };
 }
 
 function continuaStep3() {
   const n = bookingData.autisti?.length || 1;
-  bookingData.autisti = Array.from({ length: n }, (_, i) => getAutistaFromForm(i + 1));
+  bookingData.autisti = Array.from({ length: n }, (_, i) => 
+    getAutistaFromForm(i + 1)
+  );
   
   const a1 = bookingData.autisti[0];
-  if (!a1.nomeCognome || !a1.codiceFiscale) return mostraErrore('Compila i dati obbligatori autista 1');
-  if (!validaCodiceFiscale(a1.codiceFiscale)) return mostraErrore('Codice fiscale autista 1 non valido');
-  if (!a1.comuneResidenza || !a1.viaResidenza) return mostraErrore('Compila residenza autista 1');
+  
+  // Validazioni ESTESE
+  if (!a1.nomeCognome || !a1.codiceFiscale) {
+    return mostraErrore('Compila i dati obbligatori autista 1');
+  }
+  
+  if (!validaNomeCognome(a1.nomeCognome)) {
+    return mostraErrore('Inserisci nome e cognome completi (autista 1)');
+  }
+  
+  if (!validaCodiceFiscale(a1.codiceFiscale)) {
+    return mostraErrore('Codice fiscale autista 1 non valido');
+  }
+  
+  const eta = calcolaEta(a1.dataNascita);
+  if (eta < 18 || eta > 100) {
+    return mostraErrore('L\'autista deve avere tra 18 e 100 anni');
+  }
+  
+  if (!a1.comuneResidenza || !a1.viaResidenza) {
+    return mostraErrore('Compila residenza autista 1');
+  }
+  
+  // Verifica patente scaduta
+  const oggi = new Date();
+  const finePatente = new Date(a1.dataFineValiditaPatente);
+  if (finePatente < oggi) {
+    return mostraErrore('La patente dell\'autista 1 è scaduta');
+  }
+  
+  // Verifica coerenza date patente
+  const inizioPatente = new Date(a1.dataInizioValiditaPatente);
+  if (inizioPatente >= finePatente) {
+    return mostraErrore('Data inizio validità patente deve essere precedente alla scadenza');
+  }
   
   sanitizeBookingResidence(bookingData);
   
-  bookingData.cellulare = qs('#cellulare')?.value.trim() || loggedCustomerData?.cellulare || '';
-  if (!bookingData.cellulare) return mostraErrore('Inserisci un numero di cellulare');
-  if (!validaTelefono(bookingData.cellulare)) return mostraErrore('Numero di cellulare non valido');
+  bookingData.cellulare = qs('#cellulare')?.value.trim() 
+    || loggedCustomerData?.cellulare 
+    || '';
+  
+  if (!bookingData.cellulare) {
+    return mostraErrore('Inserisci un numero di cellulare');
+  }
+  
+  if (!validaTelefono(bookingData.cellulare)) {
+    return mostraErrore('Numero di cellulare non valido');
+  }
   
   sessionStorage.setItem('imbriani_booking_draft', JSON.stringify(bookingData));
   mostraRiepilogo();
-  showStep('step4');
+  routeTo('wizard', 'step4');
+  history.pushState({ view: 'wizard', step: 'step4' }, '', '#step4');
 }
 
-/* ========== STEP 4 — Riepilogo ========== */
+
+// ========== STEP 4 — Riepilogo ==========
+function rItem(label, value) {
+  return el('p', {},
+    el('strong', { text: label + ': ' }),
+    document.createTextNode(asString(value))
+  );
+}
+
 function mostraRiepilogo() {
   const root = qs('#riepilogo-content');
   if (!root) return;
   
   const a1 = bookingData.autisti[0] || {};
-  clearAndAppend(root,
+  
+  const elements = [
     el('div', { class: 'card' },
       el('h3', { text: 'Veicolo' }),
-      el('p', { text: `${bookingData.pulmino?.nome || '-'} (Targa: ${bookingData.pulmino?.targa || '-'})` }),
+      rItem('Modello', bookingData.pulmino?.nome),
+      rItem('Targa', bookingData.pulmino?.targa),
       
       el('h3', { text: 'Periodo' }),
-      el('p', { text: `${bookingData.dataRitiro} ${bookingData.oraRitiro} → ${bookingData.dataArrivo} ${bookingData.oraArrivo}` }),
+      rItem('Ritiro', `${dateToItalian(bookingData.dataRitiro)} ore ${bookingData.oraRitiro}`),
+      rItem('Consegna', `${dateToItalian(bookingData.dataArrivo)} ore ${bookingData.oraArrivo}`),
       
-      el('h3', { text: 'Autista 1' }),
-      el('p', { text: `${a1.nomeCognome || '-'}` }),
-      el('p', { text: `Nascita: ${a1.dataNascita || '-'} • ${a1.luogoNascita || '-'}` }),
-      el('p', { text: `CF: ${a1.codiceFiscale || '-'}` }),
-      el('p', { text: `Residenza: ${a1.viaResidenza || '-'} ${a1.civicoResidenza || ''}, ${a1.comuneResidenza || '-'}` }),
-      el('p', { text: `Patente: ${a1.numeroPatente || '-'} (${a1.dataInizioValiditaPatente || '-'} → ${a1.dataFineValiditaPatente || '-'})` }),
+      el('h3', { text: 'Autista Principale' }),
+      rItem('Nome', a1.nomeCognome),
+      rItem('Nascita', `${dateToItalian(a1.dataNascita)} - ${a1.luogoNascita}`),
+      rItem('Codice Fiscale', a1.codiceFiscale),
+      rItem('Residenza', `${a1.viaResidenza} ${a1.civicoResidenza}, ${a1.comuneResidenza}`),
+      rItem('Patente', a1.numeroPatente),
+      rItem('Validità patente', `${dateToItalian(a1.dataInizioValiditaPatente)} → ${dateToItalian(a1.dataFineValiditaPatente)}`),
       
       el('h3', { text: 'Contatto' }),
-      el('p', { text: `Cellulare: ${bookingData.cellulare || '-'}` })
+      rItem('Cellulare', bookingData.cellulare)
     )
-  );
+  ];
+  
+  // Autisti aggiuntivi
+  if (bookingData.autisti.length > 1) {
+    for (let i = 1; i < bookingData.autisti.length; i++) {
+      const a = bookingData.autisti[i];
+      if (a.nomeCognome || a.codiceFiscale) {
+        elements.push(
+          el('div', { class: 'card' },
+            el('h3', { text: `Autista ${i + 1}` }),
+            rItem('Nome', a.nomeCognome),
+            rItem('CF', a.codiceFiscale),
+            rItem('Patente', a.numeroPatente)
+          )
+        );
+      }
+    }
+  }
+  
+  clearAndAppend(root, ...elements);
 }
 
 async function inviaPrenotazione() {
-  mostraLoading(true);
-  try {
-    const payload = { action: 'create', prenotazione: bookingData };
-    const res = await apiManageBooking(payload);
-    if (!res.success) throw new Error(res.error || 'Errore invio');
-    
-    mostraSuccesso('Prenotazione inviata con successo!');
-    sessionStorage.removeItem('imbriani_booking_draft');
-    bookingData = {};
-    
-    if (loggedCustomerData) {
-      await handleLogin(loggedCustomerData.codiceFiscale);
-    } else {
-      showSection('homepage');
+  buildModalConferma(async () => {
+    mostraLoading(true);
+    try {
+      const payload = { 
+        action: 'create', 
+        prenotazione: bookingData 
+      };
+      const res = await apiManageBooking(payload);
+      
+      if (!res.success) {
+        throw new Error(res.error || 'Errore invio');
+      }
+      
+      mostraSuccesso('Prenotazione inviata con successo!');
+      sessionStorage.removeItem('imbriani_booking_draft');
+      bookingData = {};
+      autistiCache = [];
+      
+      if (loggedCustomerData) {
+        await handleLogin(loggedCustomerData.codiceFiscale);
+      } else {
+        routeTo('home');
+        history.pushState({ view: 'home' }, '', '#home');
+      }
+    } catch (err) {
+      console.error(err);
+      mostraErrore(err.message || 'Errore durante l'invio');
+    } finally {
+      mostraLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    mostraErrore(err.message || 'Errore durante l'invio');
-  } finally {
-    mostraLoading(false);
-  }
+  });
 }
-/* ========== NAVIGATION & BACK ========== */
+
+
+// ========== NAVIGATION & BACK ==========
 function setupNavigation() {
-  const title = qs('#site-title');
-  if (title) title.onclick = (e) => { e.preventDefault(); showSection('homepage'); };
+  const title = qs('header h1') || qs('#site-title');
+  if (title) {
+    title.style.cursor = 'pointer';
+    title.onclick = (e) => { 
+      e.preventDefault(); 
+      routeTo('home'); 
+      history.pushState({ view: 'home' }, '', '#home');
+    };
+  }
   
   qsa('.btn-back').forEach(btn => {
     btn.onclick = () => {
       const target = btn.getAttribute('data-target');
-      if (target) showStep(target);
-      else history.back();
+      if (target) {
+        routeTo('wizard', target);
+        history.pushState({ view: 'wizard', step: target }, '', `#${target}`);
+      } else {
+        history.back();
+      }
     };
   });
 }
 
-/* ========== FORM HANDLERS ========== */
+
+// ========== FORM HANDLERS ==========
 function setupLoginForm() {
   const form = qs('#form-login');
   if (!form) return;
@@ -572,18 +1175,28 @@ function setupLoginForm() {
 
 function setupHomeButtons() {
   const btnNew = qs('#btnNewBooking');
-  if (btnNew) btnNew.onclick = () => {
-    bookingData = { pulmino: null, targa: '', autisti: [{}], cellulare: '' };
-    showSection('mainbox');
-    showStep('step1');
-  };
+  if (btnNew) {
+    btnNew.onclick = () => {
+      bookingData = { 
+        pulmino: null, 
+        targa: '', 
+        autisti: [{}], 
+        cellulare: '' 
+      };
+      autistiCache = [];
+      routeTo('wizard', 'step1');
+      history.pushState({ view: 'wizard', step: 'step1' }, '', '#step1');
+    };
+  }
 }
 
 function setupStep1() {
   const btn = qs('#btn-controlla-disponibilita');
   if (btn) btn.onclick = controllaDisponibilita;
   
-  popolaSelectDate();
+  const annoCorrente = new Date().getFullYear();
+  popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', annoCorrente, annoCorrente + 1);
+  popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', annoCorrente, annoCorrente + 1);
 }
 
 function setupStep2() {
@@ -614,7 +1227,8 @@ function setupStep4() {
   if (btn) btn.onclick = inviaPrenotazione;
 }
 
-/* ========== SESSION RESTORE ========== */
+
+// ========== SESSION RESTORE ==========
 function restoreSession() {
   const stored = sessionStorage.getItem('imbriani_logged_user');
   if (!stored) return false;
@@ -629,10 +1243,12 @@ function restoreSession() {
   return false;
 }
 
-/* ========== INIT APP ========== */
+
+// ========== INIT APP ==========
 function initApp() {
-  console.log('Inizializzazione app Imbriani Noleggio v5.2.0...');
+  console.log('Inizializzazione app Imbriani Noleggio v5.3.0...');
   
+  initHistory();
   setupNavigation();
   setupLoginForm();
   setupHomeButtons();
@@ -644,13 +1260,9 @@ function initApp() {
   if (restoreSession()) {
     handleLogin(loggedCustomerData.codiceFiscale).catch(console.error);
   } else {
-    showSection('homepage');
+    routeTo('home');
+    history.pushState({ view: 'home' }, '', '#home');
   }
-  
-  window.addEventListener('popstate', (e) => {
-    if (e.state?.section) showSection(e.state.section);
-    else showSection('homepage');
-  });
   
   console.log('App pronta! ✅');
 }
@@ -661,9 +1273,10 @@ if (document.readyState === 'loading') {
   initApp();
 }
 
+
+// ========== EXPORT GLOBALE ==========
 window.ImbrianiApp = {
-  showSection,
-  showStep,
+  routeTo,
   handleLogin,
   logout,
   mostraErrore,
