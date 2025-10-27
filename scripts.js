@@ -1,5 +1,5 @@
 // Versione aggiornata e completa del JS
-console.log('Imbriani Noleggio - Versione codice: 2.4.3');
+console.log('Imbriani Noleggio - Versione codice: 2.4.4');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -138,36 +138,49 @@ function caricaPrenotazioniCliente(cf) {
   })
   .then(response => response.json())
   .then(data => {
-    console.log('Dati prenotazioni ricevuti dal backend:', data);
+    console.log("Dati prenotazioni ricevuti dal backend:", data);
     mostraLoading(false);
 
     if (!data.success) {
-      mostraErrore('Errore nel recupero delle prenotazioni: ' + (data.error || 'Errore sconosciuto'));
+      mostraErrore('Errore nel recupero prenotazioni: ' + (data.error || 'Errore sconosciuto'));
       document.getElementById('contenutoPersonale').innerHTML = '';
       return;
     }
 
-    if (!data.prenotazioni || data.prenotazioni.length === 0) {
+    if (!data.prenotazioni || !Array.isArray(data.prenotazioni)) {
+      mostraErrore('Formato dati prenotazioni non valido.');
+      document.getElementById('contenutoPersonale').innerHTML = '';
+      return;
+    }
+
+    if (data.prenotazioni.length === 0) {
       mostraErrore('Nessuna prenotazione trovata.');
       document.getElementById('contenutoPersonale').innerHTML = '<p>Nessuna prenotazione trovata.</p>';
       return;
     }
 
     let html = '<h3>Le tue prenotazioni</h3>';
-    html += data.prenotazioni.map(p => {
-      return `
+    for (const p of data.prenotazioni) {
+      // Pulizia dati mancanti
+      const nome = p.nomeCognome || 'N/D';
+      const inizio = p['Giorno inizio noleggio'] || 'N/D';
+      const fine = p['Giorno fine noleggio'] || 'N/D';
+      const stato = p.stato || 'N/D';
+      const targa = p.targa || 'N/D';
+
+      html += `
         <div class="prenotazione-card">
-          <strong>${p.nomeCognome || 'N/D'}</strong><br/>
-          Dal: ${p['Giorno inizio noleggio'] || 'N/D'} - Al: ${p['Giorno fine noleggio'] || 'N/D'}<br/>
-          Stato: ${p.stato || 'N/D'}<br/>
-          Targa: ${p.targa || 'N/D'}
+          <strong>${nome}</strong><br/>
+          Dal: ${inizio} - Al: ${fine}<br/>
+          Stato: ${stato}<br/>
+          Targa: ${targa}
           <div style="margin-top:10px;">
             <button onclick='modificaPrenotazione(${JSON.stringify(p)})'>Modifica</button>
             <button onclick='cancellaPrenotazione(${JSON.stringify(p)})'>Cancella</button>
           </div>
         </div>
       `;
-    }).join('');
+    }
     document.getElementById('contenutoPersonale').innerHTML = html;
   })
   .catch(err => {
