@@ -1,5 +1,5 @@
 // Versione aggiornata e completa del JS
-console.log('Imbriani Noleggio - Versione codice: 2.4.0');
+console.log('Imbriani Noleggio - Versione codice: 2.4.1');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -131,28 +131,45 @@ function caricaPrenotazioniCliente(cf) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cf }),
-  }).then(r => r.json()).then(data => {
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Dati prenotazioni ricevuti dal backend:', data);
     mostraLoading(false);
-    if (!data.success || !data.prenotazioni) {
-      mostraErrore('Nessuna prenotazione.');
+
+    if (!data.success) {
+      mostraErrore('Errore nel recupero delle prenotazioni: ' + (data.error || 'Errore sconosciuto'));
+      document.getElementById('contenutoPersonale').innerHTML = '';
       return;
     }
-    let html = '<h3>Your bookings</h3>';
-    html += data.prenotazioni.map(p => `
-      <div class="prenotazione-card">
-        <strong>${p.nomeCognome}</strong><br/>
-        Dal: ${p['Giorno inizio noleggio']} - Al: ${p['Giorno fine noleggio']}<br/>
-        Stato: ${p.stato}<br/>
-        Targa: ${p.targa}
-        <div style="margin-top:10px;">
-          <button onclick='modificaPrenotazione(${JSON.stringify(p)})'>Modifica</button>
-          <button onclick='cancellaPrenotazione(${JSON.stringify(p)})'>Cancella</button>
+
+    if (!data.prenotazioni || data.prenotazioni.length === 0) {
+      mostraErrore('Nessuna prenotazione trovata.');
+      document.getElementById('contenutoPersonale').innerHTML = '<p>Nessuna prenotazione trovata.</p>';
+      return;
+    }
+
+    let html = '<h3>Le tue prenotazioni</h3>';
+    html += data.prenotazioni.map(p => {
+      return `
+        <div class="prenotazione-card">
+          <strong>${p.nomeCognome || 'N/D'}</strong><br/>
+          Dal: ${p['Giorno inizio noleggio'] || 'N/D'} - Al: ${p['Giorno fine noleggio'] || 'N/D'}<br/>
+          Stato: ${p.stato || 'N/D'}<br/>
+          Targa: ${p.targa || 'N/D'}
+          <div style="margin-top:10px;">
+            <button onclick='modificaPrenotazione(${JSON.stringify(p)})'>Modifica</button>
+            <button onclick='cancellaPrenotazione(${JSON.stringify(p)})'>Cancella</button>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
     document.getElementById('contenutoPersonale').innerHTML = html;
-  }).catch(err => {
-    mostraErrore('Errore: ' + err.message);
+  })
+  .catch(err => {
+    mostraLoading(false);
+    mostraErrore('Errore caricamento prenotazioni: ' + err.message);
+    document.getElementById('contenutoPersonale').innerHTML = '';
   });
 }
 
