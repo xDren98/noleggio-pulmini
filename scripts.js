@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.6');
+console.log('Imbriani Noleggio - Versione codice: 2.2.5');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -11,9 +11,9 @@ let bookingData = {};
 
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
-  prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
-  datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
-  disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec'
+  prenotazioni: 'https://script.google.com/macros/s/AKfycbxiaQopj8bJ30oEmznJSVMRDoFGmxE8HITe18MUhb_LwZO1HYY6VrY49FsHJaih2Q/exec',
+  datiCliente: 'https://script.google.com/macros/s/AKfycbwdLNztRhf5FFieplQbVXaPyKD2WzO2ChLZ7ky5Z0XYvRfWfOmQjqbOL_ditw5_3Z0/exec',
+  disponibilita: 'https://script.google.com/macros/s/AKfycbx-Rb1kq4XCEBcR2HfD7n2sv0pvw0XFxVvffmJGL9n8d5qaofObjFnnotKyI3Jkf-4/exec'
 };
 
 // ============================================
@@ -477,13 +477,13 @@ function vaiStep4() {
     }
 
     if (inizioPatente >= finePatente) {
-      mostraErrore(`Le date della patente dell'autista ${i} non sono valide`);
+      mostraErrore(`Le date della patente dell'autista ${i} non sono valide`); 
       return;
     }
 
     const nascita = new Date(convertDateToIso(dataNascita));
     const eta = Math.floor((oggi - nascita) / (365.25 * 24 * 60 * 60 * 1000));
-    
+
     if (eta < 18) {
       mostraErrore(`L'autista ${i} deve avere almeno 18 anni`);
       return;
@@ -600,42 +600,12 @@ function mostraRiepilogoPrenotazione() {
   }
 }
 
-
 document.addEventListener('DOMContentLoaded', function() {
   const btnApriModulo = document.getElementById('btnApriModulo');
   if (btnApriModulo) {
     btnApriModulo.addEventListener('click', inviaPrenotazione);
   }
 });
-
-function inviaPrenotazione() {
-  if (!bookingData.pulmino || !bookingData.dataRitiro || !bookingData.autisti) {
-    mostraErrore('Dati prenotazione incompleti. Riprova dall\'inizio.');
-    return;
-  }
-
-  mostraLoading(true);
-
-  fetch('https://script.google.com/macros/s/AKfycbwy7ZO3hCMcjhPuOMFyJoJl_IRyDr_wfhALadDhFt__Yjg3FBFWqt7wbCjIm0iim9Ya/exec', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'payload=' + encodeURIComponent(JSON.stringify(bookingData))
-  })
-  .then(response => response.json())
-  .then(data => {
-    mostraLoading(false);
-    if (data.success) {
-      mostraSuccesso('Prenotazione inviata con successo! PDF creato.');
-      mostraThankYou();
-    } else {
-      mostraErrore('Errore nell\'invio: ' + (data.error || 'Errore sconosciuto'));
-    }
-  })
-  .catch(err => {
-    mostraLoading(false);
-    mostraErrore('Errore di rete: ' + err.message);
-  });
-}
 
 function mostraThankYou() {
   document.getElementById('mainbox').innerHTML = `
@@ -655,7 +625,7 @@ function mostraModuliAutisti() {
   const container = document.getElementById('autisti_container');
   const num = parseInt(document.getElementById('num_autisti').value);
   container.innerHTML = '';
-  
+
   for (let i = 1; i <= num; i++) {
     container.innerHTML += `<div class="autista">
       <h3>Autista ${i}</h3>
@@ -693,7 +663,7 @@ function mostraModuliAutisti() {
       </div>
     </div>`;
   }
-  
+
   const annoCorrente = new Date().getFullYear();
   for (let i = 1; i <= num; i++) {
     popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
@@ -706,10 +676,10 @@ function mostraModuliAutisti() {
     setTimeout(() => {
       const dati = loggedCustomerData.datiCompleti;
       console.log('=== PRECOMPILAZIONE AUTISTA 1 + CELLULARE ===', dati);
-      
+
       const nomeInput = document.getElementById('nome_cognome_1');
       if (nomeInput && dati.nomeCognome) nomeInput.value = dati.nomeCognome;
-      
+
       if (dati.dataNascita) {
         const [gg, mm, aaaa] = dati.dataNascita.split('/');
         const selG = document.getElementById('giorno_nascita_1');
@@ -719,25 +689,25 @@ function mostraModuliAutisti() {
         if (selM && mm) selM.value = mm;
         if (selA && aaaa) selA.value = aaaa;
       }
-      
+
       const luogoInput = document.getElementById('luogo_nascita_1');
       if (luogoInput && dati.luogoNascita) luogoInput.value = dati.luogoNascita;
-      
+
       const cfInput = document.getElementById('codice_fiscale_1');
       if (cfInput && dati.codiceFiscale) cfInput.value = dati.codiceFiscale;
-      
+
       const comuneInput = document.getElementById('comune_residenza_1');
       if (comuneInput && dati.comuneResidenza) comuneInput.value = dati.comuneResidenza;
-      
+
       const viaInput = document.getElementById('via_residenza_1');
       if (viaInput && dati.viaResidenza) viaInput.value = dati.viaResidenza;
-      
+
       const civicoInput = document.getElementById('civico_residenza_1');
       if (civicoInput && dati.civicoResidenza) civicoInput.value = dati.civicoResidenza;
-      
+
       const patenteInput = document.getElementById('numero_patente_1');
       if (patenteInput && dati.numeroPatente) patenteInput.value = dati.numeroPatente;
-      
+
       if (dati.dataInizioValiditaPatente) {
         const [gg, mm, aaaa] = dati.dataInizioValiditaPatente.split('/');
         const selG = document.getElementById('giorno_inizio_validita_patente_1');
@@ -747,7 +717,7 @@ function mostraModuliAutisti() {
         if (selM && mm) selM.value = mm;
         if (selA && aaaa) selA.value = aaaa;
       }
-      
+
       if (dati.dataFineValiditaPatente) {
         const [gg, mm, aaaa] = dati.dataFineValiditaPatente.split('/');
         const selG = document.getElementById('giorno_fine_validita_patente_1');
@@ -757,14 +727,14 @@ function mostraModuliAutisti() {
         if (selM && mm) selM.value = mm;
         if (selA && aaaa) selA.value = aaaa;
       }
-      
+
       // ✅ PRECOMPILA CELLULARE
       const cellulareInput = document.getElementById('cellulare');
       if (cellulareInput && dati.cellulare) {
         cellulareInput.value = dati.cellulare;
         console.log('✅ Cellulare precompilato:', dati.cellulare);
       }
-      
+
       mostraSuccesso('Dati del primo autista e cellulare precompilati automaticamente!');
     }, 150);
   }
@@ -775,13 +745,13 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   const selM = document.getElementById(meseId);
   const selA = document.getElementById(annoId);
   if (!selG || !selM || !selA) return;
-  
+
   selG.innerHTML = '<option value="">GG</option>';
   for (let i = 1; i <= 31; i++) selG.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
-  
+
   selM.innerHTML = '<option value="">MM</option>';
   for (let i = 1; i <= 12; i++) selM.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
-  
+
   selA.innerHTML = '<option value="">AAAA</option>';
   for (let i = annoEnd; i >= annoStart; i--) selA.innerHTML += `<option value="${i}">${i}</option>`;
 }
