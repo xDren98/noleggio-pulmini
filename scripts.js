@@ -363,27 +363,45 @@ function setDataToSelects(prefix, isoDate) {
 
 // ========== ROUTING HISTORY API ==========
 function routeTo(view, stepId = null) {
-  qsa('[data-section]').forEach(s => s.style.display = 'none');
+  // Nascondi tutte le sezioni
+  qsa('[data-section]').forEach(s => {
+    s.style.display = 'none';
+    s.classList.add('hidden'); // ⬅️ AGGIUNGI anche classe hidden
+  });
+  
   qsa('[data-step]').forEach(s => s.classList.add('hidden'));
   
   if (view === 'home') {
     const home = qs('#homepage');
-    if (home) home.style.display = 'block';
+    if (home) {
+      home.style.display = 'block';
+      home.classList.remove('hidden'); // ⬅️ RIMUOVI classe hidden
+    }
   } else if (view === 'area') {
     const area = qs('#area-personale');
-    if (area) area.style.display = 'block';
+    if (area) {
+      area.style.display = 'block';
+      area.classList.remove('hidden'); // ⬅️ RIMUOVI classe hidden
+    }
   } else if (view === 'wizard') {
     const wizard = qs('#mainbox');
-    if (wizard) wizard.style.display = 'block';
+    if (wizard) {
+      wizard.style.display = 'block';
+      wizard.classList.remove('hidden'); // ⬅️ RIMUOVI classe hidden
+    }
     if (stepId) {
       const step = qs(`#${stepId}`);
       if (step) step.classList.remove('hidden');
     }
   } else if (view === 'modifica') {
     const mod = qs('#modifica-prenotazione');
-    if (mod) mod.style.display = 'block';
+    if (mod) {
+      mod.style.display = 'block';
+      mod.classList.remove('hidden'); // ⬅️ RIMUOVI classe hidden
+    }
   }
 }
+
 
 function initHistory() {
   const hash = window.location.hash.slice(1);
