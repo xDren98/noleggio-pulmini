@@ -4,147 +4,183 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Imbriani Noleggio</title>
+
+  <!-- Font & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
+
+  <!-- Stili -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <h1>
-      <span class="material-icons">directions_bus</span>
+      <span class="material-icons" aria-hidden="true">directions_bus</span>
       Imbriani Noleggio
     </h1>
     <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
   </header>
+
   <main>
     <!-- HOME PAGE -->
-    <section id="homepage" class="card">
-      <h2>Hai già prenotato con noi?</h2>
+    <section id="homepage" class="card" aria-labelledby="home-title">
+      <h2 id="home-title">Hai già prenotato con noi?</h2>
       <p>Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
-      <form id="loginFormHomepage">
+
+      <form id="loginFormHomepage" novalidate>
         <div class="input-with-icon">
-          <span class="material-icons">person</span>
-          <input type="text" id="cfInputHomepage" placeholder="Codice fiscale" required maxlength="16" />
+          <span class="material-icons" aria-hidden="true">person</span>
+          <input type="text" id="cfInputHomepage" placeholder="Codice fiscale" required maxlength="16" aria-describedby="cfHelp" style="text-transform: uppercase;" />
         </div>
-        <button type="submit">Accedi</button>
+        <div id="cfHelp" class="help-text">Inserisci 16 caratteri, saranno convertiti in maiuscolo.</div>
+        <button type="submit" class="btn btn--primary">Accedi</button>
       </form>
-      <div id="loginResultHomepage"></div>
+      <div id="loginResultHomepage" class="muted"></div>
+
       <hr />
+
       <h2>Prima volta con noi?</h2>
-      <p>
-        Prenota ora il tuo pulmino.
-        <button id="btnNewBooking">
-          <span class="material-icons">add_circle</span>
-          Prenota ora
-          <span class="badge-new">Facile!</span>
-        </button>
-      </p>
+      <p>Prenota ora il tuo pulmino.</p>
+      <button id="btnNewBooking" class="btn btn--secondary">
+        <span class="material-icons" aria-hidden="true">add_circle</span>
+        Prenota ora il tuo pulmino
+      </button>
     </section>
 
-    <section id="areaPersonale" class="card" style="display:none; max-width: 700px; margin: 32px auto;">
-  <h2>Area Personale</h2>
-  <div class="actions">
-    <button id="btnVisualizzaPrenotazioni"><span class="material-icons">event_note</span> Le mie prenotazioni</button>
-    <button id="btnVisualizzaDati"><span class="material-icons">person</span> I miei dati</button>
-    <button id="btnLogout"><span class="material-icons">logout</span> Logout</button>
-  </div>
-  <div id="contenutoPersonale" style="margin-top:20px;"></div>
-</section>
-
-    <!-- FORM DI PRENOTAZIONE -->
-    <section id="mainbox" style="display:none;" class="card">
-      <!-- STEP 1 -->
-      <div id="step1" class="step active">
-        <label><span class="material-icons">calendar_today</span> Data e ora di ritiro e arrivo</label>
-        <div class="dataora-row">
-          <div class="data-col">
-            <label><span class="material-icons">calendar_month</span> Data ritiro</label>
-            <div class="date-inline">
-              <select id="giorno_ritiro"></select>
-              <select id="mese_ritiro"></select>
-              <select id="anno_ritiro"></select>
-            </div>
-          </div>
-          <div class="ora-col">
-            <label><span class="material-icons">access_time</span> Ora ritiro</label>
-            <select id="ora_partenza">
-              <option value="08:00">08:00</option>
-              <option value="12:00">12:00</option>
-              <option value="16:00">16:00</option>
-              <option value="20:00">20:00</option>
-            </select>
-          </div>
-        </div>
-        <div class="dataora-row">
-          <div class="data-col">
-            <label><span class="material-icons">calendar_month</span> Data arrivo</label>
-            <div class="date-inline">
-              <select id="giorno_arrivo"></select>
-              <select id="mese_arrivo"></select>
-              <select id="anno_arrivo"></select>
-            </div>
-          </div>
-          <div class="ora-col">
-            <label><span class="material-icons">access_time</span> Ora arrivo</label>
-            <select id="ora_arrivo">
-              <option value="08:00">08:00</option>
-              <option value="12:00">12:00</option>
-              <option value="16:00">16:00</option>
-              <option value="20:00">20:00</option>
-            </select>
-          </div>
-        </div>
-        <div class="actions">
-          <button onclick="controllaDisponibilita()">
-            <span class="material-icons">search</span>
-            Verifica disponibilità
-          </button>
-        </div>
+    <!-- AREA PERSONALE -->
+    <section id="areaPersonale" class="card" style="display: none;" aria-labelledby="area-title">
+      <h2 id="area-title">Area personale</h2>
+      <div class="actions" style="gap: 10px; display: flex; flex-wrap: wrap;">
+        <button id="btnVisualizzaPrenotazioni" class="btn">
+          <span class="material-icons" aria-hidden="true">list_alt</span>
+          Prenotazioni
+        </button>
+        <button id="btnVisualizzaDati" class="btn">
+          <span class="material-icons" aria-hidden="true">badge</span>
+          I tuoi dati
+        </button>
+        <button id="btnLogout" class="btn btn--danger">
+          <span class="material-icons" aria-hidden="true">logout</span>
+          Esci
+        </button>
       </div>
+      <div id="contenutoPersonale" style="margin-top: 16px;"></div>
+    </section>
 
-      <!-- STEP 2 -->
-      <div id="step2" class="step">
-        <div id="disponibili_box">Pulmini disponibili: <span id="num_disponibili">?</span></div>
-        <label for="scelta_pulmino">
-          <span class="material-icons">directions_bus</span> Scegli il pulmino:
+    <!-- WIZARD PRENOTAZIONE -->
+    <section id="mainbox" class="card" style="display: none;" aria-labelledby="wizard-title">
+      <h2 id="wizard-title">Nuova prenotazione</h2>
+
+      <!-- STEP 1: Date e orari -->
+      <div id="step1" class="step active" aria-labelledby="s1-title">
+        <h3 id="s1-title">Seleziona date e orari</h3>
+
+        <label for="giorno_ritiro">
+          <span class="material-icons" aria-hidden="true">event</span>
+          Data ritiro
         </label>
-        <select id="scelta_pulmino"></select>
-        <div class="actions">
-          <button id="chiamaContinuaBtn" onclick="vaiStep3()" disabled>
-            <span class="material-icons">arrow_forward</span>
-            Continua
-          </button>
+        <div class="date-inline">
+          <select id="giorno_ritiro" aria-label="Giorno ritiro"></select>
+          <select id="mese_ritiro" aria-label="Mese ritiro"></select>
+          <select id="anno_ritiro" aria-label="Anno ritiro"></select>
+        </div>
+
+        <label for="ora_partenza">
+          <span class="material-icons" aria-hidden="true">schedule</span>
+          Ora ritiro
+        </label>
+        <input type="time" id="ora_partenza" />
+
+        <label for="giorno_arrivo">
+          <span class="material-icons" aria-hidden="true">event_available</span>
+          Data arrivo
+        </label>
+        <div class="date-inline">
+          <select id="giorno_arrivo" aria-label="Giorno arrivo"></select>
+          <select id="mese_arrivo" aria-label="Mese arrivo"></select>
+          <select id="anno_arrivo" aria-label="Anno arrivo"></select>
+        </div>
+
+        <label for="ora_arrivo">
+          <span class="material-icons" aria-hidden="true">schedule</span>
+          Ora arrivo
+        </label>
+        <input type="time" id="ora_arrivo" />
+
+        <div class="actions" style="margin-top: 10px;">
+          <button id="btnControllaDisponibilita" class="btn btn--primary">Controlla disponibilità</button>
         </div>
       </div>
 
-      <!-- STEP 3 -->
-      <div id="step3" class="step">
-        <label><span class="material-icons">group</span> Inserisci i dati autisti:</label>
+      <!-- STEP 2: Scelta pulmino -->
+      <div id="step2" class="step" aria-labelledby="s2-title">
+        <h3 id="s2-title">Scegli il pulmino</h3>
+
+        <label for="scelta_pulmino">
+          <span class="material-icons" aria-hidden="true">airport_shuttle</span>
+          Pulmino disponibile
+        </label>
+        <select id="scelta_pulmino">
+          <option value="">-- Seleziona un pulmino --</option>
+        </select>
+
+        <p class="muted">Disponibili: <strong><span id="num_disponibili">0</span></strong></p>
+
+        <div class="actions" style="margin-top: 10px;">
+          <button id="chiamaContinuaBtn" class="btn btn--primary" disabled>Continua</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Dati autisti -->
+      <div id="step3" class="step" aria-labelledby="s3-title">
+        <h3 id="s3-title">Dati autista/i</h3>
+
+        <label for="num_autisti">
+          <span class="material-icons" aria-hidden="true">groups</span>
+          Numero autisti
+        </label>
         <select id="num_autisti">
           <option value="1" selected>1</option>
           <option value="2">2</option>
-          <option value="3">3</option>
         </select>
-        <div id="autisti_container"></div>
-        <label><span class="material-icons">smartphone</span> Cellulare di riferimento</label>
-        <input type="tel" id="cellulare" placeholder="Inserisci un numero cellulare" />
-        <div class="actions">
-          <button onclick="vaiStep4()">
-            <span class="material-icons">arrow_forward</span>
-            Continua
-          </button>
+
+        <label for="cellulare">
+          <span class="material-icons" aria-hidden="true">call</span>
+          Cellulare
+        </label>
+        <input type="tel" id="cellulare" placeholder="Es. 3201234567" />
+
+        <div id="autisti_container" style="margin-top: 10px;"></div>
+
+        <div class="actions" style="margin-top: 16px;">
+          <button id="btnVaiStep4" class="btn btn--primary">Continua</button>
         </div>
       </div>
 
-      <!-- STEP 4 -->
-      <div id="step4" class="step">
-        <h2>Verifica Dati</h2>
-        <p>Controlla attentamente i dati prima di confermare la prenotazione</p>
+      <!-- STEP 4: Riepilogo e invio -->
+      <div id="step4" class="step" aria-labelledby="s4-title">
+        <h3 id="s4-title">Riepilogo</h3>
         <div id="riepilogo_container"></div>
       </div>
     </section>
   </main>
-  <script src="scripts.js" defer></script>
+
+  <!-- Script applicativo -->
+  <script src="scripts.js"></script>
+  <script>
+    // Hook non inline: collega il bottone di Step 2 al passaggio a Step 3
+    // in coerenza con lo scripts.js che abilita/disabilita #chiamaContinuaBtn.
+    document.addEventListener('DOMContentLoaded', function () {
+      const btn = document.getElementById('chiamaContinuaBtn');
+      if (btn) btn.addEventListener('click', function () {
+        if (!btn.disabled && typeof window.vaiStep3 === 'function') {
+          window.vaiStep3();
+        } else if (!btn.disabled) {
+          // fallback su funzione globale definita nello script
+          try { vaiStep3(); } catch (e) {}
+        }
+      });
+    });
+  </script>
 </body>
 </html>
-
