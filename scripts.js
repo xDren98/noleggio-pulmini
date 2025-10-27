@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.1 - Complete with Cellulare');
+console.log('Imbriani Noleggio - Versione codice: 2.2.2 - Complete with Cellulare');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -518,7 +518,6 @@ function vaiStep4() {
   showStep('step4');
   mostraRiepilogoPrenotazione();
 }
-
 function mostraRiepilogoPrenotazione() {
   const container = document.getElementById('riepilogo_container');
   if (!container) return;
@@ -526,51 +525,51 @@ function mostraRiepilogoPrenotazione() {
   let html = `
     <div class="riepilogo">
       <div class="riepilogo-section">
-        <h3>Dati Prenotazione</h3>
+        <h3><span class="material-icons" style="vertical-align:middle;color:#37b24d;margin-right:4px;">directions_bus</span> Dati Prenotazione</h3>
         <div class="riepilogo-grid">
           <div class="riepilogo-item">
-            <span class="riepilogo-label">Pulmino</span>
+            <span class="riepilogo-label">Pulmino:</span>
             <span class="riepilogo-value">${bookingData.pulmino?.nome || '-'}</span>
           </div>
           <div class="riepilogo-item">
-            <span class="riepilogo-label">Targa</span>
+            <span class="riepilogo-label">Targa:</span>
             <span class="riepilogo-value">${bookingData.pulmino?.targa || '-'}</span>
           </div>
           <div class="riepilogo-item">
-            <span class="riepilogo-label">Dal</span>
+            <span class="riepilogo-label">Dal:</span>
             <span class="riepilogo-value">${bookingData.dataRitiro || '-'}</span>
           </div>
           <div class="riepilogo-item">
-            <span class="riepilogo-label">Ora ritiro</span>
+            <span class="riepilogo-label">Ora ritiro:</span>
             <span class="riepilogo-value">${bookingData.oraRitiro || '-'}</span>
           </div>
           <div class="riepilogo-item">
-            <span class="riepilogo-label">Al</span>
+            <span class="riepilogo-label">Al:</span>
             <span class="riepilogo-value">${bookingData.dataArrivo || '-'}</span>
           </div>
           <div class="riepilogo-item">
-            <span class="riepilogo-label">Ora arrivo</span>
+            <span class="riepilogo-label">Ora arrivo:</span>
             <span class="riepilogo-value">${bookingData.oraArrivo || '-'}</span>
           </div>
           <div class="riepilogo-item">
-            <span class="riepilogo-label">Telefono</span>
+            <span class="riepilogo-label">Telefono:</span>
             <span class="riepilogo-value">${bookingData.cellulare || '-'}</span>
           </div>
         </div>
       </div>
       <div class="riepilogo-section">
-        <h3>Autista/i</h3>
-        <div class="riepilogo-grid">`;
+        <h3><span class="material-icons" style="vertical-align:middle;color:#37b24d;margin-right:4px;">person</span> Autista/i</h3>
+        <div class="riepilogo-autisti">`;
 
   bookingData.autisti.forEach((autista, idx) => {
     html += `
-      <div style="border-bottom:1px solid #e4ede9;margin-bottom:16px;padding-bottom:8px;">
+      <div class="riepilogo-autista">
         <strong>Autista ${idx + 1}</strong><br/>
-        <span class="riepilogo-label">Nome</span> <span class="riepilogo-value">${autista.nomeCognome}</span><br/>
-        <span class="riepilogo-label">Nascita</span> <span class="riepilogo-value">${autista.dataNascita} - ${autista.luogoNascita}</span><br/>
-        <span class="riepilogo-label">Codice Fiscale</span> <span class="riepilogo-value">${autista.codiceFiscale}</span><br/>
-        <span class="riepilogo-label">Residenza</span> <span class="riepilogo-value">${autista.comuneResidenza}, ${autista.viaResidenza} ${autista.civicoResidenza}</span><br/>
-        <span class="riepilogo-label">Patente</span> <span class="riepilogo-value">${autista.numeroPatente} (${autista.dataInizioValiditaPatente} - ${autista.dataFineValiditaPatente})</span>
+        <span class="riepilogo-label">Nome:</span> <span class="riepilogo-value">${autista.nomeCognome}</span><br/>
+        <span class="riepilogo-label">Nascita:</span> <span class="riepilogo-value">${autista.dataNascita} - ${autista.luogoNascita}</span><br/>
+        <span class="riepilogo-label">Codice Fiscale:</span> <span class="riepilogo-value">${autista.codiceFiscale}</span><br/>
+        <span class="riepilogo-label">Residenza:</span> <span class="riepilogo-value">${autista.comuneResidenza}, ${autista.viaResidenza} ${autista.civicoResidenza}</span><br/>
+        <span class="riepilogo-label">Patente:</span> <span class="riepilogo-value">${autista.numeroPatente} (${autista.dataInizioValiditaPatente} - ${autista.dataFineValiditaPatente})</span>
       </div>`;
   });
 
