@@ -1,12 +1,18 @@
-/* Imbriani Noleggio – scripts.js (compat refactor: DOM sicuro, no handler inline, flussi invariati)
-   Versione 3.2.0
+/* Imbriani Noleggio – scripts.js (refactor sicuro + requisiti funzionali)
+   Versione 3.3.0
+   - DOM sicuro (niente handler inline, niente innerHTML con dati dinamici)
+   - Nuova prenotazione post-login con precompilazione autista 1 + cellulare
+   - Fino a 3 autisti e preservazione dei dati al cambio numero
+   - Fasce orarie fisse lette da select (08:00, 12:00, 16:00, 20:00)
+   - Anni “fine validità patente” estesi (fino a annoCorrente + 20)
+   - Passaggio corretto a Step 4 (riepilogo)
 */
 'use strict';
 
 /* =========================
    CONFIG E COSTANTI
 ========================= */
-console.log('Imbriani Noleggio - Versione codice: 3.2.0');
+console.log('Imbriani Noleggio - Versione codice: 3.3.0');
 
 const pulmini = [
   { id: 'ducato_lungo', nome: 'Fiat Ducato (Passo lungo)', targa: 'EC787NM' },
@@ -35,7 +41,7 @@ function el(tag, attrs = {}, ...children) {
     if (v == null) continue;
     if (k === 'class') node.className = v;
     else if (k === 'text') node.textContent = String(v);
-    else if (k === 'html') node.innerHTML = String(v); // usare solo per frammenti strettamente statici
+    else if (k === 'html') node.innerHTML = String(v); // solo frammenti statici
     else if (k === 'dataset' && typeof v === 'object') {
       for (const [dk, dv] of Object.entries(v)) node.dataset[dk] = String(dv);
     } else if (k.startsWith('on') && typeof v === 'function') {
@@ -64,7 +70,7 @@ function validaCodiceFiscale(cf) {
   return regex.test(String(cf || '').toUpperCase());
 }
 function validaTelefono(tel) {
-  return /^[0-9]{9,12}$/.test(String(tel || '').replace(/\s+/g, ''));
+  return /^[0-9]{9,15}$/.test(String(tel || '').replace(/\s+/g, ''));
 }
 function convertDateToIso(ddmmyyyy) {
   if (!ddmmyyyy || !/^\d{2}\/\d{2}\/\d{4}$/.test(ddmmyyyy)) return '';
@@ -241,14 +247,17 @@ function setupAreaPersonale() {
   const btnPren = document.getElementById('btnVisualizzaPrenotazioni');
   const btnDati = document.getElementById('btnVisualizzaDati');
   const btnLogout = document.getElementById('btnLogout');
+  const btnNewBookingAP = document.getElementById('btnNewBookingAP');
+
   if (btnPren) btnPren.addEventListener('click', () => { if (loggedCustomerData?.cf) caricaPrenotazioniCliente(loggedCustomerData.cf); });
-  if (btnDati) btnDati.addEventListener('click', () => { mostraDatiCliente(loggedCustomerData?.datiCompleti || null); });
+  if (btnDati) btnDati.addEventListener('click', () => { renderDatiCliente(loggedCustomerData?.datiCompleti || null); });
   if (btnLogout) btnLogout.addEventListener('click', () => {
     loggedCustomerData = null;
     const area = document.getElementById('areaPersonale'); if (area) area.style.display = 'none';
     const home = document.getElementById('homepage'); if (home) home.style.display = 'block';
     const cont = document.getElementById('contenutoPersonale'); if (cont) cont.innerHTML = '';
   });
+  if (btnNewBookingAP) btnNewBookingAP.addEventListener('click', () => startNewBookingWithPreFill());
 }
 async function handleLoginSubmit(ev) {
   ev.preventDefault();
@@ -261,14 +270,17 @@ async function handleLoginSubmit(ev) {
     mostraLoading(true);
     const [resultPren, resultCliente] = await Promise.all([apiPostPrenotazioni(cf), apiPostDatiCliente(cf)]);
     if (!resultPren?.success || !Array.isArray(resultPren?.prenotazioni)) {
-      mostraErrore('Nessuna prenotazione trovata.');
+      // Anche se zero prenotazioni, consenti comunque di andare in area per avviare una nuova
+      console.warn('Nessuna prenotazione trovata per il CF.');
     }
     loggedCustomerData = { cf, datiCompleti: resultCliente?.success ? resultCliente.cliente : null };
     setupAreaPersonale();
-    caricaPrenotazioniCliente(cf);
+    // Mostra area personale e nasconde home
     const area = document.getElementById('areaPersonale'); if (area) area.style.display = 'block';
     const home = document.getElementById('homepage'); if (home) home.style.display = 'none';
-    mostraSuccesso('Accesso completato.');
+    // Carica prenotazioni in background
+    if (cf) caricaPrenotazioniCliente(cf);
+    mostraSuccesso('Accesso completato. Ora puoi creare una nuova prenotazione.');
   } catch (e) {
     console.error(e);
     mostraErrore('Errore durante l’accesso.');
@@ -298,13 +310,11 @@ async function caricaPrenotazioniCliente(cf) {
     mostraLoading(false);
   }
 }
-function mostraDatiCliente(dati) { renderDatiCliente(dati); }
 
 /* =========================
    MODIFICA / CANCELLAZIONE PRENOTAZIONE
 ========================= */
 function modificaPrenotazione(p) {
-  // Genera un form sicuro senza innerHTML con dati non sanificati
   try { if (typeof p === 'string') p = JSON.parse(p); } catch {}
   const cont = document.getElementById('contenutoPersonale');
   if (!cont) return;
@@ -381,7 +391,7 @@ function updateBackButton() {
   let backBtn = document.getElementById('backBtn');
   if (!backBtn) {
     backBtn = el('button', { id: 'backBtn', class: 'btn-back', onclick: goBack },
-      el('span', { class: 'material-icons', text: 'arrow_back' }), ' Indietro'
+      el('span', { class: 'material-icons', text: 'arrow_back' }), document.createTextNode(' Indietro')
     );
     const mainbox = document.getElementById('mainbox');
     if (mainbox) mainbox.insertBefore(backBtn, mainbox.firstChild);
@@ -407,15 +417,14 @@ async function controllaDisponibilita() {
   const oraRitiro = document.getElementById('ora_partenza')?.value || '';
   const dataArrivoStr = getData('arrivo');
   const oraArrivo = document.getElementById('ora_arrivo')?.value || '';
+
   if (!dataRitiroStr || !oraRitiro || !dataArrivoStr || !oraArrivo) return mostraErrore('Inserisci data e ora validi per ritiro e arrivo.');
 
   const dR = new Date(`${dataRitiroStr.split('/')[2]}-${dataRitiroStr.split('/')[1]}-${dataRitiroStr.split('/')[0]}T${oraRitiro}`);
   const dA = new Date(`${dataArrivoStr.split('/')[2]}-${dataArrivoStr.split('/')[1]}-${dataArrivoStr.split('/')[0]}T${oraArrivo}`);
   if (dR >= dA) return mostraErrore('La data/ora di arrivo deve essere successiva a quella di ritiro.');
 
-  const domani = new Date(); domani.setDate(domani.getDate() + 1); domani.setHours(0, 0, 0, 0);
-  if (dR < domani) return mostraErrore('La data di ritiro deve essere almeno da domani in poi.');
-
+  // Salva in stato
   bookingData.dataRitiro = dataRitiroStr;
   bookingData.oraRitiro = oraRitiro;
   bookingData.dataArrivo = dataArrivoStr;
@@ -466,11 +475,179 @@ async function controllaDisponibilita() {
 /* Step 2 -> 3 */
 function vaiStep3() { showStep('step3'); mostraModuliAutisti(); }
 
+/* Step 3: utilities per preservare dati */
+function getAutistaFromForm(i) {
+  return {
+    nomeCognome: document.getElementById(`nome_cognome_${i}`)?.value?.trim() || '',
+    dataNascita: getDataAutista('nascita', i) || '',
+    luogoNascita: document.getElementById(`luogo_nascita_${i}`)?.value?.trim() || '',
+    comuneResidenza: document.getElementById(`comune_residenza_${i}`)?.value?.trim() || '',
+    viaResidenza: document.getElementById(`via_residenza_${i}`)?.value?.trim() || '',
+    civicoResidenza: document.getElementById(`civico_residenza_${i}`)?.value?.trim() || '',
+    codiceFiscale: document.getElementById(`codice_fiscale_${i}`)?.value?.trim().toUpperCase() || '',
+    numeroPatente: document.getElementById(`numero_patente_${i}`)?.value?.trim() || '',
+    dataInizioValiditaPatente: getDataAutista('inizio_validita_patente', i) || '',
+    dataFineValiditaPatente: getDataAutista('fine_validita_patente', i) || ''
+  };
+}
+function saveAutistiFromForm(maxCount) {
+  const out = [];
+  for (let i = 1; i <= maxCount; i++) {
+    const elAny = document.getElementById(`nome_cognome_${i}`);
+    if (elAny) out.push(getAutistaFromForm(i));
+  }
+  return out;
+}
+function setSelectValue(id, val) {
+  const s = document.getElementById(id);
+  if (s && val) s.value = val;
+}
+function fillAutistaToForm(i, a) {
+  if (!a) return;
+  const nome = document.getElementById(`nome_cognome_${i}`); if (nome) nome.value = a.nomeCognome || '';
+  const ln = document.getElementById(`luogo_nascita_${i}`); if (ln) ln.value = a.luogoNascita || '';
+  const cr = document.getElementById(`comune_residenza_${i}`); if (cr) cr.value = a.comuneResidenza || '';
+  const vr = document.getElementById(`via_residenza_${i}`); if (vr) vr.value = a.viaResidenza || '';
+  const cv = document.getElementById(`civico_residenza_${i}`); if (cv) cv.value = a.civicoResidenza || '';
+  const cf = document.getElementById(`codice_fiscale_${i}`); if (cf) cf.value = a.codiceFiscale || '';
+  const np = document.getElementById(`numero_patente_${i}`); if (np) np.value = a.numeroPatente || '';
+  if (a.dataNascita) {
+    const [gg, mm, aa] = a.dataNascita.split('/');
+    setSelectValue(`giorno_nascita_${i}`, gg);
+    setSelectValue(`mese_nascita_${i}`, mm);
+    setSelectValue(`anno_nascita_${i}`, aa);
+  }
+  if (a.dataInizioValiditaPatente) {
+    const [gg, mm, aa] = a.dataInizioValiditaPatente.split('/');
+    setSelectValue(`giorno_inizio_validita_patente_${i}`, gg);
+    setSelectValue(`mese_inizio_validita_patente_${i}`, mm);
+    setSelectValue(`anno_inizio_validita_patente_${i}`, aa);
+  }
+  if (a.dataFineValiditaPatente) {
+    const [gg, mm, aa] = a.dataFineValiditaPatente.split('/');
+    setSelectValue(`giorno_fine_validita_patente_${i}`, gg);
+    setSelectValue(`mese_fine_validita_patente_${i}`, mm);
+    setSelectValue(`anno_fine_validita_patente_${i}`, aa);
+  }
+}
+
+/* Step 3: genera moduli, preservando dati e precompilando autista 1 da sessione */
+function mostraModuliAutisti() {
+  const container = document.getElementById('autisti_container');
+  const numSel = document.getElementById('num_autisti');
+  if (!container || !numSel) return;
+
+  // Salva quanto già inserito prima di rigenerare
+  const prevCount = container.querySelectorAll('.autista').length;
+  const cached = saveAutistiFromForm(prevCount);
+
+  const num = parseInt(numSel.value || '1', 10);
+  bookingData.autisti = bookingData.autisti || [];
+
+  // Merge dati: prima quelli salvati, poi quelli già in stato
+  const merged = [];
+  for (let i = 0; i < Math.max(num, cached.length, bookingData.autisti.length); i++) {
+    merged[i] = cached[i] || bookingData.autisti[i] || null;
+  }
+  bookingData.autisti = merged.slice(0, num);
+
+  container.innerHTML = '';
+  for (let i = 1; i <= num; i++) {
+    const box = document.createElement('div');
+    box.className = 'autista';
+    box.innerHTML = `
+      <h3>Autista ${i}</h3>
+      <label>Nome e Cognome *</label>
+      <input type="text" id="nome_cognome_${i}" placeholder="Mario Rossi" required />
+      <label>Data di nascita *</label>
+      <div class="date-inline">
+        <select id="giorno_nascita_${i}"></select>
+        <select id="mese_nascita_${i}"></select>
+        <select id="anno_nascita_${i}"></select>
+      </div>
+      <label>Luogo di nascita *</label>
+      <input type="text" id="luogo_nascita_${i}" placeholder="Roma" required />
+      <label>Comune di residenza *</label>
+      <input type="text" id="comune_residenza_${i}" placeholder="Milano" required />
+      <label>Via di residenza *</label>
+      <input type="text" id="via_residenza_${i}" placeholder="Via Roma" required />
+      <label>Civico di residenza *</label>
+      <input type="text" id="civico_residenza_${i}" placeholder="123" required />
+      <label>Codice fiscale *</label>
+      <input type="text" id="codice_fiscale_${i}" placeholder="RSSMRA80A01H501U" maxlength="16" style="text-transform: uppercase;" required />
+      <label>Numero patente *</label>
+      <input type="text" id="numero_patente_${i}" placeholder="AB1234567C" required />
+      <label>Data inizio validità patente *</label>
+      <div class="date-inline">
+        <select id="giorno_inizio_validita_patente_${i}"></select>
+        <select id="mese_inizio_validita_patente_${i}"></select>
+        <select id="anno_inizio_validita_patente_${i}"></select>
+      </div>
+      <label>Data fine validità patente *</label>
+      <div class="date-inline">
+        <select id="giorno_fine_validita_patente_${i}"></select>
+        <select id="mese_fine_validita_patente_${i}"></select>
+        <select id="anno_fine_validita_patente_${i}"></select>
+      </div>`;
+    container.append(box);
+
+    const annoCorrente = new Date().getFullYear();
+    popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
+    popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente - 50, annoCorrente + 10);
+    // Esteso oltre il 2025
+    popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente + 20);
+
+    // Ripristina valori se esistono
+    if (bookingData.autisti[i - 1]) {
+      fillAutistaToForm(i, bookingData.autisti[i - 1]);
+    }
+  }
+
+  // Precompila autista 1 e cellulare dalla sessione (se non già valorizzati)
+  if (loggedCustomerData?.datiCompleti) {
+    const a0 = bookingData.autisti[0];
+    const vuoto = !a0 || Object.values(a0).every(v => !v);
+    if (vuoto) {
+      const d = loggedCustomerData.datiCompleti;
+      const nome = document.getElementById('nome_cognome_1'); if (nome && d.nomeCognome) nome.value = d.nomeCognome;
+      if (d.dataNascita) {
+        const [gg, mm, aa] = d.dataNascita.split('/');
+        setSelectValue('giorno_nascita_1', gg); setSelectValue('mese_nascita_1', mm); setSelectValue('anno_nascita_1', aa);
+      }
+      const luogo = document.getElementById('luogo_nascita_1'); if (luogo && d.luogoNascita) luogo.value = d.luogoNascita;
+      const cf = document.getElementById('codice_fiscale_1'); if (cf && d.codiceFiscale) cf.value = d.codiceFiscale;
+      const comune = document.getElementById('comune_residenza_1'); if (comune && d.comuneResidenza) comune.value = d.comuneResidenza;
+      const via = document.getElementById('via_residenza_1'); if (via && d.viaResidenza) via.value = d.viaResidenza;
+      const civico = document.getElementById('civico_residenza_1'); if (civico && d.civicoResidenza) civico.value = d.civicoResidenza;
+      const patente = document.getElementById('numero_patente_1'); if (patente && d.numeroPatente) patente.value = d.numeroPatente;
+      if (d.dataInizioValiditaPatente) {
+        const [gg, mm, aa] = d.dataInizioValiditaPatente.split('/');
+        setSelectValue('giorno_inizio_validita_patente_1', gg); setSelectValue('mese_inizio_validita_patente_1', mm); setSelectValue('anno_inizio_validita_patente_1', aa);
+      }
+      if (d.dataFineValiditaPatente) {
+        const [gg, mm, aa] = d.dataFineValiditaPatente.split('/');
+        setSelectValue('giorno_fine_validita_patente_1', gg); setSelectValue('mese_fine_validita_patente_1', mm); setSelectValue('anno_fine_validita_patente_1', aa);
+      }
+      const cell = document.getElementById('cellulare'); if (cell && d.cellulare) cell.value = d.cellulare;
+    }
+  }
+
+  // Aggiorna lo stato da form in tempo reale
+  for (let i = 1; i <= num; i++) {
+    ['input', 'change'].forEach(evt => {
+      container.addEventListener(evt, () => {
+        bookingData.autisti[i - 1] = getAutistaFromForm(i);
+      });
+    });
+  }
+}
+
 /* Step 3 -> 4 */
 function vaiStep4() {
   const numAutisti = parseInt(document.getElementById('num_autisti')?.value || '0', 10);
   const cellulare = String(document.getElementById('cellulare')?.value || '').trim();
-  if (!validaTelefono(cellulare)) return mostraErrore('Inserisci un numero di cellulare valido (9-12 cifre)');
+  if (!validaTelefono(cellulare)) return mostraErrore('Inserisci un numero di cellulare valido (9-15 cifre)');
+
   for (let i = 1; i <= numAutisti; i++) {
     const nomeCognome = String(document.getElementById(`nome_cognome_${i}`)?.value || '').trim();
     const dataNascita = getDataAutista('nascita', i);
@@ -482,6 +659,7 @@ function vaiStep4() {
     const numeroPatente = String(document.getElementById(`numero_patente_${i}`)?.value || '').trim();
     const dataInizioValiditaPatente = getDataAutista('inizio_validita_patente', i);
     const dataFineValiditaPatente = getDataAutista('fine_validita_patente', i);
+
     if (!nomeCognome || !dataNascita || !luogoNascita || !comuneResidenza || !viaResidenza || !civicoResidenza || !numeroPatente || !dataInizioValiditaPatente || !dataFineValiditaPatente) {
       return mostraErrore(`Compila tutti i campi obbligatori per l'autista ${i}`);
     }
@@ -503,71 +681,14 @@ function vaiStep4() {
   bookingData.numAutisti = numAutisti;
   bookingData.cellulare = cellulare;
   bookingData.autisti = [];
-  for (let i = 1; i <= numAutisti; i++) {
-    bookingData.autisti.push({
-      nomeCognome: String(document.getElementById(`nome_cognome_${i}`)?.value || '').trim(),
-      dataNascita: getDataAutista('nascita', i),
-      luogoNascita: String(document.getElementById(`luogo_nascita_${i}`)?.value || '').trim(),
-      comuneResidenza: String(document.getElementById(`comune_residenza_${i}`)?.value || '').trim(),
-      viaResidenza: String(document.getElementById(`via_residenza_${i}`)?.value || '').trim(),
-      civicoResidenza: String(document.getElementById(`civico_residenza_${i}`)?.value || '').trim(),
-      codiceFiscale: String(document.getElementById(`codice_fiscale_${i}`)?.value || '').trim().toUpperCase(),
-      numeroPatente: String(document.getElementById(`numero_patente_${i}`)?.value || '').trim(),
-      dataInizioValiditaPatente: getDataAutista('inizio_validita_patente', i),
-      dataFineValiditaPatente: getDataAutista('fine_validita_patente', i)
-    });
-  }
+  for (let i = 1; i <= numAutisti; i++) bookingData.autisti.push(getAutistaFromForm(i));
+
   mostraSuccesso('Dati validati con successo!');
   showStep('step4');
   mostraRiepilogoPrenotazione();
 }
 
 /* Riepilogo con DOM sicuro */
-function mostraRiepilogoPrenotazione() {
-  const container = document.getElementById('riepilogo_container');
-  if (!container) return;
-
-  const secPren = el('div', { class: 'riepilogo-section' },
-    el('h3', {}, el('span', { class: 'material-icons', 'aria-hidden': 'true', text: 'directions_bus' }), ' Dati Prenotazione'),
-    el('div', { class: 'riepilogo-grid' },
-      rItem('Pulmino:', bookingData.pulmino?.nome || '-'),
-      rItem('Targa:', bookingData.pulmino?.targa || '-'),
-      rItem('Dal:', bookingData.dataRitiro || '-'),
-      rItem('Ora ritiro:', bookingData.oraRitiro || '-'),
-      rItem('Al:', bookingData.dataArrivo || '-'),
-      rItem('Ora arrivo:', bookingData.oraArrivo || '-'),
-      rItem('Telefono:', bookingData.cellulare || '-')
-    )
-  );
-
-  const secAut = el('div', { class: 'riepilogo-section' },
-    el('h3', {}, el('span', { class: 'material-icons', 'aria-hidden': 'true', text: 'person' }), ' Autista/i'),
-    el('div', { class: 'riepilogo-autisti' },
-      ...(bookingData.autisti || []).map((a, i) =>
-        el('div', { class: 'riepilogo-autista' },
-          el('strong', { text: `Autista ${i + 1}` }),
-          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Nome:' }), ' ', el('span', { class: 'riepilogo-value', text: a.nomeCognome })),
-          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Nascita:' }), ' ', el('span', { class: 'riepilogo-value', text: `${a.dataNascita} - ${a.luogoNascita}` })),
-          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Codice Fiscale:' }), ' ', el('span', { class: 'riepilogo-value', text: a.codiceFiscale })),
-          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Residenza:' }), ' ', el('span', { class: 'riepilogo-value', text: `${a.comuneResidenza}, ${a.viaResidenza} ${a.civicoResidenza}` })),
-          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Patente:' }), ' ', el('span', { class: 'riepilogo-value', text: `${a.numeroPatente} (${a.dataInizioValiditaPatente} - ${a.dataFineValiditaPatente})` }))
-        )
-      )
-    ),
-    el('div', { class: 'riepilogo-actions', style: 'text-align:center; margin-top:24px;' },
-      el('button', { id: 'btnConfermaPrenotazione', class: 'btn btn--primary' },
-        el('span', { class: 'material-icons', 'aria-hidden': 'true', text: 'check_circle' }),
-        document.createTextNode(' Conferma e invia prenotazione')
-      )
-    )
-  );
-
-  const modal = buildModalConferma();
-  clearAndAppend(container, el('div', { class: 'riepilogo' }, secPren, secAut), modal);
-
-  const btnConferma = document.getElementById('btnConfermaPrenotazione');
-  if (btnConferma) btnConferma.addEventListener('click', () => modal.style.display = 'flex');
-}
 function rItem(label, value) {
   return el('div', { class: 'riepilogo-item' },
     el('span', { class: 'riepilogo-label', text: label }),
@@ -595,12 +716,56 @@ function buildModalConferma() {
   document.body.append(modal);
   return modal;
 }
+function mostraRiepilogoPrenotazione() {
+  const container = document.getElementById('riepilogo_container');
+  if (!container) return;
+
+  const secPren = el('div', { class: 'riepilogo-section' },
+    el('h3', {}, el('span', { class: 'material-icons', 'aria-hidden': 'true', text: 'directions_bus' }), document.createTextNode(' Dati Prenotazione')),
+    el('div', { class: 'riepilogo-grid' },
+      rItem('Pulmino:', bookingData.pulmino?.nome || '-'),
+      rItem('Targa:', bookingData.pulmino?.targa || '-'),
+      rItem('Dal:', bookingData.dataRitiro || '-'),
+      rItem('Ora ritiro:', bookingData.oraRitiro || '-'),
+      rItem('Al:', bookingData.dataArrivo || '-'),
+      rItem('Ora arrivo:', bookingData.oraArrivo || '-'),
+      rItem('Telefono:', bookingData.cellulare || '-')
+    )
+  );
+
+  const secAut = el('div', { class: 'riepilogo-section' },
+    el('h3', {}, el('span', { class: 'material-icons', 'aria-hidden': 'true', text: 'person' }), document.createTextNode(' Autista/i')),
+    el('div', { class: 'riepilogo-autisti' },
+      ...(bookingData.autisti || []).map((a, i) =>
+        el('div', { class: 'riepilogo-autista' },
+          el('strong', { text: `Autista ${i + 1}` }),
+          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Nome:' }), document.createTextNode(' '), el('span', { class: 'riepilogo-value', text: a.nomeCognome })),
+          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Nascita:' }), document.createTextNode(' '), el('span', { class: 'riepilogo-value', text: `${a.dataNascita} - ${a.luogoNascita}` })),
+          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Codice Fiscale:' }), document.createTextNode(' '), el('span', { class: 'riepilogo-value', text: a.codiceFiscale })),
+          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Residenza:' }), document.createTextNode(' '), el('span', { class: 'riepilogo-value', text: `${a.comuneResidenza}, ${a.viaResidenza} ${a.civicoResidenza}` })),
+          el('div', {}, el('span', { class: 'riepilogo-label', text: 'Patente:' }), document.createTextNode(' '), el('span', { class: 'riepilogo-value', text: `${a.numeroPatente} (${a.dataInizioValiditaPatente} - ${a.dataFineValiditaPatente})` }))
+        )
+      )
+    ),
+    el('div', { class: 'riepilogo-actions', style: 'text-align:center; margin-top:24px;' },
+      el('button', { id: 'btnConfermaPrenotazione', class: 'btn btn--primary' },
+        el('span', { class: 'material-icons', 'aria-hidden': 'true', text: 'check_circle' }),
+        document.createTextNode(' Conferma e invia prenotazione')
+      )
+    )
+  );
+
+  const modal = buildModalConferma();
+  clearAndAppend(container, el('div', { class: 'riepilogo' }, secPren, secAut), modal);
+
+  const btnConferma = document.getElementById('btnConfermaPrenotazione');
+  if (btnConferma) btnConferma.addEventListener('click', () => modal.style.display = 'flex');
+}
 
 /* Invio prenotazione */
 async function inviaPrenotazione() {
   try {
     mostraLoading(true);
-    // Adatta i nomi dei campi al backend Apps Script
     const payload = {
       action: 'create',
       prenotazione: {
@@ -642,115 +807,48 @@ function mostraThankYou() {
 }
 
 /* =========================
-   MODULI AUTISTI
-========================= */
-function mostraModuliAutisti() {
-  const container = document.getElementById('autisti_container');
-  const num = parseInt(document.getElementById('num_autisti')?.value || '1', 10);
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 1; i <= num; i++) {
-    const box = el('div', { class: 'autista' },
-      el('h3', { text: `Autista ${i}` }),
-      el('label', {}, el('span', { text: 'Nome e Cognome *' }), el('input', { type: 'text', id: `nome_cognome_${i}`, placeholder: 'Mario Rossi', required: 'true' })),
-      el('label', {}, el('span', { text: 'Data di nascita *' })),
-      el('div', { class: 'date-inline' },
-        el('select', { id: `giorno_nascita_${i}` }), el('select', { id: `mese_nascita_${i}` }), el('select', { id: `anno_nascita_${i}` })
-      ),
-      el('label', {}, el('span', { text: 'Luogo di nascita *' }), el('input', { type: 'text', id: `luogo_nascita_${i}`, placeholder: 'Roma', required: 'true' })),
-      el('label', {}, el('span', { text: 'Comune di residenza *' }), el('input', { type: 'text', id: `comune_residenza_${i}`, placeholder: 'Milano', required: 'true' })),
-      el('label', {}, el('span', { text: 'Via di residenza *' }), el('input', { type: 'text', id: `via_residenza_${i}`, placeholder: 'Via Roma', required: 'true' })),
-      el('label', {}, el('span', { text: 'Civico di residenza *' }), el('input', { type: 'text', id: `civico_residenza_${i}`, placeholder: '123', required: 'true' })),
-      el('label', {}, el('span', { text: 'Codice fiscale *' }), el('input', { type: 'text', id: `codice_fiscale_${i}`, placeholder: 'RSSMRA80A01H501U', maxlength: '16', style: 'text-transform:uppercase;', required: 'true' })),
-      el('label', {}, el('span', { text: 'Numero patente *' }), el('input', { type: 'text', id: `numero_patente_${i}`, placeholder: 'AB1234567C', required: 'true' })),
-      el('label', {}, el('span', { text: 'Data inizio validità patente *' })),
-      el('div', { class: 'date-inline' },
-        el('select', { id: `giorno_inizio_validita_patente_${i}` }), el('select', { id: `mese_inizio_validita_patente_${i}` }), el('select', { id: `anno_inizio_validita_patente_${i}` })
-      ),
-      el('label', {}, el('span', { text: 'Data fine validità patente *' })),
-      el('div', { class: 'date-inline' },
-        el('select', { id: `giorno_fine_validita_patente_${i}` }), el('select', { id: `mese_fine_validita_patente_${i}` }), el('select', { id: `anno_fine_validita_patente_${i}` })
-      )
-    );
-    container.append(box);
-  }
-  const annoCorrente = new Date().getFullYear();
-  for (let i = 1; i <= num; i++) {
-    popolaTendineData(`giorno_nascita_${i}`, `mese_nascita_${i}`, `anno_nascita_${i}`, 1940, annoCorrente - 18);
-    popolaTendineData(`giorno_inizio_validita_patente_${i}`, `mese_inizio_validita_patente_${i}`, `anno_inizio_validita_patente_${i}`, annoCorrente - 50, annoCorrente + 10);
-    popolaTendineData(`giorno_fine_validita_patente_${i}`, `mese_fine_validita_patente_${i}`, `anno_fine_validita_patente_${i}`, annoCorrente, annoCorrente + 15);
-  }
-
-  // Precompilazione autista 1 + cellulare se disponibili
-  if (loggedCustomerData?.datiCompleti) {
-    setTimeout(() => {
-      const d = loggedCustomerData.datiCompleti;
-      const nomeInput = document.getElementById('nome_cognome_1'); if (nomeInput && d.nomeCognome) nomeInput.value = d.nomeCognome;
-      if (d.dataNascita) {
-        const [gg, mm, aa] = d.dataNascita.split('/');
-        const selG = document.getElementById('giorno_nascita_1'); if (selG && gg) selG.value = gg;
-        const selM = document.getElementById('mese_nascita_1'); if (selM && mm) selM.value = mm;
-        const selA = document.getElementById('anno_nascita_1'); if (selA && aa) selA.value = aa;
-      }
-      const luogo = document.getElementById('luogo_nascita_1'); if (luogo && d.luogoNascita) luogo.value = d.luogoNascita;
-      const cf = document.getElementById('codice_fiscale_1'); if (cf && d.codiceFiscale) cf.value = d.codiceFiscale;
-      const comune = document.getElementById('comune_residenza_1'); if (comune && d.comuneResidenza) comune.value = d.comuneResidenza;
-      const via = document.getElementById('via_residenza_1'); if (via && d.viaResidenza) via.value = d.viaResidenza;
-      const civico = document.getElementById('civico_residenza_1'); if (civico && d.civicoResidenza) civico.value = d.civicoResidenza;
-      const patente = document.getElementById('numero_patente_1'); if (patente && d.numeroPatente) patente.value = d.numeroPatente;
-      if (d.dataInizioValiditaPatente) {
-        const [gg, mm, aa] = d.dataInizioValiditaPatente.split('/');
-        const G = document.getElementById('giorno_inizio_validita_patente_1'); if (G && gg) G.value = gg;
-        const M = document.getElementById('mese_inizio_validita_patente_1'); if (M && mm) M.value = mm;
-        const A = document.getElementById('anno_inizio_validita_patente_1'); if (A && aa) A.value = aa;
-      }
-      if (d.dataFineValiditaPatente) {
-        const [gg, mm, aa] = d.dataFineValiditaPatente.split('/');
-        const G = document.getElementById('giorno_fine_validita_patente_1'); if (G && gg) G.value = gg;
-        const M = document.getElementById('mese_fine_validita_patente_1'); if (M && mm) M.value = mm;
-        const A = document.getElementById('anno_fine_validita_patente_1'); if (A && aa) A.value = aa;
-      }
-      const cell = document.getElementById('cellulare'); if (cell && d.cellulare) cell.value = d.cellulare;
-      mostraSuccesso('Dati del primo autista e cellulare precompilati automaticamente!');
-    }, 150);
-  }
-}
-
-/* =========================
    BOOTSTRAP
 ========================= */
 function startNewBookingWithPreFill() {
   const home = document.getElementById('homepage'); if (home) home.style.display = 'none';
   const mainbox = document.getElementById('mainbox'); if (mainbox) mainbox.style.display = 'flex';
   showStep('step1');
-  bookingData = {};
-  if (loggedCustomerData) {
-    const num = document.getElementById('num_autisti'); if (num) num.value = '1';
-    mostraModuliAutisti();
-  }
+  bookingData = bookingData || {};
+  bookingData.autisti = bookingData.autisti || [];
 }
 function bootstrap() {
   // Login
   const formLogin = document.getElementById('loginFormHomepage');
   if (formLogin) formLogin.addEventListener('submit', handleLoginSubmit);
-  // Nuova prenotazione
+
+  // Nuova prenotazione: da Home e da Area Personale
   const btnNewBooking = document.getElementById('btnNewBooking');
-  if (btnNewBooking) btnNewBooking.addEventListener('click', () => { startNewBookingWithPreFill(); });
-  // Step controls (se i bottoni esistono in DOM)
+  if (btnNewBooking) btnNewBooking.addEventListener('click', () => startNewBookingWithPreFill());
+
+  const btnNewBookingAP = document.getElementById('btnNewBookingAP');
+  if (btnNewBookingAP) btnNewBookingAP.addEventListener('click', () => startNewBookingWithPreFill());
+
+  // Step controls
   const btnCheck = document.getElementById('btnControllaDisponibilita');
   if (btnCheck) btnCheck.addEventListener('click', controllaDisponibilita);
-  const btnToStep3 = document.getElementById('btnVaiStep3');
-  if (btnToStep3) btnToStep3.addEventListener('click', vaiStep3);
+
+  const btnToStep3Hook = document.getElementById('chiamaContinuaBtn');
+  if (btnToStep3Hook) btnToStep3Hook.addEventListener('click', () => {
+    if (!btnToStep3Hook.disabled) vaiStep3();
+  });
+
   const btnToStep4 = document.getElementById('btnVaiStep4');
   if (btnToStep4) btnToStep4.addEventListener('click', vaiStep4);
+
   // Numero autisti change
   const numSel = document.getElementById('num_autisti');
   if (numSel) numSel.addEventListener('change', mostraModuliAutisti);
-  // Prepara tendine date ritiro/arrivo
+
+  // Prepara tendine date ritiro/arrivo (anni: oggi → oggi+1)
   const anno = new Date().getFullYear();
   popolaTendineData('giorno_ritiro', 'mese_ritiro', 'anno_ritiro', anno, anno + 1);
   popolaTendineData('giorno_arrivo', 'mese_arrivo', 'anno_arrivo', anno, anno + 1);
-  // Focus/back
+
   updateBackButton();
 }
 document.addEventListener('DOMContentLoaded', bootstrap);
