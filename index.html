@@ -72,55 +72,58 @@
       <h2 id="wizard-title">Nuova prenotazione</h2>
 
       <!-- STEP 1: Date e orari -->
-      <div id="step1" class="step" data-step aria-labelledby="s1-title">
-        <h3 id="s1-title">Seleziona date e orari</h3>
+<div id="step1" class="step" data-step aria-labelledby="s1-title">
+  <h3 id="s1-title">Seleziona date e orari</h3>
 
-        <label for="giorno_ritiro">
-          <span class="material-icons" aria-hidden="true">event</span>
-          Data ritiro
-        </label>
-        <div class="date-inline">
-          <select id="giorno_ritiro" aria-label="Giorno ritiro" required></select>
-          <select id="mese_ritiro" aria-label="Mese ritiro" required></select>
-          <select id="anno_ritiro" aria-label="Anno ritiro" required></select>
-        </div>
+  <label for="data_ritiro">
+    <span class="material-icons" aria-hidden="true">event</span>
+    Data ritiro
+  </label>
+  <input 
+    type="date" 
+    id="data_ritiro" 
+    required 
+    style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;"
+  />
 
-        <label for="ora_partenza">
-          <span class="material-icons" aria-hidden="true">schedule</span>
-          Ora ritiro
-        </label>
-        <select id="ora_partenza" required>
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
+  <label for="ora_partenza">
+    <span class="material-icons" aria-hidden="true">schedule</span>
+    Ora ritiro
+  </label>
+  <select id="ora_partenza" required style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
+    <option value="08:00">08:00</option>
+    <option value="12:00">12:00</option>
+    <option value="16:00">16:00</option>
+    <option value="20:00">20:00</option>
+  </select>
 
-        <label for="giorno_arrivo">
-          <span class="material-icons" aria-hidden="true">event_available</span>
-          Data arrivo
-        </label>
-        <div class="date-inline">
-          <select id="giorno_arrivo" aria-label="Giorno arrivo" required></select>
-          <select id="mese_arrivo" aria-label="Mese arrivo" required></select>
-          <select id="anno_arrivo" aria-label="Anno arrivo" required></select>
-        </div>
+  <label for="data_arrivo">
+    <span class="material-icons" aria-hidden="true">event_available</span>
+    Data arrivo
+  </label>
+  <input 
+    type="date" 
+    id="data_arrivo" 
+    required 
+    style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;"
+  />
 
-        <label for="ora_arrivo">
-          <span class="material-icons" aria-hidden="true">schedule</span>
-          Ora arrivo
-        </label>
-        <select id="ora_arrivo" required>
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
+  <label for="ora_arrivo">
+    <span class="material-icons" aria-hidden="true">schedule</span>
+    Ora arrivo
+  </label>
+  <select id="ora_arrivo" required style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
+    <option value="08:00">08:00</option>
+    <option value="12:00">12:00</option>
+    <option value="16:00">16:00</option>
+    <option value="20:00">20:00</option>
+  </select>
 
-        <div class="actions" style="margin-top: 10px;">
-          <button id="btn-controlla-disponibilita" class="btn btn--primary">Controlla disponibilità</button>
-        </div>
-      </div>
+  <div class="actions" style="margin-top: 20px;">
+    <button id="btn-controlla-disponibilita" class="btn btn--primary">Controlla disponibilità</button>
+  </div>
+</div>
+
 
       <!-- STEP 2: Scelta pulmino (CARD) -->
       <div id="step2" class="step hidden" data-step aria-labelledby="s2-title">

@@ -1,5 +1,5 @@
 /* Imbriani Noleggio – scripts.js FINALE CORRETTO
-   Versione 5.3.3 COMPLETA
+   Versione 5.3.4 COMPLETA
    
    FIX v5.3.3:
    - Form modifica con date/orari ritiro/consegna
@@ -765,7 +765,7 @@ async function handleUpdatePrenotazione(idPrenotazione) {
 }
 
 async function handleDeletePrenotazione(idPrenotazione) {
-  if (!confirm('Confermi l\'eliminazione?')) return;
+  if (!confirm('Confermi l\'eliminazione della prenotazione ' + idPrenotazione + '?')) return;
   
   mostraLoading(true);
   try {
@@ -773,22 +773,27 @@ async function handleDeletePrenotazione(idPrenotazione) {
       action: 'delete', 
       idPrenotazione 
     });
-    if (!res.success) throw new Error(res.error || 'Errore eliminazione');
+    
+    // ⬇️ FIX: Controlla se success è false PRIMA di procedere
+    if (!res || !res.success) {
+      throw new Error(res?.error || 'Errore eliminazione');
+    }
     
     console.log(`⚡ Delete completato in ${res.executionTime || 'N/A'}ms`);
     
-    // FIX: Rimuovi dalla mappa locale SUBITO
+    // Rimuovi dalla mappa locale SUBITO
     prenotazioniMap.delete(idPrenotazione);
     
-    mostraSuccesso('Prenotazione eliminata');
+    mostraSuccesso('Prenotazione eliminata con successo');
     
-    // FIX: Ricarica dati freschi
-    if (loggedCustomerData) {
+    // Ricarica dati freschi SOLO se login è attivo
+    if (loggedCustomerData && loggedCustomerData.codiceFiscale) {
+      // ⬇️ FIX: Passa CF valido
       await handleLogin(loggedCustomerData.codiceFiscale);
     }
   } catch (err) {
-    console.error(err);
-    mostraErrore(err.message || 'Errore eliminazione');
+    console.error('❌ Errore DELETE:', err);
+    mostraErrore(err.message || 'Impossibile eliminare la prenotazione');
   } finally {
     mostraLoading(false);
   }
