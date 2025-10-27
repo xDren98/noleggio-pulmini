@@ -766,8 +766,11 @@ function mostraRiepilogoPrenotazione() {
 async function inviaPrenotazione() {
   try {
     mostraLoading(true);
+
+    // Payload minimale per CREATE: l’ID lo genera l’Apps Script
     const payload = {
       action: 'create',
+      cf: loggedCustomerData?.cf || '',
       prenotazione: {
         pulmino: bookingData.pulmino?.id || '',
         targa: bookingData.pulmino?.targa || '',
@@ -779,11 +782,30 @@ async function inviaPrenotazione() {
         autisti: bookingData.autisti || []
       }
     };
-    const res = await apiManageBooking(payload);
+
+    // Endpoint primario: gestione prenotazione (server-side genera l’ID)
+    let res = await apiManageBooking(payload);
+
+    // Fallback su endpoint prenotazioni se la web app espone create lì
+    if (!res?.success) {
+      const msg = String(res?.error || '').toLowerCase();
+      if (msg.includes('azione') || msg.includes('action') || msg.includes('endpoint')) {
+        res = await fetchJSON(SCRIPTS.prenotazioni, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+    }
+
     if (res?.success) {
+      // Se il server restituisce l’ID, conservalo per eventuali azioni successive
+      const createdId = res.idPrenotazione || res.id || res.bookingId || null;
+      if (createdId) console.log('Nuova prenotazione ID:', createdId);
+      mostraSuccesso('Prenotazione inviata correttamente.'); 
       mostraThankYou();
     } else {
-      mostraErrore(res?.error || 'Invio prenotazione fallito.');
+      mostraErrore(res?.error || 'Invio prenotazione non riuscito.');
     }
   } catch (e) {
     console.error(e);
@@ -792,6 +814,7 @@ async function inviaPrenotazione() {
     mostraLoading(false);
   }
 }
+
 function mostraThankYou() {
   const main = document.getElementById('mainbox');
   if (!main) return;
