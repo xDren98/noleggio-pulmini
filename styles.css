@@ -767,3 +767,41 @@ select:valid {
 @media (max-width: 650px) {
   .riepilogo-grid { grid-template-columns: 1fr; }
 }
+.modal-conferma {
+  position: fixed;
+  top:0; left:0; width:100vw; height:100vh;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-conferma__backdrop {
+  position: absolute;
+  background: rgba(44, 93, 42, 0.18);
+  backdrop-filter: blur(2.5px);
+  width: 100vw; height: 100vh;
+  left:0; top:0;
+}
+.modal-conferma__content {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 37px 34px 28px 34px;
+  box-shadow: 0 4px 32px #15792b33;
+  min-width: 330px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeInConfirm 0.3s;
+}
+.modal-conferma__actions {
+  margin-top: 22px;
+}
+@keyframes fadeInConfirm {
+  from { opacity: 0; transform: translateY(24px);}
+  to { opacity:1; transform: none;}
+}
+@media (max-width: 480px) {
+  .modal-conferma__content {min-width:210px;padding:20px 6vw;}
+}
