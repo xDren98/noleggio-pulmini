@@ -375,9 +375,9 @@ function modificaPrenotazione(p) {
     el('label', {}, el('span', { text: 'Nome ' }), el('input', { type: 'text', name: 'Nome', value: asString(p.Nome || p.nomeCognome || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Data di nascita ' }), el('input', { type: 'text', name: 'Data di nascita', value: asString(p['Data di nascita'] || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Luogo di nascita ' }), el('input', { type: 'text', name: 'Luogo di nascita', value: asString(p['Luogo di nascita'] || ''), required: 'true' })),
-    el('label', {}, el('span', { text: 'Comune di residenza ' }), el('input', { type: 'text', name: 'Comune di residenza', value: asString(p['Comune di residenza'] || ''), required: 'true' })),
-    el('label', {}, el('span', { text: 'Via di residenza ' }), el('input', { type: 'text', name: 'Via di residenza', value: asString(p['Via di residenza'] || ''), required: 'true' })),
-    el('label', {}, el('span', { text: 'Civico di residenza ' }), el('input', { type: 'text', name: 'Civico di residenza', value: asString(p['Civico di residenza'] || ''), required: 'true' })),
+    el('input', { type:'text', name:'Comune di residenza', value: asString(p['Comune di residenza'] || ''), required:'true' }),
+    el('input', { type:'text', name:'Via di residenza', value: asString(p['Via di residenza'] || ''), required:'true' }),
+    el('input', { type:'text', name:'Civico di residenza', value: asString(p['Civico di residenza'] || ''), required:'true' }),
     el('label', {}, el('span', { text: 'Numero di patente ' }), el('input', { type: 'text', name: 'Numero di patente', value: asString(p['Numero di patente'] || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Data inizio validità patente ' }), el('input', { type: 'text', name: 'Data inizio validità patente', value: asString(p['Data inizio validità patente'] || ''), required: 'true' })),
     el('label', {}, el('span', { text: 'Scadenza patente ' }), el('input', { type: 'text', name: 'Scadenza patente', value: asString(p['Scadenza patente'] || ''), required: 'true' })),
@@ -499,6 +499,15 @@ async function controllaDisponibilita() {
     );
 
     const select = document.getElementById('scelta_pulmino');
+    const continuaBtn = document.getElementById('chiamaContinuaBtn');
+
+    select.addEventListener('change', (e) => {
+  const v = e.target.value;
+  const p = pulmini.find(x => x.id === v);
+  bookingData.pulmino = p ? { id: p.id, nome: p.nome, targa: p.targa || '' } : { id: v, nome: '', targa: '' };
+  if (continuaBtn) continuaBtn.disabled = !v;
+});
+
     const nDisp = document.getElementById('num_disponibili');
     if (nDisp) nDisp.textContent = String(disponibili.length);
     if (select) {
@@ -510,12 +519,8 @@ async function controllaDisponibilita() {
 
     mostraSuccesso(`Trovati ${disponibili.length} pulmini disponibili!`);
     showStep('step2');
-    const continuaBtn = document.getElementById('chiamaContinuaBtn');
+  
     if (continuaBtn) continuaBtn.disabled = true;
-    if (select) select.addEventListener('change', function () {
-      if (continuaBtn) continuaBtn.disabled = !this.value;
-      if (this.value) bookingData.pulmino = pulmini.find(p => p.id === this.value) || null;
-    }, { once: true });
   } catch (e) {
     console.error(e);
     mostraErrore('Errore durante il controllo disponibilità.');
