@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Imbriani Noleggio</title>
-
+  
   <!-- Font & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
-
+  
   <!-- Stili -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>
+    <h1 id="site-title" style="cursor:pointer;">
       <span class="material-icons" aria-hidden="true">directions_bus</span>
       Imbriani Noleggio
     </h1>
@@ -23,19 +23,18 @@
 
   <main>
     <!-- HOME PAGE -->
-    <section id="homepage" class="card" aria-labelledby="home-title">
+    <section id="homepage" data-section class="card" aria-labelledby="home-title">
       <h2 id="home-title">Hai già prenotato con noi?</h2>
       <p>Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
 
-      <form id="loginFormHomepage" novalidate>
+      <form id="form-login" novalidate>
         <div class="input-with-icon">
           <span class="material-icons" aria-hidden="true">person</span>
-          <input type="text" id="cfInputHomepage" placeholder="Codice fiscale" required maxlength="16" aria-describedby="cfHelp" style="text-transform: uppercase;" />
+          <input type="text" id="cf-login" placeholder="Codice fiscale" required maxlength="16" aria-describedby="cfHelp" style="text-transform: uppercase;" />
         </div>
         <div id="cfHelp" class="help-text">Inserisci 16 caratteri, saranno convertiti in maiuscolo.</div>
         <button type="submit" class="btn btn--primary">Accedi</button>
       </form>
-      <div id="loginResultHomepage" class="muted"></div>
 
       <hr />
 
@@ -48,35 +47,24 @@
     </section>
 
     <!-- AREA PERSONALE -->
-    <section id="areaPersonale" class="card" style="display: none;" aria-labelledby="area-title">
+    <section id="area-personale" data-section class="card hidden" aria-labelledby="area-title">
       <h2 id="area-title">Area personale</h2>
-      <div class="actions" style="gap: 10px; display: flex; flex-wrap: wrap;">
-        <button id="btnVisualizzaPrenotazioni" class="btn">
-          <span class="material-icons" aria-hidden="true">list_alt</span>
-          Prenotazioni
-        </button>
-        <button id="btnVisualizzaDati" class="btn">
-          <span class="material-icons" aria-hidden="true">badge</span>
-          I tuoi dati
-        </button>
-        <button id="btnNewBookingAP" class="btn btn--secondary">
-          <span class="material-icons" aria-hidden="true">add_circle</span>
-          Nuova prenotazione
-        </button>
-        <button id="btnLogout" class="btn btn--danger">
-          <span class="material-icons" aria-hidden="true">logout</span>
-          Esci
-        </button>
-      </div>
-      <div id="contenutoPersonale" style="margin-top: 16px;"></div>
+      <div id="area-personale-content"></div>
+    </section>
+
+    <!-- MODIFICA PRENOTAZIONE -->
+    <section id="modifica-prenotazione" data-section class="card hidden" aria-labelledby="modifica-title">
+      <button class="btn-back" data-target="area-personale">← Indietro</button>
+      <h2 id="modifica-title">Modifica prenotazione</h2>
+      <div id="modifica-form-content"></div>
     </section>
 
     <!-- WIZARD PRENOTAZIONE -->
-    <section id="mainbox" class="card" style="display: none;" aria-labelledby="wizard-title">
+    <section id="mainbox" data-section class="card hidden" aria-labelledby="wizard-title">
       <h2 id="wizard-title">Nuova prenotazione</h2>
 
       <!-- STEP 1: Date e orari -->
-      <div id="step1" class="step active" aria-labelledby="s1-title">
+      <div id="step1" class="step" data-step aria-labelledby="s1-title">
         <h3 id="s1-title">Seleziona date e orari</h3>
 
         <label for="giorno_ritiro">
@@ -122,38 +110,30 @@
         </select>
 
         <div class="actions" style="margin-top: 10px;">
-          <button id="btnControllaDisponibilita" class="btn btn--primary">Controlla disponibilità</button>
+          <button id="btn-controlla-disponibilita" class="btn btn--primary">Controlla disponibilità</button>
         </div>
       </div>
 
-      <!-- STEP 2: Scelta pulmino -->
-      <div id="step2" class="step" aria-labelledby="s2-title">
+      <!-- STEP 2: Scelta pulmino (CARD) -->
+      <div id="step2" class="step hidden" data-step aria-labelledby="s2-title">
+        <button class="btn-back" data-target="step1">← Indietro</button>
         <h3 id="s2-title">Scegli il pulmino</h3>
-
-        <label for="scelta_pulmino">
-          <span class="material-icons" aria-hidden="true">airport_shuttle</span>
-          Pulmino disponibile
-        </label>
-        <select id="scelta_pulmino">
-          <option value="">-- Seleziona un pulmino --</option>
-        </select>
-
-        <p class="muted">Disponibili: <strong><span id="num_disponibili">0</span></strong></p>
-
-        <div class="actions" style="margin-top: 10px;">
-          <button id="chiamaContinuaBtn" class="btn btn--primary" disabled>Continua</button>
+        <div id="lista-pulmini" class="pulmini-grid"></div>
+        <div class="actions" style="margin-top: 16px;">
+          <button id="btn-step2-continua" class="btn btn--primary" disabled>Continua</button>
         </div>
       </div>
 
       <!-- STEP 3: Dati autisti -->
-      <div id="step3" class="step" aria-labelledby="s3-title">
+      <div id="step3" class="step hidden" data-step aria-labelledby="s3-title">
+        <button class="btn-back" data-target="step2">← Indietro</button>
         <h3 id="s3-title">Dati autista/i</h3>
 
-        <label for="num_autisti">
+        <label for="numero-autisti">
           <span class="material-icons" aria-hidden="true">groups</span>
           Numero autisti
         </label>
-        <select id="num_autisti">
+        <select id="numero-autisti">
           <option value="1" selected>1</option>
           <option value="2">2</option>
           <option value="3">3</option>
@@ -165,17 +145,21 @@
         </label>
         <input type="tel" id="cellulare" placeholder="Es. 3201234567" />
 
-        <div id="autisti_container" style="margin-top: 10px;"></div>
+        <div id="autisti-container" style="margin-top: 10px;"></div>
 
         <div class="actions" style="margin-top: 16px;">
-          <button id="btnVaiStep4" class="btn btn--primary">Continua</button>
+          <button id="btn-step3-continua" class="btn btn--primary">Continua</button>
         </div>
       </div>
 
       <!-- STEP 4: Riepilogo e invio -->
-      <div id="step4" class="step" aria-labelledby="s4-title">
+      <div id="step4" class="step hidden" data-step aria-labelledby="s4-title">
+        <button class="btn-back" data-target="step3">← Indietro</button>
         <h3 id="s4-title">Riepilogo</h3>
-        <div id="riepilogo_container"></div>
+        <div id="riepilogo-content"></div>
+        <div class="actions" style="margin-top: 16px;">
+          <button id="btn-invia-prenotazione" class="btn btn--primary">Invia prenotazione</button>
+        </div>
       </div>
     </section>
   </main>
