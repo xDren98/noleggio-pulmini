@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.5.0');
+console.log('Imbriani Noleggio - Versione codice: 2.5.1');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -256,22 +256,47 @@ function modificaPrenotazione(p) {
 
 function cancellaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
-  if (!confirm('Sei sicuro?')) return;
+  
+  const idPrenotazione = p['ID prenotazione'];
+  
+  console.log("Cancellazione prenotazione con ID:", idPrenotazione);
+  
+  if (!idPrenotazione) {
+    mostraErrore('ID prenotazione mancante');
+    return;
+  }
+  
+  if (!confirm('Sei sicuro di voler cancellare questa prenotazione?')) return;
+  
+  mostraLoading(true);
+  
   fetchWithProxy(SCRIPTS.manageBooking, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idPrenotazione: p['ID prenotazione'], delete: true }),
+    body: JSON.stringify({ 
+      idPrenotazione: idPrenotazione, 
+      delete: true 
+    }),
   })
-  .then(r => r.text())
-  .then(msg => {
-    mostraSuccesso(msg);
-    caricaPrenotazioniCliente(loggedCustomerData.cf);
+  .then(r => r.json())
+  .then(result => {
+    mostraLoading(false);
+    console.log("Risposta cancellazione:", result);
+    
+    if (result.success) {
+      mostraSuccesso(result.message || 'Prenotazione cancellata');
+      // Ricarica la lista con il CF dell'utente loggato
+      caricaPrenotazioniCliente(loggedCustomerData.cf);
+    } else {
+      mostraErrore('Errore: ' + (result.error || 'Cancellazione fallita'));
+    }
   })
-  .catch(err => mostraErrore('Errore: ' + err.message));
+  .catch(err => {
+    mostraLoading(false);
+    console.error("Errore cancellazione:", err);
+    mostraErrore('Errore: ' + err.message);
+  });
 }
-
-// ... tutte le altre funzioni rimangono invariate ...
-
 
 
 // Le restanti funzioni continuano come da codice originale (startNewBookingWithPreFill, showStep, updateBackButton, goBack, etc.)
