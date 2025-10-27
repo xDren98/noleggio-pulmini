@@ -12,7 +12,7 @@
 /* =========================
    CONFIG E COSTANTI
 ========================= */
-console.log('Imbriani Noleggio - Versione codice: 3.3.1');
+console.log('Imbriani Noleggio - Versione codice: 3.3.2');
 
 const pulmini = [
   { id: 'ducato_lungo', nome: 'Fiat Ducato (Passo lungo)', targa: 'EC787NM' },
