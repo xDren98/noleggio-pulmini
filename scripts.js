@@ -527,34 +527,13 @@ function mostraRiepilogoPrenotazione() {
       <div class="riepilogo-section">
         <h3><span class="material-icons" style="vertical-align:middle;color:#37b24d;margin-right:4px;">directions_bus</span> Dati Prenotazione</h3>
         <div class="riepilogo-grid">
-          <div class="riepilogo-item">
-            <span class="riepilogo-label">Pulmino:</span>
-            <span class="riepilogo-value">${bookingData.pulmino?.nome || '-'}</span>
-          </div>
-          <div class="riepilogo-item">
-            <span class="riepilogo-label">Targa:</span>
-            <span class="riepilogo-value">${bookingData.pulmino?.targa || '-'}</span>
-          </div>
-          <div class="riepilogo-item">
-            <span class="riepilogo-label">Dal:</span>
-            <span class="riepilogo-value">${bookingData.dataRitiro || '-'}</span>
-          </div>
-          <div class="riepilogo-item">
-            <span class="riepilogo-label">Ora ritiro:</span>
-            <span class="riepilogo-value">${bookingData.oraRitiro || '-'}</span>
-          </div>
-          <div class="riepilogo-item">
-            <span class="riepilogo-label">Al:</span>
-            <span class="riepilogo-value">${bookingData.dataArrivo || '-'}</span>
-          </div>
-          <div class="riepilogo-item">
-            <span class="riepilogo-label">Ora arrivo:</span>
-            <span class="riepilogo-value">${bookingData.oraArrivo || '-'}</span>
-          </div>
-          <div class="riepilogo-item">
-            <span class="riepilogo-label">Telefono:</span>
-            <span class="riepilogo-value">${bookingData.cellulare || '-'}</span>
-          </div>
+          <div class="riepilogo-item"><span class="riepilogo-label">Pulmino:</span> <span class="riepilogo-value">${bookingData.pulmino?.nome || '-'}</span></div>
+          <div class="riepilogo-item"><span class="riepilogo-label">Targa:</span> <span class="riepilogo-value">${bookingData.pulmino?.targa || '-'}</span></div>
+          <div class="riepilogo-item"><span class="riepilogo-label">Dal:</span> <span class="riepilogo-value">${bookingData.dataRitiro || '-'}</span></div>
+          <div class="riepilogo-item"><span class="riepilogo-label">Ora ritiro:</span> <span class="riepilogo-value">${bookingData.oraRitiro || '-'}</span></div>
+          <div class="riepilogo-item"><span class="riepilogo-label">Al:</span> <span class="riepilogo-value">${bookingData.dataArrivo || '-'}</span></div>
+          <div class="riepilogo-item"><span class="riepilogo-label">Ora arrivo:</span> <span class="riepilogo-value">${bookingData.oraArrivo || '-'}</span></div>
+          <div class="riepilogo-item"><span class="riepilogo-label">Telefono:</span> <span class="riepilogo-value">${bookingData.cellulare || '-'}</span></div>
         </div>
       </div>
       <div class="riepilogo-section">
@@ -575,12 +554,51 @@ function mostraRiepilogoPrenotazione() {
 
   html += `
         </div>
+        <div class="riepilogo-actions" style="text-align:center; margin-top:24px;">
+          <button id="btnConfermaPrenotazione" class="btn btn--primary" style="padding:14px 38px;font-size:1.15em;">
+            <span class="material-icons" style="font-size:22px;vertical-align:middle;">check_circle</span>
+            Conferma e invia prenotazione
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="modalConferma" class="modal-conferma" style="display:none;">
+      <div class="modal-conferma__backdrop"></div>
+      <div class="modal-conferma__content">
+        <span class="material-icons" style="font-size:32px;color:#37b24d;margin-bottom:10px;">help_outline</span>
+        <h4>Conferma prenotazione?</h4>
+        <p>Vuoi confermare e inviare definitivamente questa prenotazione?</p>
+        <div class="modal-conferma__actions">
+          <button id="btnModalAnnulla" class="btn" style="background:#e6e6e6;color:#444;padding:10px 24px;margin-right:14px;">Annulla</button>
+          <button id="btnModalInvia" class="btn btn--primary" style="padding:10px 26px;">Conferma e invia</button>
+        </div>
       </div>
     </div>
   `;
 
   container.innerHTML = html;
+
+  // Gestione UI dialog conferma
+  const btnConferma = document.getElementById('btnConfermaPrenotazione');
+  const modal = document.getElementById('modalConferma');
+  if (btnConferma && modal) {
+    btnConferma.onclick = () => {
+      modal.style.display = 'flex';
+    };
+    document.getElementById('btnModalAnnulla').onclick = () => {
+      modal.style.display = 'none';
+    };
+    document.getElementById('btnModalInvia').onclick = () => {
+      modal.style.display = 'none';
+      inviaPrenotazione();
+    };
+    // Uscita cliccando su sfondo modal
+    modal.querySelector('.modal-conferma__backdrop').onclick = () => {
+      modal.style.display = 'none';
+    };
+  }
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
   const btnApriModulo = document.getElementById('btnApriModulo');
