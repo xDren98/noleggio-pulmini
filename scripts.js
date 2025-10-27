@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.6');
+console.log('Imbriani Noleggio - Versione codice: 2.2.7');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -16,6 +16,10 @@ const SCRIPTS = {
   disponibilita: 'https://script.google.com/macros/s/AKfycbx-Rb1kq4XCEBcR2HfD7n2sv0pvw0XFxVvffmJGL9n8d5qaofObjFnnotKyI3Jkf-4/exec',
   manageBooking: 'https://script.google.com/macros/s/AKfycbzI333v9xIlu2Ac0ThUnLhzK0PrxXyNSybL9g4pvmK6eR5UGPAlVgK8WukLq90AzYM/exec'
 };
+
+function fetchWithProxy(url, options = {}) {
+  return fetch(SCRIPTS.proxy + url, options);
+}
 
 function validaCodiceFiscale(cf) {
   const regex = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/;
@@ -80,15 +84,14 @@ document.getElementById('loginFormHomepage').addEventListener('submit', function
 
   mostraLoading(true);
 
-  // Chiama la web app per dati cliente e prenotazioni insieme
   Promise.all([
-    fetch(SCRIPTS.prenotazioni, {
+    fetchWithProxy(SCRIPTS.prenotazioni, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cf })
     }).then(r => r.json()),
 
-    fetch(SCRIPTS.datiCliente, {
+    fetchWithProxy(SCRIPTS.datiCliente, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cf })
@@ -150,7 +153,7 @@ function setupAreaPersonale() {
 function caricaPrenotazioniCliente(cf) {
   mostraLoading(true);
 
-  fetch(SCRIPTS.prenotazioni, {
+  fetchWithProxy(SCRIPTS.prenotazioni, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cf }),
@@ -233,7 +236,7 @@ function modificaPrenotazione(p) {
     const formData = new FormData(this);
     const obj = {};
     formData.forEach((v, k) => obj[k] = v);
-    fetch(SCRIPTS.manageBooking, {
+    fetchWithProxy(SCRIPTS.manageBooking, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(obj)
@@ -256,7 +259,7 @@ function cancellaPrenotazione(p) {
     dataFine: p['Giorno fine noleggio'],
     delete: true
   };
-  fetch(SCRIPTS.manageBooking, {
+  fetchWithProxy(SCRIPTS.manageBooking, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(obj)
@@ -268,6 +271,7 @@ function cancellaPrenotazione(p) {
   })
   .catch(err => mostraErrore('Errore cancellazione: ' + err.message));
 }
+
 
 document.getElementById('btnNewBooking').addEventListener('click', () => {
   loggedCustomerData = null;
