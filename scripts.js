@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.7');
+console.log('Imbriani Noleggio - Versione codice: 2.2.8');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -11,10 +11,10 @@ let bookingData = {};
 
 const SCRIPTS = {
   proxy: 'https://proxy-cors-google-apps.onrender.com/',
-  prenotazioni: 'https://script.google.com/macros/s/AKfycbx8vOsfdliS4e5odoRMkvCwaWY7SowSkgtW0zTuvqDIu4R99sUEixlLSW7Y9MyvNWk/exec',
-  datiCliente: 'https://script.google.com/macros/s/AKfycbwdLNztRhf5FFieplQbVXaPyKD2WzO2ChLZ7ky5Z0XYvRfWfOmQjqbOL_ditw5_3Z0/exec',
-  disponibilita: 'https://script.google.com/macros/s/AKfycbx-Rb1kq4XCEBcR2HfD7n2sv0pvw0XFxVvffmJGL9n8d5qaofObjFnnotKyI3Jkf-4/exec',
-  manageBooking: 'https://script.google.com/macros/s/AKfycbzI333v9xIlu2Ac0ThUnLhzK0PrxXyNSybL9g4pvmK6eR5UGPAlVgK8WukLq90AzYM/exec'
+  datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
+  disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec',
+  prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
+  manageBooking: 'https://script.google.com/macros/s/AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ/exec'
 };
 
 function fetchWithProxy(url, options = {}) {
@@ -271,6 +271,7 @@ function cancellaPrenotazione(p) {
   })
   .catch(err => mostraErrore('Errore cancellazione: ' + err.message));
 }
+
 
 
 document.getElementById('btnNewBooking').addEventListener('click', () => {
