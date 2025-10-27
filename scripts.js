@@ -1,4 +1,4 @@
-console.log('Imbriani Noleggio - Versione codice: 2.2.4');
+console.log('Imbriani Noleggio - Versione codice: 2.2.5');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -616,45 +616,46 @@ function inviaPrenotazione() {
 
   mostraLoading(true);
 
-  fetch('https://script.google.com/macros/s/AKfycbwy7ZO3hCMcjhPuOMFyJoJl_IRyDr_wfhALadDhFt__Yjg3FBFWqt7wbCjIm0iim9Ya/exec', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(bookingData)
-  })
-  .then(response => response.json())
-  .then(data => {
-    mostraLoading(false);
-    if (data.success) {
-      mostraSuccesso('Prenotazione inviata con successo! PDF creato.');
-      mostraThankYou();
-    } else {
-      mostraErrore('Errore nell\'invio: ' + (data.error || 'Errore sconosciuto'));
-    }
-  })
-  .catch(err => {
-    mostraLoading(false);
-    mostraErrore('Errore di rete: ' + err.message);
-  });
-}
-
-
   const formId = '11jQAzYFUg2Qgu-XyR5pj9hgzc992ZKeIeaHos2KBk7A';
   const formBaseUrl = `https://docs.google.com/forms/d/e/${formId}/viewform`;
 
   const ENTRY = {
-    nomeCognome1: "entry.1117372864", dataNascita1: "entry.1463974346", luogoNascita1: "entry.1633665128",
-    codiceFiscale1: "entry.36844075", comuneResidenza1: "entry.115888402", viaResidenza1: "entry.913323396",
-    civicoResidenza1: "entry.851213452", numeroPatente1: "entry.15925456", inizioValiditaPatente1: "entry.914754440",
-    fineValiditaPatente1: "entry.1373011243", targaPulmino: "entry.1676855906", oraRitiro: "entry.821083355",
-    oraArrivo: "entry.1888774437", dataRitiro: "entry.517585546", dataArrivo: "entry.810215127",
-    cellulare: "entry.1889382033", dataContratto: "entry.1543960408",
-    nomeCognome2: "entry.1449762214", dataNascita2: "entry.218826991", luogoNascita2: "entry.572727319",
-    codiceFiscale2: "entry.850104184", comuneResidenza2: "entry.702889962", viaResidenza2: "entry.1362390417",
-    civicoResidenza2: "entry.269416573", numeroPatente2: "entry.716259237", inizioValiditaPatente2: "entry.1202607650",
+    nomeCognome1: "entry.1117372864",
+    dataNascita1: "entry.1463974346",
+    luogoNascita1: "entry.1633665128",
+    codiceFiscale1: "entry.36844075",
+    comuneResidenza1: "entry.115888402",
+    viaResidenza1: "entry.913323396",
+    civicoResidenza1: "entry.851213452",
+    numeroPatente1: "entry.15925456",
+    inizioValiditaPatente1: "entry.914754440",
+    fineValiditaPatente1: "entry.1373011243",
+    targaPulmino: "entry.1676855906",
+    oraRitiro: "entry.821083355",
+    oraArrivo: "entry.1888774437",
+    dataRitiro: "entry.517585546",
+    dataArrivo: "entry.810215127",
+    cellulare: "entry.1889382033",
+    dataContratto: "entry.1543960408",
+    nomeCognome2: "entry.1449762214",
+    dataNascita2: "entry.218826991",
+    luogoNascita2: "entry.572727319",
+    codiceFiscale2: "entry.850104184",
+    comuneResidenza2: "entry.702889962",
+    viaResidenza2: "entry.1362390417",
+    civicoResidenza2: "entry.269416573",
+    numeroPatente2: "entry.716259237",
+    inizioValiditaPatente2: "entry.1202607650",
     fineValiditaPatente2: "entry.1335171224",
-    nomeCognome3: "entry.1756625997", dataNascita3: "entry.724642237", luogoNascita3: "entry.2055078159",
-    codiceFiscale3: "entry.1750806014", comuneResidenza3: "entry.559362301", viaResidenza3: "entry.656836588",
-    civicoResidenza3: "entry.1926018707", numeroPatente3: "entry.724642237", inizioValiditaPatente3: "entry.2055078159",
+    nomeCognome3: "entry.1756625997",
+    dataNascita3: "entry.724642237",
+    luogoNascita3: "entry.2055078159",
+    codiceFiscale3: "entry.1750806014",
+    comuneResidenza3: "entry.559362301",
+    viaResidenza3: "entry.656836588",
+    civicoResidenza3: "entry.1926018707",
+    numeroPatente3: "entry.724642237",
+    inizioValiditaPatente3: "entry.2055078159",
     fineValiditaPatente3: "entry.1750806014"
   };
 
@@ -665,7 +666,7 @@ function inviaPrenotazione() {
   params.append(ENTRY.dataArrivo, bookingData.dataArrivo);
   params.append(ENTRY.oraArrivo, bookingData.oraArrivo);
   params.append(ENTRY.cellulare, bookingData.cellulare);
-  
+
   const oggi = new Date();
   const dataContratto = `${oggi.getDate().toString().padStart(2, '0')}/${(oggi.getMonth() + 1).toString().padStart(2, '0')}/${oggi.getFullYear()}`;
   params.append(ENTRY.dataContratto, dataContratto);
@@ -712,14 +713,14 @@ function inviaPrenotazione() {
 
   const urlCompleto = `${formBaseUrl}?${params.toString()}`;
   const formWindow = window.open(urlCompleto, '_blank');
-  
+
   if (!formWindow) {
     mostraErrore('Pop-up bloccato! Consenti i pop-up per questo sito e riprova.');
     return;
   }
-  
+
   mostraSuccesso('Modulo di prenotazione aperto! Completa l\'invio nella nuova finestra.');
-  
+
   setTimeout(() => {
     if (confirm('Hai completato l\'invio del modulo?\n\nClicca OK se hai inviato, Annulla se devi ancora completare.')) {
       mostraThankYou();
