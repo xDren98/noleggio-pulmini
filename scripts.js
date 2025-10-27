@@ -1,5 +1,5 @@
 /* Imbriani Noleggio – scripts.js FINALE OTTIMIZZATO
-   Versione 5.3.0 COMPLETA - CORRETTO
+   Versione 5.3.1 COMPLETA - CORRETTO LOGIN
    
    INTEGRAZIONI v3.3.2 + OTTIMIZZAZIONI APPS SCRIPT:
    - History API completa con routeTo()
@@ -10,11 +10,12 @@
    - Fallback API automatico
    - Cache-aware (invalida cache dopo create/update/delete)
    - Response ottimizzate (50-100ms con cache)
+   - FIX: Login supporta formato API multiplo
    
    DATA: 27 Ottobre 2025
 */
 'use strict';
-console.log('Imbriani Noleggio - v5.3.0 FINALE OTTIMIZZATO');
+console.log('Imbriani Noleggio - v5.3.1 FINALE OTTIMIZZATO');
 
 
 // ========== ENDPOINTS (tutti via proxy) ==========
@@ -37,7 +38,7 @@ const pulmini = [
 let loggedCustomerData = null;
 let bookingData = {};
 const prenotazioniMap = new Map();
-let autistiCache = []; // Cache per preservare dati al cambio numero
+let autistiCache = [];
 
 
 // ========== UTILITY DOM ==========
@@ -196,7 +197,6 @@ function buildModalConferma(onConfirm) {
     )
   );
 
-  // Click su backdrop chiude modale
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.remove();
   });
@@ -234,7 +234,6 @@ async function apiPostDatiCliente(cf) {
 }
 
 async function apiPostPrenotazioni(cf) { 
-  // OTTIMIZZATO: usa endpoint filtrato con cache
   return fetchJSON(SCRIPTS.prenotazioni, { 
     method: 'POST', 
     headers: { 'Content-Type': 'application/json' }, 
@@ -251,7 +250,6 @@ async function apiPostDisponibilita(payload) {
 }
 
 async function apiManageBooking(payload) {
-  // Tentativo primario su manageBooking
   try {
     const res = await fetchJSON(SCRIPTS.manageBooking, { 
       method: 'POST', 
@@ -262,7 +260,6 @@ async function apiManageBooking(payload) {
     throw new Error(res.error || 'Errore API primaria');
   } catch (err) {
     console.warn('Fallback su endpoint prenotazioni:', err);
-    // Fallback su prenotazioni
     return fetchJSON(SCRIPTS.prenotazioni, { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' }, 
@@ -282,13 +279,11 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   
   const oggi = new Date();
   
-  // Giorni
   for (let i = 1; i <= 31; i++) {
     sGiorno.add(new Option(pad2(i), i));
   }
   sGiorno.value = oggi.getDate();
   
-  // Mesi
   const mesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
                 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
   mesi.forEach((m, i) => {
@@ -296,7 +291,6 @@ function popolaTendineData(giornoId, meseId, annoId, annoStart, annoEnd) {
   });
   sMese.value = oggi.getMonth() + 1;
   
-  // Anni
   for (let y = annoStart; y <= annoEnd; y++) {
     sAnno.add(new Option(y, y));
   }
@@ -378,7 +372,7 @@ function initHistory() {
 }
 
 
-// ========== LOGIN ==========
+// ========== LOGIN (CORRETTO) ==========
 async function handleLogin(cf) {
   if (!cf || cf.length < 11) throw new Error('Inserisci un codice fiscale valido');
   if (!validaCodiceFiscale(cf)) throw new Error('Codice fiscale non valido');
@@ -390,16 +384,23 @@ async function handleLogin(cf) {
       apiPostPrenotazioni(cf)
     ]);
     
-    console.log('🔍 Risposta datiCliente:', dati); // DEBUG
-    console.log('🔍 Risposta prenotazioni:', prenotazioniRes); // DEBUG
+    console.log('🔍 DEBUG - Risposta datiCliente:', dati);
+    console.log('🔍 DEBUG - Risposta prenotazioni:', prenotazioniRes);
     
-    // FIX: verifica struttura risposta
-    if (!dati || (!dati.cliente && !dati.nome)) {
+    // FIX: supporta entrambi i formati API
+    let cliente = null;
+    
+    if (dati && dati.cliente) {
+      // Formato: { success: true, cliente: {...} }
+      cliente = dati.cliente;
+    } else if (dati && (dati.nome || dati.nomeCognome)) {
+      // Formato diretto: { nome: ..., dataNascita: ..., ... }
+      cliente = dati;
+    } else {
       throw new Error('Nessun cliente trovato');
     }
     
-    // Supporta sia dati.cliente che dati direttamente
-    const cliente = dati.cliente || dati;
+    console.log('👤 DEBUG - Cliente estratto:', cliente);
     
     loggedCustomerData = {
       nome: asString(cliente.nomeCognome || cliente.nome, ''),
@@ -415,7 +416,7 @@ async function handleLogin(cf) {
       cellulare: asString(cliente.cellulare, '')
     };
     
-    console.log('👤 loggedCustomerData:', loggedCustomerData); // DEBUG
+    console.log('💾 DEBUG - loggedCustomerData salvato:', loggedCustomerData);
     
     prenotazioniMap.clear();
     if (Array.isArray(prenotazioniRes.prenotazioni)) {
@@ -424,14 +425,16 @@ async function handleLogin(cf) {
       });
     }
     
-    console.log('📋 prenotazioniMap size:', prenotazioniMap.size); // DEBUG
+    console.log('📋 DEBUG - prenotazioniMap size:', prenotazioniMap.size);
     
     sessionStorage.setItem('imbriani_logged_user', JSON.stringify(loggedCustomerData));
+    
+    console.log('🎨 DEBUG - Chiamo renderAreaPersonale()...');
     renderAreaPersonale();
+    
     routeTo('area');
     history.pushState({ view: 'area' }, '', '#area');
     
-    // Mostra performance se disponibile
     if (dati.executionTime) {
       console.log(`⚡ Login completato in ${dati.executionTime}ms (cache: ${dati.cached || false})`);
     }
@@ -442,49 +445,6 @@ async function handleLogin(cf) {
     mostraSuccesso(`Benvenuto, ${loggedCustomerData.nome}!`);
   } catch (err) {
     console.error('❌ Errore login:', err);
-    mostraErrore(err.message || 'Errore login');
-  } finally {
-    mostraLoading(false);
-  }
-}
-    
-    loggedCustomerData = {
-      nome: asString(cliente.nomeCognome || cliente.nome, ''),
-      dataNascita: asString(cliente.dataNascita, ''),
-      luogoNascita: asString(cliente.luogoNascita, ''),
-      codiceFiscale: cf.toUpperCase(),
-      comuneResidenza: asString(cliente.comuneResidenza, ''),
-      viaResidenza: asString(cliente.viaResidenza, ''),
-      civicoResidenza: asString(cliente.civicoResidenza, ''),
-      numeroPatente: asString(cliente.numeroPatente, ''),
-      dataInizioValiditaPatente: asString(cliente.dataInizioValiditaPatente, ''),
-      dataFineValiditaPatente: asString(cliente.dataFineValiditaPatente, ''),
-      cellulare: asString(cliente.cellulare, '')
-    };
-    
-    prenotazioniMap.clear();
-    if (Array.isArray(prenotazioniRes.prenotazioni)) {
-      prenotazioniRes.prenotazioni.forEach(p => {
-        if (p['ID prenotazione']) prenotazioniMap.set(p['ID prenotazione'], p);
-      });
-    }
-    
-    sessionStorage.setItem('imbriani_logged_user', JSON.stringify(loggedCustomerData));
-    renderAreaPersonale();
-    routeTo('area');
-    history.pushState({ view: 'area' }, '', '#area');
-    
-    // Mostra performance se disponibile
-    if (dati.executionTime) {
-      console.log(`⚡ Login completato in ${dati.executionTime}ms (cache: ${dati.cached || false})`);
-    }
-    if (prenotazioniRes.executionTime) {
-      console.log(`⚡ Prenotazioni caricate in ${prenotazioniRes.executionTime}ms (cache: ${prenotazioniRes.cached || false})`);
-    }
-    
-    mostraSuccesso(`Benvenuto, ${loggedCustomerData.nome}!`);
-  } catch (err) {
-    console.error(err);
     mostraErrore(err.message || 'Errore login');
   } finally {
     mostraLoading(false);
@@ -505,8 +465,20 @@ function logout() {
 
 // ========== AREA PERSONALE ==========
 function renderAreaPersonale() {
+  console.log('🎨 renderAreaPersonale chiamata');
   const root = qs('#area-personale-content');
-  if (!root || !loggedCustomerData) return;
+  console.log('🎨 root elemento:', root);
+  console.log('🎨 loggedCustomerData:', loggedCustomerData);
+  
+  if (!root) {
+    console.error('❌ Elemento #area-personale-content non trovato!');
+    return;
+  }
+  
+  if (!loggedCustomerData) {
+    console.error('❌ loggedCustomerData è null!');
+    return;
+  }
   
   clearAndAppend(root,
     el('div', { class: 'card welcome-card' },
@@ -528,6 +500,8 @@ function renderAreaPersonale() {
         : el('div', { class: 'prenotazioni-lista' }, ...renderPrenotazioniLista())
     )
   );
+  
+  console.log('✅ renderAreaPersonale completato');
 }
 
 function renderPrenotazioniLista() {
@@ -553,7 +527,6 @@ function renderPrenotazioniLista() {
   });
   return items;
 }
-
 function startNewBookingWithPreFill() {
   if (!loggedCustomerData) return;
   
@@ -624,7 +597,6 @@ async function modificaPrenotazione(idPrenotazione) {
         value: asString(p['Codice fiscale'], ''), 
         required: true 
       })),
-      
       el('label', {}, 'Comune di residenza ', el('input', { 
         name: 'Comune di residenza', 
         value: asString(p['Comune di residenza'], ''), 
@@ -640,7 +612,6 @@ async function modificaPrenotazione(idPrenotazione) {
         value: asString(p['Civico di residenza'], ''), 
         required: true 
       })),
-      
       el('label', {}, 'Numero di patente ', el('input', { 
         name: 'Numero di patente', 
         value: asString(p['Numero di patente'], ''), 
@@ -658,7 +629,6 @@ async function modificaPrenotazione(idPrenotazione) {
         value: convertDateToIso(p['Scadenza patente']), 
         required: true 
       })),
-      
       el('label', {}, 'Ora inizio noleggio ', el('input', { 
         name: 'Ora inizio noleggio', 
         type: 'time', 
@@ -677,7 +647,6 @@ async function modificaPrenotazione(idPrenotazione) {
         value: asString(p.Cellulare, ''), 
         required: true 
       })),
-      
       el('button', { 
         type: 'submit', 
         class: 'btn btn--primary' 
@@ -842,7 +811,7 @@ function continuaStep2() {
 }
 
 
-// ========== STEP 3 — Autisti con residenza ==========
+// ========== STEP 3 — Autisti ==========
 function saveAutistiFromForm(maxCount) {
   autistiCache = [];
   for (let i = 1; i <= maxCount; i++) {
@@ -853,31 +822,14 @@ function saveAutistiFromForm(maxCount) {
   }
 }
 
-function fillAutistaToForm(i, a) {
-  if (!a) return;
-  
-  setSelectValue(`nome_${i}`, a.nomeCognome);
-  setDataToSelects(`nascita_${i}`, a.dataNascita);
-  setSelectValue(`luogo_${i}`, a.luogoNascita);
-  setSelectValue(`cf_${i}`, a.codiceFiscale);
-  setSelectValue(`comune_residenza_${i}`, a.comuneResidenza);
-  setSelectValue(`via_residenza_${i}`, a.viaResidenza);
-  setSelectValue(`civico_residenza_${i}`, a.civicoResidenza);
-  setSelectValue(`patente_${i}`, a.numeroPatente);
-  setDataToSelects(`inizio_pat_${i}`, a.dataInizioValiditaPatente);
-  setDataToSelects(`fine_pat_${i}`, a.dataFineValiditaPatente);
-}
-
 function mostraModuliAutisti() {
   const root = qs('#autisti-container');
   if (!root) return;
   
   const numAutisti = bookingData.autisti?.length || 1;
   
-  // Salva dati correnti
   saveAutistiFromForm(3);
   
-  // Merge cache con bookingData
   for (let i = 0; i < numAutisti; i++) {
     if (autistiCache[i]) {
       bookingData.autisti[i] = { 
@@ -899,10 +851,8 @@ function mostraModuliAutisti() {
     selectNum.onchange = (e) => {
       const n = Math.min(3, Math.max(1, parseInt(e.target.value, 10) || 1));
       
-      // Salva stato corrente
       saveAutistiFromForm(numAutisti);
       
-      // Ridimensiona array
       bookingData.autisti = Array.from({ length: n }, (_, i) => 
         autistiCache[i] || bookingData.autisti?.[i] || {}
       );
@@ -920,7 +870,6 @@ function buildAutistaForm(index, prefill = {}) {
     dataset: { index } 
   },
     el('h4', { text: `Autista ${index}` }),
-    
     el('label', {}, 'Nome e Cognome ', 
       el('input', { 
         id: `nome_${index}`, 
@@ -929,15 +878,12 @@ function buildAutistaForm(index, prefill = {}) {
         placeholder: 'Mario Rossi'
       })
     ),
-    
-    // Data nascita con tendine
     el('label', {}, 'Data di nascita'),
     el('div', { class: 'date-selects' },
       el('select', { id: `giorno_nascita_${index}`, required: true }),
       el('select', { id: `mese_nascita_${index}`, required: true }),
       el('select', { id: `anno_nascita_${index}`, required: true })
     ),
-    
     el('label', {}, 'Luogo di nascita ', 
       el('input', { 
         id: `luogo_${index}`, 
@@ -945,7 +891,6 @@ function buildAutistaForm(index, prefill = {}) {
         required: true 
       })
     ),
-    
     el('label', {}, 'Codice fiscale ', 
       el('input', { 
         id: `cf_${index}`, 
@@ -955,7 +900,6 @@ function buildAutistaForm(index, prefill = {}) {
         style: 'text-transform: uppercase'
       })
     ),
-    
     el('label', {}, 'Comune di residenza ', 
       el('input', { 
         id: `comune_residenza_${index}`, 
@@ -963,7 +907,6 @@ function buildAutistaForm(index, prefill = {}) {
         required: true 
       })
     ),
-    
     el('label', {}, 'Via di residenza ', 
       el('input', { 
         id: `via_residenza_${index}`, 
@@ -972,7 +915,6 @@ function buildAutistaForm(index, prefill = {}) {
         placeholder: 'Garibaldi (senza Via/Viale)'
       })
     ),
-    
     el('label', {}, 'Civico di residenza ', 
       el('input', { 
         id: `civico_residenza_${index}`, 
@@ -980,7 +922,6 @@ function buildAutistaForm(index, prefill = {}) {
         required: true 
       })
     ),
-    
     el('label', {}, 'Numero di patente ', 
       el('input', { 
         id: `patente_${index}`, 
@@ -988,16 +929,12 @@ function buildAutistaForm(index, prefill = {}) {
         required: true 
       })
     ),
-    
-    // Data inizio patente
     el('label', {}, 'Data inizio validità patente'),
     el('div', { class: 'date-selects' },
       el('select', { id: `giorno_inizio_pat_${index}`, required: true }),
       el('select', { id: `mese_inizio_pat_${index}`, required: true }),
       el('select', { id: `anno_inizio_pat_${index}`, required: true })
     ),
-    
-    // Data fine patente
     el('label', {}, 'Scadenza patente'),
     el('div', { class: 'date-selects' },
       el('select', { id: `giorno_fine_pat_${index}`, required: true }),
@@ -1006,43 +943,15 @@ function buildAutistaForm(index, prefill = {}) {
     )
   );
   
-  // Popola tendine date
   setTimeout(() => {
-    // Data nascita: 1900 - annoCorrente-18
-    popolaTendineData(
-      `giorno_nascita_${index}`, 
-      `mese_nascita_${index}`, 
-      `anno_nascita_${index}`, 
-      1900, 
-      annoCorrente - 18
-    );
-    if (prefill.dataNascita) {
-      setDataToSelects(`nascita_${index}`, prefill.dataNascita);
-    }
+    popolaTendineData(`giorno_nascita_${index}`, `mese_nascita_${index}`, `anno_nascita_${index}`, 1900, annoCorrente - 18);
+    if (prefill.dataNascita) setDataToSelects(`nascita_${index}`, prefill.dataNascita);
     
-    // Data inizio patente: annoCorrente-50 - annoCorrente
-    popolaTendineData(
-      `giorno_inizio_pat_${index}`, 
-      `mese_inizio_pat_${index}`, 
-      `anno_inizio_pat_${index}`, 
-      annoCorrente - 50, 
-      annoCorrente
-    );
-    if (prefill.dataInizioValiditaPatente) {
-      setDataToSelects(`inizio_pat_${index}`, prefill.dataInizioValiditaPatente);
-    }
+    popolaTendineData(`giorno_inizio_pat_${index}`, `mese_inizio_pat_${index}`, `anno_inizio_pat_${index}`, annoCorrente - 50, annoCorrente);
+    if (prefill.dataInizioValiditaPatente) setDataToSelects(`inizio_pat_${index}`, prefill.dataInizioValiditaPatente);
     
-    // Data fine patente: annoCorrente - annoCorrente+20 (ESTESO)
-    popolaTendineData(
-      `giorno_fine_pat_${index}`, 
-      `mese_fine_pat_${index}`, 
-      `anno_fine_pat_${index}`, 
-      annoCorrente, 
-      annoCorrente + 20
-    );
-    if (prefill.dataFineValiditaPatente) {
-      setDataToSelects(`fine_pat_${index}`, prefill.dataFineValiditaPatente);
-    }
+    popolaTendineData(`giorno_fine_pat_${index}`, `mese_fine_pat_${index}`, `anno_fine_pat_${index}`, annoCorrente, annoCorrente + 20);
+    if (prefill.dataFineValiditaPatente) setDataToSelects(`fine_pat_${index}`, prefill.dataFineValiditaPatente);
   }, 0);
   
   return container;
@@ -1071,7 +980,6 @@ function continuaStep3() {
   
   const a1 = bookingData.autisti[0];
   
-  // Validazioni ESTESE
   if (!a1.nomeCognome || !a1.codiceFiscale) {
     return mostraErrore('Compila i dati obbligatori autista 1');
   }
@@ -1086,21 +994,19 @@ function continuaStep3() {
   
   const eta = calcolaEta(a1.dataNascita);
   if (eta < 18 || eta > 100) {
-    return mostraErrore("L'autista deve avere tra 18 e 100 anni"); // ⬅️ CORRETTO
+    return mostraErrore("L'autista deve avere tra 18 e 100 anni");
   }
   
   if (!a1.comuneResidenza || !a1.viaResidenza) {
     return mostraErrore('Compila residenza autista 1');
   }
   
-  // Verifica patente scaduta
   const oggi = new Date();
   const finePatente = new Date(a1.dataFineValiditaPatente);
   if (finePatente < oggi) {
-    return mostraErrore("La patente dell'autista 1 è scaduta"); // ⬅️ CORRETTO
+    return mostraErrore("La patente dell'autista 1 è scaduta");
   }
   
-  // Verifica coerenza date patente
   const inizioPatente = new Date(a1.dataInizioValiditaPatente);
   if (inizioPatente >= finePatente) {
     return mostraErrore('Data inizio validità patente deve essere precedente alla scadenza');
@@ -1164,7 +1070,6 @@ function mostraRiepilogo() {
     )
   ];
   
-  // Autisti aggiuntivi
   if (bookingData.autisti.length > 1) {
     for (let i = 1; i < bookingData.autisti.length; i++) {
       const a = bookingData.autisti[i];
@@ -1213,7 +1118,7 @@ async function inviaPrenotazione() {
       }
     } catch (err) {
       console.error(err);
-      mostraErrore(err.message || 'Errore durante l\'invio'); // ⬅️ CORRETTO
+      mostraErrore(err.message || 'Errore durante l\'invio');
     } finally {
       mostraLoading(false);
     }
@@ -1221,7 +1126,7 @@ async function inviaPrenotazione() {
 }
 
 
-// ========== NAVIGATION & BACK ==========
+// ========== NAVIGATION ==========
 function setupNavigation() {
   const title = qs('header h1') || qs('#site-title');
   if (title) {
@@ -1333,7 +1238,7 @@ function restoreSession() {
 
 // ========== INIT APP ==========
 function initApp() {
-  console.log('🚀 Inizializzazione Imbriani Noleggio v5.3.0 FINALE OTTIMIZZATO');
+  console.log('🚀 Inizializzazione Imbriani Noleggio v5.3.1 FINALE CORRETTO');
   console.log('📊 Performance Apps Script: 50-100ms con cache, 200-600ms senza');
   
   initHistory();
