@@ -15,7 +15,7 @@
    DATA: 27 Ottobre 2025
 */
 'use strict';
-console.log('Imbriani Noleggio - v5.3.1 FINALE OTTIMIZZATO');
+console.log('Imbriani Noleggio - v5.3.2 FINALE OTTIMIZZATO');
 
 
 // ========== ENDPOINTS (tutti via proxy) ==========
