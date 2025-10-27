@@ -385,20 +385,24 @@ async function handleLogin(cf) {
     ]);
     
     console.log('🔍 DEBUG - Risposta datiCliente:', dati);
-    console.log('🔍 DEBUG - Risposta prenotazioni:', prenotazioniRes);
-    
-    // FIX: supporta entrambi i formati API
-    let cliente = null;
-    
-    if (dati && dati.cliente) {
-      // Formato: { success: true, cliente: {...} }
-      cliente = dati.cliente;
-    } else if (dati && (dati.nome || dati.nomeCognome)) {
-      // Formato diretto: { nome: ..., dataNascita: ..., ... }
-      cliente = dati;
-    } else {
-      throw new Error('Nessun cliente trovato');
-    }
+console.log('🔍 DEBUG - Risposta prenotazioni:', prenotazioniRes);
+
+// FIX: supporta TUTTI i formati API
+let cliente = null;
+
+if (dati && dati.dati) {
+  // Formato: { success: true, dati: {...} }
+  cliente = dati.dati;
+} else if (dati && dati.cliente) {
+  // Formato: { success: true, cliente: {...} }
+  cliente = dati.cliente;
+} else if (dati && (dati.nome || dati.nomeCognome)) {
+  // Formato diretto: { nome: ..., dataNascita: ..., ... }
+  cliente = dati;
+} else {
+  throw new Error('Nessun cliente trovato');
+}
+
     
     console.log('👤 DEBUG - Cliente estratto:', cliente);
     
