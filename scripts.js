@@ -1,4 +1,5 @@
-console.log('Imbriani Noleggio - Versione codice: 2.3.0');
+// Versione aggiornata e completa del JS
+console.log('Imbriani Noleggio - Versione codice: 2.4.0');
 
 const pulmini = [
   { id: "ducato_lungo", nome: "Fiat Ducato (Passo lungo)", targa: "EC787NM" },
@@ -14,34 +15,37 @@ const SCRIPTS = {
   datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
   disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
-  manageBooking: 'https://script.google.com/macros/s/AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ/exec'
+  manageBooking: 'https://script.google.com/macros/s/AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ'
 };
 
+// Funzione di supporto per fetch
 function fetchWithProxy(url, options = {}) {
   return fetch(SCRIPTS.proxy + url, options);
 }
 
+// Validazione CF
 function validaCodiceFiscale(cf) {
   const regex = /^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/;
   return regex.test(cf.toUpperCase());
 }
 
+// Errori e successi visivi
 function mostraErrore(messaggio) {
   if (document.querySelector('.error-banner')) return;
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'error-banner';
-  errorDiv.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
-  document.body.prepend(errorDiv);
-  setTimeout(() => errorDiv.remove(), 4000);
+  const div = document.createElement('div');
+  div.className = 'error-banner';
+  div.innerHTML = `<span style="font-size: 24px;">⚠️</span><span>${messaggio}</span>`;
+  document.body.prepend(div);
+  setTimeout(() => div.remove(), 4000);
 }
 
 function mostraSuccesso(messaggio) {
   if (document.querySelector('.success-banner')) return;
-  const successDiv = document.createElement('div');
-  successDiv.className = 'success-banner';
-  successDiv.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
-  document.body.prepend(successDiv);
-  setTimeout(() => successDiv.remove(), 4000);
+  const div = document.createElement('div');
+  div.className = 'success-banner';
+  div.innerHTML = `<span style="font-size: 24px;">✅</span><span>${messaggio}</span>`;
+  document.body.prepend(div);
+  setTimeout(() => div.remove(), 4000);
 }
 
 function mostraLoading(show = true) {
@@ -59,219 +63,139 @@ function mostraLoading(show = true) {
       document.body.appendChild(loader);
     }
     loader.style.display = 'flex';
-  } else if (loader) {
-    loader.style.display = 'none';
+  } else {
+    if (loader) loader.style.display = 'none';
   }
 }
 
+// Login e recupero prenotazioni
 document.getElementById('loginFormHomepage').addEventListener('submit', function(event) {
   event.preventDefault();
-
-  const cfInput = document.getElementById('cfInputHomepage');
-  const cf = cfInput.value.trim().toUpperCase();
+  const cf = document.getElementById('cfInputHomepage').value.trim().toUpperCase();
   const loginResult = document.getElementById('loginResultHomepage');
   loginResult.textContent = '';
 
   if (!validaCodiceFiscale(cf)) {
-    mostraErrore('Codice fiscale non valido. Deve essere di 16 caratteri (es: RSSMRA80A01H501U)');
+    mostraErrore('Codice fiscale non valido.');
     return;
   }
 
   mostraLoading(true);
-
   Promise.all([
     fetchWithProxy(SCRIPTS.prenotazioni, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cf })
+      body: JSON.stringify({ cf }),
     }).then(r => r.json()),
-
     fetchWithProxy(SCRIPTS.datiCliente, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cf })
+      body: JSON.stringify({ cf }),
     }).then(r => r.json())
-  ]).then(([dataPrenotazioni, dataDatiCliente]) => {
+  ]).then(([resultPren, resultCliente]) => {
     mostraLoading(false);
-
-    if (!dataPrenotazioni.success) {
-      mostraErrore('Errore nel recupero prenotazioni: ' + (dataPrenotazioni.error || 'Errore non specificato'));
+    if (!resultPren.success || !resultPren.prenotazioni) {
+      mostraErrore('Nessuna prenotazione trovata.');
       return;
     }
-
-    if (!dataPrenotazioni.prenotazioni || dataPrenotazioni.prenotazioni.length === 0) {
-      mostraErrore('Nessuna prenotazione trovata per questo codice fiscale.');
-      return;
-    }
-
     loggedCustomerData = {
       cf: cf,
-      datiCompleti: dataDatiCliente.success ? dataDatiCliente.cliente : null
+      datiCompleti: resultCliente.success ? resultCliente.cliente : null
     };
-
-    const nomeCliente = loggedCustomerData.datiCompleti?.nomeCognome || '';
-    mostraSuccesso(`Benvenuto ${nomeCliente}!`);
-
-    document.getElementById('homepage').style.display = 'none';
-    document.getElementById('mainbox').style.display = 'none';
-    document.getElementById('areaPersonale').style.display = 'block';
-
     setupAreaPersonale();
-
   }).catch(err => {
     mostraLoading(false);
-    mostraErrore('Errore durante la ricerca: ' + err.message);
+    mostraErrore('Errore: ' + err.message);
   });
 });
 
 function setupAreaPersonale() {
-  document.getElementById('contenutoPersonale').innerHTML = '';
-
+  // Inizializza pulsanti
   document.getElementById('btnVisualizzaPrenotazioni').onclick = () => {
     caricaPrenotazioniCliente(loggedCustomerData.cf);
   };
-
   document.getElementById('btnVisualizzaDati').onclick = () => {
     mostraDatiCliente(loggedCustomerData.datiCompleti);
   };
-
   document.getElementById('btnLogout').onclick = () => {
     loggedCustomerData = null;
-    bookingData = {};
     document.getElementById('areaPersonale').style.display = 'none';
     document.getElementById('homepage').style.display = 'block';
-    document.getElementById('contenutoPersonale').innerHTML = '';
-    document.getElementById('cfInputHomepage').value = '';
   };
 }
 
+// Carica prenotazioni utente
 function caricaPrenotazioniCliente(cf) {
   mostraLoading(true);
-
   fetchWithProxy(SCRIPTS.prenotazioni, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cf }),
-  })
-  .then(r => r.json())
-  .then(data => {
+  }).then(r => r.json()).then(data => {
     mostraLoading(false);
-    if (!data.success) {
-      mostraErrore('Errore recupero prenotazioni: ' + (data.error || 'Sconosciuto'));
+    if (!data.success || !data.prenotazioni) {
+      mostraErrore('Nessuna prenotazione.');
       return;
     }
-    if (!data.prenotazioni || data.prenotazioni.length === 0) {
-      document.getElementById('contenutoPersonale').innerHTML = '<p>Nessuna prenotazione trovata.</p>';
-      return;
-    }
-
-    let html = '<h3>Le tue prenotazioni</h3>';
-    html += data.prenotazioni.map(p => {
-      return `
-        <div class="prenotazione-card">
-          <strong>${p.nomeCognome || 'N/D'}</strong><br/>
-          Dal: ${p['Giorno inizio noleggio'] || 'N/D'} - Al: ${p['Giorno fine noleggio'] || 'N/D'}<br/>
-          Stato: ${p.stato || 'N/D'}<br/>
-          Targa: ${p.targa || 'N/D'}
-          <div style="margin-top:10px;">
-            <button onclick='modificaPrenotazione(${JSON.stringify(p)})'>Modifica</button>
-            <button onclick='cancellaPrenotazione(${JSON.stringify(p)})'>Cancella</button>
-          </div>
+    let html = '<h3>Your bookings</h3>';
+    html += data.prenotazioni.map(p => `
+      <div class="prenotazione-card">
+        <strong>${p.nomeCognome}</strong><br/>
+        Dal: ${p['Giorno inizio noleggio']} - Al: ${p['Giorno fine noleggio']}<br/>
+        Stato: ${p.stato}<br/>
+        Targa: ${p.targa}
+        <div style="margin-top:10px;">
+          <button onclick='modificaPrenotazione(${JSON.stringify(p)})'>Modifica</button>
+          <button onclick='cancellaPrenotazione(${JSON.stringify(p)})'>Cancella</button>
         </div>
-      `;
-    }).join('');
-
+      </div>
+    `).join('');
     document.getElementById('contenutoPersonale').innerHTML = html;
-  })
-  .catch(err => {
-    mostraLoading(false);
-    mostraErrore('Errore caricamento prenotazioni: ' + err.message);
+  }).catch(err => {
+    mostraErrore('Errore: ' + err.message);
   });
 }
 
-function mostraDatiCliente(dati) {
-  if (!dati) {
-    document.getElementById('contenutoPersonale').innerHTML = '<p>Dati cliente non disponibili.</p>';
-    return;
-  }
-  const html = `
-    <h3>I tuoi dati</h3>
-    <p><strong>Nome e Cognome:</strong> ${dati.nomeCognome}</p>
-    <p><strong>Data di Nascita:</strong> ${dati.dataNascita}</p>
-    <p><strong>Codice Fiscale:</strong> ${dati.codiceFiscale}</p>
-    <p><strong>Numero Patente:</strong> ${dati.numeroPatente}</p>
-    <p><strong>Validità Patente:</strong> dal ${dati.dataInizioValiditaPatente} al ${dati.dataFineValiditaPatente}</p>
-    <p><strong>Cellulare:</strong> ${dati.cellulare}</p>
-  `;
-  document.getElementById('contenutoPersonale').innerHTML = html;
-}
-
+// Funzione di modifica prenotazione
 function modificaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
-
   const formHtml = `
     <h3>Modifica prenotazione</h3>
     <form id="formModificaPrenotazione">
       <label>Nome <input type="text" name="Nome" value="${p.Nome || ''}" required></label>
-      <label>Data di nascita <input type="text" name="Data di nascita" value="${p['Data di nascita'] || ''}" required></label>
-      <label>Luogo di nascita <input type="text" name="Luogo di nascita" value="${p['Luogo di nascita'] || ''}" required></label>
-      <label>Numero di patente <input type="text" name="Numero di patente" value="${p['Numero di patente'] || ''}" required></label>
-      <label>Data inizio validità patente <input type="text" name="Data inizio validità patente" value="${p['Data inizio validità patente'] || ''}" required></label>
-      <label>Scadenza patente <input type="text" name="Scadenza patente" value="${p['Scadenza patente'] || ''}" required></label>
-      <label>Ora inizio noleggio <input type="text" name="Ora inizio noleggio" value="${p['Ora inizio noleggio'] || ''}" required></label>
-      <label>Ora fine noleggio <input type="text" name="Ora fine noleggio" value="${p['Ora fine noleggio'] || ''}" required></label>
       <input type="hidden" name="idPrenotazione" value="${p['ID prenotazione']}">
       <button type="submit">Aggiorna</button>
-    </form>
-  `;
-
+    </form>`;
   document.getElementById('contenutoPersonale').innerHTML = formHtml;
   document.getElementById('formModificaPrenotazione').onsubmit = function(e) {
     e.preventDefault();
-    const formData = new FormData(this);
-    const obj = {};
-    formData.forEach((v, k) => obj[k] = v);
-
-    console.log('DATI MODIFICA INVIATI:', obj);
-
+    const data = {};
+    new FormData(this).forEach((v, k) => data[k] = v);
     fetchWithProxy(SCRIPTS.manageBooking, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(obj)
-    })
-    .then(r => r.text())
-    .then(msg => {
+      body: JSON.stringify(data)
+    }).then(r => r.text()).then(msg => {
       mostraSuccesso(msg);
-      caricaPrenotazioniCliente(obj.idPrenotazione);
-    })
-    .catch(err => mostraErrore('Errore aggiornamento: ' + err.message));
+      caricaPrenotazioniCliente(p['ID prenotazione']);
+    }).catch(err => mostraErrore('Errore: ' + err.message));
   };
 }
 
+// Funzione di cancellazione
 function cancellaPrenotazione(p) {
   if (typeof p === 'string') p = JSON.parse(p);
-
-  if (!confirm('Sei sicuro di cancellare questa prenotazione?')) return;
-
-  const obj = {
-    idPrenotazione: p['ID prenotazione'],
-    delete: true
-  };
-
-  console.log('DATI CANCELLAZIONE INVIATI:', obj);
-
+  if (!confirm('Sei sicuro?')) return;
   fetchWithProxy(SCRIPTS.manageBooking, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(obj)
-  })
-  .then(r => r.text())
-  .then(msg => {
+    body: JSON.stringify({ idPrenotazione: p['ID prenotazione'], delete: true }),
+  }).then(r => r.text()).then(msg => {
     mostraSuccesso(msg);
-    caricaPrenotazioniCliente(obj.idPrenotazione);
-  })
-  .catch(err => mostraErrore('Errore cancellazione: ' + err.message));
+    caricaPrenotazioniCliente(p['ID prenotazione']);
+  }).catch(err => mostraErrore('Errore: ' + err.message));
 }
+
 
 // Le restanti funzioni continuano come da codice originale (startNewBookingWithPreFill, showStep, updateBackButton, goBack, etc.)
 
