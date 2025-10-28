@@ -25,7 +25,7 @@
 
 'use strict';
 
-const ADMIN_VERSION = '2.1';
+const ADMIN_VERSION = '2.2';
 const ADMIN_BUILD_DATE = '2025-10-28';
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
@@ -270,6 +270,7 @@ function applicaFiltri() {
 }
 
 // ========== ORDINAMENTO ==========
+// ========== ORDINAMENTO ==========
 function ordinaPer(campo) {
   if (ordinamentoAttuale.campo === campo) {
     ordinamentoAttuale.direzione = ordinamentoAttuale.direzione === 'asc' ? 'desc' : 'asc';
@@ -282,6 +283,20 @@ function ordinaPer(campo) {
     let valA = a[campo] || '';
     let valB = b[campo] || '';
     
+    // ✅ FIX: Ordinamento speciale per date
+    if (campo === 'giornoInizio' || campo === 'giornoFine') {
+      // Converti dd/mm/yyyy a Date per confronto corretto
+      const dataA = convertiDataPerOrdinamento(valA);
+      const dataB = convertiDataPerOrdinamento(valB);
+      
+      if (ordinamentoAttuale.direzione === 'asc') {
+        return dataA - dataB;
+      } else {
+        return dataB - dataA;
+      }
+    }
+    
+    // Ordinamento standard per altri campi
     if (ordinamentoAttuale.direzione === 'asc') {
       return valA > valB ? 1 : -1;
     } else {
@@ -291,6 +306,22 @@ function ordinaPer(campo) {
   
   renderTabella(prenotazioni);
 }
+
+// ✅ Funzione helper per convertire date dd/mm/yyyy a timestamp
+function convertiDataPerOrdinamento(dataStr) {
+  if (!dataStr || dataStr === 'N/A') return 0;
+  
+  // Formato: dd/mm/yyyy
+  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const [, giorno, mese, anno] = match;
+    // Crea Date: anno, mese (0-based), giorno
+    return new Date(parseInt(anno), parseInt(mese) - 1, parseInt(giorno)).getTime();
+  }
+  
+  return 0;
+}
+
 
 // ========== MODAL CONFERMA ==========
 function apriModalConferma(idPrenotazione) {
