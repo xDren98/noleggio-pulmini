@@ -69,6 +69,9 @@ function tentaLoginAdmin() {
   const passwordInserita = passwordInput.value.trim();
   
   if (passwordInserita === ADMIN_CONFIG.password) {
+    // ✅ Salva sessione
+    sessionStorage.setItem('adminLoggedIn', 'true');
+    
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('dashboardContent').style.display = 'block';
     loginError.style.display = 'none';
@@ -79,8 +82,12 @@ function tentaLoginAdmin() {
   }
 }
 
+
 function logout() {
   if (confirm('Vuoi uscire dalla dashboard?')) {
+    // ✅ Rimuovi sessione
+    sessionStorage.removeItem('adminLoggedIn');
+    
     document.getElementById('loginOverlay').style.display = 'flex';
     document.getElementById('dashboardContent').style.display = 'none';
     document.getElementById('passwordInput').value = '';
@@ -445,6 +452,13 @@ console.log('%c💡 Tip: Digita adminDebug() nella console per diagnostica compl
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
+  // ✅ Controlla se già loggato
+  if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('dashboardContent').style.display = 'block';
+    caricaPrenotazioni();
+  }
+  
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
@@ -455,3 +469,4 @@ document.addEventListener('DOMContentLoaded', () => {
   
   console.log('✅ Admin Dashboard v' + ADMIN_VERSION + ' caricata');
 });
+
