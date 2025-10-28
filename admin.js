@@ -30,7 +30,7 @@
 
 'use strict';
 
-const ADMIN_VERSION = '2.3';
+const ADMIN_VERSION = '2.4';
 const ADMIN_BUILD_DATE = '2025-10-28';
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
@@ -277,6 +277,9 @@ function applicaFiltroDashboard(tipo) {
   });
   document.getElementById('filter-' + tipo).classList.add('active');
   
+  const oggi = new Date();
+  oggi.setHours(0, 0, 0, 0);
+  
   let prenotazioniFiltrate = [];
   
   if (tipo === 'totali') {
@@ -284,15 +287,68 @@ function applicaFiltroDashboard(tipo) {
   } else if (tipo === 'daconfermare') {
     prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Da confermare');
   } else if (tipo === 'completate') {
-    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Completato');
+    // Completate: stato esplicito OPPURE data fine passata
+    prenotazioniFiltrate = prenotazioni.filter(p => {
+      if (p.stato === 'Completato' || p.stato === 'Completata') return true;
+      
+      if (p.stato === 'Confermata') {
+        const dataFine = convertiDataPerFiltro(p.giornoFine);
+        return dataFine && dataFine < oggi;
+      }
+      
+      return false;
+    });
   } else if (tipo === 'corso') {
-    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'In corso');
+    // In corso: stato esplicito OPPURE oggi tra inizio e fine
+    prenotazioniFiltrate = prenotazioni.filter(p => {
+      if (p.stato === 'In corso') return true;
+      
+      if (p.stato === 'Confermata') {
+        const dataInizio = convertiDataPerFiltro(p.giornoInizio);
+        const dataFine = convertiDataPerFiltro(p.giornoFine);
+        return dataInizio && dataFine && dataInizio <= oggi && dataFine >= oggi;
+      }
+      
+      return false;
+    });
   } else if (tipo === 'future') {
-    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Confermata');
+    // Future: confermata con data inizio futura
+    prenotazioniFiltrate = prenotazioni.filter(p => {
+      if (p.stato === 'Confermata') {
+        const dataInizio = convertiDataPerFiltro(p.giornoInizio);
+        const dataFine = convertiDataPerFiltro(p.giornoFine);
+        
+        // Se data fine è passata, NON è future
+        if (dataFine && dataFine < oggi) return false;
+        
+        // Se oggi è tra inizio e fine, NON è future (è in corso)
+        if (dataInizio && dataFine && dataInizio <= oggi && dataFine >= oggi) return false;
+        
+        // Se data inizio è futura, è future
+        return dataInizio && dataInizio > oggi;
+      }
+      
+      return false;
+    });
   }
   
   renderTabella(prenotazioniFiltrate);
 }
+
+// Helper per convertire data dd/mm/yyyy a Date object per confronto
+function convertiDataPerFiltro(dataStr) {
+  if (!dataStr) return null;
+  
+  // Formato: dd/mm/yyyy
+  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const [, giorno, mese, anno] = match;
+    return new Date(parseInt(anno), parseInt(mese) - 1, parseInt(giorno));
+  }
+  
+  return null;
+}
+
 
 function applicaFiltri() {
   const dataInizio = document.getElementById('filter-data-inizio').value;
