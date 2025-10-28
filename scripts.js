@@ -15,7 +15,7 @@ console.log('Imbriani Noleggio - v5.3.6 CORS-FREE');
 
 // ========== ENDPOINTS ==========
 const SCRIPTS = {
-  datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec?v=',
+  datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
   disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
   manageBooking: 'https://script.google.com/macros/s/AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ/exec'
@@ -146,8 +146,20 @@ async function fetchJSON(url, options = {}) {
 
 // ========== API CALLS (CORS-FREE) ==========
 async function apiPostDatiCliente(cf) {
-  return fetchJSON(`${SCRIPTS.datiCliente}?cf=${encodeURIComponent(cf)}`);
+  const url = `${SCRIPTS.datiCliente}?cf=${encodeURIComponent(cf)}&_t=${Date.now()}`;
+  
+  const response = await fetch(url, {
+    method: 'GET',
+    cache: 'no-cache'
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  
+  return response.json();
 }
+
 
 async function apiPostDisponibilita(params) {
   const query = new URLSearchParams({
@@ -310,12 +322,15 @@ async function handleLogin() {
     }
     
     // ⚡ FIX: Normalizza nomi campi (backend potrebbe usare nomeCognome invece di nome)
-    const datiCliente = datiRes.cliente || {};
-    loggedCustomerData = {
-      nome: (datiCliente.nome && datiCliente.nome.trim()) || 
+const datiCliente = datiRes.cliente || {};
+console.log('🔍 Backend risposta:', datiCliente);
+
+loggedCustomerData = {
+  nome: (datiCliente.nome && datiCliente.nome.trim()) || 
         (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
         datiCliente.codiceFiscale || 'Utente',
-      nomeCognome: datiCliente.nomeCognome || datiCliente.nome || '',
+  nomeCognome: (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+               (datiCliente.nome && datiCliente.nome.trim()) || '',
       codiceFiscale: cf,
       dataNascita: datiCliente.dataNascita || '',
       luogoNascita: datiCliente.luogoNascita || '',
@@ -1299,7 +1314,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.4.2',
+  version: '5.4.3',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
