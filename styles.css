@@ -552,27 +552,6 @@ button:disabled {
   gap: 8px;
 }
 
-/* Emoji via CSS per evitare duplicati */
-#riepilogo-content .card:nth-child(1) h3::before {
-  content: '🚐';
-  font-size: 24px;
-}
-
-#riepilogo-content .card:nth-child(2) h3::before {
-  content: '📅';
-  font-size: 24px;
-}
-
-#riepilogo-content .card:nth-child(3) h3::before {
-  content: '👤';
-  font-size: 24px;
-}
-
-#riepilogo-content .card:nth-child(4) h3::before {
-  content: '📞';
-  font-size: 24px;
-}
-
 #riepilogo-content p {
   margin: 8px 0;
   color: var(--color-text);

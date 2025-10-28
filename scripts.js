@@ -164,9 +164,22 @@ async function apiPostPrenotazioni(cf) {
 }
 
 async function apiManageBooking(payload) {
-  // ⚡ GET con payload in query string (no CORS preflight)
-  const payloadStr = encodeURIComponent(JSON.stringify(payload));
-  return fetchJSON(`${SCRIPTS.manageBooking}?payload=${payloadStr}`);
+  // ⚡ POST con fetch semplice (no headers custom = no preflight)
+  const formData = new URLSearchParams();
+  formData.append('payload', JSON.stringify(payload));
+  
+  const response = await fetch(SCRIPTS.manageBooking, {
+    method: 'POST',
+    body: formData,
+    redirect: 'follow'
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  
+  const text = await response.text();
+  return JSON.parse(text);
 }
 
 // ========== LOADING & MESSAGES ==========
@@ -296,8 +309,21 @@ async function handleLogin() {
       throw new Error(datiRes.error || 'Nessun dato trovato');
     }
     
-    loggedCustomerData = datiRes.cliente || {};
-    loggedCustomerData.codiceFiscale = cf;
+    // ⚡ FIX: Normalizza nomi campi (backend potrebbe usare nomeCognome invece di nome)
+    const datiCliente = datiRes.cliente || {};
+    loggedCustomerData = {
+      nome: datiCliente.nome || datiCliente.nomeCognome || '',
+      codiceFiscale: cf,
+      dataNascita: datiCliente.dataNascita || '',
+      luogoNascita: datiCliente.luogoNascita || '',
+      comuneResidenza: datiCliente.comuneResidenza || '',
+      viaResidenza: datiCliente.viaResidenza || '',
+      civicoResidenza: datiCliente.civicoResidenza || '',
+      cellulare: datiCliente.cellulare || '',
+      numeroPatente: datiCliente.numeroPatente || '',
+      dataInizioValiditaPatente: datiCliente.dataInizioValiditaPatente || '',
+      dataFineValiditaPatente: datiCliente.dataFineValiditaPatente || ''
+    };
     
     prenotazioniMap.clear();
     if (Array.isArray(prenotazioniRes.prenotazioni)) {
@@ -742,14 +768,37 @@ function continuaStep2() {
     return mostraErrore('Seleziona un veicolo');
   }
   
+  // ⚡ FIX: Inizializza autisti PRIMA di mostrare il form
   if (!bookingData.autisti || !bookingData.autisti.length) {
     bookingData.autisti = [{}];
+  }
+  
+  // ⚡ Se utente loggato e primo autista vuoto, pre-popola
+  if (loggedCustomerData && (!bookingData.autisti[0] || !bookingData.autisti[0].nomeCognome)) {
+    bookingData.autisti[0] = {
+      nomeCognome: loggedCustomerData.nome || '',
+      dataNascita: dateToISO(loggedCustomerData.dataNascita) || '',
+      luogoNascita: loggedCustomerData.luogoNascita || '',
+      codiceFiscale: loggedCustomerData.codiceFiscale || '',
+      comuneResidenza: loggedCustomerData.comuneResidenza || '',
+      viaResidenza: loggedCustomerData.viaResidenza || '',
+      civicoResidenza: loggedCustomerData.civicoResidenza || '',
+      numeroPatente: loggedCustomerData.numeroPatente || '',
+      dataInizioValiditaPatente: dateToISO(loggedCustomerData.dataInizioValiditaPatente) || '',
+      dataFineValiditaPatente: dateToISO(loggedCustomerData.dataFineValiditaPatente) || ''
+    };
+  }
+  
+  // ⚡ Pre-popola cellulare
+  if (loggedCustomerData && !bookingData.cellulare) {
+    bookingData.cellulare = loggedCustomerData.cellulare || '';
   }
   
   mostraModuliAutisti();
   routeTo('wizard', 'step3');
   history.pushState({ view: 'wizard', step: 'step3' }, '', '#step3');
 }
+
 
 // ========== STEP 3 — Autisti (AUTOCOMPILAZIONE) ==========
 function mostraModuliAutisti() {
