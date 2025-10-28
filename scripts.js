@@ -312,7 +312,9 @@ async function handleLogin() {
     // ⚡ FIX: Normalizza nomi campi (backend potrebbe usare nomeCognome invece di nome)
     const datiCliente = datiRes.cliente || {};
     loggedCustomerData = {
-      nome: datiCliente.nome || datiCliente.nomeCognome || datiCliente.codiceFiscale || 'Utente',
+      nome: (datiCliente.nome && datiCliente.nome.trim()) || 
+        (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+        datiCliente.codiceFiscale || 'Utente',
       nomeCognome: datiCliente.nomeCognome || datiCliente.nome || '',
       codiceFiscale: cf,
       dataNascita: datiCliente.dataNascita || '',
@@ -1297,7 +1299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.4.0',
+  version: '5.4.1',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
