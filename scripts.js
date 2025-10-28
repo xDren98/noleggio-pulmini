@@ -122,7 +122,7 @@ function asString(val, fallback = '') {
 }
 
 
-// ========== FETCH CON TIMEOUT (SENZA PROXY) ==========
+// ========== FETCH SENZA HEADER JSON (CORS-FREE) ==========
 async function withTimeout(promise, ms = 30000) {
   return Promise.race([
     promise,
@@ -133,6 +133,7 @@ async function withTimeout(promise, ms = 30000) {
 }
 
 async function fetchJSON(url, options = {}) {
+  // NO Content-Type header per evitare preflight CORS
   const response = await withTimeout(fetch(url, options), options.timeout || 30000);
   
   if (!response.ok) {
@@ -150,36 +151,36 @@ async function fetchJSON(url, options = {}) {
 }
 
 
-// ========== API CALLS (DIRETTE, SENZA PROXY) ==========
+// ========== API CALLS (GET + POST FORM-ENCODED) ==========
 async function apiPostDatiCliente(cf) {
-  return fetchJSON(SCRIPTS.datiCliente, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cf })
-  });
+  // GET con query param
+  return fetchJSON(`${SCRIPTS.datiCliente}?cf=${encodeURIComponent(cf)}`);
 }
 
 async function apiPostDisponibilita(params) {
-  return fetchJSON(SCRIPTS.disponibilita, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(params)
-  });
+  // GET con query params
+  const query = new URLSearchParams({
+    dataRitiro: params.dataRitiro || '',
+    dataArrivo: params.dataArrivo || '',
+    oraRitiro: params.oraRitiro || '08:00',
+    oraArrivo: params.oraArrivo || '20:00'
+  }).toString();
+  return fetchJSON(`${SCRIPTS.disponibilita}?${query}`);
 }
 
 async function apiPostPrenotazioni(cf) {
-  return fetchJSON(SCRIPTS.prenotazioni, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cf })
-  });
+  // GET con query param
+  return fetchJSON(`${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}`);
 }
 
 async function apiManageBooking(payload) {
+  // POST con form-encoded (no preflight CORS)
+  const formData = new URLSearchParams();
+  formData.append('payload', JSON.stringify(payload));
+  
   return fetchJSON(SCRIPTS.manageBooking, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: formData
   });
 }
 
