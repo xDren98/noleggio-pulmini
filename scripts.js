@@ -312,7 +312,8 @@ async function handleLogin() {
     // ⚡ FIX: Normalizza nomi campi (backend potrebbe usare nomeCognome invece di nome)
     const datiCliente = datiRes.cliente || {};
     loggedCustomerData = {
-      nome: datiCliente.nome || datiCliente.nomeCognome || '',
+      nome: datiCliente.nome || datiCliente.nomeCognome || datiCliente.codiceFiscale || 'Utente',
+      nomeCognome: datiCliente.nomeCognome || datiCliente.nome || '',
       codiceFiscale: cf,
       dataNascita: datiCliente.dataNascita || '',
       luogoNascita: datiCliente.luogoNascita || '',
@@ -336,6 +337,7 @@ async function handleLogin() {
     
     console.log(`✅ Login: ${loggedCustomerData.nome}, ${prenotazioniMap.size} prenotazioni`);
     console.log(`⚡ Performance: dati ${datiRes.executionTime || 'N/A'}ms, prenotazioni ${prenotazioniRes.executionTime || 'N/A'}ms`);
+    console.log('📋 Dati completi cliente:', loggedCustomerData);
     
     renderAreaPersonale();
     routeTo('area');
@@ -355,19 +357,19 @@ function renderAreaPersonale() {
   if (!root) return;
   
   const welcomeCard = el('div', { class: 'welcome-card' },
-    el('h2', { text: `Benvenuto, ${loggedCustomerData.nome || 'Utente'}!` }),
+    el('h2', { text: `Benvenuto, ${loggedCustomerData.nome || loggedCustomerData.nomeCognome || 'Utente'}!` }),
     el('div', { class: 'dati-anagrafici', style: 'margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px;' },
       el('h3', { text: 'Dati Anagrafici', style: 'margin-top: 0;' }),
-      el('p', {}, el('strong', { text: 'Nome: ' }), loggedCustomerData.nome || '-'),
+      el('p', {}, el('strong', { text: 'Nome: ' }), loggedCustomerData.nomeCognome || loggedCustomerData.nome || '-'),
       el('p', {}, el('strong', { text: 'CF: ' }), loggedCustomerData.codiceFiscale || '-'),
       el('p', {}, el('strong', { text: 'Data nascita: ' }), loggedCustomerData.dataNascita || '-'),
       el('p', {}, el('strong', { text: 'Luogo nascita: ' }), loggedCustomerData.luogoNascita || '-'),
       el('p', {}, el('strong', { text: 'Residenza: ' }), 
-        `${loggedCustomerData.viaResidenza || ''} ${loggedCustomerData.civicoResidenza || ''}, ${loggedCustomerData.comuneResidenza || ''}`),
+        `${loggedCustomerData.viaResidenza || ''} ${loggedCustomerData.civicoResidenza || ''}, ${loggedCustomerData.comuneResidenza || ''}`.trim() || '-'),
       el('p', {}, el('strong', { text: 'Telefono: ' }), loggedCustomerData.cellulare || '-'),
       el('p', {}, el('strong', { text: 'Patente: ' }), loggedCustomerData.numeroPatente || '-'),
       el('p', {}, el('strong', { text: 'Validità patente: ' }), 
-        `${loggedCustomerData.dataInizioValiditaPatente || ''} → ${loggedCustomerData.dataFineValiditaPatente || ''}`)
+        `${loggedCustomerData.dataInizioValiditaPatente || ''} → ${loggedCustomerData.dataFineValiditaPatente || ''}`.trim() || '-')
     )
   );
   
@@ -387,7 +389,7 @@ function renderAreaPersonale() {
     onclick: () => {
       sessionStorage.removeItem('imbriani_booking_draft');
       bookingData.autisti = [{ 
-        nomeCognome: loggedCustomerData.nome || '',
+        nomeCognome: loggedCustomerData.nomeCognome || loggedCustomerData.nome || '',
         codiceFiscale: loggedCustomerData.codiceFiscale || '',
         numeroPatente: loggedCustomerData.numeroPatente || '',
         dataNascita: loggedCustomerData.dataNascita || '',
@@ -1295,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.3.9',
+  version: '5.4.0',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
