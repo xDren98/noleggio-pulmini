@@ -1,7 +1,8 @@
 /* =====================================================================
-   Imbriani Noleggio - Stylesheet v5.3.7
-   Base + Layout + Components + Responsive + Step 2.5 Preventivo
+   Imbriani Noleggio - Stylesheet v5.3.8
+   Base + Layout + Components + Responsive + WhatsApp Floating Button
 ===================================================================== */
+
 
 /* =====================================================================
    Base Variables
@@ -971,6 +972,56 @@ button:disabled {
 }
 
 /* =====================================================================
+   WhatsApp Floating Button - NEW v5.3.8
+===================================================================== */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  z-index: 9998;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+}
+
+.whatsapp-float:active {
+  transform: scale(0.95);
+}
+
+.whatsapp-float .material-icons {
+  font-size: 32px;
+  color: white;
+}
+
+/* Animazione pulse per richiamare l'attenzione */
+@keyframes pulse-whatsapp {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 24px rgba(37, 211, 102, 0.7);
+  }
+}
+
+.whatsapp-float {
+  animation: pulse-whatsapp 2s infinite;
+}
+
+/* =====================================================================
    Responsive
 ===================================================================== */
 @media (max-width: 700px) {
@@ -998,6 +1049,18 @@ button:disabled {
 
   .modal-actions button {
     max-width: 100%;
+  }
+  
+  /* WhatsApp button mobile */
+  .whatsapp-float {
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+  }
+  
+  .whatsapp-float .material-icons {
+    font-size: 28px;
   }
 }
 
@@ -1069,5 +1132,17 @@ button:disabled {
 
   .modal-content {
     padding: 24px 20px;
+  }
+  
+  /* WhatsApp button ancora più piccolo su schermi mini */
+  .whatsapp-float {
+    bottom: 16px;
+    right: 16px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .whatsapp-float .material-icons {
+    font-size: 24px;
   }
 }

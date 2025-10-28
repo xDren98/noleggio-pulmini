@@ -4,6 +4,11 @@
    CHANGELOG - DASHBOARD ADMIN
    ═══════════════════════════════════════════════════════════════════
    
+   📌 v2.2 - 28 Ottobre 2025 22:49 CET
+   🔧 Auto-refresh dashboard dopo conferma prenotazione
+   🔧 Delay 1s + cache busting per garantire aggiornamento visibile
+   🔧 Chiusura automatica modal dopo conferma
+   
    📌 v2.1 - 28 Ottobre 2025
    🔧 Fix mostra date + orari in tabella e modal
    🔧 Fix card statistiche "Da Confermare"
@@ -29,7 +34,7 @@ const ADMIN_VERSION = '2.2';
 const ADMIN_BUILD_DATE = '2025-10-28';
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
-console.log(`%c📅 Build: ${ADMIN_BUILD_DATE} | Sistema Conferme Attivo`, 'color: #666;');
+console.log(`%c📅 Build: ${ADMIN_BUILD_DATE} | Auto-refresh Attivo`, 'color: #666;');
 console.log(`%c✨ Gestione prenotazioni completa`, 'color: #22c55e;');
 
 // ========== CONFIGURAZIONE ==========
@@ -82,7 +87,6 @@ function tentaLoginAdmin() {
   }
 }
 
-
 function logout() {
   if (confirm('Vuoi uscire dalla dashboard?')) {
     // ✅ Rimuovi sessione
@@ -96,15 +100,23 @@ function logout() {
 }
 
 // ========== CARICA PRENOTAZIONI ==========
-async function caricaPrenotazioni() {
+async function caricaPrenotazioni(cacheBuster = null) {
   showLoader(true);
   
   try {
-    const url = ADMIN_CONFIG.endpoints.adminPrenotazioni + '?action=list';
+    // ✅ Cache busting per evitare dati vecchi
+    let url = ADMIN_CONFIG.endpoints.adminPrenotazioni + '?action=list';
+    
+    if (cacheBuster) {
+      url += '&t=' + cacheBuster;
+    } else {
+      url += '&t=' + new Date().getTime();
+    }
     
     const response = await fetch(url, {
       method: 'GET',
-      redirect: 'follow'
+      redirect: 'follow',
+      cache: 'no-cache' // ✅ Forza no-cache
     });
     
     const result = await response.json();
@@ -270,7 +282,6 @@ function applicaFiltri() {
 }
 
 // ========== ORDINAMENTO ==========
-// ========== ORDINAMENTO ==========
 function ordinaPer(campo) {
   if (ordinamentoAttuale.campo === campo) {
     ordinamentoAttuale.direzione = ordinamentoAttuale.direzione === 'asc' ? 'desc' : 'asc';
@@ -322,7 +333,6 @@ function convertiDataPerOrdinamento(dataStr) {
   return 0;
 }
 
-
 // ========== MODAL CONFERMA ==========
 function apriModalConferma(idPrenotazione) {
   prenotazioneDaConfermare = prenotazioni.find(p => p.idPrenotazione === idPrenotazione);
@@ -353,6 +363,7 @@ function chiudiModalConferma() {
   prenotazioneDaConfermare = null;
 }
 
+// ========== CONFERMA PRENOTAZIONE CON AUTO-REFRESH ==========
 async function confermaPrenotazioneAdmin() {
   if (!prenotazioneDaConfermare) {
     alert('Nessuna prenotazione selezionata');
@@ -392,8 +403,18 @@ async function confermaPrenotazioneAdmin() {
     
     if (result.success) {
       alert('✅ Prenotazione confermata e PDF generato con successo!');
+      
+      // ✅ Chiudi modal
       chiudiModalConferma();
-      caricaPrenotazioni();
+      
+      // ✅ Delay 1 secondo per permettere al backend di completare
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // ✅ Ricarica dati con cache busting
+      const cacheBuster = new Date().getTime();
+      await caricaPrenotazioni(cacheBuster);
+      
+      console.log('🔄 Dashboard aggiornata automaticamente');
     } else {
       alert('❌ Errore: ' + (result.error || 'Sconosciuto'));
     }
@@ -464,6 +485,7 @@ window.adminDebug = function() {
   console.log('Filtro attivo:', filtroAttivoStat);
   console.log('Ordinamento:', ordinamentoAttuale);
   console.log('Backend connesso:', !!ADMIN_CONFIG.endpoints.adminPrenotazioni);
+  console.log('Auto-refresh:', 'Attivo dopo conferma');
   
   if (prenotazioni.length > 0) {
     const stats = {
@@ -498,6 +520,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  console.log('✅ Admin Dashboard v' + ADMIN_VERSION + ' caricata');
+  console.log('✅ Admin Dashboard v' + ADMIN_VERSION + ' caricata con auto-refresh');
 });
-
