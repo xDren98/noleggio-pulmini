@@ -4,7 +4,7 @@
    CHANGELOG - VERSIONI
    ═══════════════════════════════════════════════════════════════════
    
-      📌 v5.3.7 - 28 Ottobre 2025
+      📌 v5.3.8 - 28 Ottobre 2025
    ✅ Step 2.5 preventivo con campo destinazione
    ✅ Messaggio WhatsApp con date in formato italiano (dd/mm/yyyy)
    ✅ Campo destinazione passato al backend e salvato su sheet
@@ -76,7 +76,7 @@
 
 'use strict';
 
-const APP_VERSION = '5.3.7';
+const APP_VERSION = '5.3.8';
 const BUILD_DATE = '2025-10-28';
 const ENVIRONMENT = 'production';
 
@@ -1097,6 +1097,24 @@ function calcolaGiorniDifferenza(dataInizioBolla) {
     return 999;
   }
 }
+// ========== DIAGNOSTICA ==========
+window.imbrianiDebug = function() {
+  console.group('🔧 Diagnostica Imbriani Noleggio');
+  console.log('Versione:', APP_VERSION);
+  console.log('Build:', BUILD_DATE);
+  console.log('Utente loggato:', !!loggedCustomerData);
+  if (loggedCustomerData) {
+    console.log('Nome:', loggedCustomerData.nomeCognome);
+    console.log('CF:', loggedCustomerData.codiceFiscale);
+    console.log('Cellulare:', loggedCustomerData.cellulare);
+  }
+  console.log('Prenotazioni caricate:', prenotazioniMap.size);
+  console.log('Pulmino selezionato:', pulminoSelezionato?.nome || 'Nessuno');
+  console.log('Endpoints:', SCRIPTS);
+  console.groupEnd();
+};
+
+console.log('%c💡 Tip: Digita imbrianiDebug() nella console per info dettagliate', 'color: #999; font-style: italic;');
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
