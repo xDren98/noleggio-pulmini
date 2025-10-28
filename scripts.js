@@ -1,22 +1,87 @@
-/* Imbriani Noleggio – scripts.js v5.3.7 CORS-FREE + STEP 2.5
+/* Imbriani Noleggio – scripts.js
    
-   FIX v5.3.7:
-   ✅ Step 2.5 preventivo con destinazione
-   ✅ Messaggio WhatsApp con date italiane
-   ✅ Campo destinazione passato al backend
+   ═══════════════════════════════════════════════════════════════════
+   CHANGELOG - VERSIONI
+   ═══════════════════════════════════════════════════════════════════
    
-   FIX v5.3.6:
-   ✅ GET per datiCliente, disponibilita, prenotazioni (no CORS preflight)
+   📌 v5.3.7 - 28 Ottobre 2025
+   ✅ Step 2.5 preventivo con campo destinazione
+   ✅ Messaggio WhatsApp con date in formato italiano (dd/mm/yyyy)
+   ✅ Campo destinazione passato al backend e salvato su sheet
+   ✅ Autocompletamento cellulare per utenti loggati
+   ✅ Autocompletamento date (nascita, patente) con convertiDataPerInput()
+   ✅ Sistema conferma prenotazioni (stato "Da confermare")
+   ✅ Email automatica agli admin per nuove prenotazioni
+   ✅ PDF generato solo dopo conferma admin
+   
+   📌 v5.3.6 - 27 Ottobre 2025
+   ✅ GET request per evitare CORS preflight (datiCliente, disponibilita, prenotazioni)
    ✅ POST form-encoded per manageBooking (no preflight)
    ✅ fetchJSON senza Content-Type header
-   ✅ Form modifica con SELECT orari
-   ✅ Validazione età max 90 anni
-   ✅ Emoji riepilogo solo testo (CSS le aggiunge)
+   ✅ Form modifica con SELECT per orari
+   ✅ Validazione età massima 90 anni
+   ✅ Emoji riepilogo gestite via CSS (non hardcoded nel JS)
    
-   DATA: 28 Ottobre 2025
+   📌 v5.3.5 - 26 Ottobre 2025
+   ✅ Area personale con lista prenotazioni
+   ✅ Modifica e cancellazione prenotazioni
+   ✅ Validazione 7 giorni prima della partenza
+   ✅ Sistema routing tra sezioni (homepage, area personale, wizard)
+   ✅ Toast notifications per feedback utente
+   
+   📌 v5.3.0 - 25 Ottobre 2025
+   ✅ Wizard prenotazione multi-step (4 step)
+   ✅ Controllo disponibilità veicoli in tempo reale
+   ✅ Form dati autisti multipli (max 3)
+   ✅ Riepilogo prenotazione prima dell'invio
+   ✅ Integrazione con Google Sheets via Apps Script
+   
+   📌 v5.2.0 - 24 Ottobre 2025
+   ✅ Login con codice fiscale
+   ✅ Cache locale per dati cliente
+   ✅ Sistema di validazione form completo
+   
+   📌 v5.1.0 - 23 Ottobre 2025
+   ✅ Interfaccia base con Material Icons
+   ✅ Responsive design per mobile
+   ✅ Loader overlay per caricamenti
+   
+   ═══════════════════════════════════════════════════════════════════
+   ENDPOINT BACKEND
+   ═══════════════════════════════════════════════════════════════════
+   
+   🔗 datiCliente.gs v2.2:
+      https://script.google.com/.../AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec
+      
+   🔗 disponibilita.gs v2.1:
+      https://script.google.com/.../AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec
+      
+   🔗 prenotazioni.gs v2.1:
+      https://script.google.com/.../AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec
+      
+   🔗 manageBooking.gs v2.4:
+      https://script.google.com/.../AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ/exec
+   
+   ═══════════════════════════════════════════════════════════════════
+   CONFIGURAZIONE
+   ═══════════════════════════════════════════════════════════════════
+   
+   📦 Sheet ID: 1VAUJNVwxX8OLrkQVJP7IEGrqLIrDjJjrhfr7ABVqtns
+   📄 Sheet Name: "Risposte del modulo 1"
+   📧 Admin Email: configurata in manageBooking.gs
+   
+   ═══════════════════════════════════════════════════════════════════
 */
+
 'use strict';
-console.log('Imbriani Noleggio - v5.3.7 CORS-FREE + STEP 2.5');
+
+const APP_VERSION = '5.3.7';
+const BUILD_DATE = '2025-10-28';
+const ENVIRONMENT = 'production';
+
+console.log(`%c🚐 Imbriani Noleggio v${APP_VERSION}`, 'font-size: 16px; font-weight: bold; color: #37b24d;');
+console.log(`%c📅 Build: ${BUILD_DATE} | Env: ${ENVIRONMENT}`, 'color: #666;');
+console.log(`%c✨ Sistema conferma prenotazioni + Step 2.5 preventivo attivo`, 'color: #37b24d;');
 
 // ========== ENDPOINTS ==========
 const SCRIPTS = {
@@ -406,7 +471,7 @@ function generaFormAutisti(numAutisti) {
       
       <label for="data-nascita-${i}">Data di nascita</label>
       <input type="date" id="data-nascita-${i}" required 
-             value="${isLogged ? loggedCustomerData.dataNascita : ''}" />
+             value="${isLogged ? convertiDataPerInput(loggedCustomerData.dataNascita) : ''}" />
       
       <label for="luogo-nascita-${i}">Luogo di nascita</label>
       <input type="text" id="luogo-nascita-${i}" placeholder="Roma" required 
@@ -435,11 +500,11 @@ function generaFormAutisti(numAutisti) {
       
       <label for="inizio-patente-${i}">Data inizio validità patente</label>
       <input type="date" id="inizio-patente-${i}" required 
-             value="${isLogged ? loggedCustomerData.dataInizioValiditaPatente : ''}" />
+             value="${isLogged ? convertiDataPerInput(loggedCustomerData.dataInizioValiditaPatente) : ''}" />
       
       <label for="scadenza-patente-${i}">Scadenza patente</label>
       <input type="date" id="scadenza-patente-${i}" required 
-             value="${isLogged ? loggedCustomerData.dataFineValiditaPatente : ''}" />
+             value="${isLogged ? convertiDataPerInput(loggedCustomerData.dataFineValiditaPatente) : ''}" />
     `;
     
     container.appendChild(formDiv);
@@ -453,6 +518,14 @@ function generaFormAutisti(numAutisti) {
     }
   }
 }
+
+  // Precompila cellulare se loggato
+  if (loggedCustomerData && loggedCustomerData.cellulare) {
+    const cellulareInput = qs('cellulare');
+    if (cellulareInput) {
+      cellulareInput.value = loggedCustomerData.cellulare;
+    }
+  }
 
 function validaDatiAutisti() {
   const numAutisti = parseInt(qs('numero-autisti').value, 10);
