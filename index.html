@@ -21,13 +21,11 @@
     <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
   </header>
 
-
   <main>
     <!-- HOME PAGE -->
     <section id="homepage" data-section class="card" aria-labelledby="home-title">
       <h2 id="home-title">Hai già prenotato con noi?</h2>
       <p>Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
-
 
       <form id="form-login" novalidate>
         <div class="input-with-icon">
@@ -46,9 +44,7 @@
         <button type="submit" class="btn btn--primary">Accedi</button>
       </form>
 
-
       <hr />
-
 
       <h2>Prima volta con noi?</h2>
       <p>Prenota ora il tuo pulmino.</p>
@@ -58,13 +54,11 @@
       </button>
     </section>
 
-
     <!-- AREA PERSONALE -->
     <section id="area-personale" data-section class="card" aria-labelledby="area-title">
       <h2 id="area-title">Area personale</h2>
       <div id="area-personale-content"></div>
     </section>
-
 
     <!-- MODIFICA PRENOTAZIONE -->
     <section id="modifica-prenotazione" data-section class="card hidden" aria-labelledby="modifica-title">
@@ -73,23 +67,19 @@
       <div id="modifica-form-content"></div>
     </section>
 
-
     <!-- WIZARD PRENOTAZIONE -->
     <section id="mainbox" data-section class="card hidden" aria-labelledby="wizard-title">
       <h2 id="wizard-title">Nuova prenotazione</h2>
 
-
       <!-- STEP 1: Date e orari -->
       <div id="step1" class="step" data-step aria-labelledby="s1-title">
         <h3 id="s1-title">Seleziona date e orari</h3>
-
 
         <label for="data_ritiro">
           <span class="material-icons" aria-hidden="true">event</span>
           Data ritiro
         </label>
         <input type="date" id="data_ritiro" required />
-
 
         <label for="ora_partenza">
           <span class="material-icons" aria-hidden="true">schedule</span>
@@ -102,13 +92,11 @@
           <option value="20:00">20:00</option>
         </select>
 
-
         <label for="data_arrivo">
           <span class="material-icons" aria-hidden="true">event_available</span>
           Data arrivo
         </label>
         <input type="date" id="data_arrivo" required />
-
 
         <label for="ora_arrivo">
           <span class="material-icons" aria-hidden="true">schedule</span>
@@ -121,12 +109,10 @@
           <option value="20:00">20:00</option>
         </select>
 
-
         <div class="actions">
           <button id="btn-controlla-disponibilita" class="btn btn--primary">Controlla disponibilità</button>
         </div>
       </div>
-
 
       <!-- STEP 2: Scelta pulmino -->
       <div id="step2" class="step hidden" data-step aria-labelledby="s2-title">
@@ -137,7 +123,6 @@
           <button id="btn-step2-continua" class="btn btn--primary" disabled>Continua</button>
         </div>
       </div>
-
 
       <!-- STEP 2.5: Richiesta Preventivo -->
       <div id="step2-5" class="step hidden" data-step aria-labelledby="s25-title">
@@ -192,12 +177,10 @@
         </div>
       </div>
 
-
       <!-- STEP 3: Dati autisti -->
       <div id="step3" class="step hidden" data-step aria-labelledby="s3-title">
-        <button class="btn-back" data-target="step2" aria-label="Torna a selezione veicolo">← Indietro</button>
+        <button class="btn-back" data-target="step2-5" aria-label="Torna a preventivo">← Indietro</button>
         <h3 id="s3-title">Dati autista/i</h3>
-
 
         <label for="numero-autisti">
           <span class="material-icons" aria-hidden="true">groups</span>
@@ -208,7 +191,6 @@
           <option value="2">2</option>
           <option value="3">3</option>
         </select>
-
 
         <label for="cellulare">
           <span class="material-icons" aria-hidden="true">call</span>
@@ -224,15 +206,12 @@
         />
         <div id="cellHelp" class="help-text">Inserisci da 9 a 15 cifre senza spazi.</div>
 
-
         <div id="autisti-container"></div>
-
 
         <div class="actions">
           <button id="btn-step3-continua" class="btn btn--primary">Continua</button>
         </div>
       </div>
-
 
       <!-- STEP 4: Riepilogo -->
       <div id="step4" class="step hidden" data-step aria-labelledby="s4-title">
@@ -246,7 +225,6 @@
     </section>
   </main>
 
-
   <!-- Loading Overlay -->
   <div id="loading-overlay" class="loader-overlay" aria-live="polite" aria-busy="false">
     <div class="loader-spinner">
@@ -255,10 +233,8 @@
     </div>
   </div>
 
-
   <!-- Toast Container -->
   <div id="toast-container" aria-live="assertive" role="alert"></div>
-
 
   <!-- Script v5.3.5 -->
   <script src="scripts.js"></script>
