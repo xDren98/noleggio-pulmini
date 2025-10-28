@@ -4,15 +4,16 @@
    CHANGELOG - VERSIONI
    ═══════════════════════════════════════════════════════════════════
    
-   📌 v5.3.7 - 28 Ottobre 2025
+      📌 v5.3.7 - 28 Ottobre 2025
    ✅ Step 2.5 preventivo con campo destinazione
    ✅ Messaggio WhatsApp con date in formato italiano (dd/mm/yyyy)
    ✅ Campo destinazione passato al backend e salvato su sheet
-   ✅ Autocompletamento cellulare per utenti loggati
+   ✅ Autocompletamento cellulare per utenti loggati (FIX)
    ✅ Autocompletamento date (nascita, patente) con convertiDataPerInput()
    ✅ Sistema conferma prenotazioni (stato "Da confermare")
    ✅ Email automatica agli admin per nuove prenotazioni
    ✅ PDF generato solo dopo conferma admin
+   ✅ Logica disponibilità con buffer orari 4 ore (v2.2)
    
    📌 v5.3.6 - 27 Ottobre 2025
    ✅ GET request per evitare CORS preflight (datiCliente, disponibilita, prenotazioni)
@@ -299,7 +300,9 @@ function setupWizard() {
     try {
       const resp = await fetchJSON(SCRIPTS.disponibilita, {
         dataInizio: dataRitiro,
-        dataFine: dataArrivo
+        dataFine: dataArrivo,
+        oraInizio: oraRitiro,    // ✅ AGGIUNTO
+        oraFine: oraArrivo        // ✅ AGGIUNTO
       });
       
       if (resp.success && resp.disponibili && resp.disponibili.length > 0) {
@@ -517,15 +520,16 @@ function generaFormAutisti(numAutisti) {
       });
     }
   }
-}
-
-  // Precompila cellulare se loggato
+    // Precompila cellulare se loggato
   if (loggedCustomerData && loggedCustomerData.cellulare) {
     const cellulareInput = qs('cellulare');
     if (cellulareInput) {
       cellulareInput.value = loggedCustomerData.cellulare;
     }
   }
+}
+
+
 
 function validaDatiAutisti() {
   const numAutisti = parseInt(qs('numero-autisti').value, 10);
