@@ -163,23 +163,40 @@ async function apiPostPrenotazioni(cf) {
   return fetchJSON(`${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}`);
 }
 
-async function apiManageBooking(payload) {
-  // ⚡ POST con fetch semplice (no headers custom = no preflight)
+ async function apiManageBooking(payload) {
+  // ⚡ POST form-encoded con Content-Type corretto
   const formData = new URLSearchParams();
   formData.append('payload', JSON.stringify(payload));
   
-  const response = await fetch(SCRIPTS.manageBooking, {
-    method: 'POST',
-    body: formData,
-    redirect: 'follow'
-  });
-  
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  try {
+    const response = await withTimeout(
+      fetch(SCRIPTS.manageBooking, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData.toString(),
+        redirect: 'follow'
+      }),
+      30000
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const text = await response.text();
+    
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('Errore parsing JSON:', text);
+      throw new Error('Risposta non valida dal server');
+    }
+  } catch (err) {
+    console.error('❌ Errore fetch manageBooking:', err);
+    throw err;
   }
-  
-  const text = await response.text();
-  return JSON.parse(text);
 }
 
 // ========== LOADING & MESSAGES ==========
@@ -1295,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.3.6',
+  version: '5.3.7',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
