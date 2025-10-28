@@ -1295,7 +1295,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.3.7',
+  version: '5.3.8',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
