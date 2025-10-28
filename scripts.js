@@ -225,41 +225,41 @@ function setupLoginForm() {
   
   form.onsubmit = async (e) => {
     e.preventDefault();
-    const cf = inputCF.value.trim().toUpperCase();
     
+    const cf = inputCF.value.trim().toUpperCase();
     if (!cf || cf.length !== 16) {
-      showToast('Il codice fiscale deve essere di 16 caratteri', 'error');
+      showToast('⚠️ Il codice fiscale deve essere di 16 caratteri', 'error');
       return;
     }
     
     showLoader(true);
     
     try {
-      // ✅ FIX v5.3.9: Una sola chiamata a datiCliente.gs
-      // Restituisce sia dati cliente che prenotazioni (no righe vuote create)
-      const response = await fetchJSON(SCRIPTS.datiCliente, { cf: cf });
+      const [datiResp, prenResp] = await Promise.all([
+        fetchJSON(SCRIPTS.datiCliente, { cf: cf }),
+        fetchJSON(SCRIPTS.prenotazioni, { cf: cf })
+      ]);
       
-      if (response.success && response.cliente) {
-        loggedCustomerData = response.cliente;
+      if (datiResp.success && datiResp.cliente) {
+        loggedCustomerData = datiResp.cliente;
         
-        // Le prenotazioni arrivano già da datiCliente.gs
-        if (response.prenotazioni) {
+        if (prenResp.success && prenResp.prenotazioni) {
           prenotazioniMap.clear();
-          response.prenotazioni.forEach(p => {
-            const id = p['ID prenotazione'] || p.idPrenotazione;
+          prenResp.prenotazioni.forEach(p => {
+            const id = p['ID prenotazione'];
             if (id) prenotazioniMap.set(id, p);
           });
         }
         
         mostraAreaPersonale();
         routeTo('area-personale');
-        showToast('Benvenuto!');
+        showToast('✅ Benvenuto!');
       } else {
-        showToast('Nessun dato trovato per questo codice fiscale', 'error');
+        showToast('⚠️ Nessun dato trovato per questo codice fiscale', 'error');
       }
     } catch (err) {
       console.error('Errore login:', err);
-      showToast('Errore durante il caricamento dei dati', 'error');
+      showToast('❌ Errore durante il caricamento dei dati', 'error');
     } finally {
       showLoader(false);
     }
