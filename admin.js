@@ -1,8 +1,39 @@
-/* Imbriani Noleggio – admin.js v1.0
-   Dashboard Admin - Sistema Conferma Prenotazioni
+/* Imbriani Noleggio – admin.js
+   
+   ═══════════════════════════════════════════════════════════════════
+   CHANGELOG - DASHBOARD ADMIN
+   ═══════════════════════════════════════════════════════════════════
+   
+   📌 v2.0 - 28 Ottobre 2025
+   ✅ Dashboard amministrativa completa
+   ✅ Visualizzazione tutte le prenotazioni
+   ✅ Sistema conferma prenotazioni con generazione PDF
+   ✅ Inserimento importo preventivo
+   ✅ Statistiche aggregate (totali, da confermare, completate, in corso, future)
+   ✅ Filtri avanzati per data, veicolo, stato
+   ✅ Ordinamento tabella per colonna
+   ✅ Export CSV con separatore italiano
+   ✅ Modal conferma con riepilogo completo
+   ✅ Integrazione backend per conferme
+   ✅ Login con password admin
+   ✅ Responsive design per mobile
+   
+   📌 v1.0 - 28 Ottobre 2025
+   ✅ Prima versione dashboard
+   ✅ Login admin
+   ✅ Tabella prenotazioni base
+   
+   ═══════════════════════════════════════════════════════════════════
 */
 
 'use strict';
+
+const ADMIN_VERSION = '2.0';
+const ADMIN_BUILD_DATE = '2025-10-28';
+
+console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
+console.log(`%c📅 Build: ${ADMIN_BUILD_DATE} | Sistema Conferme Attivo`, 'color: #666;');
+console.log(`%c✨ Gestione prenotazioni completa`, 'color: #22c55e;');
 
 // ========== CONFIGURAZIONE ==========
 const ADMIN_CONFIG = {
@@ -93,11 +124,12 @@ async function caricaPrenotazioni() {
 // ========== STATISTICHE ==========
 function aggiornaStatistiche(stats) {
   document.getElementById('stat-totali').textContent = stats.totali || 0;
+  document.getElementById('stat-daconfermare').textContent = stats.daConfermare || 0; // ✅ NUOVO
   document.getElementById('stat-completate').textContent = stats.completate || 0;
   document.getElementById('stat-corso').textContent = stats.inCorso || 0;
   
-  // Calcola future (prenotate + da confermare)
-  const future = (stats.totali || 0) - (stats.completate || 0) - (stats.inCorso || 0);
+  // Calcola future
+  const future = (stats.totali || 0) - (stats.completate || 0) - (stats.inCorso || 0) - (stats.daConfermare || 0);
   document.getElementById('stat-future').textContent = future;
 }
 
@@ -149,8 +181,8 @@ function renderTabella(datiPrenotazioni) {
     tr.innerHTML = `
       <td>${pren.nome}</td>
       <td>${getNomePulmino(pren.targa)}</td>
-      <td>${pren.giornoInizio} ${pren.oraInizio}</td>
-      <td>${pren.giornoFine} ${pren.oraFine}</td>
+      <td>${pren.giornoInizio || 'N/A'} ore ${pren.oraInizio || '00:00'}</td>
+      <td>${pren.giornoFine || 'N/A'} ore ${pren.oraFine || '00:00'}</td>
       <td>${pren.cellulare}</td>
       <td>${badgeStato}</td>
       <td class="actions">${azioni}</td>
@@ -189,8 +221,8 @@ function applicaFiltroDashboard(tipo) {
     prenotazioniFiltrate = prenotazioni.filter(p => 
       p.stato !== 'Completato' && p.stato !== 'In corso'
     );
-  }
-  
+  } else if (tipo === 'daconfermare') {
+    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Da confermare');
   renderTabella(prenotazioniFiltrate);
 }
 
@@ -352,11 +384,13 @@ function chiudiModifica() {
 
 // ========== EXPORT CSV ==========
 function esportaCSV() {
-  let csv = 'ID,Cliente,CF,Veicolo,Dal,Al,Cellulare,Stato,Importo\n';
+  let csv = 'ID;Cliente;CF;Veicolo;Dal;Al;Cellulare;Stato;Importo\n';
   
   prenotazioni.forEach(p => {
-    csv += `"${p.idPrenotazione}","${p.nome}","${p.cf}","${p.targa}","${p.giornoInizio} ${p.oraInizio}","${p.giornoFine} ${p.oraFine}","${p.cellulare}","${p.stato}","${p.importo}"\n`;
+    csv += `"${p.idPrenotazione}";"${p.nome}";"${p.cf}";"${p.targa}";"${p.giornoInizio} ${p.oraInizio}";"${p.giornoFine} ${p.oraFine}";"${p.cellulare}";"${p.stato}";"${p.importo}"\n`;
   });
+  
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
@@ -375,6 +409,31 @@ function esportaCSV() {
 function eseguiUndo() {
   alert('Funzione Undo in sviluppo');
 }
+// ========== DIAGNOSTICA ADMIN ==========
+window.adminDebug = function() {
+  console.group('🔧 Diagnostica Admin Dashboard');
+  console.log('Versione:', ADMIN_VERSION);
+  console.log('Build:', ADMIN_BUILD_DATE);
+  console.log('Prenotazioni caricate:', prenotazioni.length);
+  console.log('Filtro attivo:', filtroAttivoStat);
+  console.log('Ordinamento:', ordinamentoAttuale);
+  console.log('Backend connesso:', !!ADMIN_CONFIG.endpoints.adminPrenotazioni); // ✅ Solo boolean
+  
+  if (prenotazioni.length > 0) {
+    const stats = {
+      totali: prenotazioni.length,
+      daConfermare: prenotazioni.filter(p => p.stato === 'Da confermare').length,
+      confermate: prenotazioni.filter(p => p.stato === 'Confermata').length,
+      inCorso: prenotazioni.filter(p => p.stato === 'In corso').length,
+      completate: prenotazioni.filter(p => p.stato === 'Completato').length
+    };
+    console.table(stats);
+  }
+  
+  console.groupEnd();
+};
+
+console.log('%c💡 Tip: Digita adminDebug() nella console per diagnostica completa', 'color: #999; font-style: italic;');
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
