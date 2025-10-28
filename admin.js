@@ -30,7 +30,7 @@
 
 'use strict';
 
-const ADMIN_VERSION = '2.2';
+const ADMIN_VERSION = '2.3';
 const ADMIN_BUILD_DATE = '2025-10-28';
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
@@ -63,6 +63,55 @@ function showLoader(show = true) {
 function showToast(message, type = 'info') {
   alert(message);
 }
+
+// ========== HELPER FORMATTAZIONE DATE ==========
+function formattaData(dataStr) {
+  if (!dataStr) return 'N/A';
+  
+  // Se è già formato corretto dd/mm/yyyy
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) {
+    return dataStr;
+  }
+  
+  // Se è timestamp ISO o Date string
+  try {
+    const data = new Date(dataStr);
+    if (!isNaN(data.getTime())) {
+      const dd = String(data.getDate()).padStart(2, '0');
+      const mm = String(data.getMonth() + 1).padStart(2, '0');
+      const yyyy = data.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+  } catch (e) {
+    // Fallback
+  }
+  
+  return String(dataStr);
+}
+
+function formattaOra(oraStr) {
+  if (!oraStr) return '00:00';
+  
+  // Se già formato HH:MM
+  if (/^\d{2}:\d{2}$/.test(oraStr)) {
+    return oraStr;
+  }
+  
+  // Se è timestamp o Date string
+  try {
+    const data = new Date(oraStr);
+    if (!isNaN(data.getTime())) {
+      const hh = String(data.getHours()).padStart(2, '0');
+      const mm = String(data.getMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+  } catch (e) {
+    // Fallback
+  }
+  
+  return String(oraStr);
+}
+
 
 // ========== LOGIN ==========
 function tentaLoginAdmin() {
@@ -193,9 +242,9 @@ function renderTabella(datiPrenotazioni) {
       `;
     }
     
-    // 🔧 FIX: Mostra date + orari
-    const dalCompleto = (pren.giornoInizio || 'N/A') + ' ore ' + (pren.oraInizio || '00:00');
-    const alCompleto = (pren.giornoFine || 'N/A') + ' ore ' + (pren.oraFine || '00:00');
+    // 🔧 FIX: Mostra date + orari formattati
+    const dalCompleto = formattaData(pren.giornoInizio) + ' ore ' + formattaOra(pren.oraInizio);
+    const alCompleto = formattaData(pren.giornoFine) + ' ore ' + formattaOra(pren.oraFine);
     
     tr.innerHTML = `
       <td>${pren.nome}</td>
@@ -349,8 +398,8 @@ function apriModalConferma(idPrenotazione) {
     <p><strong>Cliente:</strong> ${prenotazioneDaConfermare.nome}</p>
     <p><strong>CF:</strong> ${prenotazioneDaConfermare.cf}</p>
     <p><strong>Veicolo:</strong> ${getNomePulmino(prenotazioneDaConfermare.targa)} (${prenotazioneDaConfermare.targa})</p>
-    <p><strong>Dal:</strong> ${prenotazioneDaConfermare.giornoInizio || 'N/A'} ore ${prenotazioneDaConfermare.oraInizio || '00:00'}</p>
-    <p><strong>Al:</strong> ${prenotazioneDaConfermare.giornoFine || 'N/A'} ore ${prenotazioneDaConfermare.oraFine || '00:00'}</p>
+    <p><strong>Dal:</strong> ${formattaData(prenotazioneDaConfermare.giornoInizio)} ore ${formattaOra(prenotazioneDaConfermare.oraInizio)}</p>
+    <p><strong>Al:</strong> ${formattaData(prenotazioneDaConfermare.giornoFine)} ore ${formattaOra(prenotazioneDaConfermare.oraFine)}</p>
     <p><strong>Cellulare:</strong> ${prenotazioneDaConfermare.cellulare}</p>
   `;
   
