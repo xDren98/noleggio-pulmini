@@ -3,6 +3,7 @@
    Base + Layout + Components + Responsive
 ===================================================================== */
 
+
 /* =====================================================================
    Base Variables
 ===================================================================== */
@@ -16,10 +17,12 @@
   --color-card-shadow: rgba(44, 93, 42, 0.07);
   --color-card-border: #e6f4ea;
 
+
   --radius-sm: 8px;
   --radius-md: 10px;
   --radius-lg: 12px;
   --radius-xl: 18px;
+
 
   --font-size-xs: 0.85rem;
   --font-size-sm: 0.95rem;
@@ -27,15 +30,19 @@
   --font-size-lg: 1.1rem;
   --font-size-xl: 1.25rem;
 
+
   --font-weight-medium: 600;
   --font-weight-semibold: 700;
+
 
   --duration-fast: 0.2s;
 }
 
+
 * {
   box-sizing: border-box;
 }
+
 
 body {
   font-family: 'Poppins', sans-serif;
@@ -45,6 +52,7 @@ body {
   min-height: 100vh;
   padding: 0;
 }
+
 
 /* =====================================================================
    Layout / Card / Header
@@ -58,12 +66,14 @@ body {
   max-width: 700px;
 }
 
+
 header {
   max-width: 700px;
   margin: 0 auto 10px;
   padding-top: 10px;
   text-align: center;
 }
+
 
 header h1 {
   font-weight: 700;
@@ -78,10 +88,12 @@ header h1 {
   transition: all var(--duration-fast);
 }
 
+
 header h1:hover {
   transform: scale(1.02);
   color: var(--color-primary-dark);
 }
+
 
 header p {
   font-weight: 600;
@@ -90,10 +102,12 @@ header p {
   margin: 0 0 10px 0;
 }
 
+
 .slogan {
   font-style: italic;
   font-size: 0.95em;
 }
+
 
 /* =====================================================================
    Visibility states (routing)
@@ -102,13 +116,16 @@ header p {
   display: none;
 }
 
+
 [data-section]:not(.hidden) {
   display: block;
 }
 
+
 .hidden {
   display: none !important;
 }
+
 
 /* =====================================================================
    Wizard container
@@ -125,15 +142,18 @@ header p {
   gap: 18px;
 }
 
+
 .step {
   display: none;
   flex-direction: column;
   gap: 12px;
 }
 
+
 .step:not(.hidden) {
   display: flex;
 }
+
 
 label {
   font-weight: 600;
@@ -145,10 +165,12 @@ label {
   gap: 8px;
 }
 
+
 .material-icons {
   font-size: 20px;
   color: var(--color-primary);
 }
+
 
 /* =====================================================================
    Form Inputs - UNIFORMI
@@ -172,12 +194,14 @@ input[type="email"] {
   margin-bottom: 15px;
 }
 
+
 select:focus,
 input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(55, 178, 77, 0.1);
 }
+
 
 /* =====================================================================
    Help text
@@ -190,6 +214,7 @@ input:focus {
   font-style: italic;
 }
 
+
 /* =====================================================================
    Actions / buttons
 ===================================================================== */
@@ -198,6 +223,7 @@ input:focus {
   gap: 10px;
   margin-top: 6px;
 }
+
 
 .btn,
 button {
@@ -218,12 +244,14 @@ button {
   font-family: 'Poppins', sans-serif;
 }
 
+
 .btn:hover:not(:disabled),
 button:hover:not(:disabled) {
   background-color: #24943d;
   box-shadow: 0 2px 12px #30af5640;
   transform: scale(1.02);
 }
+
 
 .btn:disabled,
 button:disabled {
@@ -234,34 +262,42 @@ button:disabled {
   pointer-events: none;
 }
 
+
 .btn--primary {
   background: var(--color-primary);
 }
+
 
 .btn--primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
 }
 
+
 .btn--secondary {
   background: #2ea44f;
 }
+
 
 .btn--secondary:hover:not(:disabled) {
   background: #258a3f;
 }
 
+
 .btn--danger {
   background: #cf3b3b;
 }
+
 
 .btn--danger:hover:not(:disabled) {
   background: #a82f2f;
 }
 
+
 .btn--sm {
   padding: 8px 16px;
   font-size: 0.9em;
 }
+
 
 /* =====================================================================
    Home
@@ -272,12 +308,14 @@ button:disabled {
   padding: 40px 20px;
 }
 
+
 #homepage h2 {
   font-size: 1.3em;
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: 12px;
 }
+
 
 #homepage p {
   color: #666;
@@ -286,16 +324,19 @@ button:disabled {
   text-align: left;
 }
 
+
 #homepage hr {
   border: none;
   border-top: 2px solid var(--color-card-border);
   margin: 32px 0;
 }
 
+
 .input-with-icon {
   position: relative;
   margin-bottom: 12px;
 }
+
 
 .input-with-icon .material-icons {
   position: absolute;
@@ -307,9 +348,11 @@ button:disabled {
   pointer-events: none;
 }
 
+
 .input-with-icon input {
   padding-left: 44px;
 }
+
 
 /* =====================================================================
    Area personale
@@ -320,6 +363,7 @@ button:disabled {
   gap: 20px;
 }
 
+
 .welcome-card {
   background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
   border: 1.5px solid var(--color-card-border);
@@ -327,6 +371,7 @@ button:disabled {
   border-radius: var(--radius-lg);
   box-shadow: 0 2px 8px rgba(55, 178, 77, 0.1);
 }
+
 
 .welcome-card h2 {
   margin-top: 0;
@@ -336,10 +381,12 @@ button:disabled {
   gap: 8px;
 }
 
+
 .welcome-card h2::before {
   content: '👋';
   font-size: 28px;
 }
+
 
 .prenotazioni-card {
   background: white;
@@ -348,12 +395,14 @@ button:disabled {
   border-radius: var(--radius-lg);
 }
 
+
 .prenotazioni-lista {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 16px;
 }
+
 
 .prenotazione-item {
   background: #f9fff7;
@@ -363,11 +412,13 @@ button:disabled {
   transition: all 0.3s ease;
 }
 
+
 .prenotazione-item:hover {
   box-shadow: 0 4px 12px rgba(55, 178, 77, 0.15);
   transform: translateY(-2px);
   border-color: var(--color-primary);
 }
+
 
 .prenotazione-item strong {
   display: block;
@@ -376,15 +427,18 @@ button:disabled {
   font-size: 1.05em;
 }
 
+
 .prenotazione-item p {
   margin: 4px 0;
   color: var(--color-text-secondary);
   font-size: 0.95em;
 }
 
+
 .prenotazione-item button {
   margin-top: 12px;
 }
+
 
 /* =====================================================================
    Card veicoli (Step 2)
@@ -395,6 +449,7 @@ button:disabled {
   gap: 16px;
   margin: 16px 0;
 }
+
 
 .card-pulmino {
   background: linear-gradient(135deg, #f9fff7 0%, #eafbe9 100%);
@@ -409,22 +464,26 @@ button:disabled {
   gap: 8px;
 }
 
+
 .card-pulmino:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(55, 178, 77, 0.2);
   border-color: var(--color-primary);
 }
 
+
 .card-pulmino:focus {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
+
 
 .card-pulmino.selected {
   border-color: #27ae60;
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
   box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
 }
+
 
 .card-pulmino.selected::after {
   content: '✓';
@@ -444,12 +503,14 @@ button:disabled {
   box-shadow: 0 2px 8px rgba(39, 174, 96, 0.4);
 }
 
+
 .card-pulmino .card-title {
   font-weight: 600;
   color: var(--color-text);
   font-size: 1.05em;
   margin-bottom: 4px;
 }
+
 
 .card-pulmino .card-sub {
   color: var(--color-text-secondary);
@@ -459,10 +520,12 @@ button:disabled {
   gap: 4px;
 }
 
+
 .card-pulmino .card-sub::before {
   content: '🚐';
   font-size: 16px;
 }
+
 
 /* =====================================================================
    Form autisti (Step 3) - UNIFORMATO
@@ -476,6 +539,7 @@ button:disabled {
   box-shadow: 0 2px 8px rgba(55, 178, 77, 0.1);
 }
 
+
 .form-autista h4 {
   margin-top: 0;
   color: var(--color-primary);
@@ -488,10 +552,12 @@ button:disabled {
   border-bottom: 2px solid var(--color-card-border);
 }
 
+
 .form-autista h4::before {
   content: '👤';
   font-size: 20px;
 }
+
 
 .form-autista label {
   display: block;
@@ -500,6 +566,7 @@ button:disabled {
   font-weight: 600;
   color: var(--color-text);
 }
+
 
 .form-autista input[type="text"],
 .form-autista input[type="date"],
@@ -517,11 +584,13 @@ button:disabled {
   transition: all var(--duration-fast);
 }
 
+
 .form-autista input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
 }
+
 
 /* =====================================================================
    Riepilogo prenotazione (Step 4)
@@ -531,6 +600,7 @@ button:disabled {
   margin: 0 auto;
 }
 
+
 #riepilogo-content .card {
   background: linear-gradient(135deg, #f9fff7 0%, #eafbe9 100%);
   border: 1px solid var(--color-card-border);
@@ -539,6 +609,7 @@ button:disabled {
   margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(55, 178, 77, 0.1);
 }
+
 
 #riepilogo-content .card h3 {
   margin: 0 0 16px 0;
@@ -552,6 +623,7 @@ button:disabled {
   gap: 8px;
 }
 
+
 #riepilogo-content p {
   margin: 8px 0;
   color: var(--color-text);
@@ -559,12 +631,191 @@ button:disabled {
   line-height: 1.6;
 }
 
+
 #riepilogo-content p strong {
   color: var(--color-primary-dark);
   font-weight: 600;
   min-width: 160px;
   display: inline-block;
 }
+
+
+/* =====================================================================
+   Step 2.5 - Preventivo
+===================================================================== */
+.preventivo-box {
+  background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+  border: 2px solid #ffd93d;
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.preventivo-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.preventivo-box h4 {
+  color: var(--color-text);
+  font-size: 1.4em;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.preventivo-box p {
+  color: var(--color-text-secondary);
+  font-size: 1.05em;
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+}
+
+.form-destinazione {
+  background: white;
+  border: 2px solid var(--color-card-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.form-destinazione label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.02em;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.form-destinazione input {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid #72b972;
+  border-radius: var(--radius-md);
+  font-size: 1em;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9fff7;
+  transition: all 0.2s;
+}
+
+.form-destinazione input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(55, 178, 77, 0.1);
+}
+
+.form-destinazione .help-text {
+  font-size: 13px;
+  color: #7f8c8d;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.contact-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.btn-contact {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 1.05em;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+.btn-contact:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-contact:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-contact--whatsapp {
+  border-color: #25D366;
+  color: #25D366;
+}
+
+.btn-contact--whatsapp:hover:not(:disabled) {
+  background: #25D366;
+  color: white;
+}
+
+.btn-contact--phone {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.btn-contact--phone:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.preventivo-confirm {
+  background: white;
+  border: 2px solid var(--color-card-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 1.05em;
+  font-weight: 500;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.checkbox-label span {
+  flex: 1;
+}
+
 
 /* =====================================================================
    Modale conferma
@@ -584,6 +835,7 @@ button:disabled {
   animation: fadeIn 0.2s ease-out;
 }
 
+
 .modal-content {
   background: white;
   border-radius: 16px;
@@ -594,6 +846,7 @@ button:disabled {
   animation: scaleIn 0.3s ease-out;
   text-align: center;
 }
+
 
 .modal-content h3 {
   margin-top: 0;
@@ -606,10 +859,12 @@ button:disabled {
   margin-bottom: 16px;
 }
 
+
 .modal-content h3::before {
   content: '⚠️';
   font-size: 28px;
 }
+
 
 .modal-content p {
   margin: 16px 0 24px;
@@ -618,6 +873,7 @@ button:disabled {
   line-height: 1.5;
 }
 
+
 .modal-actions {
   display: flex;
   gap: 12px;
@@ -625,10 +881,12 @@ button:disabled {
   margin-top: 24px;
 }
 
+
 .modal-actions button {
   flex: 1;
   max-width: 180px;
 }
+
 
 @keyframes fadeIn {
   from {
@@ -638,6 +896,7 @@ button:disabled {
     opacity: 1;
   }
 }
+
 
 @keyframes scaleIn {
   from {
@@ -650,13 +909,16 @@ button:disabled {
   }
 }
 
+
 .modal-overlay {
   cursor: pointer;
 }
 
+
 .modal-content {
   cursor: default;
 }
+
 
 /* =====================================================================
    Loader overlay
@@ -675,10 +937,12 @@ button:disabled {
   backdrop-filter: blur(4px);
 }
 
+
 .loader-spinner {
   text-align: center;
   color: white;
 }
+
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
@@ -690,11 +954,13 @@ button:disabled {
   margin: 0 auto 20px;
 }
 
+
 .loader-text {
   font-size: 1.1em;
   font-weight: 600;
   margin: 0;
 }
+
 
 @keyframes spin {
   0% {
@@ -704,6 +970,7 @@ button:disabled {
     transform: rotate(360deg);
   }
 }
+
 
 /* =====================================================================
    Banners
@@ -726,12 +993,14 @@ button:disabled {
   font-size: 14px;
 }
 
+
 .error-banner {
   background: rgba(255, 230, 230, 0.95);
   color: #c00;
   border: 1px solid rgba(192, 0, 0, 0.3);
   border-left: 4px solid #c00;
 }
+
 
 .success-banner {
   background: rgba(230, 255, 230, 0.95);
@@ -740,14 +1009,17 @@ button:disabled {
   border-left: 4px solid #0a0;
 }
 
+
 .banner-ico {
   font-size: 20px;
   flex-shrink: 0;
 }
 
+
 .banner-msg {
   flex: 1;
 }
+
 
 @keyframes slideInRight {
   from {
@@ -759,6 +1031,7 @@ button:disabled {
     opacity: 1;
   }
 }
+
 
 /* =====================================================================
    Back button
@@ -784,6 +1057,7 @@ button:disabled {
   font-family: 'Poppins', sans-serif;
 }
 
+
 .btn-back:hover {
   background: var(--color-primary);
   color: #fff;
@@ -791,9 +1065,11 @@ button:disabled {
   box-shadow: 0 4px 12px rgba(55, 178, 77, 0.4);
 }
 
+
 .btn-back .material-icons {
   font-size: 22px;
 }
+
 
 /* =====================================================================
    Thank you
@@ -810,12 +1086,14 @@ button:disabled {
   gap: 16px;
 }
 
+
 #thankyou h2 {
   color: #27802a;
   font-weight: 700;
   margin: 0;
   font-size: 1.8em;
 }
+
 
 #thankyou p {
   color: #2b6e21;
@@ -824,6 +1102,7 @@ button:disabled {
   margin: 0;
   line-height: 1.6;
 }
+
 
 #thankyou button {
   margin-top: 16px;
@@ -839,14 +1118,17 @@ button:disabled {
   transition: background 0.3s, transform 0.2s;
 }
 
+
 #thankyou button:hover {
   background: var(--color-primary-dark);
   transform: translateY(-2px);
 }
 
+
 #thankyou button:active {
   transform: translateY(0);
 }
+
 
 /* =====================================================================
    States / helpers
@@ -855,17 +1137,21 @@ input:invalid:not(:placeholder-shown) {
   border-color: #f44336;
 }
 
+
 input:valid:not(:placeholder-shown) {
   border-color: var(--color-primary);
 }
+
 
 select:invalid {
   color: #999;
 }
 
+
 select:valid {
   color: var(--color-text);
 }
+
 
 .field-error {
   border-color: #f44336 !important;
@@ -873,6 +1159,7 @@ select:valid {
   outline: none;
   box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.12);
 }
+
 
 .field-error-msg {
   margin-top: 6px;
@@ -884,15 +1171,18 @@ select:valid {
   gap: 6px;
 }
 
+
 .field-error-msg::before {
   content: '⚠️';
   font-size: 14px;
 }
 
+
 .field-inline {
   display: flex;
   flex-direction: column;
 }
+
 
 @keyframes fieldShake {
   10%,
@@ -914,9 +1204,11 @@ select:valid {
   }
 }
 
+
 .field-error-animate {
   animation: fieldShake 0.35s ease-in-out;
 }
+
 
 /* =====================================================================
    Responsive
@@ -928,26 +1220,32 @@ select:valid {
     padding: 0 2vw;
   }
 
+
   .actions {
     flex-direction: column;
   }
+
 
   .actions button {
     width: 100%;
   }
 
+
   .pulmini-grid {
     grid-template-columns: 1fr;
   }
+
 
   .modal-actions {
     flex-direction: column-reverse;
   }
 
+
   .modal-actions button {
     max-width: 100%;
   }
 }
+
 
 @media (max-width: 600px) {
   .error-banner,
@@ -960,6 +1258,7 @@ select:valid {
     font-size: 0.9em;
   }
 
+
   .btn-back {
     top: 16px;
     left: 16px;
@@ -967,40 +1266,62 @@ select:valid {
     font-size: 0.9em;
   }
 
+
   .btn-back .material-icons {
     font-size: 18px;
   }
+
 
   #homepage {
     padding: 30px 16px;
   }
 
+
   header h1 {
     font-size: 1.6em;
   }
+
 
   header p {
     font-size: 0.9em;
   }
 
+
   .card {
     padding: 24px 16px;
   }
+
 
   #riepilogo-content p strong {
     display: block;
     margin-bottom: 4px;
   }
+  
+  /* Responsive Step 2.5 */
+  .contact-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .preventivo-box {
+    padding: 24px 20px;
+  }
+  
+  .preventivo-icon {
+    font-size: 48px;
+  }
 }
+
 
 @media (max-width: 480px) {
   .form-autista {
     padding: 16px;
   }
 
+
   .card-pulmino {
     padding: 16px;
   }
+
 
   .modal-content {
     padding: 24px 20px;
