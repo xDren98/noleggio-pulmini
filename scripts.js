@@ -1,27 +1,25 @@
-/* Imbriani Noleggio – scripts.js v5.3.5 CORRETTO
+/* Imbriani Noleggio – scripts.js v5.3.6 CORS-FREE
    
-   FIX v5.3.5:
-   - ✅ Rimosso proxy CORS (chiamate dirette)
-   - ✅ Form modifica con SELECT orari (non time input)
+   FIX v5.3.6:
+   - ✅ GET per datiCliente, disponibilita, prenotazioni (no CORS preflight)
+   - ✅ POST form-encoded per manageBooking (no preflight)
+   - ✅ fetchJSON senza Content-Type header
+   - ✅ Form modifica con SELECT orari
    - ✅ Validazione età max 90 anni
-   - ✅ mostraModuliAutisti safe merge (no race condition)
    - ✅ Emoji riepilogo solo testo (CSS le aggiunge)
-   - ✅ Versione allineata a 5.3.5
    
    DATA: 28 Ottobre 2025
 */
 'use strict';
-console.log('Imbriani Noleggio - v5.3.5 CORRETTO');
+console.log('Imbriani Noleggio - v5.3.6 CORS-FREE');
 
-
-// ========== ENDPOINTS (SENZA PROXY) ==========
+// ========== ENDPOINTS ==========
 const SCRIPTS = {
   datiCliente: 'https://script.google.com/macros/s/AKfycbxnC-JSK4YXvV8GF6ED9uK3SSNYs3uAFAmyji6KB_eQ60QAqXIHbTM-18F7-Zu47bo/exec',
   disponibilita: 'https://script.google.com/macros/s/AKfycbwhEK3IH-hLGYpGXHRjcYdUaW2e3He485XpgcRVr0GBSyE4v4-gSCp5vnSCbn5ocNI/exec',
   prenotazioni: 'https://script.google.com/macros/s/AKfycbyMPuvESaAJ7bIraipTya9yUKnyV8eYbm-r8CX42KRvDQsX0f44QBsaqQOY8KVYFBE/exec',
   manageBooking: 'https://script.google.com/macros/s/AKfycbz_1yZ6nKRN3mlVDHSQmN9Idzgvqp9UBzK01AxVzm4Y33ot6vVlsDKC3eNZLPCPZU0/exec'
 };
-
 
 // ========== CATALOGO VEICOLI ==========
 const pulmini = [
@@ -51,7 +49,6 @@ const pulmini = [
   }
 ];
 
-
 // ========== STATO GLOBALE ==========
 const bookingData = {
   dataRitiro: '',
@@ -67,7 +64,6 @@ const bookingData = {
 let loggedCustomerData = null;
 let prenotazioniMap = new Map();
 let autistiCache = [];
-
 
 // ========== UTILITY FUNCTIONS ==========
 const qs = (selector) => document.querySelector(selector);
@@ -121,8 +117,7 @@ function asString(val, fallback = '') {
   return (val !== null && val !== undefined) ? String(val) : fallback;
 }
 
-
-// ========== FETCH SENZA HEADER JSON (CORS-FREE) ==========
+// ========== FETCH CORS-FREE ==========
 async function withTimeout(promise, ms = 30000) {
   return Promise.race([
     promise,
@@ -133,7 +128,6 @@ async function withTimeout(promise, ms = 30000) {
 }
 
 async function fetchJSON(url, options = {}) {
-  // NO Content-Type header per evitare preflight CORS
   const response = await withTimeout(fetch(url, options), options.timeout || 30000);
   
   if (!response.ok) {
@@ -150,15 +144,12 @@ async function fetchJSON(url, options = {}) {
   }
 }
 
-
-// ========== API CALLS (GET + POST FORM-ENCODED) ==========
+// ========== API CALLS (CORS-FREE) ==========
 async function apiPostDatiCliente(cf) {
-  // GET con query param
   return fetchJSON(`${SCRIPTS.datiCliente}?cf=${encodeURIComponent(cf)}`);
 }
 
 async function apiPostDisponibilita(params) {
-  // GET con query params
   const query = new URLSearchParams({
     dataRitiro: params.dataRitiro || '',
     dataArrivo: params.dataArrivo || '',
@@ -169,12 +160,10 @@ async function apiPostDisponibilita(params) {
 }
 
 async function apiPostPrenotazioni(cf) {
-  // GET con query param
   return fetchJSON(`${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}`);
 }
 
 async function apiManageBooking(payload) {
-  // POST con form-encoded (no preflight CORS)
   const formData = new URLSearchParams();
   formData.append('payload', JSON.stringify(payload));
   
@@ -183,7 +172,6 @@ async function apiManageBooking(payload) {
     body: formData
   });
 }
-
 
 // ========== LOADING & MESSAGES ==========
 function mostraLoading(visible) {
@@ -220,7 +208,6 @@ function showBanner(msg, type) {
   }, 4000);
 }
 
-
 // ========== VALIDAZIONE ==========
 function validateCF(cf) {
   const cleaned = cf.toUpperCase().trim();
@@ -254,7 +241,6 @@ function calcolaEta(dataNascita) {
   return eta;
 }
 
-
 // ========== CONVERSIONE DATE ==========
 function dateToISO(dateStr) {
   if (!dateStr) return '';
@@ -276,7 +262,6 @@ function dateToItalian(dateStr) {
   return dateStr;
 }
 
-
 // ========== ROUTING ==========
 function routeTo(view, step = null) {
   qsa('[data-section]').forEach(s => s.classList.add('hidden'));
@@ -293,7 +278,6 @@ function routeTo(view, step = null) {
     qs('#modifica-prenotazione')?.classList.remove('hidden');
   }
 }
-
 
 // ========== LOGIN ==========
 async function handleLogin() {
@@ -342,7 +326,6 @@ async function handleLogin() {
     mostraLoading(false);
   }
 }
-
 
 // ========== AREA PERSONALE ==========
 function renderAreaPersonale() {
@@ -425,7 +408,7 @@ function renderPrenotazioneItem(p) {
     }, 'Modifica')
   );
 }
-// ========== MODIFICA PRENOTAZIONE (CON SELECT ORARI) ==========
+// ========== MODIFICA PRENOTAZIONE (SELECT ORARI) ==========
 function modificaPrenotazione(idPrenotazione) {
   const p = prenotazioniMap.get(idPrenotazione);
   if (!p) {
@@ -463,7 +446,6 @@ function modificaPrenotazione(idPrenotazione) {
     { label: 'Cellulare', name: 'Cellulare', value: p['Cellulare'], type: 'tel' }
   ];
   
-  // ⚡ SELECT per orari (non input time)
   const oraInizioValue = asString(p['Ora inizio noleggio'], '08:00');
   const oraFineValue = asString(p['Ora fine noleggio'], '20:00');
   
@@ -668,7 +650,6 @@ async function handleDeletePrenotazione(idPrenotazione) {
   }
 }
 
-
 // ========== STEP 1 — Controlla Disponibilità ==========
 async function controllaDisponibilita() {
   const dataR = qs('#data_ritiro')?.value || '';
@@ -715,7 +696,6 @@ async function controllaDisponibilita() {
     mostraLoading(false);
   }
 }
-
 
 // ========== STEP 2 — Card veicoli ==========
 function renderPulminiCards(vehicles) {
@@ -764,18 +744,15 @@ function continuaStep2() {
   history.pushState({ view: 'wizard', step: 'step3' }, '', '#step3');
 }
 
-
-// ========== STEP 3 — Autisti (SAFE MERGE) ==========
+// ========== STEP 3 — Autisti ==========
 function mostraModuliAutisti() {
   const root = qs('#autisti-container');
   if (!root) return;
   
   const numAutisti = bookingData.autisti?.length || 1;
   
-  // Salva dati correnti form
   saveAutistiFromForm(3);
   
-  // ⚡ SAFE MERGE: Solo se cache ha dati validi
   for (let i = 0; i < numAutisti; i++) {
     if (autistiCache[i] && (autistiCache[i].nomeCognome || autistiCache[i].codiceFiscale)) {
       bookingData.autisti[i] = { 
@@ -791,7 +768,6 @@ function mostraModuliAutisti() {
     )
   );
   
-  // Pre-fill cellulare
   const cellInput = qs('#cellulare');
   if (cellInput && bookingData.cellulare) {
     cellInput.value = bookingData.cellulare;
@@ -937,7 +913,6 @@ function continuaStep3() {
     return mostraErrore('Inserisci almeno un autista');
   }
   
-  // Validazione autista 1
   const a1 = bookingData.autisti[0];
   
   if (!validateNomeCognome(a1.nomeCognome)) {
@@ -950,7 +925,6 @@ function continuaStep3() {
     return mostraErrore('Numero patente autista 1 non valido');
   }
   
-  // ⚡ Validazione età con max 90 anni
   const eta = calcolaEta(a1.dataNascita);
   if (eta < 18 || eta > 90) {
     return mostraErrore("L'autista deve avere tra 18 e 90 anni");
@@ -962,14 +936,13 @@ function continuaStep3() {
   routeTo('wizard', 'step4');
   history.pushState({ view: 'wizard', step: 'step4' }, '', '#step4');
 }
-// ========== STEP 4 — Riepilogo (EMOJI SOLO TESTO) ==========
+// ========== STEP 4 — Riepilogo ==========
 function mostraRiepilogo() {
   const root = qs('#riepilogo-content');
   if (!root) return;
   
   const a1 = bookingData.autisti[0] || {};
   
-  // ⚡ Emoji SOLO nel testo, CSS le aggiunge via ::before
   const elements = [
     el('div', { class: 'card' },
       el('h3', { text: 'Veicolo' }),
@@ -993,7 +966,6 @@ function mostraRiepilogo() {
     )
   ];
   
-  // Autisti aggiuntivi
   if (bookingData.autisti.length > 1) {
     for (let i = 1; i < bookingData.autisti.length; i++) {
       const a = bookingData.autisti[i];
@@ -1016,7 +988,6 @@ function mostraRiepilogo() {
 function rItem(label, value) {
   return el('p', {}, el('strong', { text: `${label}: ` }), value || '-');
 }
-
 
 // ========== INVIO PRENOTAZIONE ==========
 async function inviaPrenotazione() {
@@ -1090,7 +1061,6 @@ async function inviaPrenotazione() {
     mostraLoading(false);
   }
 }
-
 
 // ========== SETUP LISTENERS ==========
 function setupStep1() {
@@ -1185,7 +1155,6 @@ function setupSiteTitle() {
   }
 }
 
-
 // ========== HISTORY MANAGEMENT ==========
 window.addEventListener('popstate', (e) => {
   const state = e.state;
@@ -1215,10 +1184,9 @@ window.addEventListener('popstate', (e) => {
   }
 });
 
-
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 Imbriani Noleggio v5.3.5 inizializzato');
+  console.log('🚀 Imbriani Noleggio v5.3.6 inizializzato');
   
   setupHomepage();
   setupStep1();
@@ -1242,10 +1210,9 @@ document.addEventListener('DOMContentLoaded', () => {
   history.replaceState({ view: 'homepage' }, '', '#home');
 });
 
-
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.3.5',
+  version: '5.3.6',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
@@ -1255,7 +1222,7 @@ window.ImbrianiApp = {
     'Cache session',
     'Validazione robusta',
     'Responsive design',
-    'No proxy CORS',
+    'CORS-free (GET + form-encoded POST)',
     'Select orari form modifica',
     'Validazione età 18-90',
     'Safe autisti merge'
@@ -1266,3 +1233,4 @@ window.ImbrianiApp = {
 };
 
 console.log('✅ ImbrianiApp ready:', window.ImbrianiApp.version);
+
