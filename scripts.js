@@ -164,13 +164,9 @@ async function apiPostPrenotazioni(cf) {
 }
 
 async function apiManageBooking(payload) {
-  const formData = new URLSearchParams();
-  formData.append('payload', JSON.stringify(payload));
-  
-  return fetchJSON(SCRIPTS.manageBooking, {
-    method: 'POST',
-    body: formData
-  });
+  // ⚡ GET con payload in query string (no CORS preflight)
+  const payloadStr = encodeURIComponent(JSON.stringify(payload));
+  return fetchJSON(`${SCRIPTS.manageBooking}?payload=${payloadStr}`);
 }
 
 // ========== LOADING & MESSAGES ==========
@@ -334,8 +330,19 @@ function renderAreaPersonale() {
   
   const welcomeCard = el('div', { class: 'welcome-card' },
     el('h2', { text: `Benvenuto, ${loggedCustomerData.nome || 'Utente'}!` }),
-    el('p', { text: `CF: ${loggedCustomerData.codiceFiscale}` }),
-    el('p', { text: `Tel: ${loggedCustomerData.cellulare || 'Non disponibile'}` })
+    el('div', { class: 'dati-anagrafici', style: 'margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px;' },
+      el('h3', { text: 'Dati Anagrafici', style: 'margin-top: 0;' }),
+      el('p', {}, el('strong', { text: 'Nome: ' }), loggedCustomerData.nome || '-'),
+      el('p', {}, el('strong', { text: 'CF: ' }), loggedCustomerData.codiceFiscale || '-'),
+      el('p', {}, el('strong', { text: 'Data nascita: ' }), loggedCustomerData.dataNascita || '-'),
+      el('p', {}, el('strong', { text: 'Luogo nascita: ' }), loggedCustomerData.luogoNascita || '-'),
+      el('p', {}, el('strong', { text: 'Residenza: ' }), 
+        `${loggedCustomerData.viaResidenza || ''} ${loggedCustomerData.civicoResidenza || ''}, ${loggedCustomerData.comuneResidenza || ''}`),
+      el('p', {}, el('strong', { text: 'Telefono: ' }), loggedCustomerData.cellulare || '-'),
+      el('p', {}, el('strong', { text: 'Patente: ' }), loggedCustomerData.numeroPatente || '-'),
+      el('p', {}, el('strong', { text: 'Validità patente: ' }), 
+        `${loggedCustomerData.dataInizioValiditaPatente || ''} → ${loggedCustomerData.dataFineValiditaPatente || ''}`)
+    )
   );
   
   const prenotazioni = Array.from(prenotazioniMap.values());
@@ -744,7 +751,7 @@ function continuaStep2() {
   history.pushState({ view: 'wizard', step: 'step3' }, '', '#step3');
 }
 
-// ========== STEP 3 — Autisti ==========
+// ========== STEP 3 — Autisti (AUTOCOMPILAZIONE) ==========
 function mostraModuliAutisti() {
   const root = qs('#autisti-container');
   if (!root) return;
@@ -752,6 +759,26 @@ function mostraModuliAutisti() {
   const numAutisti = bookingData.autisti?.length || 1;
   
   saveAutistiFromForm(3);
+  
+  // ⚡ AUTOCOMPILAZIONE: Se primo autista è vuoto E utente loggato, usa dati login
+  if (numAutisti >= 1 && loggedCustomerData) {
+    const a1 = bookingData.autisti[0] || {};
+    
+    if (!a1.nomeCognome && !a1.codiceFiscale) {
+      bookingData.autisti[0] = {
+        nomeCognome: loggedCustomerData.nome || '',
+        dataNascita: dateToISO(loggedCustomerData.dataNascita) || '',
+        luogoNascita: loggedCustomerData.luogoNascita || '',
+        codiceFiscale: loggedCustomerData.codiceFiscale || '',
+        comuneResidenza: loggedCustomerData.comuneResidenza || '',
+        viaResidenza: loggedCustomerData.viaResidenza || '',
+        civicoResidenza: loggedCustomerData.civicoResidenza || '',
+        numeroPatente: loggedCustomerData.numeroPatente || '',
+        dataInizioValiditaPatente: dateToISO(loggedCustomerData.dataInizioValiditaPatente) || '',
+        dataFineValiditaPatente: dateToISO(loggedCustomerData.dataFineValiditaPatente) || ''
+      };
+    }
+  }
   
   for (let i = 0; i < numAutisti; i++) {
     if (autistiCache[i] && (autistiCache[i].nomeCognome || autistiCache[i].codiceFiscale)) {
@@ -768,9 +795,15 @@ function mostraModuliAutisti() {
     )
   );
   
+  // ⚡ Pre-fill cellulare da login o da bookingData
   const cellInput = qs('#cellulare');
-  if (cellInput && bookingData.cellulare) {
-    cellInput.value = bookingData.cellulare;
+  if (cellInput) {
+    if (!bookingData.cellulare && loggedCustomerData?.cellulare) {
+      bookingData.cellulare = loggedCustomerData.cellulare;
+    }
+    if (bookingData.cellulare) {
+      cellInput.value = bookingData.cellulare;
+    }
   }
 }
 
@@ -945,15 +978,15 @@ function mostraRiepilogo() {
   
   const elements = [
     el('div', { class: 'card' },
-      el('h3', { text: 'Veicolo' }),
+      el('h3', { text: '🚐 Veicolo' }),
       rItem('Modello', bookingData.pulmino?.nome),
       rItem('Targa', bookingData.pulmino?.targa),
       
-      el('h3', { text: 'Periodo' }),
+      el('h3', { text: '📅 Periodo' }),
       rItem('Ritiro', `${dateToItalian(bookingData.dataRitiro)} ore ${bookingData.oraRitiro}`),
       rItem('Consegna', `${dateToItalian(bookingData.dataArrivo)} ore ${bookingData.oraArrivo}`),
       
-      el('h3', { text: 'Autista Principale' }),
+      el('h3', { text: '👤 Autista Principale' }),
       rItem('Nome', a1.nomeCognome),
       rItem('Nascita', `${dateToItalian(a1.dataNascita)} - ${a1.luogoNascita}`),
       rItem('Codice Fiscale', a1.codiceFiscale),
@@ -961,7 +994,7 @@ function mostraRiepilogo() {
       rItem('Patente', a1.numeroPatente),
       rItem('Validità patente', `${dateToItalian(a1.dataInizioValiditaPatente)} → ${dateToItalian(a1.dataFineValiditaPatente)}`),
       
-      el('h3', { text: 'Contatto' }),
+      el('h3', { text: '📞 Contatto' }),
       rItem('Cellulare', bookingData.cellulare)
     )
   ];
@@ -972,7 +1005,7 @@ function mostraRiepilogo() {
       if (a.nomeCognome || a.codiceFiscale) {
         elements.push(
           el('div', { class: 'card' },
-            el('h3', { text: `Autista ${i + 1}` }),
+            el('h3', { text: `👤 Autista ${i + 1}` }),
             rItem('Nome', a.nomeCognome),
             rItem('CF', a.codiceFiscale),
             rItem('Patente', a.numeroPatente)
@@ -984,6 +1017,7 @@ function mostraRiepilogo() {
   
   clearAndAppend(root, ...elements);
 }
+
 
 function rItem(label, value) {
   return el('p', {}, el('strong', { text: `${label}: ` }), value || '-');
