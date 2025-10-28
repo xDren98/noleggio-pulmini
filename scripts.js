@@ -301,6 +301,7 @@ function routeTo(view, step = null) {
 }
 
 // ========== LOGIN ==========
+// ========== LOGIN ==========
 async function handleLogin() {
   const cfInput = qs('#cf-login');
   const cf = cfInput?.value.toUpperCase().trim() || '';
@@ -317,20 +318,34 @@ async function handleLogin() {
       apiPostPrenotazioni(cf)
     ]);
     
-    if (!datiRes.success) {
+    console.log('🔍 Backend risposta COMPLETA:', datiRes);
+    
+    // ⚡ FIX: gestisce diverse strutture di risposta backend
+    let datiCliente = {};
+    if (datiRes.cliente && Object.keys(datiRes.cliente).length > 0) {
+      datiCliente = datiRes.cliente;
+    } else if (datiRes.dati && Object.keys(datiRes.dati).length > 0) {
+      datiCliente = datiRes.dati;
+    } else if (datiRes.success === false) {
       throw new Error(datiRes.error || 'Nessun dato trovato');
+    } else {
+      // Fallback: backend restituisce direttamente i dati
+      datiCliente = datiRes;
     }
     
-    // ⚡ FIX: Normalizza nomi campi (backend potrebbe usare nomeCognome invece di nome)
-const datiCliente = datiRes.cliente || {};
-console.log('🔍 Backend risposta:', datiCliente);
-
-loggedCustomerData = {
-  nome: (datiCliente.nome && datiCliente.nome.trim()) || 
-        (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
-        datiCliente.codiceFiscale || 'Utente',
-  nomeCognome: (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
-               (datiCliente.nome && datiCliente.nome.trim()) || '',
+    console.log('🔍 datiCliente estratto:', datiCliente);
+    
+    if (!datiCliente || Object.keys(datiCliente).length === 0) {
+      throw new Error('Nessun dato trovato per questo codice fiscale');
+    }
+    
+    // ⚡ FIX: Normalizza nomi campi con trim()
+    loggedCustomerData = {
+      nome: (datiCliente.nome && datiCliente.nome.trim()) || 
+            (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+            datiCliente.codiceFiscale || 'Utente',
+      nomeCognome: (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+                   (datiCliente.nome && datiCliente.nome.trim()) || '',
       codiceFiscale: cf,
       dataNascita: datiCliente.dataNascita || '',
       luogoNascita: datiCliente.luogoNascita || '',
@@ -367,6 +382,7 @@ loggedCustomerData = {
     mostraLoading(false);
   }
 }
+
 
 // ========== AREA PERSONALE ==========
 function renderAreaPersonale() {
@@ -1314,7 +1330,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.4.3',
+  version: '5.4.4',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
