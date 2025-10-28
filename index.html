@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Imbriani Noleggio v5.3.0</title>
+  <title>Imbriani Noleggio v5.3.5</title>
   
   <!-- Font & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -72,65 +72,54 @@
       <h2 id="wizard-title">Nuova prenotazione</h2>
 
       <!-- STEP 1: Date e orari -->
-<div id="step1" class="step" data-step aria-labelledby="s1-title">
-  <h3 id="s1-title">Seleziona date e orari</h3>
+      <div id="step1" class="step" data-step aria-labelledby="s1-title">
+        <h3 id="s1-title">Seleziona date e orari</h3>
 
-  <label for="data_ritiro">
-    <span class="material-icons" aria-hidden="true">event</span>
-    Data ritiro
-  </label>
-  <input 
-    type="date" 
-    id="data_ritiro" 
-    required 
-    style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;"
-  />
+        <label for="data_ritiro">
+          <span class="material-icons" aria-hidden="true">event</span>
+          Data ritiro
+        </label>
+        <input type="date" id="data_ritiro" required />
 
-  <label for="ora_partenza">
-    <span class="material-icons" aria-hidden="true">schedule</span>
-    Ora ritiro
-  </label>
-  <select id="ora_partenza" required style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
-    <option value="08:00">08:00</option>
-    <option value="12:00">12:00</option>
-    <option value="16:00">16:00</option>
-    <option value="20:00">20:00</option>
-  </select>
+        <label for="ora_partenza">
+          <span class="material-icons" aria-hidden="true">schedule</span>
+          Ora ritiro
+        </label>
+        <select id="ora_partenza" required>
+          <option value="08:00">08:00</option>
+          <option value="12:00">12:00</option>
+          <option value="16:00">16:00</option>
+          <option value="20:00">20:00</option>
+        </select>
 
-  <label for="data_arrivo">
-    <span class="material-icons" aria-hidden="true">event_available</span>
-    Data arrivo
-  </label>
-  <input 
-    type="date" 
-    id="data_arrivo" 
-    required 
-    style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;"
-  />
+        <label for="data_arrivo">
+          <span class="material-icons" aria-hidden="true">event_available</span>
+          Data arrivo
+        </label>
+        <input type="date" id="data_arrivo" required />
 
-  <label for="ora_arrivo">
-    <span class="material-icons" aria-hidden="true">schedule</span>
-    Ora arrivo
-  </label>
-  <select id="ora_arrivo" required style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
-    <option value="08:00">08:00</option>
-    <option value="12:00">12:00</option>
-    <option value="16:00">16:00</option>
-    <option value="20:00">20:00</option>
-  </select>
+        <label for="ora_arrivo">
+          <span class="material-icons" aria-hidden="true">schedule</span>
+          Ora arrivo
+        </label>
+        <select id="ora_arrivo" required>
+          <option value="08:00">08:00</option>
+          <option value="12:00">12:00</option>
+          <option value="16:00">16:00</option>
+          <option value="20:00">20:00</option>
+        </select>
 
-  <div class="actions" style="margin-top: 20px;">
-    <button id="btn-controlla-disponibilita" class="btn btn--primary">Controlla disponibilità</button>
-  </div>
-</div>
+        <div class="actions">
+          <button id="btn-controlla-disponibilita" class="btn btn--primary">Controlla disponibilità</button>
+        </div>
+      </div>
 
-
-      <!-- STEP 2: Scelta pulmino (CARD) -->
+      <!-- STEP 2: Scelta pulmino -->
       <div id="step2" class="step hidden" data-step aria-labelledby="s2-title">
         <button class="btn-back" data-target="step1" aria-label="Torna a selezione date">← Indietro</button>
         <h3 id="s2-title">Scegli il pulmino</h3>
         <div id="lista-pulmini" class="pulmini-grid" role="group" aria-label="Lista veicoli disponibili"></div>
-        <div class="actions" style="margin-top: 16px;">
+        <div class="actions">
           <button id="btn-step2-continua" class="btn btn--primary" disabled>Continua</button>
         </div>
       </div>
@@ -164,26 +153,37 @@
         />
         <div id="cellHelp" class="help-text">Inserisci da 9 a 15 cifre senza spazi.</div>
 
-        <div id="autisti-container" style="margin-top: 10px;"></div>
+        <div id="autisti-container"></div>
 
-        <div class="actions" style="margin-top: 16px;">
+        <div class="actions">
           <button id="btn-step3-continua" class="btn btn--primary">Continua</button>
         </div>
       </div>
 
-      <!-- STEP 4: Riepilogo e invio -->
+      <!-- STEP 4: Riepilogo -->
       <div id="step4" class="step hidden" data-step aria-labelledby="s4-title">
         <button class="btn-back" data-target="step3" aria-label="Torna a dati autisti">← Indietro</button>
         <h3 id="s4-title">Riepilogo</h3>
         <div id="riepilogo-content" role="region" aria-label="Riepilogo prenotazione"></div>
-        <div class="actions" style="margin-top: 16px;">
+        <div class="actions">
           <button id="btn-invia-prenotazione" class="btn btn--primary">Invia prenotazione</button>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Script applicativo v5.3.0 FINALE OTTIMIZZATO -->
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loader-overlay" aria-live="polite" aria-busy="false">
+    <div class="loader-spinner">
+      <div class="spinner"></div>
+      <p class="loader-text">Caricamento...</p>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <!-- Script v5.3.5 -->
   <script src="scripts.js"></script>
 </body>
 </html>
