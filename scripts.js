@@ -185,6 +185,16 @@ async function apiPostPrenotazioni(cf) {
   
   return response.json();
 }
+// ========== HELPER: Invalida cache backend prenotazioni ==========
+async function invalidateCachePrenotazioni(cf) {
+  try {
+    const url = `${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}&invalidate=1&_t=${Date.now()}`;
+    await fetch(url, { method: 'GET', cache: 'no-cache' });
+    console.log('🗑️ Cache backend prenotazioni invalidata per CF:', cf);
+  } catch (err) {
+    console.warn('⚠️ Impossibile invalidare cache backend prenotazioni:', err);
+  }
+}
 
  async function apiManageBooking(payload) {
   // ⚡ POST form-encoded semplice (no headers = no CORS preflight)
@@ -633,6 +643,8 @@ async function salvaModificaPrenotazione(idPrenotazione, formData) {
     
 const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
 
+await invalidateCachePrenotazioni(cfNorm);  // ← AGGIUNGI QUESTA RIGA!
+
 // ⚡ REFRESH: Ricarica sia dati cliente che prenotazioni
 const [datiRes, prenotazioniRes] = await Promise.all([
   apiPostDatiCliente(cfNorm),
@@ -733,6 +745,8 @@ async function handleDeletePrenotazione(idPrenotazione) {
 try {
   const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
   
+  await invalidateCachePrenotazioni(cfNorm);  // ← AGGIUNGI QUESTA RIGA!
+
   // ⚡ REFRESH: Ricarica sia dati cliente che prenotazioni
   const [datiRes, prenotazioniRes] = await Promise.all([
     apiPostDatiCliente(cfNorm),
@@ -1226,6 +1240,8 @@ async function inviaPrenotazione() {
     
     if (loggedCustomerData) {
   const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
+
+  await invalidateCachePrenotazioni(cfNorm);  // ← AGGIUNGI QUESTA RIGA!
   
   // ⚡ REFRESH: Ricarica sia dati cliente che prenotazioni
   const [datiRes, prenotazioniRes] = await Promise.all([
@@ -1434,7 +1450,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.4.6',
+  version: '5.4.7',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
