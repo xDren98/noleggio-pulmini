@@ -631,20 +631,51 @@ async function salvaModificaPrenotazione(idPrenotazione, formData) {
     console.log(`✅ Prenotazione ${idPrenotazione} aggiornata`);
     mostraSuccesso('Prenotazione aggiornata con successo');
     
-    const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
-    const prenotazioniRes = await apiPostPrenotazioni(cfNorm);
-    
-    prenotazioniMap.clear();
-    if (Array.isArray(prenotazioniRes.prenotazioni)) {
-      prenotazioniRes.prenotazioni.forEach(p => {
-        if (p['ID prenotazione']) {
-          prenotazioniMap.set(p['ID prenotazione'], p);
-        }
-      });
+const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
+
+// ⚡ REFRESH: Ricarica sia dati cliente che prenotazioni
+const [datiRes, prenotazioniRes] = await Promise.all([
+  apiPostDatiCliente(cfNorm),
+  apiPostPrenotazioni(cfNorm)
+]);
+
+// Aggiorna dati cliente
+const datiCliente = datiRes.dati || datiRes.cliente || datiRes;
+if (datiCliente && Object.keys(datiCliente).length > 0) {
+  loggedCustomerData = {
+    nome: (datiCliente.nome && datiCliente.nome.trim()) || 
+          (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+          datiCliente.codiceFiscale || 'Utente',
+    nomeCognome: (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+                 (datiCliente.nome && datiCliente.nome.trim()) || '',
+    codiceFiscale: cfNorm,
+    dataNascita: datiCliente.dataNascita || '',
+    luogoNascita: datiCliente.luogoNascita || '',
+    comuneResidenza: datiCliente.comuneResidenza || '',
+    viaResidenza: datiCliente.viaResidenza || '',
+    civicoResidenza: datiCliente.civicoResidenza || '',
+    cellulare: datiCliente.cellulare || '',
+    numeroPatente: datiCliente.numeroPatente || '',
+    dataInizioValiditaPatente: datiCliente.dataInizioValiditaPatente || '',
+    dataFineValiditaPatente: datiCliente.dataFineValiditaPatente || ''
+  };
+}
+
+// Aggiorna prenotazioni
+prenotazioniMap.clear();
+if (Array.isArray(prenotazioniRes.prenotazioni)) {
+  prenotazioniRes.prenotazioni.forEach(p => {
+    if (p['ID prenotazione']) {
+      prenotazioniMap.set(p['ID prenotazione'], p);
     }
-    
-    renderAreaPersonale();
-    routeTo('area');
+  });
+}
+
+console.log('✅ Dati aggiornati dopo modifica:', loggedCustomerData.nome, prenotazioniMap.size, 'prenotazioni');
+
+renderAreaPersonale();
+routeTo('area');
+
     history.pushState({ view: 'area' }, '', '#area');
     
   } catch (err) {
@@ -699,24 +730,55 @@ async function handleDeletePrenotazione(idPrenotazione) {
     
     prenotazioniMap.delete(idPrenotazione);
     
-    try {
-      const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
-      const prenotazioniRes = await apiPostPrenotazioni(cfNorm);
-      
-      prenotazioniMap.clear();
-      if (Array.isArray(prenotazioniRes.prenotazioni)) {
-        prenotazioniRes.prenotazioni.forEach(p => {
-          if (p['ID prenotazione']) {
-            prenotazioniMap.set(p['ID prenotazione'], p);
-          }
-        });
+try {
+  const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
+  
+  // ⚡ REFRESH: Ricarica sia dati cliente che prenotazioni
+  const [datiRes, prenotazioniRes] = await Promise.all([
+    apiPostDatiCliente(cfNorm),
+    apiPostPrenotazioni(cfNorm)
+  ]);
+  
+  // Aggiorna dati cliente
+  const datiCliente = datiRes.dati || datiRes.cliente || datiRes;
+  if (datiCliente && Object.keys(datiCliente).length > 0) {
+    loggedCustomerData = {
+      nome: (datiCliente.nome && datiCliente.nome.trim()) || 
+            (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+            datiCliente.codiceFiscale || 'Utente',
+      nomeCognome: (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+                   (datiCliente.nome && datiCliente.nome.trim()) || '',
+      codiceFiscale: cfNorm,
+      dataNascita: datiCliente.dataNascita || '',
+      luogoNascita: datiCliente.luogoNascita || '',
+      comuneResidenza: datiCliente.comuneResidenza || '',
+      viaResidenza: datiCliente.viaResidenza || '',
+      civicoResidenza: datiCliente.civicoResidenza || '',
+      cellulare: datiCliente.cellulare || '',
+      numeroPatente: datiCliente.numeroPatente || '',
+      dataInizioValiditaPatente: datiCliente.dataInizioValiditaPatente || '',
+      dataFineValiditaPatente: datiCliente.dataFineValiditaPatente || ''
+    };
+  }
+  
+  // Aggiorna prenotazioni
+  prenotazioniMap.clear();
+  if (Array.isArray(prenotazioniRes.prenotazioni)) {
+    prenotazioniRes.prenotazioni.forEach(p => {
+      if (p['ID prenotazione']) {
+        prenotazioniMap.set(p['ID prenotazione'], p);
       }
-      
-      renderAreaPersonale();
-    } catch (err) {
-      console.error('❌ Errore ricaricamento:', err);
-      mostraErrore('Prenotazione eliminata, ma errore ricaricamento lista');
-    }
+    });
+  }
+  
+  console.log('✅ Dati aggiornati dopo eliminazione:', loggedCustomerData.nome, prenotazioniMap.size, 'prenotazioni');
+  
+  renderAreaPersonale();
+} catch (err) {
+  console.error('❌ Errore ricaricamento:', err);
+  mostraErrore('Prenotazione eliminata, ma errore ricaricamento lista');
+}
+
     
     routeTo('area');
     history.pushState({ view: 'area' }, '', '#area');
@@ -1163,22 +1225,53 @@ async function inviaPrenotazione() {
     });
     
     if (loggedCustomerData) {
-      const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
-      const prenotazioniRes = await apiPostPrenotazioni(cfNorm);
-      
-      prenotazioniMap.clear();
-      if (Array.isArray(prenotazioniRes.prenotazioni)) {
-        prenotazioniRes.prenotazioni.forEach(p => {
-          if (p['ID prenotazione']) {
-            prenotazioniMap.set(p['ID prenotazione'], p);
-          }
-        });
+  const cfNorm = loggedCustomerData.codiceFiscale.toUpperCase().trim();
+  
+  // ⚡ REFRESH: Ricarica sia dati cliente che prenotazioni
+  const [datiRes, prenotazioniRes] = await Promise.all([
+    apiPostDatiCliente(cfNorm),
+    apiPostPrenotazioni(cfNorm)
+  ]);
+  
+  // Aggiorna dati cliente
+  const datiCliente = datiRes.dati || datiRes.cliente || datiRes;
+  if (datiCliente && Object.keys(datiCliente).length > 0) {
+    loggedCustomerData = {
+      nome: (datiCliente.nome && datiCliente.nome.trim()) || 
+            (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+            datiCliente.codiceFiscale || 'Utente',
+      nomeCognome: (datiCliente.nomeCognome && datiCliente.nomeCognome.trim()) || 
+                   (datiCliente.nome && datiCliente.nome.trim()) || '',
+      codiceFiscale: cfNorm,
+      dataNascita: datiCliente.dataNascita || '',
+      luogoNascita: datiCliente.luogoNascita || '',
+      comuneResidenza: datiCliente.comuneResidenza || '',
+      viaResidenza: datiCliente.viaResidenza || '',
+      civicoResidenza: datiCliente.civicoResidenza || '',
+      cellulare: datiCliente.cellulare || '',
+      numeroPatente: datiCliente.numeroPatente || '',
+      dataInizioValiditaPatente: datiCliente.dataInizioValiditaPatente || '',
+      dataFineValiditaPatente: datiCliente.dataFineValiditaPatente || ''
+    };
+  }
+  
+  // Aggiorna prenotazioni
+  prenotazioniMap.clear();
+  if (Array.isArray(prenotazioniRes.prenotazioni)) {
+    prenotazioniRes.prenotazioni.forEach(p => {
+      if (p['ID prenotazione']) {
+        prenotazioniMap.set(p['ID prenotazione'], p);
       }
-      
-      renderAreaPersonale();
-      routeTo('area');
-      history.pushState({ view: 'area' }, '', '#area');
-    } else {
+    });
+  }
+  
+  console.log('✅ Dati aggiornati dopo creazione:', loggedCustomerData.nome, prenotazioniMap.size, 'prenotazioni');
+  
+  renderAreaPersonale();
+  routeTo('area');
+  history.pushState({ view: 'area' }, '', '#area');
+}
+ else {
       routeTo('homepage');
       history.pushState({ view: 'homepage' }, '', '#home');
     }
@@ -1341,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.4.5',
+  version: '5.4.6',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
