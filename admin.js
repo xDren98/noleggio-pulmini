@@ -4,31 +4,28 @@
    CHANGELOG - DASHBOARD ADMIN
    ═══════════════════════════════════════════════════════════════════
    
+   📌 v2.1 - 28 Ottobre 2025
+   🔧 Fix mostra date + orari in tabella e modal
+   🔧 Fix card statistiche "Da Confermare"
+   🔧 Fix export CSV con separatore punto e virgola (;)
+   🔧 Fix filtro dashboard per "Da Confermare"
+   
    📌 v2.0 - 28 Ottobre 2025
    ✅ Dashboard amministrativa completa
-   ✅ Visualizzazione tutte le prenotazioni
    ✅ Sistema conferma prenotazioni con generazione PDF
-   ✅ Inserimento importo preventivo
-   ✅ Statistiche aggregate (totali, da confermare, completate, in corso, future)
-   ✅ Filtri avanzati per data, veicolo, stato
-   ✅ Ordinamento tabella per colonna
-   ✅ Export CSV con separatore italiano
-   ✅ Modal conferma con riepilogo completo
-   ✅ Integrazione backend per conferme
+   ✅ Statistiche aggregate
+   ✅ Filtri avanzati
+   ✅ Ordinamento tabella
+   ✅ Export CSV
    ✅ Login con password admin
-   ✅ Responsive design per mobile
-   
-   📌 v1.0 - 28 Ottobre 2025
-   ✅ Prima versione dashboard
-   ✅ Login admin
-   ✅ Tabella prenotazioni base
+   ✅ Responsive design
    
    ═══════════════════════════════════════════════════════════════════
 */
 
 'use strict';
 
-const ADMIN_VERSION = '2.0';
+const ADMIN_VERSION = '2.1';
 const ADMIN_BUILD_DATE = '2025-10-28';
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
@@ -59,7 +56,7 @@ function showLoader(show = true) {
 }
 
 function showToast(message, type = 'info') {
-  alert(message); // Temporaneo, poi puoi usare toast system
+  alert(message);
 }
 
 // ========== LOGIN ==========
@@ -76,7 +73,6 @@ function tentaLoginAdmin() {
     document.getElementById('dashboardContent').style.display = 'block';
     loginError.style.display = 'none';
     
-    // Carica prenotazioni
     caricaPrenotazioni();
   } else {
     loginError.style.display = 'block';
@@ -124,12 +120,12 @@ async function caricaPrenotazioni() {
 // ========== STATISTICHE ==========
 function aggiornaStatistiche(stats) {
   document.getElementById('stat-totali').textContent = stats.totali || 0;
-  document.getElementById('stat-daconfermare').textContent = stats.daConfermare || 0; // ✅ NUOVO
+  document.getElementById('stat-daconfermare').textContent = stats.daConfermare || 0;
   document.getElementById('stat-completate').textContent = stats.completate || 0;
   document.getElementById('stat-corso').textContent = stats.inCorso || 0;
   
-  // Calcola future
-  const future = (stats.totali || 0) - (stats.completate || 0) - (stats.inCorso || 0) - (stats.daConfermare || 0);
+  // Calcola future (confermata ma non ancora iniziate)
+  const future = (stats.confermate || 0);
   document.getElementById('stat-future').textContent = future;
 }
 
@@ -178,11 +174,15 @@ function renderTabella(datiPrenotazioni) {
       `;
     }
     
+    // 🔧 FIX: Mostra date + orari
+    const dalCompleto = (pren.giornoInizio || 'N/A') + ' ore ' + (pren.oraInizio || '00:00');
+    const alCompleto = (pren.giornoFine || 'N/A') + ' ore ' + (pren.oraFine || '00:00');
+    
     tr.innerHTML = `
       <td>${pren.nome}</td>
       <td>${getNomePulmino(pren.targa)}</td>
-      <td>${pren.giornoInizio || 'N/A'} ore ${pren.oraInizio || '00:00'}</td>
-      <td>${pren.giornoFine || 'N/A'} ore ${pren.oraFine || '00:00'}</td>
+      <td>${dalCompleto}</td>
+      <td>${alCompleto}</td>
       <td>${pren.cellulare}</td>
       <td>${badgeStato}</td>
       <td class="actions">${azioni}</td>
@@ -213,16 +213,16 @@ function applicaFiltroDashboard(tipo) {
   
   if (tipo === 'totali') {
     prenotazioniFiltrate = prenotazioni;
+  } else if (tipo === 'daconfermare') {
+    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Da confermare');
   } else if (tipo === 'completate') {
     prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Completato');
   } else if (tipo === 'corso') {
     prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'In corso');
   } else if (tipo === 'future') {
-    prenotazioniFiltrate = prenotazioni.filter(p => 
-      p.stato !== 'Completato' && p.stato !== 'In corso'
-    );
-  } else if (tipo === 'daconfermare') {
-    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Da confermare');
+    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Confermata');
+  }
+  
   renderTabella(prenotazioniFiltrate);
 }
 
@@ -235,11 +235,20 @@ function applicaFiltri() {
   let filtrate = [...prenotazioni];
   
   if (dataInizio) {
-    filtrate = filtrate.filter(p => p.giornoInizio >= dataInizio);
+    filtrate = filtrate.filter(p => {
+      // Converti dd/mm/yyyy a yyyy-mm-dd per confronto
+      const [d, m, y] = (p.giornoInizio || '').split('/');
+      const dataISO = y && m && d ? `${y}-${m}-${d}` : '';
+      return dataISO >= dataInizio;
+    });
   }
   
   if (dataFine) {
-    filtrate = filtrate.filter(p => p.giornoFine <= dataFine);
+    filtrate = filtrate.filter(p => {
+      const [d, m, y] = (p.giornoFine || '').split('/');
+      const dataISO = y && m && d ? `${y}-${m}-${d}` : '';
+      return dataISO <= dataFine;
+    });
   }
   
   if (pulmino) {
@@ -285,19 +294,18 @@ function apriModalConferma(idPrenotazione) {
     return;
   }
   
-  // Popola dettagli
+  // 🔧 FIX: Mostra date + orari nel modal
   const dettagli = document.getElementById('conferma-dettagli');
   dettagli.innerHTML = `
     <p><strong>ID:</strong> ${prenotazioneDaConfermare.idPrenotazione}</p>
     <p><strong>Cliente:</strong> ${prenotazioneDaConfermare.nome}</p>
     <p><strong>CF:</strong> ${prenotazioneDaConfermare.cf}</p>
     <p><strong>Veicolo:</strong> ${getNomePulmino(prenotazioneDaConfermare.targa)} (${prenotazioneDaConfermare.targa})</p>
-    <p><strong>Dal:</strong> ${prenotazioneDaConfermare.giornoInizio} ore ${prenotazioneDaConfermare.oraInizio}</p>
-    <p><strong>Al:</strong> ${prenotazioneDaConfermare.giornoFine} ore ${prenotazioneDaConfermare.oraFine}</p>
+    <p><strong>Dal:</strong> ${prenotazioneDaConfermare.giornoInizio || 'N/A'} ore ${prenotazioneDaConfermare.oraInizio || '00:00'}</p>
+    <p><strong>Al:</strong> ${prenotazioneDaConfermare.giornoFine || 'N/A'} ore ${prenotazioneDaConfermare.oraFine || '00:00'}</p>
     <p><strong>Cellulare:</strong> ${prenotazioneDaConfermare.cellulare}</p>
   `;
   
-  // Apri modal
   document.getElementById('modalConferma').classList.add('active');
 }
 
@@ -347,7 +355,6 @@ async function confermaPrenotazioneAdmin() {
     if (result.success) {
       alert('✅ Prenotazione confermata e PDF generato con successo!');
       chiudiModalConferma();
-      // Ricarica prenotazioni
       caricaPrenotazioni();
     } else {
       alert('❌ Errore: ' + (result.error || 'Sconosciuto'));
@@ -369,12 +376,10 @@ function apriModalModifica(idPrenotazione) {
     return;
   }
   
-  // Popola form (implementazione base, puoi espandere)
   document.getElementById('mod-nome').value = prenotazione.nome;
   document.getElementById('mod-cf').value = prenotazione.cf;
   document.getElementById('mod-targa').value = prenotazione.targa;
   
-  // Apri modal
   document.getElementById('modalModifica').classList.add('active');
 }
 
@@ -384,13 +389,15 @@ function chiudiModifica() {
 
 // ========== EXPORT CSV ==========
 function esportaCSV() {
+  // 🔧 FIX: Usa punto e virgola come separatore per Excel italiano
   let csv = 'ID;Cliente;CF;Veicolo;Dal;Al;Cellulare;Stato;Importo\n';
   
   prenotazioni.forEach(p => {
-    csv += `"${p.idPrenotazione}";"${p.nome}";"${p.cf}";"${p.targa}";"${p.giornoInizio} ${p.oraInizio}";"${p.giornoFine} ${p.oraFine}";"${p.cellulare}";"${p.stato}";"${p.importo}"\n`;
+    const dalCompleto = (p.giornoInizio || '') + ' ' + (p.oraInizio || '');
+    const alCompleto = (p.giornoFine || '') + ' ' + (p.oraFine || '');
+    
+    csv += `"${p.idPrenotazione}";"${p.nome}";"${p.cf}";"${p.targa}";"${dalCompleto}";"${alCompleto}";"${p.cellulare}";"${p.stato}";"${p.importo}"\n`;
   });
-  
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
@@ -409,7 +416,8 @@ function esportaCSV() {
 function eseguiUndo() {
   alert('Funzione Undo in sviluppo');
 }
-// ========== DIAGNOSTICA ADMIN ==========
+
+// ========== DIAGNOSTICA ==========
 window.adminDebug = function() {
   console.group('🔧 Diagnostica Admin Dashboard');
   console.log('Versione:', ADMIN_VERSION);
@@ -417,7 +425,7 @@ window.adminDebug = function() {
   console.log('Prenotazioni caricate:', prenotazioni.length);
   console.log('Filtro attivo:', filtroAttivoStat);
   console.log('Ordinamento:', ordinamentoAttuale);
-  console.log('Backend connesso:', !!ADMIN_CONFIG.endpoints.adminPrenotazioni); // ✅ Solo boolean
+  console.log('Backend connesso:', !!ADMIN_CONFIG.endpoints.adminPrenotazioni);
   
   if (prenotazioni.length > 0) {
     const stats = {
@@ -445,5 +453,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  console.log('✅ Admin Dashboard v1.0 caricata');
+  console.log('✅ Admin Dashboard v' + ADMIN_VERSION + ' caricata');
 });
