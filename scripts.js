@@ -172,7 +172,18 @@ async function apiPostDisponibilita(params) {
 }
 
 async function apiPostPrenotazioni(cf) {
-  return fetchJSON(`${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}`);
+  const url = `${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}&_t=${Date.now()}`;
+  
+  const response = await fetch(url, {
+    method: 'GET',
+    cache: 'no-cache'
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  
+  return response.json();
 }
 
  async function apiManageBooking(payload) {
@@ -1330,7 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.4.4',
+  version: '5.4.5',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
