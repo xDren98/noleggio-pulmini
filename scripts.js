@@ -188,11 +188,23 @@ async function apiPostPrenotazioni(cf) {
 // ========== HELPER: Invalida cache backend prenotazioni ==========
 async function invalidateCachePrenotazioni(cf) {
   try {
-    const url = `${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}&invalidate=1&_t=${Date.now()}`;
-    await fetch(url, { method: 'GET', cache: 'no-cache' });
-    console.log('🗑️ Cache backend prenotazioni invalidata per CF:', cf);
+    const timestamp = Date.now();
+    
+    // Invalida cache prenotazioni E datiCliente in parallelo
+    await Promise.all([
+      fetch(`${SCRIPTS.prenotazioni}?cf=${encodeURIComponent(cf)}&invalidate=1&_t=${timestamp}`, { 
+        method: 'GET', 
+        cache: 'no-cache' 
+      }),
+      fetch(`${SCRIPTS.datiCliente}?cf=${encodeURIComponent(cf)}&invalidate=1&_t=${timestamp}`, { 
+        method: 'GET', 
+        cache: 'no-cache' 
+      })
+    ]);
+    
+    console.log('🗑️ Cache backend invalidata (prenotazioni + datiCliente) per CF:', cf);
   } catch (err) {
-    console.warn('⚠️ Impossibile invalidare cache backend prenotazioni:', err);
+    console.warn('⚠️ Impossibile invalidare cache backend:', err);
   }
 }
 
@@ -1450,7 +1462,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== METADATA ==========
 window.ImbrianiApp = {
-  version: '5.4.7',
+  version: '5.4.8',
   buildDate: '2025-10-28',
   features: [
     'Login CF',
