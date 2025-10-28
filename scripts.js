@@ -223,48 +223,46 @@ function setupLoginForm() {
     inputCF.value = inputCF.value.toUpperCase();
   });
   
-  form.onsubmit = async (e) => {
-    e.preventDefault();
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  const cf = inputCF.value.trim().toUpperCase();
+  
+  if (!cf || cf.length !== 16) {
+    showToast('Il codice fiscale deve essere di 16 caratteri', 'error');
+    return;
+  }
+  
+  showLoader(true);
+  try {
+    // ✅ CORRETTO: Una sola chiamata a datiCliente.gs che restituisce tutto
+    const response = await fetchJSON(SCRIPTS.datiCliente, { cf: cf });
     
-    const cf = inputCF.value.trim().toUpperCase();
-    if (!cf || cf.length !== 16) {
-      showToast('⚠️ Il codice fiscale deve essere di 16 caratteri', 'error');
-      return;
-    }
-    
-    showLoader(true);
-    
-    try {
-      const [datiResp, prenResp] = await Promise.all([
-        fetchJSON(SCRIPTS.datiCliente, { cf: cf }),
-        fetchJSON(SCRIPTS.prenotazioni, { cf: cf })
-      ]);
+    if (response.success && response.cliente) {
+      loggedCustomerData = response.cliente;
       
-      if (datiResp.success && datiResp.cliente) {
-        loggedCustomerData = datiResp.cliente;
-        
-        if (prenResp.success && prenResp.prenotazioni) {
-          prenotazioniMap.clear();
-          prenResp.prenotazioni.forEach(p => {
-            const id = p['ID prenotazione'];
-            if (id) prenotazioniMap.set(id, p);
-          });
-        }
-        
-        mostraAreaPersonale();
-        routeTo('area-personale');
-        showToast('✅ Benvenuto!');
-      } else {
-        showToast('⚠️ Nessun dato trovato per questo codice fiscale', 'error');
+      // Le prenotazioni arrivano già da datiCliente.gs
+      if (response.prenotazioni) {
+        prenotazioniMap.clear();
+        response.prenotazioni.forEach(p => {
+          const id = p['ID prenotazione'] || p.idPrenotazione;
+          if (id) prenotazioniMap.set(id, p);
+        });
       }
-    } catch (err) {
-      console.error('Errore login:', err);
-      showToast('❌ Errore durante il caricamento dei dati', 'error');
-    } finally {
-      showLoader(false);
+      
+      mostraAreaPersonale();
+      routeTo('area-personale');
+      showToast('Benvenuto!');
+    } else {
+      showToast('Nessun dato trovato per questo codice fiscale', 'error');
     }
-  };
-}
+  } catch (err) {
+    console.error('Errore login:', err);
+    showToast('Errore durante il caricamento dei dati', 'error');
+  } finally {
+    showLoader(false);
+  }
+};
+
 
 function setupNewBooking() {
   const btn = qs('btnNewBooking');
