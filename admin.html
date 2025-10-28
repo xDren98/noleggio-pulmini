@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Dashboard - Imbriani Noleggio</title>
+  <title>Admin Dashboard - Imbriani Noleggio v2.0</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,18 +53,6 @@
     }
     .header h1 { font-size: 28px; margin-bottom: 8px; }
     .header-actions { display: flex; gap: 12px; }
-    .undo-btn {
-      padding: 10px 20px; background: rgba(255, 193, 7, 0.9);
-      border: 2px solid #ffc107;
-      color: #333; border-radius: 8px; cursor: pointer;
-      font-weight: 600; transition: all 0.3s; display: none;
-    }
-    .undo-btn.visible {
-      display: flex; align-items: center; gap: 8px;
-    }
-    .undo-btn:hover {
-      background: #ffc107; transform: translateY(-2px);
-    }
     .logout-btn {
       padding: 10px 20px; background: rgba(255, 255, 255, 0.2);
       border: 2px solid white; color: white; border-radius: 8px;
@@ -165,6 +153,7 @@
     .btn-icon {
       padding: 8px; border: none; background: transparent;
       cursor: pointer; border-radius: 6px; color: #666;
+      transition: background 0.2s;
     }
     .btn-icon:hover {
       background: #f3f4f6;
@@ -212,6 +201,8 @@
       padding: 40px 36px;
       min-width: 340px;
       max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .modal-box h2 {
       margin-bottom: 16px;
@@ -247,6 +238,9 @@
       font-weight: 600;
       font-size: 15px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .btn-main:hover {
       background: linear-gradient(90deg,#5568c8 0%,#694598 100%);
@@ -262,16 +256,46 @@
     .btn-secondary:hover {
       background: #ddd;
     }
-    /* Responsive al mobile */
+    .info-box {
+      background: #fef3c7;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid #f59e0b;
+    }
+    .info-box strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+    .info-box ul {
+      margin: 8px 0 0 20px;
+      font-size: 14px;
+    }
+    .dettagli-box {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+    .dettagli-box p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    /* Responsive */
     @media (max-width: 600px) {
       .modal-box {
         padding: 20px;
         min-width: 95vw;
       }
+      .header {
+        flex-direction: column;
+        gap: 16px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- LOGIN -->
   <div class="login-overlay" id="loginOverlay">
     <div class="login-box">
       <h1>🔐 Accesso Admin</h1>
@@ -287,6 +311,42 @@
         />
         <button type="submit">Accedi</button>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL CONFERMA PRENOTAZIONE -->
+  <div class="modal-overlay" id="modalConferma">
+    <div class="modal-box" style="min-width: 500px;">
+      <h2>✅ Conferma Prenotazione</h2>
+      
+      <div id="conferma-dettagli" class="dettagli-box">
+        <!-- Popolato dinamicamente -->
+      </div>
+      
+      <label>💰 Importo Preventivo</label>
+      <input type="text" id="conferma-importo" placeholder="Es. 250€" />
+      <p style="font-size: 13px; color: #666; margin-top: 4px;">
+        Questo importo sarà inserito nel contratto PDF
+      </p>
+      
+      <div class="info-box">
+        <strong>⚠️ Cosa succede dopo la conferma:</strong>
+        <ul>
+          <li>Stato cambia da "Da confermare" a "Confermata"</li>
+          <li>Viene generato il contratto PDF nella cartella Drive</li>
+          <li>L'importo viene salvato nel Google Sheet</li>
+        </ul>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="chiudiModalConferma()">
+          Annulla
+        </button>
+        <button type="button" class="btn-main" onclick="confermaPrenotazioneAdmin()">
+          <span class="material-icons">check_circle</span>
+          Conferma e Genera PDF
+        </button>
+      </div>
     </div>
   </div>
 
@@ -323,17 +383,14 @@
     </form>
   </div>
 
+  <!-- DASHBOARD -->
   <div id="dashboardContent" style="display: none;">
     <div class="header">
       <div>
         <h1>🚐 Dashboard Amministrativa</h1>
-        <p>Gestione prenotazioni Imbriani Noleggio</p>
+        <p>Gestione prenotazioni Imbriani Noleggio v2.0</p>
       </div>
       <div class="header-actions">
-        <button class="undo-btn" id="undoBtn" onclick="eseguiUndo()">
-          <span class="material-icons">undo</span>
-          Annulla ultima azione
-        </button>
         <button class="logout-btn" onclick="logout()">
           <span class="material-icons">logout</span>
           Esci
@@ -343,7 +400,7 @@
 
     <div class="container">
       <div class="stats-grid">
-        <div class="stat-card" id="filter-totali" onclick="applicaFiltroDashboard('totali')">
+        <div class="stat-card active" id="filter-totali" onclick="applicaFiltroDashboard('totali')">
           <div class="stat-icon blue">📋</div>
           <div class="stat-content">
             <h3 id="stat-totali">0</h3>
@@ -384,7 +441,8 @@
         </select>
         <select id="filter-stato">
           <option value="">Tutti gli stati</option>
-          <option value="Prenotato">Prenotato</option>
+          <option value="Da confermare">Da confermare</option>
+          <option value="Confermata">Confermata</option>
           <option value="In corso">In corso</option>
           <option value="Completato">Completato</option>
         </select>
@@ -402,54 +460,33 @@
         <table>
           <thead>
             <tr>
-              <th onclick="ordinaPer('cliente')" data-label="Cliente">Cliente</th>
-              <th onclick="ordinaPer('pulmino')" data-label="Pulmino">Pulmino</th>
-              <th onclick="ordinaPer('dataInizio')" data-label="Dal">Dal</th>
-              <th onclick="ordinaPer('dataFine')" data-label="Al">Al</th>
-              <th onclick="ordinaPer('cellulare')" data-label="Cellulare">Cellulare</th>
-              <th onclick="ordinaPer('stato')" data-label="Stato">Stato</th>
-              <th data-label="Azioni">Azioni</th>
+              <th onclick="ordinaPer('nome')">Cliente</th>
+              <th onclick="ordinaPer('targa')">Pulmino</th>
+              <th onclick="ordinaPer('giornoInizio')">Dal</th>
+              <th onclick="ordinaPer('giornoFine')">Al</th>
+              <th onclick="ordinaPer('cellulare')">Cellulare</th>
+              <th onclick="ordinaPer('stato')">Stato</th>
+              <th>Azioni</th>
             </tr>
           </thead>
-          <tbody id="table-body"></tbody>
+          <tbody id="table-body">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px;">
+                Caricamento in corso...
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
   </div>
 
+  <!-- LOADER -->
   <div class="loader" id="loader">
     <div class="spinner"></div>
   </div>
 
-  <script>
-    const ADMIN_PASSWORD = "Imbriani2025+";
-
-    function tentaLoginAdmin() {
-      const passwordInput = document.getElementById("passwordInput");
-      const loginError = document.getElementById("loginError");
-      if (!passwordInput || !loginError) return;
-
-      const passwordInserita = passwordInput.value.trim();
-
-      if (passwordInserita === ADMIN_PASSWORD) {
-        document.getElementById("loginOverlay").style.display = "none";
-        document.getElementById("dashboardContent").style.display = "block";
-        loginError.style.display = "none";
-      } else {
-        loginError.style.display = "block";
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const loginForm = document.getElementById("loginForm");
-      if (loginForm) {
-        loginForm.addEventListener("submit", function (e) {
-          e.preventDefault();
-          tentaLoginAdmin();
-        });
-      }
-    });
-  </script>
-  <script src="scripts.js" defer></script>
+  <!-- SCRIPTS -->
+  <script src="admin.js"></script>
 </body>
 </html>
