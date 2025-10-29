@@ -30,7 +30,7 @@
 
 'use strict';
 
-const ADMIN_VERSION = '2.4';
+const ADMIN_VERSION = '2.5';
 const ADMIN_BUILD_DATE = '2025-10-28';
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
@@ -670,6 +670,68 @@ async function eliminaPrenotazione() {
   } catch (error) {
     console.error('Errore eliminazione:', error);
     alert('❌ Errore durante l\'eliminazione: ' + error.message);
+  } finally {
+    showLoader(false);
+  }
+}
+
+// ========== SALVA MODIFICHE PRENOTAZIONE ==========
+async function salvaModifica() {
+  const idPrenotazione = document.getElementById('mod-id').value;
+  
+  if (!idPrenotazione) {
+    alert('⚠️ ID prenotazione mancante');
+    return;
+  }
+  
+  showLoader(true);
+  
+  try {
+    const payload = {
+      action: 'update',
+      idPrenotazione: idPrenotazione,
+      'Nome': document.getElementById('mod-nome').value,
+      'Luogo di nascita': document.getElementById('mod-luogo-nascita').value,
+      'Data di nascita': document.getElementById('mod-data-nascita').value,
+      'Codice fiscale': document.getElementById('mod-cf').value,
+      'Cellulare': document.getElementById('mod-cellulare').value,
+      'Comune di residenza': document.getElementById('mod-comune-residenza').value,
+      'Via di residenza': document.getElementById('mod-via-residenza').value,
+      'Civico di residenza': document.getElementById('mod-civico-residenza').value,
+      'Numero di patente': document.getElementById('mod-numero-patente').value,
+      'Data inizio validità patente': document.getElementById('mod-data-inizio-patente').value,
+      'Scadenza patente': document.getElementById('mod-scadenza-patente').value,
+      'Targa': document.getElementById('mod-targa').value,
+      'Giorno inizio noleggio': document.getElementById('mod-data-inizio').value,
+      'Ora inizio noleggio': document.getElementById('mod-ora-inizio').value,
+      'Giorno fine noleggio': document.getElementById('mod-data-fine').value,
+      'Ora fine noleggio': document.getElementById('mod-ora-fine').value,
+      'Stato prenotazione': document.getElementById('mod-stato').value
+    };
+    
+    const params = new URLSearchParams();
+    params.append('payload', JSON.stringify(payload));
+    
+    const response = await fetch(ADMIN_CONFIG.endpoints.manageBooking, {
+      method: 'POST',
+      body: params,
+      redirect: 'follow'
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      alert('✅ Modifiche salvate con successo');
+      chiudiModifica();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await caricaPrenotazioni(new Date().getTime());
+      console.log('✅ Prenotazione aggiornata e dashboard ricaricata');
+    } else {
+      alert('❌ Errore salvataggio: ' + (result.error || 'Sconosciuto'));
+    }
+  } catch (error) {
+    console.error('Errore salvataggio:', error);
+    alert('❌ Errore durante il salvataggio: ' + error.message);
   } finally {
     showLoader(false);
   }
