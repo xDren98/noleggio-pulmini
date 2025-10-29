@@ -30,7 +30,7 @@
 
 'use strict';
 
-const ADMIN_VERSION = '2.5';
+const ADMIN_VERSION = '2.6';
 const ADMIN_BUILD_DATE = '2025-10-28';
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
@@ -221,6 +221,8 @@ function aggiornaStatistiche(stats) {
   document.getElementById('stat-daconfermare').textContent = stats.daConfermare || 0;
   document.getElementById('stat-completate').textContent = stats.completate || 0;
   document.getElementById('stat-corso').textContent = stats.inCorso || 0;
+  document.getElementById('stat-future').textContent = stats.confermate || 0; // "confermate" = future
+}
   
   // Calcola future (confermata ma non ancora iniziate)
   const future = (stats.confermate || 0);
@@ -254,8 +256,6 @@ function renderTabella(datiPrenotazioni) {
       badgeStato = '<span class="badge info">🚐 In corso</span>';
     } else if (statoCalcolato === 'Completato') {
       badgeStato = '<span class="badge" style="background: #e5e7eb; color: #374151;">✓ Completato</span>';
-    } else if (statoCalcolato === 'Confermata') {
-      badgeStato = '<span class="badge success">✅ Confermata</span>';
     } else {
       badgeStato = '<span class="badge info">' + statoCalcolato + '</span>';
     }
