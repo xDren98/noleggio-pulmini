@@ -540,6 +540,15 @@ function apriModalModifica(idPrenotazione) {
     return;
   }
   
+<<<<<<< HEAD
+  // Popola TUTTI i campi del form
+  document.getElementById('mod-id').value = prenotazione.idPrenotazione;
+  document.getElementById('mod-nome').value = prenotazione.nome || '';
+  document.getElementById('mod-luogo-nascita').value = prenotazione.luogoNascita || '';
+  document.getElementById('mod-data-nascita').value = convertiDataPerInput(prenotazione.dataNascita);
+  document.getElementById('mod-cf').value = prenotazione.cf || '';
+  document.getElementById('mod-cellulare').value = prenotazione.cellulare || '';
+=======
   // Popola tutti i campi del form
   document.getElementById('mod-id').value = prenotazione.idPrenotazione;
   document.getElementById('mod-nome').value = prenotazione.nome;
@@ -551,6 +560,27 @@ function apriModalModifica(idPrenotazione) {
   document.getElementById('mod-ora-fine').value = prenotazione.oraFine || '';
   document.getElementById('mod-cellulare').value = prenotazione.cellulare;
   document.getElementById('mod-stato').value = prenotazione.stato;
+>>>>>>> 0779bea41c8482084f9de387458991fcb243763a
+  
+  // Residenza
+  document.getElementById('mod-comune-residenza').value = prenotazione.comuneResidenza || '';
+  document.getElementById('mod-via-residenza').value = prenotazione.viaResidenza || '';
+  document.getElementById('mod-civico-residenza').value = prenotazione.civicoResidenza || '';
+  
+  // Patente
+  document.getElementById('mod-numero-patente').value = prenotazione.numeroPatente || '';
+  document.getElementById('mod-data-inizio-patente').value = convertiDataPerInput(prenotazione.dataInizioPatente);
+  document.getElementById('mod-scadenza-patente').value = convertiDataPerInput(prenotazione.scadenzaPatente);
+  
+  // Veicolo e periodo
+  document.getElementById('mod-targa').value = prenotazione.targa || '';
+  document.getElementById('mod-data-inizio').value = convertiDataPerInput(prenotazione.giornoInizio);
+  document.getElementById('mod-ora-inizio').value = prenotazione.oraInizio || '';
+  document.getElementById('mod-data-fine').value = convertiDataPerInput(prenotazione.giornoFine);
+  document.getElementById('mod-ora-fine').value = prenotazione.oraFine || '';
+  
+  // Stato
+  document.getElementById('mod-stato').value = prenotazione.stato || 'Da confermare';
   
   document.getElementById('modalModifica').classList.add('active');
 }
@@ -559,6 +589,12 @@ function apriModalModifica(idPrenotazione) {
 function convertiDataPerInput(dataStr) {
   if (!dataStr) return '';
   
+  // Se già formato yyyy-mm-dd, ritorna
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+    return dataStr;
+  }
+  
+  // Se formato dd/mm/yyyy, converti
   const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (match) {
     const [, giorno, mese, anno] = match;
