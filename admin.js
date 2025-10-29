@@ -1,20 +1,15 @@
-/* Imbriani Noleggio – admin.js
+/* Imbriani Noleggio – admin.js v2.7 FINALE
    
    ═══════════════════════════════════════════════════════════════════
    CHANGELOG - DASHBOARD ADMIN
    ═══════════════════════════════════════════════════════════════════
    
-   📌 v2.7 - 29 Ottobre 2025 11:25 CET
-   🔧 Aggiunto pulsante "Riporta a Da confermare"
-   🔧 Rimosso select stato (gestione automatica)
-   🔧 Aggiunta funzione riportaDaConfermare()
-   🔧 Label stato attuale nel modal modifica
-   
-   📌 v2.6 - 29 Ottobre 2025 11:08 CET
-   🔧 Rimosso stato "Confermata"
-   🔧 Solo 3 stati dinamici: Futura, In corso, Completato
-   🔧 Funzione centralizzata calcolaStatoEffettivo()
-   🔧 Sincronizzazione perfetta statistiche/tabella/filtri
+   📌 v2.7 FINALE - 29 Ottobre 2025 11:37 CET
+   🔧 Action "unconfirm" implementata
+   🔧 Annulla conferma → Elimina PDF + Stato "Da confermare"
+   🔧 Auto-refresh dashboard dopo annullamento
+   🔧 Pulsante "Riporta a Da confermare"
+   🔧 Stati dinamici: Futura, In corso, Completato
    
    ═══════════════════════════════════════════════════════════════════
 */
@@ -201,7 +196,7 @@ function aggiornaStatistiche(stats) {
   document.getElementById('stat-daconfermare').textContent = stats.daConfermare || 0;
   document.getElementById('stat-completate').textContent = stats.completate || 0;
   document.getElementById('stat-corso').textContent = stats.inCorso || 0;
-  document.getElementById('stat-future').textContent = stats.confermate || 0; // "confermate" = future
+  document.getElementById('stat-future').textContent = stats.confermate || 0;
 }
 
 // ========== RENDER TABELLA ==========
@@ -219,7 +214,6 @@ function renderTabella(datiPrenotazioni) {
   datiPrenotazioni.forEach(pren => {
     const tr = document.createElement('tr');
     
-    // ✅ Badge stato (usa funzione centralizzata)
     const statoCalcolato = calcolaStatoEffettivo(pren);
     let badgeStato = '';
     
@@ -235,14 +229,12 @@ function renderTabella(datiPrenotazioni) {
       badgeStato = '<span class="badge info">' + statoCalcolato + '</span>';
     }
     
-    // Pulsanti azioni
     let azioni = `
       <button class="btn-icon" onclick="apriModalModifica('${pren.idPrenotazione}')" title="Modifica">
         <span class="material-icons">edit</span>
       </button>
     `;
     
-    // Pulsante conferma solo se stato "Da confermare"
     if (pren.stato === 'Da confermare') {
       azioni += `
         <button class="btn-icon" onclick="apriModalConferma('${pren.idPrenotazione}')" title="Conferma e genera PDF" style="color: #22c55e;">
@@ -279,7 +271,6 @@ function getNomePulmino(targa) {
 function applicaFiltroDashboard(tipo) {
   filtroAttivoStat = tipo;
   
-  // Evidenzia card attiva
   document.querySelectorAll('.stat-card').forEach(card => {
     card.classList.remove('active');
   });
@@ -499,7 +490,6 @@ function apriModalModifica(idPrenotazione) {
   document.getElementById('mod-data-fine').value = convertiDataPerInput(prenotazione.giornoFine);
   document.getElementById('mod-ora-fine').value = prenotazione.oraFine || '';
   
-  // ✅ Mostra stato attuale nella label
   const statoLabel = document.getElementById('stato-attuale-label');
   if (statoLabel) {
     statoLabel.textContent = `Stato attuale: ${prenotazione.stato}`;
@@ -538,7 +528,7 @@ async function riportaDaConfermare() {
     return;
   }
   
-  if (!confirm(`⚠️ Riportare la prenotazione a "Da confermare"?\n\n${statoAttuale}\n\nQuesta azione annullerà la conferma.`)) {
+  if (!confirm(`⚠️ ATTENZIONE: Annullare la conferma?\n\n${statoAttuale}\n\n⚠️ Questa azione:\n• Eliminerà il PDF generato\n• Riporterà lo stato a "Da confermare"\n\nContinuare?`)) {
     return;
   }
   
@@ -546,9 +536,8 @@ async function riportaDaConfermare() {
   
   try {
     const payload = {
-      action: 'update',
-      idPrenotazione: idPrenotazione,
-      'Stato prenotazione': 'Da confermare'
+      action: 'unconfirm',
+      idPrenotazione: idPrenotazione
     };
     
     const params = new URLSearchParams();
@@ -563,10 +552,11 @@ async function riportaDaConfermare() {
     const result = await response.json();
     
     if (result.success) {
-      alert('✅ Prenotazione riportata a "Da confermare"');
+      alert('✅ Conferma annullata: PDF eliminato e stato riportato a "Da confermare"');
       chiudiModifica();
       await new Promise(resolve => setTimeout(resolve, 1000));
       await caricaPrenotazioni(new Date().getTime());
+      console.log('🔄 Dashboard aggiornata dopo annullamento');
     } else {
       alert('❌ Errore: ' + (result.error || 'Sconosciuto'));
     }
