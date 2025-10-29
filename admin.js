@@ -112,6 +112,36 @@ function formattaOra(oraStr) {
   return String(oraStr);
 }
 
+// ========== CALCOLO STATO CENTRALIZZATO ==========
+function calcolaStatoEffettivo(prenotazione) {
+  const statoReale = prenotazione.stato || '';
+  
+  // Se non è "Confermata", ritorna lo stato reale
+  if (statoReale !== 'Confermata') {
+    return statoReale;
+  }
+  
+  // Se è "Confermata", calcola basandosi sulla data
+  const oggi = new Date();
+  oggi.setHours(0, 0, 0, 0);
+  
+  const dataInizio = convertiDataPerFiltro(prenotazione.giornoInizio);
+  const dataFine = convertiDataPerFiltro(prenotazione.giornoFine);
+  
+  if (!dataInizio || !dataFine) {
+    return statoReale; // Fallback se date mancanti
+  }
+  
+  if (dataFine < oggi) {
+    return 'Completato';
+  } else if (dataInizio <= oggi && dataFine >= oggi) {
+    return 'In corso';
+  } else if (dataInizio > oggi) {
+    return 'Futura';
+  }
+  
+  return statoReale;
+}
 
 // ========== LOGIN ==========
 function tentaLoginAdmin() {
@@ -212,30 +242,10 @@ function renderTabella(datiPrenotazioni) {
   datiPrenotazioni.forEach(pren => {
     const tr = document.createElement('tr');
     
-       // ✅ Badge stato con logica temporale
+    // ✅ Badge stato (usa funzione centralizzata)
+    const statoCalcolato = calcolaStatoEffettivo(pren);
     let badgeStato = '';
-    const statoReale = pren.stato || '';
     
-    // Calcola stato effettivo basandosi sulla data
-    let statoCalcolato = statoReale;
-    
-    if (statoReale === 'Confermata') {
-      const oggi = new Date();
-      oggi.setHours(0, 0, 0, 0);
-      
-      const dataInizio = convertiDataPerFiltro(pren.giornoInizio);
-      const dataFine = convertiDataPerFiltro(pren.giornoFine);
-      
-      if (dataFine && dataFine < oggi) {
-        statoCalcolato = 'Completato';
-      } else if (dataInizio && dataInizio <= oggi && dataFine && dataFine >= oggi) {
-        statoCalcolato = 'In corso';
-      } else if (dataInizio && dataInizio > oggi) {
-        statoCalcolato = 'Futura';
-      }
-    }
-    
-    // Crea badge in base allo stato calcolato
     if (statoCalcolato === 'Da confermare') {
       badgeStato = '<span class="badge warning">⏳ Da confermare</span>';
     } else if (statoCalcolato === 'Futura') {
@@ -247,9 +257,8 @@ function renderTabella(datiPrenotazioni) {
     } else if (statoCalcolato === 'Confermata') {
       badgeStato = '<span class="badge success">✅ Confermata</span>';
     } else {
-      badgeStato = '<span class="badge info">' + statoReale + '</span>';
+      badgeStato = '<span class="badge info">' + statoCalcolato + '</span>';
     }
-    
     
     // Pulsanti azioni
     let azioni = `
@@ -302,63 +311,23 @@ function applicaFiltroDashboard(tipo) {
   });
   document.getElementById('filter-' + tipo).classList.add('active');
   
-  const oggi = new Date();
-  oggi.setHours(0, 0, 0, 0);
-  
   let prenotazioniFiltrate = [];
   
   if (tipo === 'totali') {
     prenotazioniFiltrate = prenotazioni;
   } else if (tipo === 'daconfermare') {
-    prenotazioniFiltrate = prenotazioni.filter(p => p.stato === 'Da confermare');
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'Da confermare');
   } else if (tipo === 'completate') {
-    // Completate: stato esplicito OPPURE data fine passata
-    prenotazioniFiltrate = prenotazioni.filter(p => {
-      if (p.stato === 'Completato' || p.stato === 'Completata') return true;
-      
-      if (p.stato === 'Confermata') {
-        const dataFine = convertiDataPerFiltro(p.giornoFine);
-        return dataFine && dataFine < oggi;
-      }
-      
-      return false;
-    });
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'Completato');
   } else if (tipo === 'corso') {
-    // In corso: stato esplicito OPPURE oggi tra inizio e fine
-    prenotazioniFiltrate = prenotazioni.filter(p => {
-      if (p.stato === 'In corso') return true;
-      
-      if (p.stato === 'Confermata') {
-        const dataInizio = convertiDataPerFiltro(p.giornoInizio);
-        const dataFine = convertiDataPerFiltro(p.giornoFine);
-        return dataInizio && dataFine && dataInizio <= oggi && dataFine >= oggi;
-      }
-      
-      return false;
-    });
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'In corso');
   } else if (tipo === 'future') {
-    // Future: confermata con data inizio futura
-    prenotazioniFiltrate = prenotazioni.filter(p => {
-      if (p.stato === 'Confermata') {
-        const dataInizio = convertiDataPerFiltro(p.giornoInizio);
-        const dataFine = convertiDataPerFiltro(p.giornoFine);
-        
-        // Se data fine è passata, NON è future
-        if (dataFine && dataFine < oggi) return false;
-        
-        // Se oggi è tra inizio e fine, NON è future (è in corso)
-        if (dataInizio && dataFine && dataInizio <= oggi && dataFine >= oggi) return false;
-        
-        // Se data inizio è futura, è future
-        return dataInizio && dataInizio > oggi;
-      }
-      
-      return false;
-    });
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'Futura');
   }
   
   renderTabella(prenotazioniFiltrate);
 }
+
 
 // Helper per convertire data dd/mm/yyyy a Date object per confronto
 function convertiDataPerFiltro(dataStr) {
