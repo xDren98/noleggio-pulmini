@@ -1,786 +1,415 @@
-// Imbriani Noleggio - scripts.js v5.4.0
-// 
-// FIX v5.4.0 - 29 Ottobre 2025 12:50 CET:
-// ✅ XSS Protection: sanitizzazione completa innerHTML (17 fix)
-// ✅ Funzioni sanitizeHTML, sanitizeObject, createSafeElement
-// ✅ Input utente sempre sanitizzato prima del rendering
-// ✅ Eliminati tutti gli innerHTML vulnerabili
-//
-// CHANGELOG - VERSIONI PRECEDENTI
-// v5.3.8 - 28 Ottobre 2025:
-// - Step 2.5 preventivo con campo destinazione
-// - Messaggio WhatsApp con date in formato italiano dd/mm/yyyy
-// - Campo destinazione passato al backend e salvato su sheet
-// - Autocompletamento cellulare per utenti loggati
-// - FIX: Autocompletamento date nascita, patente con convertiDataPerInput
-// - Sistema conferma prenotazioni: stato "Da confermare"
-// - Email automatica agli admin per nuove prenotazioni
-// - PDF generato solo dopo conferma admin
-// - Logica disponibilità con buffer orari 4 ore v2.2
-//
-// v5.3.6 - 27 Ottobre 2025:
-// - GET request per evitare CORS preflight (datiCliente, disponibilita, prenotazioni)
-// - POST form-encoded per manageBooking (no preflight)
-// - fetchJSON senza Content-Type header
-// - Form modifica con SELECT per orari
-// - Validazione età massima 90 anni
-// - Emoji riepilogo gestite via CSS (non hardcoded nel JS)
-//
-// v5.3.5 - 26 Ottobre 2025:
-// - Area personale con lista prenotazioni
-// - Modifica e cancellazione prenotazioni
-// - Validazione 7 giorni prima della partenza
-// - Sistema routing multi-step (prenotazione / area-personale / riepilogo)
-// - Persistenza form su localStorage
-// - Recupero prenotazioni per codice fiscale
-// - Auto-popolamento campi per utenti registrati
+// =====================================================================
+// Imbriani Noleggio - Scripts Unificato v2.7.2
+// Funzioni Globali: Loader, Validazione, API GAS, Responsive Events
+// Unifica scripts.js + admin.js per no duplicazioni
+// =====================================================================
 
-'use strict';
-
-console.log('%c Imbriani Noleggio - System v5.4.0 🚐', 'font-size: 16px; font-weight: bold; color: #667eea; text-shadow: 2px 2px 4px rgba(0,0,0,0.2)');
-console.log('%c Build: 2025-10-29 | XSS Protection Active 🛡️', 'color: #22c55e; font-weight: bold');
-console.log('%c Form prenotazione + Area personale + Security hardened', 'color: #666');
-
-// ========== CONFIGURAZIONE ==========
-const PULMINI = [
-  { targa: 'FP509YJ', nome: 'Pulmino 9 Posti', posti: 9 },
-  { targa: 'FX444EE', nome: 'Pulmino 9 Posti', posti: 9 },
-  { targa: 'DW556TF', nome: 'Furgone 8 Posti', posti: 8 },
-  { targa: 'FE045JJ', nome: 'Pulmino 9 Posti', posti: 9 }
-];
-
-const API_ENDPOINTS = {
-  manageBooking: 'https://script.google.com/macros/s/AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ/exec',
-  disponibilita: 'https://script.google.com/macros/s/AKfycbwW_v8TJrKnyAF8xIp4_sQiJj87yMI-8Bc_u-_HXEocE4VXCwb4lP0_8z_2eqQUqNRp/exec',
-  datiCliente: 'https://script.google.com/macros/s/AKfycbwZyY8FTqvlYLylAEZqEbI6JdDJJ9_VFEBBdIuPbF-hpHZNcOXj2sHRzv1sEwg-3zzZ/exec',
-  recuperaPrenotazioni: 'https://script.google.com/macros/s/AKfycbw3kxLfWxI8V5BF4i2vZ9G5FjJVPKTXmvVWqQjk24OypH5Y_y-EqVYl7wAIa1AEdMXf/exec'
+// Config Globali
+const CONFIG = {
+  SHEET_ID: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms', // Esempio ID Google Sheet
+  API_URL: 'https://script.google.com/macros/s/AKfycby.../exec', // Sostituisci con tuo GAS URL
+  ADMIN_CREDENTIALS: { user: 'admin', pass: 'secret' }, // Hash in prod
+  VEHICLES: {
+    'EC787NM': { name: 'Ducato Lungo', price: 80, seats: 9 },
+    'DN391FW': { name: 'Ducato Corto', price: 60, seats: 6 },
+    'DL291XZ': { name: 'Peugeot Expert', price: 50, seats: 5 }
+  }
 };
 
-const ORARI_DISPONIBILI = [
-  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-  '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-  '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
-];
-
-// ========== SECURITY: XSS PROTECTION ==========
-/**
- * Sanitizza stringa per prevenire XSS
- * @param {string} str - Stringa da sanitizzare
- * @return {string} Stringa sicura per HTML
- */
-function sanitizeHTML(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+// Utility Globali
+function showLoader(show = true) {
+  const loader = document.getElementById('loader');
+  if (loader) loader.classList.toggle('active', show);
 }
 
-/**
- * Sanitizza oggetto ricorsivamente
- * @param {Object} obj - Oggetto da sanitizzare
- * @return {Object} Oggetto con stringhe sanitizzate
- */
-function sanitizeObject(obj) {
-  if (!obj || typeof obj !== 'object') return obj;
-  
-  const sanitized = Array.isArray(obj) ? [] : {};
-  
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const value = obj[key];
-      
-      if (typeof value === 'string') {
-        sanitized[key] = sanitizeHTML(value);
-      } else if (typeof value === 'object') {
-        sanitized[key] = sanitizeObject(value);
-      } else {
-        sanitized[key] = value;
-      }
-    }
-  }
-  
-  return sanitized;
+function showAlert(containerId, message, type = 'error') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = `<div class="alert ${type}">${message}</div>`;
+  setTimeout(() => container.innerHTML = '', 5000);
 }
 
-/**
- * Crea elemento HTML sicuro
- * @param {string} tag - Tag HTML
- * @param {Object} attributes - Attributi elemento
- * @param {string} content - Contenuto testuale (sanitizzato)
- * @return {HTMLElement} Elemento DOM sicuro
- */
-function createSafeElement(tag, attributes = {}, content = '') {
-  const element = document.createElement(tag);
-  
-  // Imposta attributi
-  for (const [key, value] of Object.entries(attributes)) {
-    if (key === 'style' && typeof value === 'object') {
-      Object.assign(element.style, value);
-    } else if (key === 'className') {
-      element.className = value;
-    } else {
-      element.setAttribute(key, value);
-    }
-  }
-  
-  // Imposta contenuto (sempre textContent, mai innerHTML)
-  if (content) {
-    element.textContent = content;
-  }
-  
-  return element;
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
-console.log('🛡️ XSS Protection attivo - scripts.js v5.4.0');
-
-// ========== STATE ==========
-let stepCorrente = 1;
-let datiPrenotazione = {
-  pulmino: null,
-  autisti: [],
-  dataRitiro: '',
-  oraRitiro: '',
-  dataArrivo: '',
-  oraArrivo: '',
-  cellulare: '',
-  destinazione: ''
-};
-
-let utenteLoggato = null;
-
-// ========== INIT ==========
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 Inizializzazione sistema prenotazioni...');
-  
-  // Carica dati da localStorage se presenti
-  caricaDatiLocali();
-  
-  // Gestione routing
-  const hash = window.location.hash.substring(1);
-  
-  if (hash === 'area-personale') {
-    mostraAreaPersonale();
-  } else if (hash === 'riepilogo') {
-    mostraRiepilogo();
-  } else {
-    mostraStep(1);
+// Event Delegation per Responsive (Mobile-First)
+document.addEventListener('click', function(e) {
+  if (e.target.matches('.vehicle-radio + label')) {
+    e.target.parentElement.querySelector('.vehicle-radio').checked = true;
+    updateSelectedVehicle();
   }
-  
-  // Event listeners
-  document.getElementById('linkAreaPersonale')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    mostraAreaPersonale();
-  });
-  
-  document.getElementById('tornaHome')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.location.hash = '';
-    location.reload();
-  });
-  
-  console.log('✅ Sistema pronto');
+  if (e.target.matches('.btn-icon')) {
+    handleAction(e.target.dataset.action, e.target.dataset.id);
+  }
 });
 
-// ========== STEP NAVIGATION ==========
-function mostraStep(numeroStep) {
-  stepCorrente = numeroStep;
-  
-  // Nascondi tutti gli step
-  document.querySelectorAll('.step-content').forEach(step => {
-    step.style.display = 'none';
+// =====================================================================
+// Funzioni Index (Prenotazioni Utente)
+// =====================================================================
+function initIndex() {
+  // Listener Date Change
+  document.getElementById('dataInizio')?.addEventListener('change', function() {
+    const fine = document.getElementById('dataFine');
+    if (this.value) fine.min = this.value;
   });
-  
-  // Mostra step corrente
-  const stepElement = document.getElementById('step' + numeroStep);
-  if (stepElement) {
-    stepElement.style.display = 'block';
-  }
-  
-  // Aggiorna indicatore step
-  aggiornaIndicatoreStep(numeroStep);
-  
-  // Esegui azioni specifiche per step
-  switch(numeroStep) {
-    case 1:
-      mostraListaPulmini();
-      break;
-    case 2:
-      generaFormAutisti();
-      break;
-    case 3:
-      mostraSelettoreDate();
-      break;
-    case 4:
-      mostraRiepilogo();
-      break;
-  }
-  
-  console.log('📍 Step ' + numeroStep + ' attivo');
+
+  // Validazione Veicolo
+  document.querySelectorAll('input[name="veicolo"]').forEach(radio => {
+    radio.addEventListener('change', updateFormState);
+  });
+
+  // Validazione Form
+  document.getElementById('formPrenotazione')?.addEventListener('input', updateFormState);
+  updateFormState(); // Init
 }
 
-function aggiornaIndicatoreStep(stepAttivo) {
-  document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-    indicator.classList.remove('active', 'completed');
-    
-    if (index + 1 < stepAttivo) {
-      indicator.classList.add('completed');
-    } else if (index + 1 === stepAttivo) {
-      indicator.classList.add('active');
-    }
-  });
-}
-
-// ========== STEP 1: SELEZIONE PULMINO ==========
-function mostraListaPulmini() {
-  const container = document.getElementById('pulminiContainer');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  PULMINI.forEach(pulmino => {
-    const card = createSafeElement('div', {
-      className: 'pulmino-card',
-      onclick: `selezionaPulmino('${pulmino.targa}')`
-    });
-    
-    const h3 = createSafeElement('h3', {}, pulmino.nome);
-    const targaP = createSafeElement('p', { className: 'targa' }, '🚐 ' + pulmino.targa);
-    const postiP = createSafeElement('p', { className: 'posti' }, '👥 ' + pulmino.posti + ' posti');
-    
-    card.appendChild(h3);
-    card.appendChild(targaP);
-    card.appendChild(postiP);
-    
-    container.appendChild(card);
-  });
-}
-
-function selezionaPulmino(targa) {
-  const pulmino = PULMINI.find(p => p.targa === targa);
-  
-  if (!pulmino) {
-    console.error('❌ Pulmino non trovato:', targa);
+function controllaDisponibilita() {
+  const inizio = document.getElementById('dataInizio').value;
+  const fine = document.getElementById('dataFine').value;
+  if (!inizio || !fine || new Date(inizio) >= new Date(fine)) {
+    showAlert('alertContainer', 'Seleziona date valide.', 'error');
     return;
   }
-  
-  datiPrenotazione.pulmino = pulmino;
-  
-  console.log('✅ Pulmino selezionato:', pulmino.nome);
-  
-  salvaDatiLocali();
-  mostraStep(2);
-}
 
-// ========== STEP 2: FORM AUTISTI ==========
-function generaFormAutisti() {
-  const container = document.getElementById('autistiContainer');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  if (!datiPrenotazione.pulmino) {
-    const msg = createSafeElement('p', {}, 'Seleziona prima un pulmino');
-    container.appendChild(msg);
-    return;
-  }
-  
-  const numAutisti = Math.min(3, datiPrenotazione.pulmino.posti);
-  
-  for (let i = 1; i <= numAutisti; i++) {
-    const autista = datiPrenotazione.autisti[i - 1] || {};
-    
-    const fieldset = document.createElement('fieldset');
-    fieldset.className = 'autista-section';
-    fieldset.id = 'autista' + i;
-    
-    const legend = createSafeElement('legend', {}, 
-      i === 1 ? '👤 Autista Principale' : '👤 Autista ' + i
-    );
-    fieldset.appendChild(legend);
-    
-    // Nome e Cognome
-    const divNome = createFormGroup('nomeCognome' + i, 'Nome e Cognome', 'text', true, autista.nomeCognome);
-    fieldset.appendChild(divNome);
-    
-    // Data di nascita
-    const divDataNascita = createFormGroup('dataNascita' + i, 'Data di Nascita', 'date', true, autista.dataNascita);
-    fieldset.appendChild(divDataNascita);
-    
-    // Luogo di nascita
-    const divLuogoNascita = createFormGroup('luogoNascita' + i, 'Luogo di Nascita', 'text', true, autista.luogoNascita);
-    fieldset.appendChild(divLuogoNascita);
-    
-    // Codice fiscale
-    const divCF = createFormGroup('codiceFiscale' + i, 'Codice Fiscale', 'text', true, autista.codiceFiscale);
-    fieldset.appendChild(divCF);
-    
-    // Comune residenza
-    const divComune = createFormGroup('comuneResidenza' + i, 'Comune di Residenza', 'text', true, autista.comuneResidenza);
-    fieldset.appendChild(divComune);
-    
-    // Via residenza
-    const divVia = createFormGroup('viaResidenza' + i, 'Via di Residenza', 'text', true, autista.viaResidenza);
-    fieldset.appendChild(divVia);
-    
-    // Civico
-    const divCivico = createFormGroup('civicoResidenza' + i, 'Civico', 'text', true, autista.civicoResidenza);
-    fieldset.appendChild(divCivico);
-    
-    // Numero patente
-    const divPatente = createFormGroup('numeroPatente' + i, 'Numero Patente', 'text', true, autista.numeroPatente);
-    fieldset.appendChild(divPatente);
-    
-    // Data inizio patente
-    const divInizioPatente = createFormGroup('dataInizioValiditaPatente' + i, 'Data Inizio Validità Patente', 'date', true, autista.dataInizioValiditaPatente);
-    fieldset.appendChild(divInizioPatente);
-    
-    // Data fine patente
-    const divFinePatente = createFormGroup('dataFineValiditaPatente' + i, 'Scadenza Patente', 'date', true, autista.dataFineValiditaPatente);
-    fieldset.appendChild(divFinePatente);
-    
-    container.appendChild(fieldset);
-  }
-  
-  // Bottone avanti
-  const btnContainer = document.createElement('div');
-  btnContainer.style.marginTop = '20px';
-  
-  const btnAvanti = document.createElement('button');
-  btnAvanti.type = 'button';
-  btnAvanti.className = 'btn btn-primary';
-  btnAvanti.textContent = 'Avanti →';
-  btnAvanti.onclick = () => salvaAutistiEAvanti();
-  
-  btnContainer.appendChild(btnAvanti);
-  container.appendChild(btnContainer);
-}
-
-function createFormGroup(id, label, type, required, value = '') {
-  const div = document.createElement('div');
-  div.className = 'form-group';
-  
-  const labelEl = document.createElement('label');
-  labelEl.setAttribute('for', id);
-  labelEl.textContent = label + (required ? ' *' : '');
-  
-  const input = document.createElement('input');
-  input.type = type;
-  input.id = id;
-  input.name = id;
-  input.required = required;
-  
-  if (value) {
-    input.value = sanitizeHTML(String(value));
-  }
-  
-  div.appendChild(labelEl);
-  div.appendChild(input);
-  
-  return div;
-}
-
-function salvaAutistiEAvanti() {
-  const numAutisti = Math.min(3, datiPrenotazione.pulmino.posti);
-  datiPrenotazione.autisti = [];
-  
-  let valido = true;
-  
-  for (let i = 1; i <= numAutisti; i++) {
-    const autista = {};
-    
-    const campi = [
-      'nomeCognome', 'dataNascita', 'luogoNascita', 'codiceFiscale',
-      'comuneResidenza', 'viaResidenza', 'civicoResidenza',
-      'numeroPatente', 'dataInizioValiditaPatente', 'dataFineValiditaPatente'
-    ];
-    
-    for (const campo of campi) {
-      const input = document.getElementById(campo + i);
-      if (input) {
-        if (input.required && !input.value.trim()) {
-          alert('Compila tutti i campi obbligatori per l\'autista ' + i);
-          input.focus();
-          valido = false;
-          return;
-        }
-        autista[campo] = sanitizeHTML(input.value.trim());
+  showLoader(true);
+  fetch(`${CONFIG.API_URL}?action=checkAvailability&start=${inizio}&end=${fine}`)
+    .then(res => res.json())
+    .then(data => {
+      showLoader(false);
+      const risultato = document.getElementById('risultatoDisponibilita');
+      if (data.available) {
+        risultato.innerHTML = `<p class="success-banner">Veicoli disponibili: ${data.vehicles.join(', ')}.</p>`;
+        document.querySelectorAll('.vehicle-card').forEach(card => {
+          if (data.vehicles.includes(card.querySelector('input').value)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      } else {
+        risultato.innerHTML = `<p class="error-banner">Nessun veicolo disponibile.</p>`;
+        document.querySelectorAll('.vehicle-card').forEach(card => card.style.display = 'none');
       }
-    }
-    
-    datiPrenotazione.autisti.push(autista);
-  }
-  
-  if (valido) {
-    salvaDatiLocali();
-    mostraStep(3);
-  }
-}
-
-// ========== STEP 3: DATE E ORARI ==========
-function mostraSelettoreDate() {
-  const container = document.getElementById('selettoreDateContainer');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  // Data ritiro
-  const divDataRitiro = createFormGroup('dataRitiro', 'Data Ritiro', 'date', true, datiPrenotazione.dataRitiro);
-  container.appendChild(divDataRitiro);
-  
-  // Ora ritiro
-  const divOraRitiro = createSelectGroup('oraRitiro', 'Ora Ritiro', ORARI_DISPONIBILI, true, datiPrenotazione.oraRitiro);
-  container.appendChild(divOraRitiro);
-  
-  // Data arrivo
-  const divDataArrivo = createFormGroup('dataArrivo', 'Data Arrivo', 'date', true, datiPrenotazione.dataArrivo);
-  container.appendChild(divDataArrivo);
-  
-  // Ora arrivo
-  const divOraArrivo = createSelectGroup('oraArrivo', 'Ora Arrivo', ORARI_DISPONIBILI, true, datiPrenotazione.oraArrivo);
-  container.appendChild(divOraArrivo);
-  
-  // Cellulare
-  const divCellulare = createFormGroup('cellulare', 'Numero di Cellulare', 'tel', true, datiPrenotazione.cellulare);
-  container.appendChild(divCellulare);
-  
-  // Destinazione
-  const divDestinazione = createFormGroup('destinazione', 'Destinazione / Note', 'text', false, datiPrenotazione.destinazione);
-  container.appendChild(divDestinazione);
-  
-  // Bottone controlla disponibilità
-  const btnContainer = document.createElement('div');
-  btnContainer.style.marginTop = '20px';
-  
-  const btnControlla = document.createElement('button');
-  btnControlla.type = 'button';
-  btnControlla.className = 'btn btn-primary';
-  btnControlla.textContent = 'Controlla Disponibilità';
-  btnControlla.onclick = () => controllaDisponibilita();
-  
-  btnContainer.appendChild(btnControlla);
-  container.appendChild(btnContainer);
-  
-  // Imposta date minime
-  const oggi = new Date();
-  oggi.setDate(oggi.getDate() + 1);
-  const dataMin = oggi.toISOString().split('T')[0];
-  
-  document.getElementById('dataRitiro').min = dataMin;
-  document.getElementById('dataArrivo').min = dataMin;
-}
-
-function createSelectGroup(id, label, options, required, value = '') {
-  const div = document.createElement('div');
-  div.className = 'form-group';
-  
-  const labelEl = document.createElement('label');
-  labelEl.setAttribute('for', id);
-  labelEl.textContent = label + (required ? ' *' : '');
-  
-  const select = document.createElement('select');
-  select.id = id;
-  select.name = id;
-  select.required = required;
-  
-  const optionDefault = document.createElement('option');
-  optionDefault.value = '';
-  optionDefault.textContent = '-- Seleziona --';
-  select.appendChild(optionDefault);
-  
-  options.forEach(opt => {
-    const option = document.createElement('option');
-    option.value = opt;
-    option.textContent = opt;
-    if (opt === value) {
-      option.selected = true;
-    }
-    select.appendChild(option);
-  });
-  
-  div.appendChild(labelEl);
-  div.appendChild(select);
-  
-  return div;
-}
-
-async function controllaDisponibilita() {
-  // Raccogli dati
-  datiPrenotazione.dataRitiro = document.getElementById('dataRitiro').value;
-  datiPrenotazione.oraRitiro = document.getElementById('oraRitiro').value;
-  datiPrenotazione.dataArrivo = document.getElementById('dataArrivo').value;
-  datiPrenotazione.oraArrivo = document.getElementById('oraArrivo').value;
-  datiPrenotazione.cellulare = sanitizeHTML(document.getElementById('cellulare').value.trim());
-  datiPrenotazione.destinazione = sanitizeHTML(document.getElementById('destinazione').value.trim());
-  
-  // Validazioni
-  if (!datiPrenotazione.dataRitiro || !datiPrenotazione.oraRitiro || 
-      !datiPrenotazione.dataArrivo || !datiPrenotazione.oraArrivo || 
-      !datiPrenotazione.cellulare) {
-    alert('Compila tutti i campi obbligatori');
-    return;
-  }
-  
-  const dataRitiro = new Date(datiPrenotazione.dataRitiro + ' ' + datiPrenotazione.oraRitiro);
-  const dataArrivo = new Date(datiPrenotazione.dataArrivo + ' ' + datiPrenotazione.oraArrivo);
-  
-  if (dataArrivo <= dataRitiro) {
-    alert('La data di arrivo deve essere successiva alla data di ritiro');
-    return;
-  }
-  
-  // Mostra loader
-  mostraLoader(true);
-  
-  try {
-    const url = API_ENDPOINTS.disponibilita + 
-      '?targa=' + encodeURIComponent(datiPrenotazione.pulmino.targa) +
-      '&dataInizio=' + encodeURIComponent(datiPrenotazione.dataRitiro) +
-      '&oraInizio=' + encodeURIComponent(datiPrenotazione.oraRitiro) +
-      '&dataFine=' + encodeURIComponent(datiPrenotazione.dataArrivo) +
-      '&oraFine=' + encodeURIComponent(datiPrenotazione.oraArrivo);
-    
-    const response = await fetch(url, { method: 'GET' });
-    const data = await response.json();
-    
-    if (data.disponibile) {
-      alert('✅ Veicolo disponibile! Procedi con la prenotazione.');
-      salvaDatiLocali();
-      mostraStep(4);
-    } else {
-      alert('❌ Veicolo non disponibile per le date selezionate.\n\nMotivo: ' + (data.messaggio || 'Già prenotato'));
-    }
-    
-  } catch (error) {
-    console.error('❌ Errore controllo disponibilità:', error);
-    alert('Errore di connessione. Riprova.');
-  } finally {
-    mostraLoader(false);
-  }
-}
-
-// ========== STEP 4: RIEPILOGO ==========
-function mostraRiepilogo() {
-  const container = document.getElementById('riepilogoContainer');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  // Sezione veicolo
-  const h3Veicolo = createSafeElement('h3', {}, '🚐 Veicolo Selezionato');
-  container.appendChild(h3Veicolo);
-  
-  const pVeicolo = createSafeElement('p', {}, 
-    datiPrenotazione.pulmino.nome + ' (' + datiPrenotazione.pulmino.targa + ')'
-  );
-  container.appendChild(pVeicolo);
-  
-  // Sezione date
-  const h3Date = createSafeElement('h3', {}, '📅 Date e Orari');
-  container.appendChild(h3Date);
-  
-  const pRitiro = createSafeElement('p', {}, 
-    'Ritiro: ' + datiPrenotazione.dataRitiro + ' alle ' + datiPrenotazione.oraRitiro
-  );
-  container.appendChild(pRitiro);
-  
-  const pArrivo = createSafeElement('p', {}, 
-    'Consegna: ' + datiPrenotazione.dataArrivo + ' alle ' + datiPrenotazione.oraArrivo
-  );
-  container.appendChild(pArrivo);
-  
-  // Sezione autisti
-  const h3Autisti = createSafeElement('h3', {}, '👥 Autisti');
-  container.appendChild(h3Autisti);
-  
-  datiPrenotazione.autisti.forEach((autista, index) => {
-    const divAutista = document.createElement('div');
-    divAutista.style.marginBottom = '10px';
-    
-    const pNome = createSafeElement('p', {}, 
-      (index + 1) + '. ' + autista.nomeCognome + ' - CF: ' + autista.codiceFiscale
-    );
-    divAutista.appendChild(pNome);
-    container.appendChild(divAutista);
-  });
-  
-  // Sezione contatto
-  const h3Contatto = createSafeElement('h3', {}, '📞 Contatto');
-  container.appendChild(h3Contatto);
-  
-  const pCellulare = createSafeElement('p', {}, 'Cellulare: ' + datiPrenotazione.cellulare);
-  container.appendChild(pCellulare);
-  
-  if (datiPrenotazione.destinazione) {
-    const pDest = createSafeElement('p', {}, 'Destinazione: ' + datiPrenotazione.destinazione);
-    container.appendChild(pDest);
-  }
-  
-  // Bottone conferma
-  const btnContainer = document.createElement('div');
-  btnContainer.style.marginTop = '30px';
-  
-  const btnConferma = document.createElement('button');
-  btnConferma.type = 'button';
-  btnConferma.className = 'btn btn-success btn-lg';
-  btnConferma.textContent = '✓ Conferma Prenotazione';
-  btnConferma.onclick = () => inviaPrenotazione();
-  
-  btnContainer.appendChild(btnConferma);
-  container.appendChild(btnContainer);
-}
-
-async function inviaPrenotazione() {
-  if (!confirm('Confermi l\'invio della prenotazione?')) {
-    return;
-  }
-  
-  mostraLoader(true);
-  
-  try {
-    const payload = {
-      action: 'create',
-      prenotazione: sanitizeObject(datiPrenotazione)
-    };
-    
-    const response = await fetch(API_ENDPOINTS.manageBooking, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'payload=' + encodeURIComponent(JSON.stringify(payload))
+    })
+    .catch(err => {
+      showLoader(false);
+      showAlert('alertContainer', 'Errore controllo disponibilità.', 'error');
     });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      alert('✅ Prenotazione inviata con successo!\n\nID Prenotazione: ' + data.idPrenotazione + '\n\nRiceverai una conferma via email.');
-      
-      // Reset dati
-      datiPrenotazione = {
-        pulmino: null,
-        autisti: [],
-        dataRitiro: '',
-        oraRitiro: '',
-        dataArrivo: '',
-        oraArrivo: '',
-        cellulare: '',
-        destinazione: ''
-      };
-      
-      localStorage.removeItem('datiPrenotazione');
-      
-      // Torna all'inizio
-      window.location.hash = '';
-      location.reload();
-    } else {
-      alert('❌ Errore: ' + data.message);
-    }
-    
-  } catch (error) {
-    console.error('❌ Errore invio prenotazione:', error);
-    alert('Errore di connessione. Riprova.');
-  } finally {
-    mostraLoader(false);
+}
+
+function updateSelectedVehicle() {
+  const selected = document.querySelector('input[name="veicolo"]:checked');
+  if (selected) {
+    const vehicle = CONFIG.VEHICLES[selected.value];
+    // Aggiorna UI se necessario, es. prezzo dinamico
+    console.log(`Veicolo selezionato: ${vehicle.name}`);
   }
 }
 
-// ========== AREA PERSONALE ==========
-async function mostraAreaPersonale() {
-  window.location.hash = 'area-personale';
-  
-  document.querySelectorAll('.step-content').forEach(s => s.style.display = 'none');
-  document.getElementById('areaPersonaleContainer').style.display = 'block';
-  
-  const cfInput = document.getElementById('cfInput');
-  if (!cfInput) return;
-  
-  cfInput.value = '';
-  cfInput.focus();
+function updateFormState() {
+  const form = document.getElementById('formPrenotazione');
+  const veicolo = document.querySelector('input[name="veicolo"]:checked');
+  const termini = document.getElementById('accettaTermini').checked;
+  const fields = form.querySelectorAll('input[required], textarea[required]');
+  const allFilled = Array.from(fields).every(field => field.value.trim());
+
+  document.getElementById('btnSubmit').disabled = !(veicolo && termini && allFilled);
 }
 
-async function cercaPrenotazioni() {
-  const cf = document.getElementById('cfInput').value.trim().toUpperCase();
-  
-  if (!cf || cf.length !== 16) {
-    alert('Inserisci un codice fiscale valido (16 caratteri)');
+function salvaPrenotazione() {
+  const formData = new FormData(document.getElementById('formPrenotazione'));
+  const data = Object.fromEntries(formData);
+  data.veicolo = document.querySelector('input[name="veicolo"]:checked')?.value;
+  data.dataInizio = document.getElementById('dataInizio').value;
+  data.dataFine = document.getElementById('dataFine').value;
+
+  if (!data.veicolo) {
+    showAlert('alertContainer', 'Seleziona un veicolo.', 'error');
     return;
   }
-  
-  mostraLoader(true);
-  
-  try {
-    const url = API_ENDPOINTS.recuperaPrenotazioni + '?cf=' + encodeURIComponent(cf);
-    
-    const response = await fetch(url, { method: 'GET' });
-    const data = await response.json();
-    
-    if (data.success && data.prenotazioni && data.prenotazioni.length > 0) {
-      mostraListaPrenotazioni(data.prenotazioni);
+
+  showLoader(true);
+  fetch(CONFIG.API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'saveBooking', ...data }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(res => res.json())
+  .then(result => {
+    showLoader(false);
+    if (result.success) {
+      showAlert('alertContainer', 'Prenotazione salvata! ID: ' + result.id, 'success');
+      document.getElementById('formPrenotazione').reset();
+      updateFormState();
     } else {
-      alert('Nessuna prenotazione trovata per questo codice fiscale.');
+      showAlert('alertContainer', result.error || 'Errore salvataggio.', 'error');
     }
-    
-  } catch (error) {
-    console.error('❌ Errore recupero prenotazioni:', error);
-    alert('Errore di connessione. Riprova.');
-  } finally {
-    mostraLoader(false);
-  }
-}
-
-function mostraListaPrenotazioni(prenotazioni) {
-  const container = document.getElementById('listaPrenotazioni');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  prenotazioni.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'prenotazione-card';
-    
-    const h4 = createSafeElement('h4', {}, 'Prenotazione ' + p.idPrenotazione);
-    card.appendChild(h4);
-    
-    const pVeicolo = createSafeElement('p', {}, '🚐 ' + p.pulmino);
-    card.appendChild(pVeicolo);
-    
-    const pDate = createSafeElement('p', {}, 
-      '📅 Dal ' + p.dataRitiro + ' al ' + p.dataConsegna
-    );
-    card.appendChild(pDate);
-    
-    const pStato = createSafeElement('p', {}, '📋 Stato: ' + p.stato);
-    card.appendChild(pStato);
-    
-    container.appendChild(card);
+  })
+  .catch(err => {
+    showLoader(false);
+    showAlert('alertContainer', 'Errore connessione.', 'error');
   });
-  
-  container.style.display = 'block';
 }
 
-// ========== UTILITY ==========
-function salvaDatiLocali() {
-  try {
-    localStorage.setItem('datiPrenotazione', JSON.stringify(datiPrenotazione));
-  } catch (e) {
-    console.warn('⚠️ Impossibile salvare in localStorage:', e);
+// =====================================================================
+// Funzioni Admin (Dashboard)
+// =====================================================================
+function initAdmin() {
+  showLoader(true);
+  Promise.all([
+    caricaPrenotazioni(),
+    caricaStatistiche(),
+    aggiornaDisponibilitaAdmin()
+  ]).then(() => showLoader(false)).catch(() => showLoader(false));
+}
+
+function switchSection(sectionId) {
+  document.querySelectorAll('[data-section]').forEach(sec => sec.classList.add('hidden'));
+  document.getElementById(sectionId).classList.remove('hidden');
+  document.getElementById('globalFilters').style.display = sectionId === 'prenotazioni' ? 'flex' : 'none';
+
+  if (sectionId === 'prenotazioni') caricaPrenotazioni();
+  if (sectionId === 'statistiche') caricaStatistiche();
+}
+
+function loginAdmin() {
+  const user = document.getElementById('adminUser').value;
+  const pass = document.getElementById('adminPass').value;
+  if (user === CONFIG.ADMIN_CREDENTIALS.user && pass === CONFIG.ADMIN_CREDENTIALS.pass) {
+    sessionStorage.setItem('adminLoggedIn', 'true');
+    document.getElementById('loginOverlay').classList.remove('active');
+    initAdmin();
+  } else {
+    showAlert('alertLogin', 'Credenziali errate.', 'error');
   }
 }
 
-function caricaDatiLocali() {
-  try {
-    const saved = localStorage.getItem('datiPrenotazione');
-    if (saved) {
-      datiPrenotazione = JSON.parse(saved);
-      console.log('✅ Dati caricati da localStorage');
-    }
-  } catch (e) {
-    console.warn('⚠️ Impossibile caricare da localStorage:', e);
+function logoutAdmin() {
+  sessionStorage.removeItem('adminLoggedIn');
+  document.getElementById('loginOverlay').classList.add('active');
+  document.getElementById('loginAdmin').reset();
+}
+
+function caricaPrenotazioni() {
+  showLoader(true);
+  fetch(`${CONFIG.API_URL}?action=getBookings`)
+    .then(res => res.json())
+    .then(data => {
+      showLoader(false);
+      const tbody = document.getElementById('tbodyPrenotazioni');
+      tbody.innerHTML = data.map(booking => `
+        <tr>
+          <td>${booking.id}</td>
+          <td>${booking.cliente}</td>
+          <td>${booking.veicolo}</td>
+          <td>${booking.dataInizio} - ${booking.dataFine}</td>
+          <td><span class="badge ${booking.stato.toLowerCase()}">${booking.stato}</span></td>
+          <td>
+            <button class="btn-icon" data-action="dettagli" data-id="${booking.id}" title="Dettagli">
+              <span class="material-icons">visibility</span>
+            </button>
+            <button class="btn-icon" data-action="modifica" data-id="${booking.id}" title="Modifica">
+              <span class="material-icons">edit</span>
+            </button>
+            <button class="btn-icon btn--danger" data-action="elimina" data-id="${booking.id}" title="Elimina">
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    })
+    .catch(err => {
+      showLoader(false);
+      showAlert('alertAdmin', 'Errore caricamento prenotazioni.', 'error');
+    });
+}
+
+function handleAction(action, id) {
+  switch (action) {
+    case 'dettagli':
+      apriModaleDettagli(id);
+      break;
+    case 'modifica':
+      modificaPrenotazione(id);
+      break;
+    case 'elimina':
+      if (confirm('Confermi eliminazione?')) cancellaPrenotazione(id);
+      break;
   }
 }
 
-function mostraLoader(show) {
-  const loader = document.getElementById('loader');
-  if (loader) {
-    loader.style.display = show ? 'flex' : 'none';
-  }
+function apriModaleDettagli(id) {
+  showLoader(true);
+  fetch(`${CONFIG.API_URL}?action=getBookingDetails&id=${id}`)
+    .then(res => res.json())
+    .then(data => {
+      showLoader(false);
+      document.getElementById('contenutoModale').innerHTML = `
+        <div class="dettagli-box">
+          <p><strong>ID:</strong> ${data.id}</p>
+          <p><strong>Cliente:</strong> ${data.cliente} (${data.cellulare})</p>
+          <p><strong>Veicolo:</strong> ${data.veicolo}</p>
+          <p><strong>Date:</strong> ${data.dataInizio} - ${data.dataFine}</p>
+          <p><strong>Stato:</strong> ${data.stato}</p>
+          <p><strong>Note:</strong> ${data.note || 'Nessuna'}</p>
+        </div>
+      `;
+      document.getElementById('modalDettagli').classList.add('active');
+    })
+    .catch(() => showLoader(false));
+}
+
+function confermaPrenotazione() {
+  const id = document.querySelector('#modalDettagli [data-id]')?.dataset.id || '';
+  if (!id) return;
+  fetch(CONFIG.API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'confirmBooking', id }),
+    headers: { 'Content-Type': 'application/json' }
+  }).then(() => {
+    chiudiModale();
+    caricaPrenotazioni();
+    caricaStatistiche();
+    showAlert('alertAdmin', 'Prenotazione confermata.', 'success');
+  });
+}
+
+function cancellaPrenotazione(id) {
+  fetch(CONFIG.API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'deleteBooking', id }),
+    headers: { 'Content-Type': 'application/json' }
+  }).then(() => {
+    chiudiModale();
+    caricaPrenotazioni();
+    caricaStatistiche();
+    showAlert('alertAdmin', 'Prenotazione cancellata.', 'success');
+  });
+}
+
+function modificaPrenotazione(id) {
+  // Apri form modifica (implementa modale simile a dettagli)
+  alert('Funzione modifica: implementa form update.'); // Placeholder
+}
+
+function chiudiModale() {
+  document.getElementById('modalDettagli').classList.remove('active');
+}
+
+function caricaStatistiche() {
+  fetch(`${CONFIG.API_URL}?action=getStats`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('totPrenotazioni').textContent = data.total;
+      document.getElementById('confermate').textContent = data.confermate;
+      document.getElementById('inAttesa').textContent = data.inAttesa;
+      document.getElementById('totVeicoli').textContent = data.veicoli;
+      document.getElementById('totRicavi').textContent = `€${data.ricavi}`;
+    });
+}
+
+function aggiornaDisponibilitaAdmin() {
+  const inizio = document.getElementById('adminDataInizio')?.value;
+  const fine = document.getElementById('adminDataFine')?.value;
+  fetch(`${CONFIG.API_URL}?action=adminAvailability${inizio ? `&start=${inizio}` : ''}${fine ? `&end=${fine}` : ''}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('risultatoDisponibilitaAdmin').innerHTML = `
+        <p>Disponibili: ${data.available.join(', ')}</p>
+        <p>Occupati: ${data.occupied.join(', ') || 'Nessuno'}</p>
+      `;
+    });
+}
+
+// Filtri e Sort
+let sortDirection = 1;
+function sortTable(col) {
+  const table = document.getElementById('tabellaPrenotazioni');
+  const tbody = table.tBodies[0];
+  const rows = Array.from(tbody.rows);
+  rows.sort((a, b) => {
+    const aVal = a.cells[col].textContent.trim();
+    const bVal = b.cells[col].textContent.trim();
+    return aVal.localeCompare(bVal, 'it', { numeric: true }) * sortDirection;
+  });
+  sortDirection *= -1;
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+function applicaFiltri() {
+  const inizio = document.getElementById('filtroDataInizio').value;
+  const fine = document.getElementById('filtroDataFine').value;
+  const stato = document.getElementById('filtroStato').value;
+  const cliente = document.getElementById('filtroCliente').value.toLowerCase();
+
+  // Filtra tabella client-side (per demo; usa API per grandi dataset)
+  const rows = document.querySelectorAll('#tbodyPrenotazioni tr');
+  rows.forEach(row => {
+    const dataCell = row.cells[3].textContent;
+    const statoCell = row.cells[4].textContent.toLowerCase();
+    const clienteCell = row.cells[1].textContent.toLowerCase();
+    const match = (!inizio || dataCell.includes(inizio)) &&
+                  (!fine || dataCell.includes(fine)) &&
+                  (!stato || statoCell.includes(stato.toLowerCase())) &&
+                  (!cliente || clienteCell.includes(cliente));
+    row.style.display = match ? '' : 'none';
+  });
+}
+
+function resetFiltri() {
+  document.getElementById('filtroDataInizio').value = '';
+  document.getElementById('filtroDataFine').value = '';
+  document.getElementById('filtroStato').value = '';
+  document.getElementById('filtroCliente').value = '';
+  caricaPrenotazioni(); // Ricarica senza filtri
+}
+
+// =====================================================================
+// Responsive Enhancements (2025 Best Practices)
+// =====================================================================
+function initResponsive() {
+  // Touch Gestures per Tabelle
+  const tables = document.querySelectorAll('.table-responsive');
+  tables.forEach(table => {
+    let startX = 0;
+    table.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+    table.addEventListener('touchend', e => {
+      const endX = e.changedTouches[0].clientX;
+      if (Math.abs(endX - startX) > 50) {
+        table.scrollLeft += (startX > endX ? -100 : 100); // Swipe scroll
+      }
+    });
+  });
+
+  // Resize Observer per Grids
+  const observer = new ResizeObserver(entries => {
+    entries.forEach(entry => {
+      const grid = entry.target;
+      if (window.innerWidth < 600) {
+        grid.style.gridTemplateColumns = '1fr';
+      } else if (window.innerWidth < 768) {
+        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      } else {
+        grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 1fr))';
+      }
+    });
+  });
+  document.querySelectorAll('.vehicles-grid, .stats-grid, .pulmini-grid').forEach(grid => observer.observe(grid));
+}
+
+document.addEventListener('DOMContentLoaded', initResponsive);
+window.addEventListener('resize', initResponsive);
+
+// Error Handling Globale
+window.addEventListener('error', e => {
+  console.error('JS Error:', e.error);
+  showAlert('alertContainer' || 'alertAdmin', 'Errore interno. Ricarica pagina.', 'error');
+});
+
+// Init Finale
+if (document.body.classList.contains('admin-page')) {
+  // Admin-specific
+} else {
+  initIndex();
 }

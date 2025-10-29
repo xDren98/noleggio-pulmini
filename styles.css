@@ -1,21 +1,24 @@
 /* =====================================================================
-   Imbriani Noleggio - Stylesheet v5.3.8
-   Base + Layout + Components + Responsive + WhatsApp Floating Button
+   Imbriani Noleggio - Stylesheet Unificato v5.3.9
+   Base + Layout + Components + Responsive 2025 + Admin/Index Integration
+   Tema: Verde Primario (#37b24d) con Opzioni Viola per Admin
 ===================================================================== */
 
-
 /* =====================================================================
-   Base Variables
+   Base Variables (Mobile-First)
 ===================================================================== */
 :root {
   --color-primary: #37b24d;
   --color-primary-dark: #2d9a3e;
+  --color-secondary: #667eea; /* Viola per admin gradient opzionali */
   --color-surface: #ffffff;
   --color-bg: #f7f7f7;
   --color-text: #2c5d2a;
   --color-text-secondary: #516551;
   --color-card-shadow: rgba(44, 93, 42, 0.07);
   --color-card-border: #e6f4ea;
+  --color-error: #dc2626;
+  --color-success: #22c55e;
 
   --radius-sm: 8px;
   --radius-md: 10px;
@@ -32,407 +35,226 @@
   --font-weight-semibold: 700;
 
   --duration-fast: 0.2s;
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
 }
 
 * {
   box-sizing: border-box;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--color-bg);
-  color: var(--color-text);
   margin: 0;
-  min-height: 100vh;
   padding: 0;
 }
 
+body {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  font-size: 16px; /* Base per touch-friendly */
+}
+
 /* =====================================================================
-   Layout / Card / Header
+   Layout Globale (Container, Header, Sections)
 ===================================================================== */
-.card {
+.container {
+  width: 100%;
+  max-width: 1200px; /* Aumentato per admin table */
+  margin: 0 auto;
+  padding: var(--spacing-sm); /* Mobile-first: piccolo padding */
+}
+
+.header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  /* Alternativa admin: linear-gradient(135deg, var(--color-secondary) 0%, #764ba2 100%); */
+  color: white;
+  padding: var(--spacing-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem); /* Fluid per responsive */
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-nav {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.header-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  transition: background var(--duration-fast);
+}
+
+.header-nav a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.section, .card {
   background: var(--color-surface);
   border-radius: var(--radius-xl);
   box-shadow: 0 2px 10px var(--color-card-shadow);
-  padding: 40px 32px 32px 32px;
-  margin: 30px auto;
-  max-width: 700px;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--color-card-border);
 }
 
-header {
-  max-width: 700px;
-  margin: 0 auto 10px;
-  padding-top: 10px;
+.hero {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
   text-align: center;
+  padding: clamp(40px, 10vw, 60px) var(--spacing-md);
 }
 
-header h1 {
-  font-weight: 700;
-  font-size: 2em;
+.hero h2 {
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  margin-bottom: var(--spacing-sm);
+}
+
+.cta-btn, .btn {
+  background: white;
   color: var(--color-primary);
-  margin: 0 0 4px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  padding: 12px 24px;
   cursor: pointer;
   transition: all var(--duration-fast);
-}
-
-header h1:hover {
-  transform: scale(1.02);
-  color: var(--color-primary-dark);
-}
-
-header p {
-  font-weight: 600;
-  font-size: 1em;
-  color: var(--color-text-secondary);
-  margin: 0 0 10px 0;
-}
-
-.slogan {
-  font-style: italic;
-  font-size: 0.95em;
-}
-
-/* =====================================================================
-   Visibility states (routing)
-===================================================================== */
-[data-section] {
-  display: none;
-}
-
-[data-section]:not(.hidden) {
-  display: block;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* =====================================================================
-   Wizard container
-===================================================================== */
-#mainbox {
-  max-width: 700px;
-  margin: 32px auto 54px;
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 2px 10px var(--color-card-shadow);
-  padding: 26px 20px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.step {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.step:not(.hidden) {
-  display: flex;
-}
-
-label {
-  font-weight: 600;
-  font-size: 1.02em;
-  color: var(--color-text);
-  margin-bottom: 2px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 44px; /* Touch-friendly [web:137] */
+  min-width: 44px;
 }
 
-.material-icons {
-  font-size: 20px;
-  color: var(--color-primary);
+.cta-btn:hover, .btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.3);
 }
+
+.btn:disabled {
+  background: #b7d6b7;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Varianti Bottoni */
+.btn--primary { background: var(--color-primary); color: white; }
+.btn--primary:hover { background: var(--color-primary-dark); }
+.btn--secondary { background: var(--color-secondary); color: white; }
+.btn--danger { background: var(--color-error); color: white; }
+.btn--success { background: var(--color-success); color: white; }
 
 /* =====================================================================
-   Form Inputs - UNIFORMI
+   Form Inputs (Unificati per Index/Admin)
 ===================================================================== */
-select,
-input[type="tel"],
-input[type="text"],
-input[type="date"],
-input[type="time"],
-input[type="email"] {
+input, select, textarea {
   width: 100%;
-  min-height: 43px;
-  padding: 10px;
-  font-size: 1em;
+  min-height: 44px; /* Touch min [web:137] */
+  padding: 12px;
+  border: 2px solid var(--color-card-border);
   border-radius: var(--radius-md);
-  border: 1.4px solid #72b972;
-  color: var(--color-text);
-  background-color: #f9fff7;
-  font-family: 'Poppins', sans-serif;
-  transition: all var(--duration-fast);
-  margin-bottom: 15px;
+  font-size: 1rem;
+  background: #f9fff7;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+  margin-bottom: var(--spacing-sm);
+  font-family: inherit;
 }
 
-select:focus,
-input:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(55, 178, 77, 0.1);
 }
 
-/* =====================================================================
-   Help text
-===================================================================== */
-.help-text {
-  font-size: 13px;
-  color: #7f8c8d;
-  margin-top: -10px;
-  margin-bottom: 12px;
-  font-style: italic;
-}
-
-/* =====================================================================
-   Actions / buttons
-===================================================================== */
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.btn,
-button {
-  background-color: #37c559;
-  color: #fff;
-  font-weight: 700;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  font-size: 1.05em;
-  padding: 11px 25px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  box-shadow: 0 2px 6px #86e8a2aa;
-  transition: all var(--duration-fast);
-  font-family: 'Poppins', sans-serif;
-}
-
-.btn:hover:not(:disabled),
-button:hover:not(:disabled) {
-  background-color: #24943d;
-  box-shadow: 0 2px 12px #30af5640;
-  transform: scale(1.02);
-}
-
-.btn:disabled,
-button:disabled {
-  background-color: #b7d6b7;
-  cursor: not-allowed;
-  color: #5c995c;
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.btn--primary {
-  background: var(--color-primary);
-}
-
-.btn--primary:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.btn--secondary {
-  background: #2ea44f;
-}
-
-.btn--secondary:hover:not(:disabled) {
-  background: #258a3f;
-}
-
-.btn--danger {
-  background: #cf3b3b;
-}
-
-.btn--danger:hover:not(:disabled) {
-  background: #a82f2f;
-}
-
-.btn--sm {
-  padding: 8px 16px;
-  font-size: 0.9em;
-}
-
-/* =====================================================================
-   Home
-===================================================================== */
-#homepage {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-#homepage h2 {
-  font-size: 1.3em;
-  font-weight: 600;
+label {
+  font-weight: var(--font-weight-medium);
+  margin-bottom: 6px;
+  display: block;
   color: var(--color-text);
-  margin-bottom: 12px;
+  font-size: 1rem;
 }
 
-#homepage p {
-  color: #666;
-  font-size: 1.05em;
-  margin-bottom: 18px;
-  text-align: left;
-}
-
-#homepage hr {
-  border: none;
-  border-top: 2px solid var(--color-card-border);
-  margin: 32px 0;
-}
-
+/* Input con Icona */
 .input-with-icon {
   position: relative;
-  margin-bottom: 12px;
 }
 
 .input-with-icon .material-icons {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6c757d;
-  font-size: 20px;
+  color: var(--color-text-secondary);
   pointer-events: none;
 }
 
 .input-with-icon input {
-  padding-left: 44px;
+  padding-left: 48px;
 }
 
-/* =====================================================================
-   Area personale
-===================================================================== */
-#area-personale-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.welcome-card {
-  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
-  border: 1.5px solid var(--color-card-border);
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.1);
-}
-
-.welcome-card h2 {
-  margin-top: 0;
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.welcome-card h2::before {
-  content: '👋';
-  font-size: 28px;
-}
-
-.prenotazioni-card {
-  background: white;
-  border: 1px solid var(--color-card-border);
-  padding: 24px;
-  border-radius: var(--radius-lg);
-}
-
-.prenotazioni-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.prenotazione-item {
-  background: #f9fff7;
-  border: 1.5px solid #d6fadd;
-  padding: 16px;
-  border-radius: var(--radius-md);
-  transition: all 0.3s ease;
-}
-
-.prenotazione-item:hover {
-  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.15);
-  transform: translateY(-2px);
-  border-color: var(--color-primary);
-}
-
-.prenotazione-item strong {
-  display: block;
-  color: var(--color-primary);
-  margin-bottom: 8px;
-  font-size: 1.05em;
-}
-
-.prenotazione-item p {
-  margin: 4px 0;
+/* Help Text */
+.help-text {
+  font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  font-size: 0.95em;
-}
-
-.prenotazione-item button {
-  margin-top: 12px;
+  margin-top: -8px;
+  font-style: italic;
 }
 
 /* =====================================================================
-   Card veicoli (Step 2)
+   Grids e Card (Veicoli, Stats, Prenotazioni)
 ===================================================================== */
-.pulmini-grid {
+.stats-grid, .vehicles-grid, .pulmini-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin: 16px 0;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
-.card-pulmino {
+.stat-card, .vehicle-card, .card-pulmino {
   background: linear-gradient(135deg, #f9fff7 0%, #eafbe9 100%);
-  border: 2px solid #d6fadd;
+  border: 2px solid var(--color-card-border);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: var(--spacing-md);
+  text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  transition: all var(--duration-fast);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
-.card-pulmino:hover {
+.stat-card:hover, .vehicle-card:hover, .card-pulmino:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(55, 178, 77, 0.2);
   border-color: var(--color-primary);
 }
 
-.card-pulmino:focus {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.card-pulmino.selected {
-  border-color: #27ae60;
+.stat-card.selected, .vehicle-card.selected, .card-pulmino.selected {
+  border-color: var(--color-primary-dark);
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
 }
 
-.card-pulmino.selected::after {
+.stat-card.selected::after, .card-pulmino.selected::after {
   content: '✓';
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #27ae60;
+  background: var(--color-primary);
   color: white;
   width: 28px;
   height: 28px;
@@ -441,543 +263,392 @@ button:disabled {
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 18px;
-  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.4);
+  font-size: 1rem;
 }
 
-.card-pulmino .card-title {
-  font-weight: 600;
-  color: var(--color-text);
-  font-size: 1.05em;
-  margin-bottom: 4px;
+.stat-content h3 {
+  font-size: 2rem;
+  font-weight: var(--font-weight-semibold);
 }
 
-.card-pulmino .card-sub {
-  color: var(--color-text-secondary);
-  font-size: 0.9em;
+.stat-icon, .vehicle-card .material-icons {
+  font-size: 2rem;
+  align-self: center;
+}
+
+/* Lista Prenotazioni */
+.prenotazioni-lista, .prenotazione-item {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
-.card-pulmino .card-sub::before {
-  content: '🚐';
-  font-size: 16px;
-}
-/* =====================================================================
-   Form autisti (Step 3) - UNIFORMATO
-===================================================================== */
-.form-autista {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
-  border-left: 4px solid var(--color-primary);
+.prenotazione-item {
+  background: #f9fff7;
+  border: 2px solid #d6fadd;
+  padding: var(--spacing-md);
   border-radius: var(--radius-md);
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.1);
-}
-
-.form-autista h4 {
-  margin-top: 0;
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.15em;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--color-card-border);
-}
-
-.form-autista h4::before {
-  content: '👤';
-  font-size: 20px;
-}
-
-.form-autista label {
-  display: block;
-  margin-top: 12px;
-  margin-bottom: 5px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.form-autista input[type="text"],
-.form-autista input[type="date"],
-.form-autista input[type="tel"],
-.form-autista input[type="email"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: var(--radius-md);
-  font-size: 16px;
-  box-sizing: border-box;
-  background-color: white;
-  font-family: 'Poppins', sans-serif;
   transition: all var(--duration-fast);
 }
 
-.form-autista input:focus {
-  outline: none;
+.prenotazione-item:hover {
+  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.15);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
 }
 
 /* =====================================================================
-   Riepilogo prenotazione (Step 4)
+   Tabelle Responsive (Admin-Specific)
 ===================================================================== */
-.riepilogo {
-  max-width: 800px;
-  margin: 0 auto;
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
 }
 
-#riepilogo-content .card {
-  background: linear-gradient(135deg, #f9fff7 0%, #eafbe9 100%);
-  border: 1px solid var(--color-card-border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(55, 178, 77, 0.1);
+table {
+  width: 100%;
+  min-width: 700px; /* Forza scroll su mobile */
+  border-collapse: collapse;
+  font-size: 0.95rem;
 }
 
-#riepilogo-content .card h3 {
-  margin: 0 0 16px 0;
+th, td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-card-border);
+}
+
+th {
+  background: #f9fafb;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  user-select: none;
+}
+
+tr:hover {
+  background: #f9fff7;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.badge.success { background: rgba(34, 197, 94, 0.2); color: var(--color-success); }
+.badge.warning { background: rgba(253, 186, 18, 0.2); color: #92400e; }
+.badge.info { background: rgba(102, 126, 234, 0.2); color: var(--color-secondary); }
+
+/* Mobile Scroll Tip */
+.mobile-scroll-tip {
+  display: none;
+  font-size: var(--font-size-sm);
   color: var(--color-primary);
-  font-size: 1.2em;
-  font-weight: 700;
-  border-bottom: 2px solid var(--color-primary);
-  padding-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-xs);
+  background: rgba(55, 178, 77, 0.1);
+  border-radius: var(--radius-sm);
 }
 
-#riepilogo-content p {
-  margin: 8px 0;
-  color: var(--color-text);
-  font-size: 0.95em;
-  line-height: 1.6;
-}
-
-#riepilogo-content p strong {
-  color: var(--color-primary-dark);
-  font-weight: 600;
-  min-width: 160px;
-  display: inline-block;
+@media (max-width: 800px) {
+  .mobile-scroll-tip { display: block; }
 }
 
 /* =====================================================================
-   Step 2.5 - Preventivo
+   Filtri e Azioni (Admin)
 ===================================================================== */
-.preventivo-box {
-  background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
-  border: 2px solid #ffd93d;
+.filters {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--color-surface);
+  padding: var(--spacing-md);
   border-radius: var(--radius-lg);
-  padding: 32px 28px;
-  text-align: center;
-  margin: 16px 0;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  margin-bottom: var(--spacing-lg);
 }
 
-.preventivo-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-  animation: bounceIn 0.6s ease-out;
+.filters input, .filters select {
+  padding: 10px 12px;
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-sm);
+  min-height: 40px;
 }
 
-@keyframes bounceIn {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+.actions {
+  display: flex;
+  gap: var(--spacing-xs);
 }
 
-.preventivo-box h4 {
-  color: var(--color-text);
-  font-size: 1.4em;
-  font-weight: 700;
-  margin: 0 0 12px 0;
-}
-
-.preventivo-box p {
+.btn-icon {
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
   color: var(--color-text-secondary);
-  font-size: 1.05em;
-  line-height: 1.6;
-  margin: 0 0 24px 0;
+  transition: background var(--duration-fast);
 }
 
-.form-destinazione {
-  background: white;
-  border: 2px solid var(--color-card-border);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  margin-bottom: 24px;
-  text-align: left;
-}
-
-.form-destinazione label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  font-size: 1.02em;
-  color: var(--color-text);
-  margin-bottom: 8px;
-}
-
-.form-destinazione input {
-  width: 100%;
-  padding: 12px;
-  border: 1.5px solid #72b972;
-  border-radius: var(--radius-md);
-  font-size: 1em;
-  font-family: 'Poppins', sans-serif;
-  background-color: #f9fff7;
-  transition: all 0.2s;
-}
-
-.form-destinazione input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(55, 178, 77, 0.1);
-}
-
-.form-destinazione .help-text {
-  font-size: 13px;
-  color: #7f8c8d;
-  font-style: italic;
-  margin-top: 6px;
-}
-
-.contact-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 28px;
-}
-
-.btn-contact {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-weight: 600;
-  font-size: 1.05em;
-  text-decoration: none;
-  color: var(--color-text);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  font-family: 'Poppins', sans-serif;
-}
-
-.btn-contact:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-contact:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-contact--whatsapp {
-  border-color: #25D366;
-  color: #25D366;
-}
-
-.btn-contact--whatsapp:hover:not(:disabled) {
-  background: #25D366;
-  color: white;
-}
-
-.btn-contact--phone {
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
-
-.btn-contact--phone:hover {
-  background: #3b82f6;
-  color: white;
-}
-
-.preventivo-confirm {
-  background: white;
-  border: 2px solid var(--color-card-border);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  margin-top: 24px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  font-size: 1.05em;
-  font-weight: 500;
-  color: var(--color-text);
-  text-align: left;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
-  accent-color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.checkbox-label span {
-  flex: 1;
+.btn-icon:hover {
+  background: #f3f4f6;
 }
 
 /* =====================================================================
-   Modale conferma
+   Modali e Overlay (Unificati)
 ===================================================================== */
-.modal-overlay {
+.modal-overlay, .login-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 12000;
-  animation: fadeIn 0.2s ease-out;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  padding: 32px 28px;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  animation: scaleIn 0.3s ease-out;
-  text-align: center;
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  color: var(--color-text);
-  font-size: 1.4em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.modal-content h3::before {
-  content: '⚠️';
-  font-size: 28px;
-}
-
-.modal-content p {
-  margin: 16px 0 24px;
-  color: var(--color-text-secondary);
-  font-size: 1.05em;
-  line-height: 1.5;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-.modal-actions button {
-  flex: 1;
-  max-width: 180px;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.modal-overlay {
-  cursor: pointer;
-}
-
-.modal-content {
-  cursor: default;
-}
-
-/* =====================================================================
-   Loader overlay
-===================================================================== */
-.loader-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.72);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  backdrop-filter: blur(4px);
 }
 
-.loader-spinner {
-  text-align: center;
+.modal-overlay.active, .login-overlay.active {
+  display: flex;
+}
+
+.modal-box, .login-box {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: clamp(20px, 5vw, 40px);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  min-width: 320px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+  margin-top: var(--spacing-md);
+}
+
+.dettagli-box, .info-box {
+  background: #f9fafb;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-sm) 0;
+  border-left: 4px solid var(--color-primary);
+}
+
+.info-box {
+  background: #fef3c7;
+  border-left-color: #f59e0b;
+  color: #92400e;
+}
+
+/* =====================================================================
+   Loader e Banner (Unificati)
+===================================================================== */
+.loader, .loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
   color: white;
+}
+
+.loader.active {
+  display: flex;
 }
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
   border-top: 4px solid var(--color-primary);
   border-radius: 50%;
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   animation: spin 0.8s linear infinite;
-  margin: 0 auto 20px;
-}
-
-.loader-text {
-  font-size: 1.1em;
-  font-weight: 600;
-  margin: 0;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* =====================================================================
-   Banners
-===================================================================== */
-.error-banner,
-.success-banner {
+.alert, .error-banner, .success-banner {
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  display: none;
+  border-left: 4px solid;
+  font-weight: var(--font-weight-medium);
+}
+
+.alert.success, .success-banner {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success);
+  border-left-color: var(--color-success);
+}
+
+.alert.error, .error-banner {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-error);
+  border-left-color: var(--color-error);
+}
+
+.error-banner, .success-banner {
   position: fixed;
-  top: 24px;
-  right: 24px;
-  padding: 16px 20px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  z-index: 10000;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  max-width: 400px;
   animation: slideInRight 0.3s ease-out;
-  max-width: 420px;
-  font-size: 14px;
-}
-
-.error-banner {
-  background: rgba(255, 230, 230, 0.95);
-  color: #c00;
-  border: 1px solid rgba(192, 0, 0, 0.3);
-  border-left: 4px solid #c00;
-}
-
-.success-banner {
-  background: rgba(230, 255, 230, 0.95);
-  color: #0a0;
-  border: 1px solid rgba(0, 170, 0, 0.3);
-  border-left: 4px solid #0a0;
-}
-
-.banner-ico {
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.banner-msg {
-  flex: 1;
+  z-index: 10000;
 }
 
 @keyframes slideInRight {
-  from {
-    transform: translateX(450px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 /* =====================================================================
-   Back button
+   Wizard e Steps (Index-Specific)
 ===================================================================== */
-.btn-back {
-  position: fixed;
-  top: 24px;
-  left: 24px;
-  background: white;
-  border: 1px solid var(--color-primary);
-  padding: 10px 16px;
-  border-radius: 14px;
-  cursor: pointer;
+#mainbox {
+  max-width: 700px;
+  margin: var(--spacing-lg) auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.step {
+  display: none;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.step:not(.hidden) {
+  display: flex;
+}
+
+[data-section] { display: none; }
+[data-section]:not(.hidden) { display: block; }
+
+/* Form Autista e Riepilogo */
+.form-autista, .riepilogo {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.form-autista h4, .riepilogo h3 {
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
-  color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.3);
-  transition: all 0.3s;
-  z-index: 10000;
-  font-size: 1em;
-  font-family: 'Poppins', sans-serif;
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.15rem;
 }
 
-.btn-back:hover {
-  background: var(--color-primary);
-  color: #fff;
-  transform: translateX(-4px);
-  box-shadow: 0 4px 12px rgba(55, 178, 77, 0.4);
+.riepilogo p strong {
+  color: var(--color-primary-dark);
+  min-width: 160px;
+  display: inline-block;
 }
 
-.btn-back .material-icons {
-  font-size: 22px;
+/* Preventivo Box */
+.preventivo-box {
+  background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+  border: 2px solid #ffd93d;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  text-align: center;
+  margin: var(--spacing-md) 0;
+}
+
+.preventivo-icon {
+  font-size: 4rem;
+  animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.contact-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.btn-contact {
+  background: white;
+  border: 2px solid #e0e0e0;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: all var(--duration-fast);
+  min-height: 44px;
+}
+
+.btn-contact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-contact--whatsapp { border-color: #25D366; color: #25D366; }
+.btn-contact--whatsapp:hover { background: #25D366; color: white; }
+.btn-contact--phone { border-color: #3b82f6; color: #3b82f6; }
+.btn-contact--phone:hover { background: #3b82f6; color: white; }
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--color-primary);
 }
 
 /* =====================================================================
-   WhatsApp Floating Button - NEW v5.3.8
+   WhatsApp Float e Back Button
 ===================================================================== */
 .whatsapp-float {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: var(--spacing-sm);
+  right: var(--spacing-sm);
   width: 60px;
   height: 60px;
   background: #25D366;
@@ -988,9 +659,9 @@ button:disabled {
   justify-content: center;
   box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
   z-index: 9998;
-  transition: all 0.3s ease;
+  transition: all var(--duration-fast);
   text-decoration: none;
-  cursor: pointer;
+  animation: pulse-whatsapp 2s infinite;
 }
 
 .whatsapp-float:hover {
@@ -998,222 +669,103 @@ button:disabled {
   box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
 }
 
-.whatsapp-float:active {
-  transform: scale(0.95);
-}
-
-.whatsapp-float .material-icons {
-  font-size: 32px;
-  color: white;
-}
-
-/* Animazione pulse per richiamare l'attenzione */
 @keyframes pulse-whatsapp {
-  0%, 100% {
-    box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
-  }
-  50% {
-    box-shadow: 0 4px 24px rgba(37, 211, 102, 0.7);
-  }
+  0%, 100% { box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4); }
+  50% { box-shadow: 0 4px 24px rgba(37, 211, 102, 0.7); }
 }
 
-.whatsapp-float {
-  animation: pulse-whatsapp 2s infinite;
+.btn-back {
+  position: fixed;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  background: white;
+  border: 1px solid var(--color-primary);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(55, 178, 77, 0.3);
+  transition: all var(--duration-fast);
+  z-index: 10000;
+  min-height: 44px;
+}
+
+.btn-back:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: translateX(-4px);
 }
 
 /* =====================================================================
-   Responsive
+   Visibility e Hidden
 ===================================================================== */
-@media (max-width: 700px) {
-  #mainbox,
-  header {
-    max-width: 100vw;
-    padding: 0 2vw;
-  }
+.hidden { display: none !important; }
 
-  .actions {
-    flex-direction: column;
-  }
-
-  .actions button {
-    width: 100%;
-  }
-
-  .pulmini-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-actions {
-    flex-direction: column-reverse;
-  }
-
-  .modal-actions button {
-    max-width: 100%;
-  }
-  
-  /* WhatsApp button mobile */
-  .whatsapp-float {
-    bottom: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-  }
-  
-  .whatsapp-float .material-icons {
-    font-size: 28px;
-  }
+/* =====================================================================
+   Responsive Breakpoints 2025 (Mobile-First) [web:134]
+===================================================================== */
+/* Base: Mobile <480px */
+@media (min-width: 480px) {
+  .container { padding: 16px; }
+  .contact-buttons { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 600px) {
-  .error-banner,
-  .success-banner {
-    top: 10px;
-    right: 10px;
-    left: 10px;
-    max-width: calc(100vw - 20px);
-    padding: 12px 16px;
-    font-size: 0.9em;
-  }
-
-  .btn-back {
-    top: 16px;
-    left: 16px;
-    padding: 8px 12px;
-    font-size: 0.9em;
-  }
-
-  .btn-back .material-icons {
-    font-size: 18px;
-  }
-
-  #homepage {
-    padding: 30px 16px;
-  }
-
-  header h1 {
-    font-size: 1.6em;
-  }
-
-  header p {
-    font-size: 0.9em;
-  }
-
-  .card {
-    padding: 24px 16px;
-  }
-
-  #riepilogo-content p strong {
-    display: block;
-    margin-bottom: 4px;
-  }
-  
-  /* Responsive Step 2.5 */
-  .contact-buttons {
-    grid-template-columns: 1fr;
-  }
-  
-  .preventivo-box {
-    padding: 24px 20px;
-  }
-  
-  .preventivo-icon {
-    font-size: 48px;
-  }
+/* Small Mobile/Tablet <600px */
+@media (min-width: 600px) {
+  .form-group { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); }
+  .date-selector { grid-template-columns: repeat(2, 1fr); }
+  .header { flex-direction: row; }
+  .stats-grid, .vehicles-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 480px) {
-  .form-autista {
-    padding: 16px;
-  }
-
-  .card-pulmino {
-    padding: 16px;
-  }
-
-  .modal-content {
-    padding: 24px 20px;
-  }
-  
-  /* WhatsApp button ancora più piccolo su schermi mini */
-  .whatsapp-float {
-    bottom: 16px;
-    right: 16px;
-    width: 50px;
-    height: 50px;
-  }
-  
-  .whatsapp-float .material-icons {
-    font-size: 24px;
-  }
-}
-/* ---- Responsive grid/base ---- */
-body {
-  margin: 0;
-  font-size: 16px;
-  font-family: "Inter", system-ui, sans-serif;
+/* Tablet <768px */
+@media (min-width: 768px) {
+  .container { padding: 24px; }
+  .filters { flex-wrap: nowrap; }
+  .stats-grid, .vehicles-grid, .pulmini-grid { grid-template-columns: repeat(3, 1fr); }
+  .error-banner, .success-banner { max-width: 420px; right: 24px; }
 }
 
-.container {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 16px;
+/* Desktop <1024px */
+@media (min-width: 1024px) {
+  .table-responsive { overflow: visible; min-width: auto; }
+  .stats-grid { grid-template-columns: repeat(5, 1fr); }
+  .header-nav { gap: 24px; }
 }
 
-@media (max-width: 768px) {
-  .container {
-    padding: 8px;
-  }
-  h1, h2, h3 { font-size: 1.2em; }
-  .btn { font-size: 1.1em; padding: 12px 16px; }
-  table, .table-responsive {
-    font-size: 0.95em;
-    overflow-x: auto;
-    display: block;
-    width: 100%;
-  }
-  .admin-navbar {
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
+/* Large Desktop >1024px */
+@media (min-width: 1200px) {
+  .container { max-width: 1400px; }
+  .section, .card { padding: 40px; }
 }
 
-/* ---- Navbar Mobile ---- */
-.admin-navbar, .main-navbar {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  background: #1a2233;
-  color: #fff;
-  padding: 8px 0;
-}
-.main-navbar a, .admin-navbar a {
-  padding: 8px 18px;
-  font-weight: 600;
-}
+/* Specifiche Mobile Overrides */
 @media (max-width: 550px) {
-  .main-navbar, .admin-navbar { 
-    flex-direction: column; 
-    gap: 4px; 
-  }
+  .header { flex-direction: column; gap: 12px; text-align: center; }
+  .header-nav { flex-direction: column; width: 100%; }
+  .hero h2 { font-size: 1.8rem; }
+  .form-group, .date-selector { grid-template-columns: 1fr; }
+  .vehicles-grid, .pulmini-grid { grid-template-columns: 1fr; }
+  .actions, .modal-actions { flex-direction: column; }
+  .btn, .btn-contact { width: 100%; }
+  .whatsapp-float { width: 56px; height: 56px; }
+  .whatsapp-float .material-icons { font-size: 28px; }
+  .error-banner, .success-banner { left: 10px; right: 10px; max-width: calc(100vw - 20px); }
+  .btn-back { top: 16px; left: 16px; padding: 8px 12px; }
+  .preventivo-box { padding: 20px; }
+  .preventivo-icon { font-size: 3rem; }
 }
 
-/* ---- Bottoni touch friendly ---- */
-button, .btn {
-  min-height: 44px;
-  min-width: 44px;
-  border-radius: 7px;
-  font-size: 1em;
-  touch-action: manipulation;
-}
-
-/* ---- Input fields ---- */
-input, select, textarea {
-  min-height: 44px;
-  font-size: 1em;
-  margin-bottom: 8px;
-  width: 100%;
-  border-radius: 5px;
+/* Mini Mobile <480px */
+@media (max-width: 480px) {
+  .modal-box, .login-box { padding: 16px; min-width: 95vw; }
+  .card-pulmino, .form-autista { padding: 16px; }
+  .whatsapp-float { width: 50px; height: 50px; bottom: 16px; right: 16px; }
+  .whatsapp-float .material-icons { font-size: 24px; }
+  h1, h2, h3 { font-size: 1.2rem; }
+  table th, table td { padding: 8px 4px; font-size: 0.9rem; }
 }
