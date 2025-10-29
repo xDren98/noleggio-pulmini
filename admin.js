@@ -4,6 +4,16 @@
    CHANGELOG - DASHBOARD ADMIN
    ═══════════════════════════════════════════════════════════════════
    
+   📌 v2.6 - 29 Ottobre 2025 11:08 CET
+   🔧 Rimosso stato "Confermata"
+   🔧 Solo 3 stati dinamici: Futura, In corso, Completato
+   🔧 Funzione centralizzata calcolaStatoEffettivo()
+   🔧 Sincronizzazione perfetta statistiche/tabella/filtri
+   
+   📌 v2.5 - 29 Ottobre 2025
+   🔧 Fix badge dinamici in tabella
+   🔧 Fix filtri dashboard sincronizzati
+   
    📌 v2.2 - 28 Ottobre 2025 22:49 CET
    🔧 Auto-refresh dashboard dopo conferma prenotazione
    🔧 Delay 1s + cache busting per garantire aggiornamento visibile
@@ -28,14 +38,18 @@
    ═══════════════════════════════════════════════════════════════════
 */
 
+
 'use strict';
 
+
 const ADMIN_VERSION = '2.6';
-const ADMIN_BUILD_DATE = '2025-10-28';
+const ADMIN_BUILD_DATE = '2025-10-29';
+
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
-console.log(`%c📅 Build: ${ADMIN_BUILD_DATE} | Auto-refresh Attivo`, 'color: #666;');
+console.log(`%c📅 Build: ${ADMIN_BUILD_DATE} | Stati Dinamici Attivi`, 'color: #666;');
 console.log(`%c✨ Gestione prenotazioni completa`, 'color: #22c55e;');
+
 
 // ========== CONFIGURAZIONE ==========
 const ADMIN_CONFIG = {
@@ -46,11 +60,13 @@ const ADMIN_CONFIG = {
   }
 };
 
+
 // ========== STATE ==========
 let prenotazioni = [];
 let prenotazioneDaConfermare = null;
 let filtroAttivoStat = 'totali';
 let ordinamentoAttuale = { campo: null, direzione: 'asc' };
+
 
 // ========== UTILITY ==========
 function showLoader(show = true) {
@@ -60,20 +76,20 @@ function showLoader(show = true) {
   }
 }
 
+
 function showToast(message, type = 'info') {
   alert(message);
 }
+
 
 // ========== HELPER FORMATTAZIONE DATE ==========
 function formattaData(dataStr) {
   if (!dataStr) return 'N/A';
   
-  // Se è già formato corretto dd/mm/yyyy
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) {
     return dataStr;
   }
   
-  // Se è timestamp ISO o Date string
   try {
     const data = new Date(dataStr);
     if (!isNaN(data.getTime())) {
@@ -89,15 +105,14 @@ function formattaData(dataStr) {
   return String(dataStr);
 }
 
+
 function formattaOra(oraStr) {
   if (!oraStr) return '00:00';
   
-  // Se già formato HH:MM
   if (/^\d{2}:\d{2}$/.test(oraStr)) {
     return oraStr;
   }
   
-  // Se è timestamp o Date string
   try {
     const data = new Date(oraStr);
     if (!isNaN(data.getTime())) {
@@ -112,36 +127,35 @@ function formattaOra(oraStr) {
   return String(oraStr);
 }
 
+
 // ========== CALCOLO STATO CENTRALIZZATO ==========
 function calcolaStatoEffettivo(prenotazione) {
   const statoReale = prenotazione.stato || '';
   
-  // Se non è "Confermata", ritorna lo stato reale
-  if (statoReale !== 'Confermata') {
+  // Se è "Da confermare", ritorna così com'è
+  if (statoReale === 'Da confermare') {
     return statoReale;
   }
   
-  // Se è "Confermata", calcola basandosi sulla data
-  const oggi = new Date();
-  oggi.setHours(0, 0, 0, 0);
-  
-  const dataInizio = convertiDataPerFiltro(prenotazione.giornoInizio);
-  const dataFine = convertiDataPerFiltro(prenotazione.giornoFine);
-  
-  if (!dataInizio || !dataFine) {
-    return statoReale; // Fallback se date mancanti
-  }
-  
-  if (dataFine < oggi) {
-    return 'Completato';
-  } else if (dataInizio <= oggi && dataFine >= oggi) {
-    return 'In corso';
-  } else if (dataInizio > oggi) {
-    return 'Futura';
-  }
-  
+  // Per tutti gli altri stati, usa quello già calcolato dal backend
+  // (Futura, In corso, Completato)
   return statoReale;
 }
+
+
+// Helper per convertire data dd/mm/yyyy a Date object
+function convertiDataPerFiltro(dataStr) {
+  if (!dataStr) return null;
+  
+  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const [, giorno, mese, anno] = match;
+    return new Date(parseInt(anno), parseInt(mese) - 1, parseInt(giorno));
+  }
+  
+  return null;
+}
+
 
 // ========== LOGIN ==========
 function tentaLoginAdmin() {
@@ -153,7 +167,6 @@ function tentaLoginAdmin() {
   const passwordInserita = passwordInput.value.trim();
   
   if (passwordInserita === ADMIN_CONFIG.password) {
-    // ✅ Salva sessione
     sessionStorage.setItem('adminLoggedIn', 'true');
     
     document.getElementById('loginOverlay').style.display = 'none';
@@ -166,9 +179,9 @@ function tentaLoginAdmin() {
   }
 }
 
+
 function logout() {
   if (confirm('Vuoi uscire dalla dashboard?')) {
-    // ✅ Rimuovi sessione
     sessionStorage.removeItem('adminLoggedIn');
     
     document.getElementById('loginOverlay').style.display = 'flex';
@@ -178,12 +191,12 @@ function logout() {
   }
 }
 
+
 // ========== CARICA PRENOTAZIONI ==========
 async function caricaPrenotazioni(cacheBuster = null) {
   showLoader(true);
   
   try {
-    // ✅ Cache busting per evitare dati vecchi
     let url = ADMIN_CONFIG.endpoints.adminPrenotazioni + '?action=list';
     
     if (cacheBuster) {
@@ -195,7 +208,7 @@ async function caricaPrenotazioni(cacheBuster = null) {
     const response = await fetch(url, {
       method: 'GET',
       redirect: 'follow',
-      cache: 'no-cache' // ✅ Forza no-cache
+      cache: 'no-cache'
     });
     
     const result = await response.json();
@@ -215,6 +228,7 @@ async function caricaPrenotazioni(cacheBuster = null) {
   }
 }
 
+
 // ========== STATISTICHE ==========
 function aggiornaStatistiche(stats) {
   document.getElementById('stat-totali').textContent = stats.totali || 0;
@@ -223,11 +237,7 @@ function aggiornaStatistiche(stats) {
   document.getElementById('stat-corso').textContent = stats.inCorso || 0;
   document.getElementById('stat-future').textContent = stats.confermate || 0; // "confermate" = future
 }
-  
-  // Calcola future (confermata ma non ancora iniziate)
-  const future = (stats.confermate || 0);
-  document.getElementById('stat-future').textContent = future;
-}
+
 
 // ========== RENDER TABELLA ==========
 function renderTabella(datiPrenotazioni) {
@@ -276,7 +286,6 @@ function renderTabella(datiPrenotazioni) {
       `;
     }
     
-    // 🔧 FIX: Mostra date + orari formattati
     const dalCompleto = formattaData(pren.giornoInizio) + ' ore ' + formattaOra(pren.oraInizio);
     const alCompleto = formattaData(pren.giornoFine) + ' ore ' + formattaOra(pren.oraFine);
     
@@ -294,12 +303,14 @@ function renderTabella(datiPrenotazioni) {
   });
 }
 
+
 function getNomePulmino(targa) {
   if (targa === 'EC787NM') return 'Ducato Lungo';
   if (targa === 'DN391FW') return 'Ducato Corto';
   if (targa === 'DL291XZ') return 'Peugeot';
   return targa;
 }
+
 
 // ========== FILTRI ==========
 function applicaFiltroDashboard(tipo) {
@@ -329,21 +340,6 @@ function applicaFiltroDashboard(tipo) {
 }
 
 
-// Helper per convertire data dd/mm/yyyy a Date object per confronto
-function convertiDataPerFiltro(dataStr) {
-  if (!dataStr) return null;
-  
-  // Formato: dd/mm/yyyy
-  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (match) {
-    const [, giorno, mese, anno] = match;
-    return new Date(parseInt(anno), parseInt(mese) - 1, parseInt(giorno));
-  }
-  
-  return null;
-}
-
-
 function applicaFiltri() {
   const dataInizio = document.getElementById('filter-data-inizio').value;
   const dataFine = document.getElementById('filter-data-fine').value;
@@ -354,7 +350,6 @@ function applicaFiltri() {
   
   if (dataInizio) {
     filtrate = filtrate.filter(p => {
-      // Converti dd/mm/yyyy a yyyy-mm-dd per confronto
       const [d, m, y] = (p.giornoInizio || '').split('/');
       const dataISO = y && m && d ? `${y}-${m}-${d}` : '';
       return dataISO >= dataInizio;
@@ -380,6 +375,7 @@ function applicaFiltri() {
   renderTabella(filtrate);
 }
 
+
 // ========== ORDINAMENTO ==========
 function ordinaPer(campo) {
   if (ordinamentoAttuale.campo === campo) {
@@ -393,9 +389,7 @@ function ordinaPer(campo) {
     let valA = a[campo] || '';
     let valB = b[campo] || '';
     
-    // ✅ FIX: Ordinamento speciale per date
     if (campo === 'giornoInizio' || campo === 'giornoFine') {
-      // Converti dd/mm/yyyy a Date per confronto corretto
       const dataA = convertiDataPerOrdinamento(valA);
       const dataB = convertiDataPerOrdinamento(valB);
       
@@ -406,7 +400,6 @@ function ordinaPer(campo) {
       }
     }
     
-    // Ordinamento standard per altri campi
     if (ordinamentoAttuale.direzione === 'asc') {
       return valA > valB ? 1 : -1;
     } else {
@@ -417,20 +410,19 @@ function ordinaPer(campo) {
   renderTabella(prenotazioni);
 }
 
-// ✅ Funzione helper per convertire date dd/mm/yyyy a timestamp
+
 function convertiDataPerOrdinamento(dataStr) {
   if (!dataStr || dataStr === 'N/A') return 0;
   
-  // Formato: dd/mm/yyyy
   const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (match) {
     const [, giorno, mese, anno] = match;
-    // Crea Date: anno, mese (0-based), giorno
     return new Date(parseInt(anno), parseInt(mese) - 1, parseInt(giorno)).getTime();
   }
   
   return 0;
 }
+
 
 // ========== MODAL CONFERMA ==========
 function apriModalConferma(idPrenotazione) {
@@ -441,7 +433,6 @@ function apriModalConferma(idPrenotazione) {
     return;
   }
   
-  // 🔧 FIX: Mostra date + orari nel modal
   const dettagli = document.getElementById('conferma-dettagli');
   dettagli.innerHTML = `
     <p><strong>ID:</strong> ${prenotazioneDaConfermare.idPrenotazione}</p>
@@ -456,13 +447,15 @@ function apriModalConferma(idPrenotazione) {
   document.getElementById('modalConferma').classList.add('active');
 }
 
+
 function chiudiModalConferma() {
   document.getElementById('modalConferma').classList.remove('active');
   document.getElementById('conferma-importo').value = '';
   prenotazioneDaConfermare = null;
 }
 
-// ========== CONFERMA PRENOTAZIONE CON AUTO-REFRESH ==========
+
+// ========== CONFERMA PRENOTAZIONE ==========
 async function confermaPrenotazioneAdmin() {
   if (!prenotazioneDaConfermare) {
     alert('Nessuna prenotazione selezionata');
@@ -476,7 +469,7 @@ async function confermaPrenotazioneAdmin() {
     return;
   }
   
-  if (!confirm(`Confermare prenotazione ${prenotazioneDaConfermare.idPrenotazione}?\n\nVerrà generato il contratto PDF e lo stato cambierà in "Confermata".`)) {
+  if (!confirm(`Confermare prenotazione ${prenotazioneDaConfermare.idPrenotazione}?\n\nVerrà generato il contratto PDF e lo stato cambierà automaticamente.`)) {
     return;
   }
   
@@ -503,13 +496,10 @@ async function confermaPrenotazioneAdmin() {
     if (result.success) {
       alert('✅ Prenotazione confermata e PDF generato con successo!');
       
-      // ✅ Chiudi modal
       chiudiModalConferma();
       
-      // ✅ Delay 1 secondo per permettere al backend di completare
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // ✅ Ricarica dati con cache busting
       const cacheBuster = new Date().getTime();
       await caricaPrenotazioni(cacheBuster);
       
@@ -525,6 +515,7 @@ async function confermaPrenotazioneAdmin() {
   }
 }
 
+
 // ========== MODAL MODIFICA ==========
 function apriModalModifica(idPrenotazione) {
   const prenotazione = prenotazioni.find(p => p.idPrenotazione === idPrenotazione);
@@ -534,7 +525,6 @@ function apriModalModifica(idPrenotazione) {
     return;
   }
   
-  // Popola TUTTI i campi
   document.getElementById('mod-id').value = prenotazione.idPrenotazione;
   document.getElementById('mod-nome').value = prenotazione.nome || '';
   document.getElementById('mod-luogo-nascita').value = prenotazione.luogoNascita || '';
@@ -558,16 +548,13 @@ function apriModalModifica(idPrenotazione) {
 }
 
 
-// Helper: Converti data da dd/mm/yyyy a yyyy-mm-dd per input type="date"
 function convertiDataPerInput(dataStr) {
   if (!dataStr) return '';
   
-  // Se già formato yyyy-mm-dd, ritorna
   if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
     return dataStr;
   }
   
-  // Se formato dd/mm/yyyy, converti
   const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (match) {
     const [, giorno, mese, anno] = match;
@@ -577,9 +564,11 @@ function convertiDataPerInput(dataStr) {
   return '';
 }
 
+
 function chiudiModifica() {
   document.getElementById('modalModifica').classList.remove('active');
 }
+
 
 // ========== ELIMINA PRENOTAZIONE ==========
 async function eliminaPrenotazione() {
@@ -591,12 +580,10 @@ async function eliminaPrenotazione() {
     return;
   }
   
-  // Conferma doppia per sicurezza
   if (!confirm(`⚠️ ATTENZIONE!\n\nStai per ELIMINARE definitivamente la prenotazione:\n\n📋 ID: ${idPrenotazione}\n👤 Cliente: ${nomeCliente}\n\n❌ Questa azione NON può essere annullata.\n\nSei sicuro di voler procedere?`)) {
     return;
   }
   
-  // Seconda conferma
   if (!confirm('🚨 ULTIMA CONFERMA\n\nConfermi l\'eliminazione DEFINITIVA?')) {
     return;
   }
@@ -623,13 +610,10 @@ async function eliminaPrenotazione() {
     if (result.success) {
       alert('✅ Prenotazione eliminata con successo');
       
-      // Chiudi modal
       chiudiModifica();
       
-      // Delay per permettere al backend di completare
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Ricarica dati
       await caricaPrenotazioni(new Date().getTime());
       
       console.log('🗑️ Prenotazione eliminata e dashboard aggiornata');
@@ -644,7 +628,8 @@ async function eliminaPrenotazione() {
   }
 }
 
-// ========== SALVA MODIFICHE PRENOTAZIONE ==========
+
+// ========== SALVA MODIFICHE ==========
 async function salvaModifica() {
   const idPrenotazione = document.getElementById('mod-id').value;
   
@@ -706,9 +691,9 @@ async function salvaModifica() {
   }
 }
 
+
 // ========== EXPORT CSV ==========
 function esportaCSV() {
-  // 🔧 FIX: Usa punto e virgola come separatore per Excel italiano
   let csv = 'ID;Cliente;CF;Veicolo;Dal;Al;Cellulare;Stato;Importo\n';
   
   prenotazioni.forEach(p => {
@@ -731,10 +716,6 @@ function esportaCSV() {
   document.body.removeChild(link);
 }
 
-// ========== UNDO (placeholder) ==========
-function eseguiUndo() {
-  alert('Funzione Undo in sviluppo');
-}
 
 // ========== DIAGNOSTICA ==========
 window.adminDebug = function() {
@@ -745,13 +726,13 @@ window.adminDebug = function() {
   console.log('Filtro attivo:', filtroAttivoStat);
   console.log('Ordinamento:', ordinamentoAttuale);
   console.log('Backend connesso:', !!ADMIN_CONFIG.endpoints.adminPrenotazioni);
-  console.log('Auto-refresh:', 'Attivo dopo conferma');
+  console.log('Stati dinamici:', 'Attivi (Futura, In corso, Completato)');
   
   if (prenotazioni.length > 0) {
     const stats = {
       totali: prenotazioni.length,
       daConfermare: prenotazioni.filter(p => p.stato === 'Da confermare').length,
-      confermate: prenotazioni.filter(p => p.stato === 'Confermata').length,
+      future: prenotazioni.filter(p => p.stato === 'Futura').length,
       inCorso: prenotazioni.filter(p => p.stato === 'In corso').length,
       completate: prenotazioni.filter(p => p.stato === 'Completato').length
     };
@@ -761,11 +742,12 @@ window.adminDebug = function() {
   console.groupEnd();
 };
 
+
 console.log('%c💡 Tip: Digita adminDebug() nella console per diagnostica completa', 'color: #999; font-style: italic;');
+
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
-  // ✅ Controlla se già loggato
   if (sessionStorage.getItem('adminLoggedIn') === 'true') {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('dashboardContent').style.display = 'block';
@@ -780,5 +762,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  console.log('✅ Admin Dashboard v' + ADMIN_VERSION + ' caricata con auto-refresh');
+  console.log('✅ Admin Dashboard v' + ADMIN_VERSION + ' caricata con stati dinamici');
 });
