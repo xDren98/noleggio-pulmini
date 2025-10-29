@@ -540,11 +540,32 @@ function apriModalModifica(idPrenotazione) {
     return;
   }
   
+  // Popola tutti i campi del form
+  document.getElementById('mod-id').value = prenotazione.idPrenotazione;
   document.getElementById('mod-nome').value = prenotazione.nome;
   document.getElementById('mod-cf').value = prenotazione.cf;
   document.getElementById('mod-targa').value = prenotazione.targa;
+  document.getElementById('mod-data-inizio').value = convertiDataPerInput(prenotazione.giornoInizio);
+  document.getElementById('mod-ora-inizio').value = prenotazione.oraInizio || '';
+  document.getElementById('mod-data-fine').value = convertiDataPerInput(prenotazione.giornoFine);
+  document.getElementById('mod-ora-fine').value = prenotazione.oraFine || '';
+  document.getElementById('mod-cellulare').value = prenotazione.cellulare;
+  document.getElementById('mod-stato').value = prenotazione.stato;
   
   document.getElementById('modalModifica').classList.add('active');
+}
+
+// Helper: Converti data da dd/mm/yyyy a yyyy-mm-dd per input type="date"
+function convertiDataPerInput(dataStr) {
+  if (!dataStr) return '';
+  
+  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const [, giorno, mese, anno] = match;
+    return `${anno}-${mese}-${giorno}`;
+  }
+  
+  return '';
 }
 
 function chiudiModifica() {

@@ -350,38 +350,62 @@
     </div>
   </div>
 
-  <!-- MODAL MODIFICA -->
-  <div class="modal-overlay" id="modalModifica">
-    <form class="modal-box" id="formModifica">
-      <h2>Modifica Prenotazione</h2>
-      <label>Nome Cliente</label>
-      <input type="text" id="mod-nome" required />
-      <label>Codice Fiscale</label>
-      <input type="text" id="mod-cf" required />
-      <label>Pulmino</label>
-      <select id="mod-targa" required>
-        <option value="EC787NM">Ducato Lungo (EC787NM)</option>
-        <option value="DN391FW">Ducato Corto (DN391FW)</option>
-        <option value="DL291XZ">Peugeot Expert (DL291XZ)</option>
-      </select>
-      <label>Data Inizio</label>
-      <input type="date" id="mod-data-inizio" required />
-      <label>Ora Inizio</label>
-      <input type="time" id="mod-ora-inizio" required />
-      <label>Data Fine</label>
-      <input type="date" id="mod-data-fine" required />
-      <label>Ora Fine</label>
-      <input type="time" id="mod-ora-fine" required />
-      <label>Cellulare</label>
-      <input type="text" id="mod-cellulare" required />
-      <div class="modal-actions">
-        <button type="button" class="btn-secondary" onclick="chiudiModifica()">
-          Annulla
-        </button>
-        <button type="submit" class="btn-main">Salva modifiche</button>
-      </div>
-    </form>
-  </div>
+<!-- MODAL MODIFICA -->
+<div class="modal-overlay" id="modalModifica">
+  <form class="modal-box" id="formModifica" onsubmit="event.preventDefault(); salvaModifica();">
+    <h2>✏️ Modifica Prenotazione</h2>
+    
+    <input type="hidden" id="mod-id" />
+    
+    <label>Nome Cliente</label>
+    <input type="text" id="mod-nome" required />
+    
+    <label>Codice Fiscale</label>
+    <input type="text" id="mod-cf" maxlength="16" required style="text-transform: uppercase;" />
+    
+    <label>Pulmino</label>
+    <select id="mod-targa" required>
+      <option value="">Seleziona pulmino</option>
+      <option value="EC787NM">Ducato Lungo (EC787NM)</option>
+      <option value="DN391FW">Ducato Corto (DN391FW)</option>
+      <option value="DL291XZ">Peugeot Expert (DL291XZ)</option>
+    </select>
+    
+    <label>Data Inizio</label>
+    <input type="date" id="mod-data-inizio" required />
+    
+    <label>Ora Inizio</label>
+    <input type="time" id="mod-ora-inizio" required />
+    
+    <label>Data Fine</label>
+    <input type="date" id="mod-data-fine" required />
+    
+    <label>Ora Fine</label>
+    <input type="time" id="mod-ora-fine" required />
+    
+    <label>Cellulare</label>
+    <input type="tel" id="mod-cellulare" required />
+    
+    <label>Stato Prenotazione</label>
+    <select id="mod-stato" required>
+      <option value="Da confermare">⏳ Da confermare</option>
+      <option value="Confermata">✅ Confermata</option>
+      <option value="In corso">🚐 In corso</option>
+      <option value="Completato">✓ Completato</option>
+    </select>
+    
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" onclick="chiudiModifica()">
+        Annulla
+      </button>
+      <button type="submit" class="btn-main">
+        <span class="material-icons">save</span>
+        Salva Modifiche
+      </button>
+    </div>
+  </form>
+</div>
+
 
   <!-- DASHBOARD -->
   <div id="dashboardContent" style="display: none;">
