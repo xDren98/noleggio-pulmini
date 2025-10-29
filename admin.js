@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* Imbriani Noleggio – admin.js v2.7.1 SECURITY UPDATE
    
    ═══════════════════════════════════════════════════════════════════
@@ -20,50 +19,25 @@
    
    ═══════════════════════════════════════════════════════════════════
 */
-=======
-// Imbriani Noleggio - admin.js v2.8
-// FIX v2.8 - 29 Ottobre 2025 12:47 CET:
-// ✅ XSS Protection: sanitizzazione innerHTML (4 fix)
-// ✅ Rate Limiting: max 5 tentativi login / 15 minuti
-// ✅ Funzioni sanitizeHTML e rate limit utils
-// ✅ Login sicuro con blocco automatico
-//
-// CHANGELOG - DASHBOARD ADMIN v2.7:
-// - Action "unconfirm" implementata
-// - Annulla conferma + Elimina PDF + Stato "Da confermare"
-// - Auto-refresh dashboard dopo annullamento
-// - Stati dinamici: Futura, In corso, Completato
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 
 'use strict';
 
-<<<<<<< HEAD
 const ADMIN_VERSION = '2.7.1';
-=======
-const ADMIN_VERSION = '2.8';
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 const ADMIN_BUILD_DATE = '2025-10-29';
 
-<<<<<<< HEAD
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
 console.log(`%c📅 Build: ${ADMIN_BUILD_DATE} | Security Hardened 🛡️`, 'color: #666;');
 console.log(`%c✨ Gestione prenotazioni completa`, 'color: #22c55e;');
-=======
-console.log('%c Admin Dashboard v' + ADMIN_VERSION, 'font-size: 16px; font-weight: bold; color: #667eea');
-console.log('%c Build: ' + ADMIN_BUILD_DATE + ' | Stati Dinamici Attivi', 'color: #666');
-console.log('%c Gestione prenotazioni completa', 'color: #22c55e');
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 
 // ========== CONFIGURAZIONE ==========
 const ADMIN_CONFIG = {
-  password: 'Imbriani2025+', // ⚠️ TODO: Implementare autenticazione server-side con Google OAuth
+  password: 'Imbriani2025+',
   endpoints: {
-    adminPrenotazioni: 'https://script.google.com/macros/s/AKfycbz7y_JsC0LaFW61xSotLQ1utSbqHDM6dSnfZ-2M0sCa97DeX4xeEeGDgwThCLpXXz8/exec',
+    adminPrenotazioni: 'https://script.google.com/macros/s/AKfycbz7y_JsC0LaFW61xSotLQ1utSbqHDM6dSnfZ2M0sCa97_DeX4xeEeGDgwThCLpXXz8/exec',
     manageBooking: 'https://script.google.com/macros/s/AKfycbxAKX12Sgc0ODvGtUEXCRoINheSeO9-SgDNGuY1QtrVKBENdY0SpMiDtzgoxIBRCuQ/exec'
   }
 };
 
-<<<<<<< HEAD
 // ========== SECURITY: XSS PROTECTION & RATE LIMITING ==========
 /**
  * Sanitizza stringa per prevenire XSS
@@ -152,186 +126,86 @@ function showLoader(show = true) {
   if (loader) {
     loader.classList.toggle('active', show);
   }
-=======
-// ========== SECURITY: XSS PROTECTION & RATE LIMITING ==========
-/**
- * Sanitizza stringa per prevenire XSS
- * @param {string} str - Stringa da sanitizzare
- * @return {string} Stringa sicura per HTML
- */
-function sanitizeHTML(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 }
 
-/**
- * Rate limiting per login admin
- * @return {Object} { allowed: boolean, message: string, remainingTime: number }
- */
-function checkLoginRateLimit() {
-  const now = Date.now();
-  const key = 'admin_login_attempts';
-  const lockKey = 'admin_login_lock';
-  const timeKey = 'admin_login_lock_time';
+function showToast(message, type = 'info') {
+  alert(message);
+}
+
+// ========== HELPER FORMATTAZIONE DATE ==========
+function formattaData(dataStr) {
+  if (!dataStr) return 'N/A';
   
-  // Controlla se bloccato
-  const locked = localStorage.getItem(lockKey);
-  const lockTime = parseInt(localStorage.getItem(timeKey) || '0');
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataStr)) {
+    return dataStr;
+  }
   
-  if (locked === 'true') {
-    const elapsed = now - lockTime;
-    const lockDuration = 15 * 60 * 1000; // 15 minuti
-    
-    if (elapsed < lockDuration) {
-      const remainingMin = Math.ceil((lockDuration - elapsed) / 60000);
-      return {
-        allowed: false,
-        message: `Troppi tentativi errati. Riprova tra ${remainingMin} minuti.`,
-        remainingTime: remainingMin
-      };
-    } else {
-      // Sblocca dopo 15 minuti
-      localStorage.removeItem(lockKey);
-      localStorage.removeItem(timeKey);
-      localStorage.setItem(key, '0');
+  try {
+    const data = new Date(dataStr);
+    if (!isNaN(data.getTime())) {
+      const dd = String(data.getDate()).padStart(2, '0');
+      const mm = String(data.getMonth() + 1).padStart(2, '0');
+      const yyyy = data.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
     }
+  } catch (e) {
+    // Fallback
   }
   
-  // Conta tentativi
-  const attempts = parseInt(localStorage.getItem(key) || '0');
-  
-  if (attempts >= 5) {
-    // Blocca
-    localStorage.setItem(lockKey, 'true');
-    localStorage.setItem(timeKey, now.toString());
-    return {
-      allowed: false,
-      message: 'Troppi tentativi errati. Account bloccato per 15 minuti.',
-      remainingTime: 15
-    };
-  }
-  
-  return {
-    allowed: true,
-    message: '',
-    remainingTime: 0
-  };
+  return String(dataStr);
 }
 
-/**
- * Registra tentativo di login fallito
- */
-function registerFailedLogin() {
-  const key = 'admin_login_attempts';
-  const attempts = parseInt(localStorage.getItem(key) || '0');
-  localStorage.setItem(key, (attempts + 1).toString());
+function formattaOra(oraStr) {
+  if (!oraStr) return '00:00';
   
-<<<<<<< HEAD
+  if (/^\d{2}:\d{2}$/.test(oraStr)) {
+    return oraStr;
+  }
+  
+  try {
+    const data = new Date(oraStr);
+    if (!isNaN(data.getTime())) {
+      const hh = String(data.getHours()).padStart(2, '0');
+      const mm = String(data.getMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+  } catch (e) {
+    // Fallback
+  }
+  
+  return String(oraStr);
+}
+
+// ========== CALCOLO STATO CENTRALIZZATO ==========
+function calcolaStatoEffettivo(prenotazione) {
+  const statoReale = prenotazione.stato || '';
+  
   if (statoReale === 'Da confermare') {
     return statoReale;
-=======
-  const remaining = 5 - (attempts + 1);
-  if (remaining > 0) {
-    console.warn(`⚠️ Login fallito. Tentativi rimasti: ${remaining}`);
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   }
-<<<<<<< HEAD
   
   return statoReale;
-=======
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 }
 
-<<<<<<< HEAD
 function convertiDataPerFiltro(dataStr) {
   if (!dataStr) return null;
-=======
-/**
- * Reset contatore tentativi login dopo successo
- */
-function resetLoginAttempts() {
-  localStorage.setItem('admin_login_attempts', '0');
-  localStorage.removeItem('admin_login_lock');
-  localStorage.removeItem('admin_login_lock_time');
-  console.log('✅ Tentativi login resettati');
+  
+  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const [, giorno, mese, anno] = match;
+    return new Date(parseInt(anno), parseInt(mese) - 1, parseInt(giorno));
+  }
+  
+  return null;
 }
 
-console.log('🛡️ XSS Protection & Rate Limiting attivo - admin.js v2.8');
-
-// ========== STATE ==========
-let prenotazioni = [];
-let prenotazioneDaConfermare = null;
-let filtroAttivoStat = 'totali';
-let ordinamentoAttuale = { campo: 'dataRitiro', direzione: 'desc' };
-
-// ========== INIT ==========
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('📊 Dashboard Admin inizializzata');
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
-  
-  // Check login
-  const isLogged = sessionStorage.getItem('admin_logged');
-  
-  if (isLogged === 'true') {
-    document.getElementById('loginOverlay').style.display = 'none';
-    caricaPrenotazioni();
-  } else {
-    document.getElementById('loginOverlay').style.display = 'flex';
-  }
-  
-  // Event listeners
-  document.getElementById('loginBtn').addEventListener('click', verificaPassword);
-  document.getElementById('passwordInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') verificaPassword();
-  });
-  
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-  document.getElementById('refreshBtn').addEventListener('click', () => caricaPrenotazioni(true));
-  
-  // Modal events
-  document.getElementById('closeModalConferma').addEventListener('click', chiudiModalConferma);
-  document.getElementById('closeModalModifica').addEventListener('click', chiudiModalModifica);
-  
-  document.getElementById('confermaBtn').addEventListener('click', confermaPrenotazione);
-  document.getElementById('salvaModificheBtn').addEventListener('click', salvaModifiche);
-  
-  // Filtri search
-  document.getElementById('searchInput').addEventListener('input', applicaFiltri);
-  document.getElementById('filtroStato').addEventListener('change', applicaFiltri);
-  document.getElementById('filtroVeicolo').addEventListener('change', applicaFiltri);
-});
-
 // ========== LOGIN ==========
-function verificaPassword() {
-  // Controlla rate limiting
-  const rateLimitCheck = checkLoginRateLimit();
+function tentaLoginAdmin() {
+  const passwordInput = document.getElementById('passwordInput');
+  const loginError = document.getElementById('loginError');
   
-  if (!rateLimitCheck.allowed) {
-    mostraErroreLogin(rateLimitCheck.message);
-    document.getElementById('passwordInput').disabled = true;
-    document.getElementById('loginBtn').disabled = true;
-    
-    // Countdown per sblocco
-    let remaining = rateLimitCheck.remainingTime;
-    const countdown = setInterval(() => {
-      remaining--;
-      if (remaining <= 0) {
-        clearInterval(countdown);
-        document.getElementById('passwordInput').disabled = false;
-        document.getElementById('loginBtn').disabled = false;
-        document.getElementById('loginError').style.display = 'none';
-      } else {
-        mostraErroreLogin(`Troppi tentativi. Riprova tra ${remaining} minuti.`);
-      }
-    }, 60000); // Aggiorna ogni minuto
-    
-    return;
-  }
+  if (!passwordInput || !loginError) return;
   
-<<<<<<< HEAD
   // Controlla rate limiting PRIMA di verificare password
   const rateLimitCheck = checkLoginRateLimit();
   
@@ -357,141 +231,100 @@ function verificaPassword() {
   }
   
   const passwordInserita = passwordInput.value.trim();
-=======
-  const password = document.getElementById('passwordInput').value;
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   
-<<<<<<< HEAD
   if (passwordInserita === ADMIN_CONFIG.password) {
     // Password corretta - reset tentativi
     resetLoginAttempts();
     
     sessionStorage.setItem('adminLoggedIn', 'true');
-=======
-  if (password === ADMIN_CONFIG.password) {
-    sessionStorage.setItem('admin_logged', 'true');
-    resetLoginAttempts();
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('dashboardContent').style.display = 'block';
+    loginError.style.display = 'none';
+    
     caricaPrenotazioni();
-    console.log('✅ Login admin riuscito');
   } else {
-<<<<<<< HEAD
     // Password errata - registra tentativo
     registerFailedLogin();
     
     loginError.textContent = 'Password errata!';
     loginError.style.display = 'block';
-=======
-    registerFailedLogin();
-    mostraErroreLogin('Password errata!');
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordInput').focus();
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   }
 }
 
-function mostraErroreLogin(messaggio) {
-  const errorDiv = document.getElementById('loginError');
-  errorDiv.textContent = sanitizeHTML(messaggio);
-  errorDiv.style.display = 'block';
-}
-
 function logout() {
-  sessionStorage.removeItem('admin_logged');
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('passwordInput').value = '';
-  prenotazioni = [];
-  document.querySelector('#tabellaPrenotazioni tbody').innerHTML = '';
-  console.log('👋 Logout effettuato');
+  if (confirm('Vuoi uscire dalla dashboard?')) {
+    sessionStorage.removeItem('adminLoggedIn');
+    
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('dashboardContent').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
+    prenotazioni = [];
+  }
 }
 
-// ========== CARICAMENTO PRENOTAZIONI ==========
-async function caricaPrenotazioni(force = false) {
+// ========== CARICA PRENOTAZIONI ==========
+async function caricaPrenotazioni(cacheBuster = null) {
+  showLoader(true);
+  
   try {
-    mostraLoader(true);
+    let url = ADMIN_CONFIG.endpoints.adminPrenotazioni + '?action=list';
     
-    const url = ADMIN_CONFIG.endpoints.adminPrenotazioni + '?action=list' + (force ? '&_=' + Date.now() : '');
+    if (cacheBuster) {
+      url += '&t=' + cacheBuster;
+    } else {
+      url += '&t=' + new Date().getTime();
+    }
     
     const response = await fetch(url, {
       method: 'GET',
-      mode: 'cors'
+      redirect: 'follow',
+      cache: 'no-cache'
     });
     
-    if (!response.ok) {
-      throw new Error('Errore HTTP: ' + response.status);
-    }
+    const result = await response.json();
     
-    const data = await response.json();
-    
-    if (data.success) {
-      prenotazioni = data.prenotazioni || [];
-      console.log(`✅ Caricate ${prenotazioni.length} prenotazioni`);
-      
-      aggiornaStatistiche();
-      popolaFiltri();
-      popolaTabella();
+    if (result.success) {
+      prenotazioni = result.prenotazioni || [];
+      aggiornaStatistiche(result.statistiche);
+      renderTabella(prenotazioni);
     } else {
-      console.error('❌ Errore caricamento:', data.message);
-      alert('Errore caricamento prenotazioni: ' + data.message);
+      showToast('❌ Errore caricamento: ' + (result.error || 'Sconosciuto'), 'error');
     }
-    
   } catch (error) {
-    console.error('❌ Errore fetch prenotazioni:', error);
-    alert('Errore di connessione. Riprova.');
+    console.error('Errore caricamento:', error);
+    showToast('❌ Errore connessione al server', 'error');
   } finally {
-    mostraLoader(false);
+    showLoader(false);
   }
 }
 
 // ========== STATISTICHE ==========
-function aggiornaStatistiche() {
-  const stats = {
-    totali: prenotazioni.length,
-    completate: prenotazioni.filter(p => p.stato === 'Completato').length,
-    daConfermare: prenotazioni.filter(p => p.stato === 'Da confermare').length,
-    corso: prenotazioni.filter(p => p.stato === 'In corso').length,
-    future: prenotazioni.filter(p => p.stato === 'Futura').length
-  };
-  
-  document.getElementById('stat-totali').textContent = stats.totali;
-  document.getElementById('stat-completate').textContent = stats.completate;
-  document.getElementById('stat-daconfermare').textContent = stats.daConfermare;
-  document.getElementById('stat-corso').textContent = stats.corso;
-  document.getElementById('stat-future').textContent = stats.future;
+function aggiornaStatistiche(stats) {
+  document.getElementById('stat-totali').textContent = stats.totali || 0;
+  document.getElementById('stat-daconfermare').textContent = stats.daConfermare || 0;
+  document.getElementById('stat-completate').textContent = stats.completate || 0;
+  document.getElementById('stat-corso').textContent = stats.inCorso || 0;
+  document.getElementById('stat-future').textContent = stats.confermate || 0;
 }
 
-// ========== FILTRI ==========
-function popolaFiltri() {
-  // Popola filtro veicoli unici
-  const veicoli = [...new Set(prenotazioni.map(p => p.pulmino).filter(Boolean))];
-  const selectVeicolo = document.getElementById('filtroVeicolo');
+// ========== RENDER TABELLA ==========
+function renderTabella(datiPrenotazioni) {
+  const tbody = document.getElementById('table-body');
+  if (!tbody) return;
   
-  selectVeicolo.innerHTML = '<option value="">Tutti i veicoli</option>';
-  veicoli.forEach(veicolo => {
-    const option = document.createElement('option');
-    option.value = veicolo;
-    option.textContent = sanitizeHTML(veicolo);
-    selectVeicolo.appendChild(option);
-  });
-}
-
-function applicaFiltri() {
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-  const filtroStato = document.getElementById('filtroStato').value;
-  const filtroVeicolo = document.getElementById('filtroVeicolo').value;
+  tbody.innerHTML = '';
   
-  const filtrate = prenotazioni.filter(p => {
-    const matchSearch = !searchTerm || 
-      p.cliente.toLowerCase().includes(searchTerm) ||
-      p.idPrenotazione.toLowerCase().includes(searchTerm) ||
-      p.cellulare.includes(searchTerm);
+  if (datiPrenotazioni.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Nessuna prenotazione trovata</td></tr>';
+    return;
+  }
+  
+  datiPrenotazioni.forEach(pren => {
+    const tr = document.createElement('tr');
     
-    const matchStato = !filtroStato || p.stato === filtroStato;
-    const matchVeicolo = !filtroVeicolo || p.pulmino === filtroVeicolo;
+    const statoCalcolato = calcolaStatoEffettivo(pren);
+    let badgeStato = '';
     
-<<<<<<< HEAD
     if (statoCalcolato === 'Da confermare') {
       badgeStato = '<span class="badge warning">⏳ Da confermare</span>';
     } else if (statoCalcolato === 'Futura') {
@@ -532,15 +365,9 @@ function applicaFiltri() {
     `;
     
     tbody.appendChild(tr);
-=======
-    return matchSearch && matchStato && matchVeicolo;
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   });
-  
-  popolaTabella(filtrate);
 }
 
-<<<<<<< HEAD
 function getNomePulmino(targa) {
   if (targa === 'EC787NM') return 'Ducato Lungo';
   if (targa === 'DN391FW') return 'Ducato Corto';
@@ -549,158 +376,126 @@ function getNomePulmino(targa) {
 }
 
 // ========== FILTRI ==========
-=======
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 function applicaFiltroDashboard(tipo) {
   filtroAttivoStat = tipo;
   
-<<<<<<< HEAD
   document.querySelectorAll('.stat-card').forEach(card => {
     card.classList.remove('active');
   });
-=======
-  // Aggiorna stili card
-  document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
-  document.getElementById('filter-' + tipo).classList.add('active');
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   
-<<<<<<< HEAD
   const filterCard = document.getElementById('filter-' + tipo);
   if (filterCard) {
     filterCard.classList.add('active');
   }
   
   let prenotazioniFiltrate = [];
-=======
-  // Applica filtro
-  document.getElementById('filtroStato').value = tipo === 'totali' ? '' : 
-    tipo === 'completate' ? 'Completato' :
-    tipo === 'daconfermare' ? 'Da confermare' :
-    tipo === 'corso' ? 'In corso' :
-    tipo === 'future' ? 'Futura' : '';
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   
-  applicaFiltri();
+  if (tipo === 'totali') {
+    prenotazioniFiltrate = prenotazioni;
+  } else if (tipo === 'daconfermare') {
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'Da confermare');
+  } else if (tipo === 'completate') {
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'Completato');
+  } else if (tipo === 'corso') {
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'In corso');
+  } else if (tipo === 'future') {
+    prenotazioniFiltrate = prenotazioni.filter(p => calcolaStatoEffettivo(p) === 'Futura');
+  }
+  
+  renderTabella(prenotazioniFiltrate);
 }
 
-<<<<<<< HEAD
 function applicaFiltri() {
   const dataInizio = document.getElementById('filter-data-inizio')?.value;
   const dataFine = document.getElementById('filter-data-fine')?.value;
   const pulmino = document.getElementById('filter-pulmino')?.value;
   const stato = document.getElementById('filter-stato')?.value;
-=======
-// ========== TABELLA ========== 
-function popolaTabella(datoiFiltrati = null) {
-  const tbody = document.querySelector('#tabellaPrenotazioni tbody');
-  tbody.innerHTML = '';
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   
-  const dati = datoiFiltrati || prenotazioni;
+  let filtrate = [...prenotazioni];
   
-  if (dati.length === 0) {
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-    td.colSpan = 7;
-    td.style.textAlign = 'center';
-    td.style.padding = '20px';
-    td.textContent = 'Nessuna prenotazione trovata';
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-    return;
+  if (dataInizio) {
+    filtrate = filtrate.filter(p => {
+      const [d, m, y] = (p.giornoInizio || '').split('/');
+      const dataISO = y && m && d ? `${y}-${m}-${d}` : '';
+      return dataISO >= dataInizio;
+    });
   }
   
-  dati.forEach(prenotazione => {
-    const tr = document.createElement('tr');
-    
-    // ID Prenotazione
-    const tdId = document.createElement('td');
-    tdId.textContent = sanitizeHTML(prenotazione.idPrenotazione);
-    tr.appendChild(tdId);
-    
-    // Cliente
-    const tdCliente = document.createElement('td');
-    tdCliente.textContent = sanitizeHTML(prenotazione.cliente);
-    tr.appendChild(tdCliente);
-    
-    // Cellulare
-    const tdCell = document.createElement('td');
-    tdCell.textContent = sanitizeHTML(prenotazione.cellulare);
-    tr.appendChild(tdCell);
-    
-    // Date
-    const tdDate = document.createElement('td');
-    tdDate.textContent = `${sanitizeHTML(prenotazione.dataRitiro)} → ${sanitizeHTML(prenotazione.dataConsegna)}`;
-    tr.appendChild(tdDate);
-    
-    // Veicolo
-    const tdVeicolo = document.createElement('td');
-    tdVeicolo.textContent = sanitizeHTML(prenotazione.pulmino);
-    tr.appendChild(tdVeicolo);
-    
-    // Stato
-    const tdStato = document.createElement('td');
-    const spanStato = document.createElement('span');
-    spanStato.className = 'badge badge-' + getBadgeClass(prenotazione.stato);
-    spanStato.textContent = sanitizeHTML(prenotazione.stato);
-    tdStato.appendChild(spanStato);
-    tr.appendChild(tdStato);
-    
-    // Azioni
-    const tdAzioni = document.createElement('td');
-    tdAzioni.className = 'azioni';
-    
-    if (prenotazione.stato === 'Da confermare') {
-      const btnConferma = document.createElement('button');
-      btnConferma.className = 'btn-azione btn-conferma';
-      btnConferma.title = 'Conferma prenotazione';
-      btnConferma.textContent = '✓';
-      btnConferma.onclick = () => apriModalConferma(prenotazione);
-      tdAzioni.appendChild(btnConferma);
-    } else {
-      const btnAnnulla = document.createElement('button');
-      btnAnnulla.className = 'btn-azione btn-annulla';
-      btnAnnulla.title = 'Riporta a Da confermare';
-      btnAnnulla.textContent = '↩';
-      btnAnnulla.onclick = () => annullaConferma(prenotazione.idPrenotazione);
-      tdAzioni.appendChild(btnAnnulla);
-    }
-    
-    const btnModifica = document.createElement('button');
-    btnModifica.className = 'btn-azione btn-modifica';
-    btnModifica.title = 'Modifica';
-    btnModifica.textContent = '✎';
-    btnModifica.onclick = () => apriModalModifica(prenotazione);
-    tdAzioni.appendChild(btnModifica);
-    
-    const btnElimina = document.createElement('button');
-    btnElimina.className = 'btn-azione btn-elimina';
-    btnElimina.title = 'Elimina';
-    btnElimina.textContent = '🗑';
-    btnElimina.onclick = () => eliminaPrenotazione(prenotazione.idPrenotazione);
-    tdAzioni.appendChild(btnElimina);
-    
-    tr.appendChild(tdAzioni);
-    tbody.appendChild(tr);
-  });
+  if (dataFine) {
+    filtrate = filtrate.filter(p => {
+      const [d, m, y] = (p.giornoFine || '').split('/');
+      const dataISO = y && m && d ? `${y}-${m}-${d}` : '';
+      return dataISO <= dataFine;
+    });
+  }
+  
+  if (pulmino) {
+    filtrate = filtrate.filter(p => p.targa === pulmino);
+  }
+  
+  if (stato) {
+    filtrate = filtrate.filter(p => p.stato === stato);
+  }
+  
+  renderTabella(filtrate);
 }
 
-function getBadgeClass(stato) {
-  const map = {
-    'Da confermare': 'warning',
-    'Futura': 'info',
-    'In corso': 'success',
-    'Completato': 'secondary'
-  };
-  return map[stato] || 'default';
+// ========== ORDINAMENTO ==========
+function ordinaPer(campo) {
+  if (ordinamentoAttuale.campo === campo) {
+    ordinamentoAttuale.direzione = ordinamentoAttuale.direzione === 'asc' ? 'desc' : 'asc';
+  } else {
+    ordinamentoAttuale.campo = campo;
+    ordinamentoAttuale.direzione = 'asc';
+  }
+  
+  prenotazioni.sort((a, b) => {
+    let valA = a[campo] || '';
+    let valB = b[campo] || '';
+    
+    if (campo === 'giornoInizio' || campo === 'giornoFine') {
+      const dataA = convertiDataPerOrdinamento(valA);
+      const dataB = convertiDataPerOrdinamento(valB);
+      
+      if (ordinamentoAttuale.direzione === 'asc') {
+        return dataA - dataB;
+      } else {
+        return dataB - dataA;
+      }
+    }
+    
+    if (ordinamentoAttuale.direzione === 'asc') {
+      return valA > valB ? 1 : -1;
+    } else {
+      return valA < valB ? 1 : -1;
+    }
+  });
+  
+  renderTabella(prenotazioni);
+}
+
+function convertiDataPerOrdinamento(dataStr) {
+  if (!dataStr || dataStr === 'N/A') return 0;
+  
+  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const [, giorno, mese, anno] = match;
+    return new Date(parseInt(anno), parseInt(mese) - 1, parseInt(giorno)).getTime();
+  }
+  
+  return 0;
 }
 
 // ========== MODAL CONFERMA ==========
-function apriModalConferma(prenotazione) {
-  prenotazioneDaConfermare = prenotazione;
+function apriModalConferma(idPrenotazione) {
+  prenotazioneDaConfermare = prenotazioni.find(p => p.idPrenotazione === idPrenotazione);
+  
+  if (!prenotazioneDaConfermare) {
+    alert('Prenotazione non trovata');
+    return;
+  }
   
   const dettagli = document.getElementById('conferma-dettagli');
-<<<<<<< HEAD
   if (dettagli) {
     dettagli.innerHTML = `
       <p><strong>ID:</strong> ${sanitizeHTML(prenotazioneDaConfermare.idPrenotazione)}</p>
@@ -712,40 +507,14 @@ function apriModalConferma(prenotazione) {
       <p><strong>Cellulare:</strong> ${sanitizeHTML(prenotazioneDaConfermare.cellulare)}</p>
     `;
   }
-=======
-  dettagli.innerHTML = '';
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   
-<<<<<<< HEAD
   const modal = document.getElementById('modalConferma');
   if (modal) {
     modal.classList.add('active');
   }
-=======
-  const info = [
-    { label: 'ID', value: prenotazione.idPrenotazione },
-    { label: 'Cliente', value: prenotazione.cliente },
-    { label: 'Dal', value: prenotazione.dataRitiro },
-    { label: 'Al', value: prenotazione.dataConsegna },
-    { label: 'Veicolo', value: prenotazione.pulmino }
-  ];
-  
-  info.forEach(item => {
-    const p = document.createElement('p');
-    const strong = document.createElement('strong');
-    strong.textContent = item.label + ': ';
-    p.appendChild(strong);
-    p.appendChild(document.createTextNode(sanitizeHTML(item.value)));
-    dettagli.appendChild(p);
-  });
-  
-  document.getElementById('conferma-importo').value = '';
-  document.getElementById('modalConferma').style.display = 'flex';
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 }
 
 function chiudiModalConferma() {
-<<<<<<< HEAD
   const modal = document.getElementById('modalConferma');
   if (modal) {
     modal.classList.remove('active');
@@ -756,14 +525,15 @@ function chiudiModalConferma() {
     importoInput.value = '';
   }
   
-=======
-  document.getElementById('modalConferma').style.display = 'none';
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   prenotazioneDaConfermare = null;
 }
 
-async function confermaPrenotazione() {
-  if (!prenotazioneDaConfermare) return;
+// ========== CONFERMA PRENOTAZIONE ==========
+async function confermaPrenotazioneAdmin() {
+  if (!prenotazioneDaConfermare) {
+    alert('Nessuna prenotazione selezionata');
+    return;
+  }
   
   const importoInput = document.getElementById('conferma-importo');
   if (!importoInput) return;
@@ -771,115 +541,177 @@ async function confermaPrenotazione() {
   const importo = importoInput.value.trim();
   
   if (!importo) {
-    alert('Inserisci un importo');
+    alert('⚠️ Inserisci l\'importo del preventivo');
     return;
   }
   
+  if (!confirm(`Confermare prenotazione ${prenotazioneDaConfermare.idPrenotazione}?\n\nVerrà generato il contratto PDF e lo stato cambierà automaticamente.`)) {
+    return;
+  }
+  
+  showLoader(true);
+  
   try {
-    mostraLoader(true);
-    
     const payload = {
       action: 'confirm',
       idPrenotazione: prenotazioneDaConfermare.idPrenotazione,
       importo: importo
     };
     
+    const params = new URLSearchParams();
+    params.append('payload', JSON.stringify(payload));
+    
     const response = await fetch(ADMIN_CONFIG.endpoints.manageBooking, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'payload=' + encodeURIComponent(JSON.stringify(payload))
+      body: params,
+      redirect: 'follow'
     });
     
-    const data = await response.json();
+    const result = await response.json();
     
-<<<<<<< HEAD
     if (result.success) {
       alert('✅ Prenotazione confermata e PDF generato con successo!');
-=======
-    if (data.success) {
-      alert('✅ Prenotazione confermata!');
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
       chiudiModalConferma();
-<<<<<<< HEAD
       await new Promise(resolve => setTimeout(resolve, 1000));
       const cacheBuster = new Date().getTime();
       await caricaPrenotazioni(cacheBuster);
       console.log('🔄 Dashboard aggiornata automaticamente');
-=======
-      caricaPrenotazioni(true);
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     } else {
-<<<<<<< HEAD
       alert('❌ Errore: ' + (result.error || result.message || 'Sconosciuto'));
-=======
-      alert('❌ Errore: ' + data.message);
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     }
-    
   } catch (error) {
-    console.error('❌ Errore conferma:', error);
-    alert('Errore di rete');
+    console.error('Errore conferma:', error);
+    alert('❌ Errore durante la conferma: ' + error.message);
   } finally {
-    mostraLoader(false);
+    showLoader(false);
   }
 }
 
-// ========== ANNULLA CONFERMA ==========
-async function annullaConferma(idPrenotazione) {
-  if (!confirm('Vuoi riportare questa prenotazione a "Da confermare"? Il PDF verrà eliminato.')) {
+// ========== MODAL MODIFICA ==========
+function apriModalModifica(idPrenotazione) {
+  const prenotazione = prenotazioni.find(p => p.idPrenotazione === idPrenotazione);
+  
+  if (!prenotazione) {
+    alert('Prenotazione non trovata');
     return;
   }
   
+  const setValueIfExists = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.value = value || '';
+  };
+  
+  setValueIfExists('mod-id', prenotazione.idPrenotazione);
+  setValueIfExists('mod-nome', prenotazione.nome);
+  setValueIfExists('mod-luogo-nascita', prenotazione.luogoNascita);
+  setValueIfExists('mod-data-nascita', convertiDataPerInput(prenotazione.dataNascita));
+  setValueIfExists('mod-cf', prenotazione.cf);
+  setValueIfExists('mod-cellulare', prenotazione.cellulare);
+  setValueIfExists('mod-comune-residenza', prenotazione.comuneResidenza);
+  setValueIfExists('mod-via-residenza', prenotazione.viaResidenza);
+  setValueIfExists('mod-civico-residenza', prenotazione.civicoResidenza);
+  setValueIfExists('mod-numero-patente', prenotazione.numeroPatente);
+  setValueIfExists('mod-data-inizio-patente', convertiDataPerInput(prenotazione.dataInizioPatente));
+  setValueIfExists('mod-scadenza-patente', convertiDataPerInput(prenotazione.scadenzaPatente));
+  setValueIfExists('mod-targa', prenotazione.targa);
+  setValueIfExists('mod-data-inizio', convertiDataPerInput(prenotazione.giornoInizio));
+  setValueIfExists('mod-ora-inizio', prenotazione.oraInizio);
+  setValueIfExists('mod-data-fine', convertiDataPerInput(prenotazione.giornoFine));
+  setValueIfExists('mod-ora-fine', prenotazione.oraFine);
+  
+  const statoLabel = document.getElementById('stato-attuale-label');
+  if (statoLabel) {
+    statoLabel.textContent = `Stato attuale: ${sanitizeHTML(prenotazione.stato)}`;
+  }
+  
+  const modal = document.getElementById('modalModifica');
+  if (modal) {
+    modal.classList.add('active');
+  }
+}
+
+function convertiDataPerInput(dataStr) {
+  if (!dataStr) return '';
+  
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+    return dataStr;
+  }
+  
+  const match = dataStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const [, giorno, mese, anno] = match;
+    return `${anno}-${mese}-${giorno}`;
+  }
+  
+  return '';
+}
+
+function chiudiModifica() {
+  const modal = document.getElementById('modalModifica');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+// ========== RIPORTA A "DA CONFERMARE" ==========
+async function riportaDaConfermare() {
+  const idInput = document.getElementById('mod-id');
+  if (!idInput) return;
+  
+  const idPrenotazione = idInput.value;
+  const statoLabel = document.getElementById('stato-attuale-label');
+  const statoAttuale = statoLabel ? statoLabel.textContent : '';
+  
+  if (!idPrenotazione) {
+    alert('⚠️ Nessuna prenotazione selezionata');
+    return;
+  }
+  
+  if (!confirm(`⚠️ ATTENZIONE: Annullare la conferma?\n\n${statoAttuale}\n\n⚠️ Questa azione:\n• Eliminerà il PDF generato\n• Riporterà lo stato a "Da confermare"\n\nContinuare?`)) {
+    return;
+  }
+  
+  showLoader(true);
+  
   try {
-    mostraLoader(true);
-    
     const payload = {
       action: 'unconfirm',
       idPrenotazione: idPrenotazione
     };
     
+    const params = new URLSearchParams();
+    params.append('payload', JSON.stringify(payload));
+    
     const response = await fetch(ADMIN_CONFIG.endpoints.manageBooking, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'payload=' + encodeURIComponent(JSON.stringify(payload))
+      body: params,
+      redirect: 'follow'
     });
     
-    const data = await response.json();
+    const result = await response.json();
     
-    if (data.success) {
-      alert('✅ Conferma annullata, stato ripristinato a "Da confermare"');
-      caricaPrenotazioni(true);
+    if (result.success) {
+      alert('✅ Conferma annullata: PDF eliminato e stato riportato a "Da confermare"');
+      chiudiModifica();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await caricaPrenotazioni(new Date().getTime());
+      console.log('🔄 Dashboard aggiornata dopo annullamento');
     } else {
-<<<<<<< HEAD
       alert('❌ Errore: ' + (result.error || result.message || 'Sconosciuto'));
-=======
-      alert('❌ Errore: ' + data.message);
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     }
-    
   } catch (error) {
-    console.error('❌ Errore annullamento:', error);
-    alert('Errore di rete');
+    console.error('Errore:', error);
+    alert('❌ Errore durante l\'operazione: ' + error.message);
   } finally {
-    mostraLoader(false);
+    showLoader(false);
   }
 }
 
-<<<<<<< HEAD
 // ========== ELIMINA PRENOTAZIONE ==========
 async function eliminaPrenotazione() {
   const idInput = document.getElementById('mod-id');
   const nomeInput = document.getElementById('mod-nome');
-=======
-// ========== MODAL MODIFICA ==========
-function apriModalModifica(prenotazione) {
-  // Popola campi modal (simplified - non uso innerHTML)
-  document.getElementById('mod-id').value = prenotazione.idPrenotazione;
-  document.getElementById('mod-nome').value = prenotazione.cliente;
-  document.getElementById('mod-cellulare').value = prenotazione.cellulare;
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   
-<<<<<<< HEAD
   if (!idInput) return;
   
   const idPrenotazione = idInput.value;
@@ -887,63 +719,45 @@ function apriModalModifica(prenotazione) {
   
   if (!idPrenotazione) {
     alert('⚠️ Nessuna prenotazione selezionata');
-=======
-  document.getElementById('modalModifica').style.display = 'flex';
-}
-
-function chiudiModalModifica() {
-  document.getElementById('modalModifica').style.display = 'none';
-}
-
-async function salvaModifiche() {
-  // Implementazione salvataggio modifiche
-  alert('Funzionalità modifica in sviluppo');
-  chiudiModalModifica();
-}
-
-// ========== ELIMINA PRENOTAZIONE ==========
-async function eliminaPrenotazione(idPrenotazione) {
-  if (!confirm('Sei sicuro di voler eliminare questa prenotazione?')) {
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     return;
   }
   
+  if (!confirm(`⚠️ ATTENZIONE!\n\nStai per ELIMINARE definitivamente la prenotazione:\n\n📋 ID: ${idPrenotazione}\n👤 Cliente: ${nomeCliente}\n\n❌ Questa azione NON può essere annullata.\n\nSei sicuro di voler procedere?`)) {
+    return;
+  }
+  
+  if (!confirm('🚨 ULTIMA CONFERMA\n\nConfermi l\'eliminazione DEFINITIVA?')) {
+    return;
+  }
+  
+  showLoader(true);
+  
   try {
-    mostraLoader(true);
-    
     const payload = {
       action: 'delete',
       idPrenotazione: idPrenotazione
     };
     
+    const params = new URLSearchParams();
+    params.append('payload', JSON.stringify(payload));
+    
     const response = await fetch(ADMIN_CONFIG.endpoints.manageBooking, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'payload=' + encodeURIComponent(JSON.stringify(payload))
+      body: params,
+      redirect: 'follow'
     });
     
-    const data = await response.json();
+    const result = await response.json();
     
-<<<<<<< HEAD
     if (result.success) {
       alert('✅ Prenotazione eliminata con successo');
       chiudiModifica();
       await new Promise(resolve => setTimeout(resolve, 1000));
       await caricaPrenotazioni(new Date().getTime());
       console.log('🗑️ Prenotazione eliminata e dashboard aggiornata');
-=======
-    if (data.success) {
-      alert('✅ Prenotazione eliminata');
-      caricaPrenotazioni(true);
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     } else {
-<<<<<<< HEAD
       alert('❌ Errore eliminazione: ' + (result.error || result.message || 'Sconosciuto'));
-=======
-      alert('❌ Errore: ' + data.message);
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     }
-<<<<<<< HEAD
   } catch (error) {
     console.error('Errore eliminazione:', error);
     alert('❌ Errore durante l\'eliminazione: ' + error.message);
@@ -992,10 +806,7 @@ async function salvaModifica() {
       'Giorno fine noleggio': getValueOrEmpty('mod-data-fine'),
       'Ora fine noleggio': getValueOrEmpty('mod-ora-fine')
     };
-=======
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
     
-<<<<<<< HEAD
     const params = new URLSearchParams();
     params.append('payload', JSON.stringify(payload));
     
@@ -1016,17 +827,14 @@ async function salvaModifica() {
     } else {
       alert('❌ Errore salvataggio: ' + (result.error || result.message || 'Sconosciuto'));
     }
-=======
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
   } catch (error) {
-    console.error('❌ Errore eliminazione:', error);
-    alert('Errore di rete');
+    console.error('Errore salvataggio:', error);
+    alert('❌ Errore durante il salvataggio: ' + error.message);
   } finally {
-    mostraLoader(false);
+    showLoader(false);
   }
 }
 
-<<<<<<< HEAD
 // ========== EXPORT CSV ==========
 function esportaCSV() {
   let csv = 'ID;Cliente;CF;Veicolo;Dal;Al;Cellulare;Stato;Importo\n';
@@ -1049,14 +857,8 @@ function esportaCSV() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-=======
-// ========== UTILITY ==========
-function mostraLoader(show) {
-  document.getElementById('loader').style.display = show ? 'flex' : 'none';
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
 }
 
-<<<<<<< HEAD
 // ========== DIAGNOSTICA ==========
 window.adminDebug = function() {
   console.group('🔧 Diagnostica Admin Dashboard');
@@ -1106,6 +908,3 @@ document.addEventListener('DOMContentLoaded', () => {
   
   console.log('✅ Admin Dashboard v' + ADMIN_VERSION + ' caricata con Security Features');
 });
-
-=======
->>>>>>> 5780dee314f1fa0a5e677b0c92cbfc32a9be8c60
