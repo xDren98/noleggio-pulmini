@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Dashboard - Imbriani Noleggio v2.0</title>
+  <title>Admin Dashboard - Imbriani Noleggio v2.4</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -252,6 +252,9 @@
       padding: 10px 24px;
       border-radius: 8px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .btn-secondary:hover {
       background: #ddd;
@@ -350,175 +353,177 @@
     </div>
   </div>
 
- <!-- MODAL MODIFICA -->
-<div class="modal-overlay" id="modalModifica">
-  <form class="modal-box" id="formModifica" onsubmit="event.preventDefault(); salvaModifica();" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
-    <h2 style="margin-bottom: 24px;">✏️ Modifica Prenotazione</h2>
-    
-    <input type="hidden" id="mod-id" />
-    
-    <!-- SEZIONE ANAGRAFICA -->
-    <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
-      <h3 style="font-size: 16px; margin-bottom: 12px; color: #667eea; display: flex; align-items: center; gap: 8px;">
-        <span class="material-icons" style="font-size: 20px;">person</span>
-        Dati Anagrafici Autista Principale
-      </h3>
+  <!-- MODAL MODIFICA -->
+  <div class="modal-overlay" id="modalModifica">
+    <form class="modal-box" id="formModifica" onsubmit="event.preventDefault(); salvaModifica();" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+      <h2 style="margin-bottom: 24px;">✏️ Modifica Prenotazione</h2>
       
-      <label>Nome e Cognome</label>
-      <input type="text" id="mod-nome" required placeholder="Es. Mario Rossi" />
+      <input type="hidden" id="mod-id" />
       
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-        <div>
-          <label>📍 Luogo di Nascita</label>
-          <input type="text" id="mod-luogo-nascita" required placeholder="Es. Lecce" />
+      <!-- SEZIONE ANAGRAFICA -->
+      <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #667eea; display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 20px;">person</span>
+          Dati Anagrafici Autista Principale
+        </h3>
+        
+        <label>Nome e Cognome</label>
+        <input type="text" id="mod-nome" required placeholder="Es. Mario Rossi" />
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+          <div>
+            <label>📍 Luogo di Nascita</label>
+            <input type="text" id="mod-luogo-nascita" required placeholder="Es. Lecce" />
+          </div>
+          <div>
+            <label>📅 Data di Nascita</label>
+            <input type="date" id="mod-data-nascita" required />
+          </div>
         </div>
-        <div>
-          <label>📅 Data di Nascita</label>
-          <input type="date" id="mod-data-nascita" required />
+        
+        <label>Codice Fiscale</label>
+        <input type="text" id="mod-cf" maxlength="16" required style="text-transform: uppercase;" placeholder="RSSMRA80A01H501U" />
+        
+        <label>📞 Cellulare</label>
+        <input type="tel" id="mod-cellulare" required placeholder="320 123 4567" />
+      </div>
+      
+      <!-- SEZIONE RESIDENZA -->
+      <div style="background: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #f59e0b; display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 20px;">home</span>
+          Residenza
+        </h3>
+        
+        <label>🏙️ Comune di Residenza</label>
+        <input type="text" id="mod-comune-residenza" required placeholder="Es. Lecce" />
+        
+        <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 12px;">
+          <div>
+            <label>🏠 Via di Residenza</label>
+            <input type="text" id="mod-via-residenza" required placeholder="Es. Via Roma" />
+          </div>
+          <div>
+            <label>🔢 Civico</label>
+            <input type="text" id="mod-civico-residenza" required placeholder="123" />
+          </div>
         </div>
       </div>
       
-      <label>Codice Fiscale</label>
-      <input type="text" id="mod-cf" maxlength="16" required style="text-transform: uppercase;" placeholder="RSSMRA80A01H501U" />
-      
-      <label>📞 Cellulare</label>
-      <input type="tel" id="mod-cellulare" required placeholder="320 123 4567" />
-    </div>
-    
-    <!-- SEZIONE RESIDENZA -->
-    <div style="background: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-      <h3 style="font-size: 16px; margin-bottom: 12px; color: #f59e0b; display: flex; align-items: center; gap: 8px;">
-        <span class="material-icons" style="font-size: 20px;">home</span>
-        Residenza
-      </h3>
-      
-      <label>🏙️ Comune di Residenza</label>
-      <input type="text" id="mod-comune-residenza" required placeholder="Es. Lecce" />
-      
-      <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 12px;">
-        <div>
-          <label>🏠 Via di Residenza</label>
-          <input type="text" id="mod-via-residenza" required placeholder="Es. Via Roma" />
-        </div>
-        <div>
-          <label>🔢 Civico</label>
-          <input type="text" id="mod-civico-residenza" required placeholder="123" />
-        </div>
-      </div>
-    </div>
-    
-    <!-- SEZIONE PATENTE -->
-    <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-      <h3 style="font-size: 16px; margin-bottom: 12px; color: #3b82f6; display: flex; align-items: center; gap: 8px;">
-        <span class="material-icons" style="font-size: 20px;">badge</span>
-        Patente di Guida
-      </h3>
-      
-      <label>🪪 Numero Patente</label>
-      <input type="text" id="mod-numero-patente" required placeholder="Es. U1AB12345" />
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div>
-          <label>📅 Data Inizio Validità</label>
-          <input type="date" id="mod-data-inizio-patente" required />
-        </div>
-        <div>
-          <label>📅 Scadenza Patente</label>
-          <input type="date" id="mod-scadenza-patente" required />
-        </div>
-      </div>
-    </div>
-    
-    <!-- SEZIONE VEICOLO -->
-    <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #22c55e;">
-      <h3 style="font-size: 16px; margin-bottom: 12px; color: #22c55e; display: flex; align-items: center; gap: 8px;">
-        <span class="material-icons" style="font-size: 20px;">directions_bus</span>
-        Veicolo
-      </h3>
-      
-      <label>Pulmino</label>
-      <select id="mod-targa" required>
-        <option value="">Seleziona pulmino</option>
-        <option value="EC787NM">🚐 Ducato Lungo (EC787NM) - 9 posti</option>
-        <option value="DN391FW">🚐 Ducato Corto (DN391FW) - 6 posti</option>
-        <option value="DL291XZ">🚐 Peugeot Expert (DL291XZ) - 5 posti</option>
-      </select>
-    </div>
-    
-    <!-- SEZIONE DATE E ORARI -->
-    <div style="background: #fffbeb; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-      <h3 style="font-size: 16px; margin-bottom: 12px; color: #f59e0b; display: flex; align-items: center; gap: 8px;">
-        <span class="material-icons" style="font-size: 20px;">event</span>
-        Periodo Noleggio
-      </h3>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div>
-          <label>📅 Data Inizio</label>
-          <input type="date" id="mod-data-inizio" required />
-        </div>
-        <div>
-          <label>🕐 Ora Inizio</label>
-          <input type="time" id="mod-ora-inizio" required />
+      <!-- SEZIONE PATENTE -->
+      <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #3b82f6; display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 20px;">badge</span>
+          Patente di Guida
+        </h3>
+        
+        <label>🪪 Numero Patente</label>
+        <input type="text" id="mod-numero-patente" required placeholder="Es. U1AB12345" />
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label>📅 Data Inizio Validità</label>
+            <input type="date" id="mod-data-inizio-patente" required />
+          </div>
+          <div>
+            <label>📅 Scadenza Patente</label>
+            <input type="date" id="mod-scadenza-patente" required />
+          </div>
         </div>
       </div>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div>
-          <label>📅 Data Fine</label>
-          <input type="date" id="mod-data-fine" required />
+      <!-- SEZIONE VEICOLO -->
+      <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #22c55e;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #22c55e; display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 20px;">directions_bus</span>
+          Veicolo
+        </h3>
+        
+        <label>Pulmino</label>
+        <select id="mod-targa" required>
+          <option value="">Seleziona pulmino</option>
+          <option value="EC787NM">🚐 Ducato Lungo (EC787NM) - 9 posti</option>
+          <option value="DN391FW">🚐 Ducato Corto (DN391FW) - 6 posti</option>
+          <option value="DL291XZ">🚐 Peugeot Expert (DL291XZ) - 5 posti</option>
+        </select>
+      </div>
+      
+      <!-- SEZIONE DATE E ORARI -->
+      <div style="background: #fffbeb; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #f59e0b; display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 20px;">event</span>
+          Periodo Noleggio
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label>📅 Data Inizio</label>
+            <input type="date" id="mod-data-inizio" required />
+          </div>
+          <div>
+            <label>🕐 Ora Inizio</label>
+            <input type="time" id="mod-ora-inizio" required />
+          </div>
         </div>
-        <div>
-          <label>🕐 Ora Fine</label>
-          <input type="time" id="mod-ora-fine" required />
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label>📅 Data Fine</label>
+            <input type="date" id="mod-data-fine" required />
+          </div>
+          <div>
+            <label>🕐 Ora Fine</label>
+            <input type="time" id="mod-ora-fine" required />
+          </div>
         </div>
       </div>
-    </div>
-    
-    <!-- SEZIONE STATO -->
-    <div style="background: #fef3f2; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
-      <h3 style="font-size: 16px; margin-bottom: 12px; color: #ef4444; display: flex; align-items: center; gap: 8px;">
-        <span class="material-icons" style="font-size: 20px;">flag</span>
-        Stato Prenotazione
-      </h3>
       
-      <label>Stato Attuale</label>
-      <select id="mod-stato" required>
-        <option value="Da confermare">⏳ Da confermare</option>
-        <option value="Confermata">✅ Confermata</option>
-        <option value="In corso">🚐 In corso</option>
-        <option value="Completato">✓ Completato</option>
-      </select>
-      <p style="font-size: 13px; color: #666; margin-top: 6px;">
-        ℹ️ Il cambiamento di stato influenza le statistiche della dashboard
-      </p>
-    </div>
-    
-<!-- AZIONI -->
-<div class="modal-actions" style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #e5e7eb; display: flex; justify-content: space-between;">
-  <button type="button" class="btn-secondary" onclick="eliminaPrenotazione()" style="background: #fee2e2; color: #dc2626; border: 2px solid #dc2626;">
-    <span class="material-icons" style="font-size: 18px;">delete</span>
-    Elimina Prenotazione
-  </button>
-  
-  <div style="display: flex; gap: 12px;">
-    <button type="button" class="btn-secondary" onclick="chiudiModifica()">
-      <span class="material-icons" style="font-size: 18px;">close</span>
-      Annulla
-    </button>
-    <button type="submit" class="btn-main">
-      <span class="material-icons" style="font-size: 18px;">save</span>
-      Salva Modifiche
-    </button>
+      <!-- SEZIONE STATO -->
+      <div style="background: #fef3f2; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #ef4444; display: flex; align-items: center; gap: 8px;">
+          <span class="material-icons" style="font-size: 20px;">flag</span>
+          Stato Prenotazione
+        </h3>
+        
+        <label>Stato Attuale</label>
+        <select id="mod-stato" required>
+          <option value="Da confermare">⏳ Da confermare</option>
+          <option value="Confermata">✅ Confermata</option>
+          <option value="In corso">🚐 In corso</option>
+          <option value="Completato">✓ Completato</option>
+        </select>
+        <p style="font-size: 13px; color: #666; margin-top: 6px;">
+          ℹ️ Il cambiamento di stato influenza le statistiche della dashboard
+        </p>
+      </div>
+      
+      <!-- AZIONI -->
+      <div class="modal-actions" style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #e5e7eb; display: flex; justify-content: space-between;">
+        <button type="button" class="btn-secondary" onclick="eliminaPrenotazione()" style="background: #fee2e2; color: #dc2626; border: 2px solid #dc2626;">
+          <span class="material-icons" style="font-size: 18px;">delete</span>
+          Elimina Prenotazione
+        </button>
+        
+        <div style="display: flex; gap: 12px;">
+          <button type="button" class="btn-secondary" onclick="chiudiModifica()">
+            <span class="material-icons" style="font-size: 18px;">close</span>
+            Annulla
+          </button>
+          <button type="submit" class="btn-main">
+            <span class="material-icons" style="font-size: 18px;">save</span>
+            Salva Modifiche
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
-</div>
 
   <!-- DASHBOARD -->
   <div id="dashboardContent" style="display: none;">
     <div class="header">
       <div>
         <h1>🚐 Dashboard Amministrativa</h1>
-        <p>Gestione prenotazioni Imbriani Noleggio v2.0</p>
+        <p>Gestione prenotazioni Imbriani Noleggio v2.4</p>
       </div>
       <div class="header-actions">
         <button class="logout-btn" onclick="logout()">
@@ -544,7 +549,7 @@
             <p>Completate</p>
           </div>
         </div>
-         <div class="stat-card" id="filter-daconfermare" onclick="applicaFiltroDashboard('daconfermare')">
+        <div class="stat-card" id="filter-daconfermare" onclick="applicaFiltroDashboard('daconfermare')">
           <div class="stat-icon orange">⏳</div>
           <div class="stat-content">
             <h3 id="stat-daconfermare">0</h3>
