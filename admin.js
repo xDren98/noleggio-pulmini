@@ -212,19 +212,44 @@ function renderTabella(datiPrenotazioni) {
   datiPrenotazioni.forEach(pren => {
     const tr = document.createElement('tr');
     
-    // Badge stato
+       // ✅ Badge stato con logica temporale
     let badgeStato = '';
-    if (pren.stato === 'Da confermare') {
-      badgeStato = '<span class="badge warning">⏳ Da confermare</span>';
-    } else if (pren.stato === 'Confermata') {
-      badgeStato = '<span class="badge success">✅ Confermata</span>';
-    } else if (pren.stato === 'In corso') {
-      badgeStato = '<span class="badge info">🚐 In corso</span>';
-    } else if (pren.stato === 'Completato') {
-      badgeStato = '<span class="badge" style="background: #e5e7eb; color: #374151;">✓ Completato</span>';
-    } else {
-      badgeStato = '<span class="badge info">' + pren.stato + '</span>';
+    const statoReale = pren.stato || '';
+    
+    // Calcola stato effettivo basandosi sulla data
+    let statoCalcolato = statoReale;
+    
+    if (statoReale === 'Confermata') {
+      const oggi = new Date();
+      oggi.setHours(0, 0, 0, 0);
+      
+      const dataInizio = convertiDataPerFiltro(pren.giornoInizio);
+      const dataFine = convertiDataPerFiltro(pren.giornoFine);
+      
+      if (dataFine && dataFine < oggi) {
+        statoCalcolato = 'Completato';
+      } else if (dataInizio && dataInizio <= oggi && dataFine && dataFine >= oggi) {
+        statoCalcolato = 'In corso';
+      } else if (dataInizio && dataInizio > oggi) {
+        statoCalcolato = 'Futura';
+      }
     }
+    
+    // Crea badge in base allo stato calcolato
+    if (statoCalcolato === 'Da confermare') {
+      badgeStato = '<span class="badge warning">⏳ Da confermare</span>';
+    } else if (statoCalcolato === 'Futura') {
+      badgeStato = '<span class="badge info">📅 Futura</span>';
+    } else if (statoCalcolato === 'In corso') {
+      badgeStato = '<span class="badge info">🚐 In corso</span>';
+    } else if (statoCalcolato === 'Completato') {
+      badgeStato = '<span class="badge" style="background: #e5e7eb; color: #374151;">✓ Completato</span>';
+    } else if (statoCalcolato === 'Confermata') {
+      badgeStato = '<span class="badge success">✅ Confermata</span>';
+    } else {
+      badgeStato = '<span class="badge info">' + statoReale + '</span>';
+    }
+    
     
     // Pulsanti azioni
     let azioni = `
