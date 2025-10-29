@@ -494,20 +494,24 @@
       </p>
     </div>
     
-    <!-- AZIONI -->
-    <div class="modal-actions" style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-      <button type="button" class="btn-secondary" onclick="chiudiModifica()">
-        <span class="material-icons" style="font-size: 18px;">close</span>
-        Annulla
-      </button>
-      <button type="submit" class="btn-main">
-        <span class="material-icons" style="font-size: 18px;">save</span>
-        Salva Modifiche
-      </button>
-    </div>
-  </form>
+<!-- AZIONI -->
+<div class="modal-actions" style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #e5e7eb; display: flex; justify-content: space-between;">
+  <button type="button" class="btn-secondary" onclick="eliminaPrenotazione()" style="background: #fee2e2; color: #dc2626; border: 2px solid #dc2626;">
+    <span class="material-icons" style="font-size: 18px;">delete</span>
+    Elimina Prenotazione
+  </button>
+  
+  <div style="display: flex; gap: 12px;">
+    <button type="button" class="btn-secondary" onclick="chiudiModifica()">
+      <span class="material-icons" style="font-size: 18px;">close</span>
+      Annulla
+    </button>
+    <button type="submit" class="btn-main">
+      <span class="material-icons" style="font-size: 18px;">save</span>
+      Salva Modifiche
+    </button>
+  </div>
 </div>
-
 
   <!-- DASHBOARD -->
   <div id="dashboardContent" style="display: none;">

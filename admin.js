@@ -587,6 +587,69 @@ function chiudiModifica() {
   document.getElementById('modalModifica').classList.remove('active');
 }
 
+// ========== ELIMINA PRENOTAZIONE ==========
+async function eliminaPrenotazione() {
+  const idPrenotazione = document.getElementById('mod-id').value;
+  const nomeCliente = document.getElementById('mod-nome').value;
+  
+  if (!idPrenotazione) {
+    alert('⚠️ Nessuna prenotazione selezionata');
+    return;
+  }
+  
+  // Conferma doppia per sicurezza
+  if (!confirm(`⚠️ ATTENZIONE!\n\nStai per ELIMINARE definitivamente la prenotazione:\n\n📋 ID: ${idPrenotazione}\n👤 Cliente: ${nomeCliente}\n\n❌ Questa azione NON può essere annullata.\n\nSei sicuro di voler procedere?`)) {
+    return;
+  }
+  
+  // Seconda conferma
+  if (!confirm('🚨 ULTIMA CONFERMA\n\nConfermi l\'eliminazione DEFINITIVA?')) {
+    return;
+  }
+  
+  showLoader(true);
+  
+  try {
+    const payload = {
+      action: 'delete',
+      idPrenotazione: idPrenotazione
+    };
+    
+    const params = new URLSearchParams();
+    params.append('payload', JSON.stringify(payload));
+    
+    const response = await fetch(ADMIN_CONFIG.endpoints.manageBooking, {
+      method: 'POST',
+      body: params,
+      redirect: 'follow'
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      alert('✅ Prenotazione eliminata con successo');
+      
+      // Chiudi modal
+      chiudiModifica();
+      
+      // Delay per permettere al backend di completare
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Ricarica dati
+      await caricaPrenotazioni(new Date().getTime());
+      
+      console.log('🗑️ Prenotazione eliminata e dashboard aggiornata');
+    } else {
+      alert('❌ Errore eliminazione: ' + (result.error || 'Sconosciuto'));
+    }
+  } catch (error) {
+    console.error('Errore eliminazione:', error);
+    alert('❌ Errore durante l\'eliminazione: ' + error.message);
+  } finally {
+    showLoader(false);
+  }
+}
+
 // ========== EXPORT CSV ==========
 function esportaCSV() {
   // 🔧 FIX: Usa punto e virgola come separatore per Excel italiano
