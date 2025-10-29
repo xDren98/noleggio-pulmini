@@ -1146,3 +1146,74 @@ button:disabled {
     font-size: 24px;
   }
 }
+/* ---- Responsive grid/base ---- */
+body {
+  margin: 0;
+  font-size: 16px;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 8px;
+  }
+  h1, h2, h3 { font-size: 1.2em; }
+  .btn { font-size: 1.1em; padding: 12px 16px; }
+  table, .table-responsive {
+    font-size: 0.95em;
+    overflow-x: auto;
+    display: block;
+    width: 100%;
+  }
+  .admin-navbar {
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+}
+
+/* ---- Navbar Mobile ---- */
+.admin-navbar, .main-navbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #1a2233;
+  color: #fff;
+  padding: 8px 0;
+}
+.main-navbar a, .admin-navbar a {
+  padding: 8px 18px;
+  font-weight: 600;
+}
+@media (max-width: 550px) {
+  .main-navbar, .admin-navbar { 
+    flex-direction: column; 
+    gap: 4px; 
+  }
+}
+
+/* ---- Bottoni touch friendly ---- */
+button, .btn {
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 7px;
+  font-size: 1em;
+  touch-action: manipulation;
+}
+
+/* ---- Input fields ---- */
+input, select, textarea {
+  min-height: 44px;
+  font-size: 1em;
+  margin-bottom: 8px;
+  width: 100%;
+  border-radius: 5px;
+}
