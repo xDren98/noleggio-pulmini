@@ -4,52 +4,29 @@
    CHANGELOG - DASHBOARD ADMIN
    ═══════════════════════════════════════════════════════════════════
    
+   📌 v2.7 - 29 Ottobre 2025 11:25 CET
+   🔧 Aggiunto pulsante "Riporta a Da confermare"
+   🔧 Rimosso select stato (gestione automatica)
+   🔧 Aggiunta funzione riportaDaConfermare()
+   🔧 Label stato attuale nel modal modifica
+   
    📌 v2.6 - 29 Ottobre 2025 11:08 CET
    🔧 Rimosso stato "Confermata"
    🔧 Solo 3 stati dinamici: Futura, In corso, Completato
    🔧 Funzione centralizzata calcolaStatoEffettivo()
    🔧 Sincronizzazione perfetta statistiche/tabella/filtri
    
-   📌 v2.5 - 29 Ottobre 2025
-   🔧 Fix badge dinamici in tabella
-   🔧 Fix filtri dashboard sincronizzati
-   
-   📌 v2.2 - 28 Ottobre 2025 22:49 CET
-   🔧 Auto-refresh dashboard dopo conferma prenotazione
-   🔧 Delay 1s + cache busting per garantire aggiornamento visibile
-   🔧 Chiusura automatica modal dopo conferma
-   
-   📌 v2.1 - 28 Ottobre 2025
-   🔧 Fix mostra date + orari in tabella e modal
-   🔧 Fix card statistiche "Da Confermare"
-   🔧 Fix export CSV con separatore punto e virgola (;)
-   🔧 Fix filtro dashboard per "Da Confermare"
-   
-   📌 v2.0 - 28 Ottobre 2025
-   ✅ Dashboard amministrativa completa
-   ✅ Sistema conferma prenotazioni con generazione PDF
-   ✅ Statistiche aggregate
-   ✅ Filtri avanzati
-   ✅ Ordinamento tabella
-   ✅ Export CSV
-   ✅ Login con password admin
-   ✅ Responsive design
-   
    ═══════════════════════════════════════════════════════════════════
 */
 
-
 'use strict';
 
-
-const ADMIN_VERSION = '2.6';
+const ADMIN_VERSION = '2.7';
 const ADMIN_BUILD_DATE = '2025-10-29';
-
 
 console.log(`%c🔐 Admin Dashboard v${ADMIN_VERSION}`, 'font-size: 16px; font-weight: bold; color: #667eea;');
 console.log(`%c📅 Build: ${ADMIN_BUILD_DATE} | Stati Dinamici Attivi`, 'color: #666;');
 console.log(`%c✨ Gestione prenotazioni completa`, 'color: #22c55e;');
-
 
 // ========== CONFIGURAZIONE ==========
 const ADMIN_CONFIG = {
@@ -60,13 +37,11 @@ const ADMIN_CONFIG = {
   }
 };
 
-
 // ========== STATE ==========
 let prenotazioni = [];
 let prenotazioneDaConfermare = null;
 let filtroAttivoStat = 'totali';
 let ordinamentoAttuale = { campo: null, direzione: 'asc' };
-
 
 // ========== UTILITY ==========
 function showLoader(show = true) {
@@ -76,11 +51,9 @@ function showLoader(show = true) {
   }
 }
 
-
 function showToast(message, type = 'info') {
   alert(message);
 }
-
 
 // ========== HELPER FORMATTAZIONE DATE ==========
 function formattaData(dataStr) {
@@ -105,7 +78,6 @@ function formattaData(dataStr) {
   return String(dataStr);
 }
 
-
 function formattaOra(oraStr) {
   if (!oraStr) return '00:00';
   
@@ -127,7 +99,6 @@ function formattaOra(oraStr) {
   return String(oraStr);
 }
 
-
 // ========== CALCOLO STATO CENTRALIZZATO ==========
 function calcolaStatoEffettivo(prenotazione) {
   const statoReale = prenotazione.stato || '';
@@ -142,7 +113,6 @@ function calcolaStatoEffettivo(prenotazione) {
   return statoReale;
 }
 
-
 // Helper per convertire data dd/mm/yyyy a Date object
 function convertiDataPerFiltro(dataStr) {
   if (!dataStr) return null;
@@ -155,7 +125,6 @@ function convertiDataPerFiltro(dataStr) {
   
   return null;
 }
-
 
 // ========== LOGIN ==========
 function tentaLoginAdmin() {
@@ -179,7 +148,6 @@ function tentaLoginAdmin() {
   }
 }
 
-
 function logout() {
   if (confirm('Vuoi uscire dalla dashboard?')) {
     sessionStorage.removeItem('adminLoggedIn');
@@ -190,7 +158,6 @@ function logout() {
     prenotazioni = [];
   }
 }
-
 
 // ========== CARICA PRENOTAZIONI ==========
 async function caricaPrenotazioni(cacheBuster = null) {
@@ -228,7 +195,6 @@ async function caricaPrenotazioni(cacheBuster = null) {
   }
 }
 
-
 // ========== STATISTICHE ==========
 function aggiornaStatistiche(stats) {
   document.getElementById('stat-totali').textContent = stats.totali || 0;
@@ -237,7 +203,6 @@ function aggiornaStatistiche(stats) {
   document.getElementById('stat-corso').textContent = stats.inCorso || 0;
   document.getElementById('stat-future').textContent = stats.confermate || 0; // "confermate" = future
 }
-
 
 // ========== RENDER TABELLA ==========
 function renderTabella(datiPrenotazioni) {
@@ -303,14 +268,12 @@ function renderTabella(datiPrenotazioni) {
   });
 }
 
-
 function getNomePulmino(targa) {
   if (targa === 'EC787NM') return 'Ducato Lungo';
   if (targa === 'DN391FW') return 'Ducato Corto';
   if (targa === 'DL291XZ') return 'Peugeot';
   return targa;
 }
-
 
 // ========== FILTRI ==========
 function applicaFiltroDashboard(tipo) {
@@ -338,7 +301,6 @@ function applicaFiltroDashboard(tipo) {
   
   renderTabella(prenotazioniFiltrate);
 }
-
 
 function applicaFiltri() {
   const dataInizio = document.getElementById('filter-data-inizio').value;
@@ -375,7 +337,6 @@ function applicaFiltri() {
   renderTabella(filtrate);
 }
 
-
 // ========== ORDINAMENTO ==========
 function ordinaPer(campo) {
   if (ordinamentoAttuale.campo === campo) {
@@ -410,7 +371,6 @@ function ordinaPer(campo) {
   renderTabella(prenotazioni);
 }
 
-
 function convertiDataPerOrdinamento(dataStr) {
   if (!dataStr || dataStr === 'N/A') return 0;
   
@@ -422,7 +382,6 @@ function convertiDataPerOrdinamento(dataStr) {
   
   return 0;
 }
-
 
 // ========== MODAL CONFERMA ==========
 function apriModalConferma(idPrenotazione) {
@@ -447,13 +406,11 @@ function apriModalConferma(idPrenotazione) {
   document.getElementById('modalConferma').classList.add('active');
 }
 
-
 function chiudiModalConferma() {
   document.getElementById('modalConferma').classList.remove('active');
   document.getElementById('conferma-importo').value = '';
   prenotazioneDaConfermare = null;
 }
-
 
 // ========== CONFERMA PRENOTAZIONE ==========
 async function confermaPrenotazioneAdmin() {
@@ -515,7 +472,6 @@ async function confermaPrenotazioneAdmin() {
   }
 }
 
-
 // ========== MODAL MODIFICA ==========
 function apriModalModifica(idPrenotazione) {
   const prenotazione = prenotazioni.find(p => p.idPrenotazione === idPrenotazione);
@@ -542,11 +498,15 @@ function apriModalModifica(idPrenotazione) {
   document.getElementById('mod-ora-inizio').value = prenotazione.oraInizio || '';
   document.getElementById('mod-data-fine').value = convertiDataPerInput(prenotazione.giornoFine);
   document.getElementById('mod-ora-fine').value = prenotazione.oraFine || '';
-  document.getElementById('mod-stato').value = prenotazione.stato || 'Da confermare';
+  
+  // ✅ Mostra stato attuale nella label
+  const statoLabel = document.getElementById('stato-attuale-label');
+  if (statoLabel) {
+    statoLabel.textContent = `Stato attuale: ${prenotazione.stato}`;
+  }
   
   document.getElementById('modalModifica').classList.add('active');
 }
-
 
 function convertiDataPerInput(dataStr) {
   if (!dataStr) return '';
@@ -564,11 +524,59 @@ function convertiDataPerInput(dataStr) {
   return '';
 }
 
-
 function chiudiModifica() {
   document.getElementById('modalModifica').classList.remove('active');
 }
 
+// ========== RIPORTA A "DA CONFERMARE" ==========
+async function riportaDaConfermare() {
+  const idPrenotazione = document.getElementById('mod-id').value;
+  const statoAttuale = document.getElementById('stato-attuale-label').textContent;
+  
+  if (!idPrenotazione) {
+    alert('⚠️ Nessuna prenotazione selezionata');
+    return;
+  }
+  
+  if (!confirm(`⚠️ Riportare la prenotazione a "Da confermare"?\n\n${statoAttuale}\n\nQuesta azione annullerà la conferma.`)) {
+    return;
+  }
+  
+  showLoader(true);
+  
+  try {
+    const payload = {
+      action: 'update',
+      idPrenotazione: idPrenotazione,
+      'Stato prenotazione': 'Da confermare'
+    };
+    
+    const params = new URLSearchParams();
+    params.append('payload', JSON.stringify(payload));
+    
+    const response = await fetch(ADMIN_CONFIG.endpoints.manageBooking, {
+      method: 'POST',
+      body: params,
+      redirect: 'follow'
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      alert('✅ Prenotazione riportata a "Da confermare"');
+      chiudiModifica();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await caricaPrenotazioni(new Date().getTime());
+    } else {
+      alert('❌ Errore: ' + (result.error || 'Sconosciuto'));
+    }
+  } catch (error) {
+    console.error('Errore:', error);
+    alert('❌ Errore durante l\'operazione: ' + error.message);
+  } finally {
+    showLoader(false);
+  }
+}
 
 // ========== ELIMINA PRENOTAZIONE ==========
 async function eliminaPrenotazione() {
@@ -628,7 +636,6 @@ async function eliminaPrenotazione() {
   }
 }
 
-
 // ========== SALVA MODIFICHE ==========
 async function salvaModifica() {
   const idPrenotazione = document.getElementById('mod-id').value;
@@ -659,8 +666,7 @@ async function salvaModifica() {
       'Giorno inizio noleggio': document.getElementById('mod-data-inizio').value,
       'Ora inizio noleggio': document.getElementById('mod-ora-inizio').value,
       'Giorno fine noleggio': document.getElementById('mod-data-fine').value,
-      'Ora fine noleggio': document.getElementById('mod-ora-fine').value,
-      'Stato prenotazione': document.getElementById('mod-stato').value
+      'Ora fine noleggio': document.getElementById('mod-ora-fine').value
     };
     
     const params = new URLSearchParams();
@@ -691,7 +697,6 @@ async function salvaModifica() {
   }
 }
 
-
 // ========== EXPORT CSV ==========
 function esportaCSV() {
   let csv = 'ID;Cliente;CF;Veicolo;Dal;Al;Cellulare;Stato;Importo\n';
@@ -715,7 +720,6 @@ function esportaCSV() {
   link.click();
   document.body.removeChild(link);
 }
-
 
 // ========== DIAGNOSTICA ==========
 window.adminDebug = function() {
@@ -742,9 +746,7 @@ window.adminDebug = function() {
   console.groupEnd();
 };
 
-
 console.log('%c💡 Tip: Digita adminDebug() nella console per diagnostica completa', 'color: #999; font-style: italic;');
-
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {

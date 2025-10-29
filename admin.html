@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Dashboard - Imbriani Noleggio v2.4</title>
+  <title>Admin Dashboard - Imbriani Noleggio v2.7</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -335,7 +335,7 @@
       <div class="info-box">
         <strong>⚠️ Cosa succede dopo la conferma:</strong>
         <ul>
-          <li>Stato cambia da "Da confermare" a "Confermata"</li>
+          <li>Stato cambia automaticamente (Futura/In corso/Completato)</li>
           <li>Viene generato il contratto PDF nella cartella Drive</li>
           <li>L'importo viene salvato nel Google Sheet</li>
         </ul>
@@ -485,16 +485,22 @@
           Stato Prenotazione
         </h3>
         
-        <label>Stato Attuale</label>
-        <select id="mod-stato" required>
-          <option value="Da confermare">⏳ Da confermare</option>
-          <option value="Confermata">✅ Confermata</option>
-          <option value="In corso">🚐 In corso</option>
-          <option value="Completato">✓ Completato</option>
-        </select>
-        <p style="font-size: 13px; color: #666; margin-top: 6px;">
-          ℹ️ Il cambiamento di stato influenza le statistiche della dashboard
-        </p>
+        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #ffc107;">
+          <p style="font-size: 14px; color: #856404; margin: 0;">
+            <strong>ℹ️ Gestione stato automatica:</strong><br>
+            • Usa il pulsante <strong>"Conferma e genera PDF"</strong> per confermare prenotazioni<br>
+            • Lo stato viene calcolato automaticamente: <strong>Futura</strong>, <strong>In corso</strong> o <strong>Completato</strong><br>
+            • Puoi solo riportare manualmente a <strong>"Da confermare"</strong>
+          </p>
+        </div>
+        
+        <div style="display: flex; gap: 12px; align-items: center; margin-top: 16px;">
+          <button type="button" class="btn-secondary" onclick="riportaDaConfermare()" style="background: #fed7aa; color: #92400e; border: 2px solid #f59e0b;">
+            <span class="material-icons" style="font-size: 18px;">undo</span>
+            Riporta a "Da confermare"
+          </button>
+          <span id="stato-attuale-label" style="font-size: 14px; color: #666; font-weight: 600;"></span>
+        </div>
       </div>
       
       <!-- AZIONI -->
@@ -523,7 +529,7 @@
     <div class="header">
       <div>
         <h1>🚐 Dashboard Amministrativa</h1>
-        <p>Gestione prenotazioni Imbriani Noleggio v2.4</p>
+        <p>Gestione prenotazioni Imbriani Noleggio v2.7 - Stati Dinamici</p>
       </div>
       <div class="header-actions">
         <button class="logout-btn" onclick="logout()">
@@ -557,7 +563,7 @@
           </div>
         </div>
         <div class="stat-card" id="filter-corso" onclick="applicaFiltroDashboard('corso')">
-          <div class="stat-icon orange">⏳</div>
+          <div class="stat-icon orange">🚐</div>
           <div class="stat-content">
             <h3 id="stat-corso">0</h3>
             <p>In Corso</p>
@@ -584,7 +590,7 @@
         <select id="filter-stato">
           <option value="">Tutti gli stati</option>
           <option value="Da confermare">Da confermare</option>
-          <option value="Confermata">Confermata</option>
+          <option value="Futura">Futura</option>
           <option value="In corso">In corso</option>
           <option value="Completato">Completato</option>
         </select>
