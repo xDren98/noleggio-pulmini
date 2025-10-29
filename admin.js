@@ -540,15 +540,6 @@ function apriModalModifica(idPrenotazione) {
     return;
   }
   
-<<<<<<< HEAD
-  // Popola TUTTI i campi del form
-  document.getElementById('mod-id').value = prenotazione.idPrenotazione;
-  document.getElementById('mod-nome').value = prenotazione.nome || '';
-  document.getElementById('mod-luogo-nascita').value = prenotazione.luogoNascita || '';
-  document.getElementById('mod-data-nascita').value = convertiDataPerInput(prenotazione.dataNascita);
-  document.getElementById('mod-cf').value = prenotazione.cf || '';
-  document.getElementById('mod-cellulare').value = prenotazione.cellulare || '';
-=======
   // Popola tutti i campi del form
   document.getElementById('mod-id').value = prenotazione.idPrenotazione;
   document.getElementById('mod-nome').value = prenotazione.nome;
@@ -560,7 +551,6 @@ function apriModalModifica(idPrenotazione) {
   document.getElementById('mod-ora-fine').value = prenotazione.oraFine || '';
   document.getElementById('mod-cellulare').value = prenotazione.cellulare;
   document.getElementById('mod-stato').value = prenotazione.stato;
->>>>>>> 0779bea41c8482084f9de387458991fcb243763a
   
   // Residenza
   document.getElementById('mod-comune-residenza').value = prenotazione.comuneResidenza || '';
