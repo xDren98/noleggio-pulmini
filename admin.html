@@ -1,640 +1,216 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Dashboard - Imbriani Noleggio v2.7</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5;
-      color: #333;
-    }
-
-    .login-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10000;
-    }
-    .login-box {
-      background: white; padding: 48px 40px; border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      max-width: 400px; width: 90%; text-align: center;
-    }
-    .login-box h1 { font-size: 28px; margin-bottom: 8px; color: #333; }
-    .login-box p { color: #666; margin-bottom: 32px; }
-    .login-box input {
-      width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb;
-      border-radius: 8px; font-size: 16px; margin-bottom: 16px;
-      transition: border 0.3s;
-    }
-    .login-box input:focus { outline: none; border-color: #667eea; }
-    .login-box button {
-      width: 100%; padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white; border: none; border-radius: 8px;
-      font-size: 16px; font-weight: 600; cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .login-box button:hover { transform: translateY(-2px); }
-    .login-error {
-      background: #fee2e2; color: #dc2626; padding: 12px;
-      border-radius: 8px; margin-bottom: 16px; display: none;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white; padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      display: flex; justify-content: space-between;
-      align-items: center;
-    }
-    .header h1 { font-size: 28px; margin-bottom: 8px; }
-    .header-actions { display: flex; gap: 12px; }
-    .logout-btn {
-      padding: 10px 20px; background: rgba(255, 255, 255, 0.2);
-      border: 2px solid white; color: white; border-radius: 8px;
-      cursor: pointer; font-weight: 600; transition: background 0.3s;
-    }
-    .logout-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-    .container {
-      max-width: 1400px; margin: 0 auto; padding: 24px;
-    }
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px; margin-bottom: 32px;
-    }
-    .stat-card {
-      background: white; padding: 24px; border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      display: flex; align-items: center; gap: 16px;
-      cursor: pointer;
-      transition: box-shadow 0.2s, border-color 0.2s;
-      border: 2px solid transparent;
-    }
-    .stat-card.active, .stat-card:hover {
-      box-shadow: 0 4px 14px rgba(51, 102, 255, 0.12);
-      border-color: #667eea;
-    }
-    .stat-icon {
-      width: 56px; height: 56px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
-    }
-    .stat-icon.blue    { background: #f5f7fd; color: #ac5efd; }
-    .stat-icon.green   { background: #eafaf1; color: #22c55e; }
-    .stat-icon.orange  { background: #fff6e4; color: #fdba12; }
-    .stat-icon.purple  { background: #f7f5fe; color: #7786fd; }
-    .stat-content h3 {
-      font-size: 32px; font-weight: 700; margin-bottom: 4px;
-    }
-    .stat-content p {
-      color: #666; font-size: 15px;
-    }
-    .filters {
-      background: white; padding: 20px; border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); margin-bottom: 24px;
-      display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
-    }
-    .filters input, .filters select, .filters button {
-      padding: 10px 16px; border: 1px solid #ddd; border-radius: 8px;
-      font-size: 14px;
-    }
-    .filters button {
-      background: #667eea; color: white; border: none; cursor: pointer;
-      font-weight: 500; display: flex; align-items: center; gap: 8px;
-    }
-    .filters button:hover {
-      background: #5568d3;
-    }
-    .table-container {
-      background: white; border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden;
-    }
-    table {
-      width: 100%; border-collapse: collapse;
-    }
-    thead {
-      background: #f9fafb;
-    }
-    th, td {
-      padding: 16px; text-align: left; border-bottom: 1px solid #e5e7eb;
-    }
-    th {
-      font-weight: 600; color: #374151; font-size: 14px;
-      cursor: pointer; user-select: none;
-    }
-    td {
-      color: #6b7280; font-size: 14px;
-    }
-    tr:hover {
-      background: #f9fafb;
-    }
-    .badge {
-      display: inline-block; padding: 4px 12px;
-      border-radius: 20px; font-size: 12px; font-weight: 500;
-    }
-    .badge.success {
-      background: #d1fae5; color: #065f46;
-    }
-    .badge.warning {
-      background: #fed7aa; color: #92400e;
-    }
-    .badge.info {
-      background: #dbeafe; color: #1e40af;
-    }
-    .actions {
-      display: flex; gap: 8px;
-    }
-    .btn-icon {
-      padding: 8px; border: none; background: transparent;
-      cursor: pointer; border-radius: 6px; color: #666;
-      transition: background 0.2s;
-    }
-    .btn-icon:hover {
-      background: #f3f4f6;
-    }
-    .loader {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5); display: none;
-      align-items: center; justify-content: center; z-index: 9999;
-    }
-    .loader.active {
-      display: flex;
-    }
-    .spinner {
-      border: 4px solid rgba(255,255,255,0.3);
-      border-top: 4px solid white;
-      border-radius: 50%;
-      width: 50px; height: 50px;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* MODAL */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.26);
-      z-index: 99999;
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .modal-box {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
-      padding: 40px 36px;
-      min-width: 340px;
-      max-width: 95vw;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-box h2 {
-      margin-bottom: 16px;
-      color: #222;
-    }
-    .modal-box label {
-      display: block;
-      margin-top: 10px;
-      margin-bottom: 3px;
-      color: #444;
-      font-size: 15px;
-    }
-    .modal-box input,
-    .modal-box select {
-      width: 100%;
-      padding: 9px 12px;
-      border: 1.5px solid #ddd;
-      border-radius: 7px;
-      margin-bottom: 15px;
-      font-size: 15px;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 16px;
-      margin-top: 20px;
-    }
-    .btn-main {
-      background: linear-gradient(90deg,#667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 10px 30px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-main:hover {
-      background: linear-gradient(90deg,#5568c8 0%,#694598 100%);
-    }
-    .btn-secondary {
-      background: #eee;
-      color: #222;
-      border: none;
-      padding: 10px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-secondary:hover {
-      background: #ddd;
-    }
-    .info-box {
-      background: #fef3c7;
-      padding: 12px;
-      border-radius: 8px;
-      margin: 16px 0;
-      border-left: 4px solid #f59e0b;
-    }
-    .info-box strong {
-      display: block;
-      margin-bottom: 8px;
-    }
-    .info-box ul {
-      margin: 8px 0 0 20px;
-      font-size: 14px;
-    }
-    .dettagli-box {
-      background: #f9fafb;
-      padding: 16px;
-      border-radius: 8px;
-      margin: 16px 0;
-    }
-    .dettagli-box p {
-      margin: 4px 0;
-      font-size: 14px;
-    }
-    /* Responsive */
-    @media (max-width: 600px) {
-      .modal-box {
-        padding: 20px;
-        min-width: 95vw;
-      }
-      .header {
-        flex-direction: column;
-        gap: 16px;
-      }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Imbriani Noleggio</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Dashboard Admin - Gestione Prenotazioni Imbriani Noleggio">
 </head>
 <body>
-  <!-- LOGIN -->
-  <div class="login-overlay" id="loginOverlay">
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+    <p>Caricamento...</p>
+  </div>
+
+  <!-- LOGIN SECTION -->
+  <div id="admin-login" class="admin-login">
     <div class="login-box">
-      <h1>🔐 Accesso Admin</h1>
-      <p>Inserisci la password per accedere alla dashboard</p>
-      <div class="login-error" id="loginError">Password errata!</div>
-      <form id="loginForm">
-        <input
-          type="password"
-          id="passwordInput"
-          placeholder="Password"
-          autocomplete="current-password"
-          required
-        />
-        <button type="submit">Accedi</button>
+      <h1>🔐 Admin Dashboard</h1>
+      <p>Imbriani Noleggio v2.7.1</p>
+      
+      <form id="admin-password-form" class="form">
+        <div class="form-group">
+          <label for="admin-pw">Password Admin:</label>
+          <input 
+            type="password" 
+            id="admin-pw" 
+            placeholder="Inserisci password"
+            required
+          >
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          🔓 Accedi
+        </button>
       </form>
+      
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <div id="lockout-message" class="alert alert-warning hidden"></div>
     </div>
   </div>
 
-  <!-- MODAL CONFERMA PRENOTAZIONE -->
-  <div class="modal-overlay" id="modalConferma">
-    <div class="modal-box" style="min-width: 500px;">
-      <h2>✅ Conferma Prenotazione</h2>
-      
-      <div id="conferma-dettagli" class="dettagli-box">
-        <!-- Popolato dinamicamente -->
-      </div>
-      
-      <label>💰 Importo Preventivo</label>
-      <input type="text" id="conferma-importo" placeholder="Es. 250€" />
-      <p style="font-size: 13px; color: #666; margin-top: 4px;">
-        Questo importo sarà inserito nel contratto PDF
-      </p>
-      
-      <div class="info-box">
-        <strong>⚠️ Cosa succede dopo la conferma:</strong>
-        <ul>
-          <li>Stato cambia automaticamente (Futura/In corso/Completato)</li>
-          <li>Viene generato il contratto PDF nella cartella Drive</li>
-          <li>L'importo viene salvato nel Google Sheet</li>
-        </ul>
-      </div>
-      
-      <div class="modal-actions">
-        <button type="button" class="btn-secondary" onclick="chiudiModalConferma()">
-          Annulla
-        </button>
-        <button type="button" class="btn-main" onclick="confermaPrenotazioneAdmin()">
-          <span class="material-icons">check_circle</span>
-          Conferma e Genera PDF
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- DASHBOARD SECTION -->
+  <div id="admin-dashboard" class="admin-dashboard hidden">
+    <!-- HEADER -->
+    <header class="admin-header">
+      <h1>📊 Dashboard Admin</h1>
+      <button id="logout-btn" class="btn btn-secondary">🚪 Logout</button>
+    </header>
 
-  <!-- MODAL MODIFICA -->
-  <div class="modal-overlay" id="modalModifica">
-    <form class="modal-box" id="formModifica" onsubmit="event.preventDefault(); salvaModifica();" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
-      <h2 style="margin-bottom: 24px;">✏️ Modifica Prenotazione</h2>
-      
-      <input type="hidden" id="mod-id" />
-      
-      <!-- SEZIONE ANAGRAFICA -->
-      <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
-        <h3 style="font-size: 16px; margin-bottom: 12px; color: #667eea; display: flex; align-items: center; gap: 8px;">
-          <span class="material-icons" style="font-size: 20px;">person</span>
-          Dati Anagrafici Autista Principale
-        </h3>
-        
-        <label>Nome e Cognome</label>
-        <input type="text" id="mod-nome" required placeholder="Es. Mario Rossi" />
-        
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-          <div>
-            <label>📍 Luogo di Nascita</label>
-            <input type="text" id="mod-luogo-nascita" required placeholder="Es. Lecce" />
-          </div>
-          <div>
-            <label>📅 Data di Nascita</label>
-            <input type="date" id="mod-data-nascita" required />
-          </div>
-        </div>
-        
-        <label>Codice Fiscale</label>
-        <input type="text" id="mod-cf" maxlength="16" required style="text-transform: uppercase;" placeholder="RSSMRA80A01H501U" />
-        
-        <label>📞 Cellulare</label>
-        <input type="tel" id="mod-cellulare" required placeholder="320 123 4567" />
+    <!-- STATS -->
+    <section class="admin-stats">
+      <div class="stat-card" style="cursor: pointer;" onclick="filtraPer('Totali')">
+        <div class="stat-label">📊 Totali</div>
+        <div class="stat-value" id="stat-totali">0</div>
       </div>
-      
-      <!-- SEZIONE RESIDENZA -->
-      <div style="background: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-        <h3 style="font-size: 16px; margin-bottom: 12px; color: #f59e0b; display: flex; align-items: center; gap: 8px;">
-          <span class="material-icons" style="font-size: 20px;">home</span>
-          Residenza
-        </h3>
-        
-        <label>🏙️ Comune di Residenza</label>
-        <input type="text" id="mod-comune-residenza" required placeholder="Es. Lecce" />
-        
-        <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 12px;">
-          <div>
-            <label>🏠 Via di Residenza</label>
-            <input type="text" id="mod-via-residenza" required placeholder="Es. Via Roma" />
-          </div>
-          <div>
-            <label>🔢 Civico</label>
-            <input type="text" id="mod-civico-residenza" required placeholder="123" />
-          </div>
-        </div>
+      <div class="stat-card" style="cursor: pointer;" onclick="filtraPer('Da confermare')">
+        <div class="stat-label">⏳ Da Confermare</div>
+        <div class="stat-value" id="stat-daconfermare">0</div>
       </div>
-      
-      <!-- SEZIONE PATENTE -->
-      <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-        <h3 style="font-size: 16px; margin-bottom: 12px; color: #3b82f6; display: flex; align-items: center; gap: 8px;">
-          <span class="material-icons" style="font-size: 20px;">badge</span>
-          Patente di Guida
-        </h3>
-        
-        <label>🪪 Numero Patente</label>
-        <input type="text" id="mod-numero-patente" required placeholder="Es. U1AB12345" />
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div>
-            <label>📅 Data Inizio Validità</label>
-            <input type="date" id="mod-data-inizio-patente" required />
-          </div>
-          <div>
-            <label>📅 Scadenza Patente</label>
-            <input type="date" id="mod-scadenza-patente" required />
-          </div>
-        </div>
+      <div class="stat-card" style="cursor: pointer;" onclick="filtraPer('Futura')">
+        <div class="stat-label">📅 Future</div>
+        <div class="stat-value" id="stat-future">0</div>
       </div>
-      
-      <!-- SEZIONE VEICOLO -->
-      <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #22c55e;">
-        <h3 style="font-size: 16px; margin-bottom: 12px; color: #22c55e; display: flex; align-items: center; gap: 8px;">
-          <span class="material-icons" style="font-size: 20px;">directions_bus</span>
-          Veicolo
-        </h3>
-        
-        <label>Pulmino</label>
-        <select id="mod-targa" required>
-          <option value="">Seleziona pulmino</option>
-          <option value="EC787NM">🚐 Ducato Lungo (EC787NM) - 9 posti</option>
-          <option value="DN391FW">🚐 Ducato Corto (DN391FW) - 6 posti</option>
-          <option value="DL291XZ">🚐 Peugeot Expert (DL291XZ) - 5 posti</option>
-        </select>
+      <div class="stat-card" style="cursor: pointer;" onclick="filtraPer('In corso')">
+        <div class="stat-label">🚐 In Corso</div>
+        <div class="stat-value" id="stat-incorso">0</div>
       </div>
-      
-      <!-- SEZIONE DATE E ORARI -->
-      <div style="background: #fffbeb; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-        <h3 style="font-size: 16px; margin-bottom: 12px; color: #f59e0b; display: flex; align-items: center; gap: 8px;">
-          <span class="material-icons" style="font-size: 20px;">event</span>
-          Periodo Noleggio
-        </h3>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div>
-            <label>📅 Data Inizio</label>
-            <input type="date" id="mod-data-inizio" required />
-          </div>
-          <div>
-            <label>🕐 Ora Inizio</label>
-            <input type="time" id="mod-ora-inizio" required />
-          </div>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div>
-            <label>📅 Data Fine</label>
-            <input type="date" id="mod-data-fine" required />
-          </div>
-          <div>
-            <label>🕐 Ora Fine</label>
-            <input type="time" id="mod-ora-fine" required />
-          </div>
-        </div>
+      <div class="stat-card" style="cursor: pointer;" onclick="filtraPer('Completata')">
+        <div class="stat-label">✅ Completate</div>
+        <div class="stat-value" id="stat-completate">0</div>
       </div>
-      
-      <!-- SEZIONE STATO -->
-      <div style="background: #fef3f2; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
-        <h3 style="font-size: 16px; margin-bottom: 12px; color: #ef4444; display: flex; align-items: center; gap: 8px;">
-          <span class="material-icons" style="font-size: 20px;">flag</span>
-          Stato Prenotazione
-        </h3>
-        
-        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #ffc107;">
-          <p style="font-size: 14px; color: #856404; margin: 0;">
-            <strong>ℹ️ Gestione stato automatica:</strong><br>
-            • Usa il pulsante <strong>"Conferma e genera PDF"</strong> per confermare prenotazioni<br>
-            • Lo stato viene calcolato automaticamente: <strong>Futura</strong>, <strong>In corso</strong> o <strong>Completato</strong><br>
-            • Puoi solo riportare manualmente a <strong>"Da confermare"</strong>
-          </p>
-        </div>
-        
-        <div style="display: flex; gap: 12px; align-items: center; margin-top: 16px;">
-          <button type="button" class="btn-secondary" onclick="riportaDaConfermare()" style="background: #fed7aa; color: #92400e; border: 2px solid #f59e0b;">
-            <span class="material-icons" style="font-size: 18px;">undo</span>
-            Riporta a "Da confermare"
-          </button>
-          <span id="stato-attuale-label" style="font-size: 14px; color: #666; font-weight: 600;"></span>
-        </div>
-      </div>
-      
-      <!-- AZIONI -->
-      <div class="modal-actions" style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #e5e7eb; display: flex; justify-content: space-between;">
-        <button type="button" class="btn-secondary" onclick="eliminaPrenotazione()" style="background: #fee2e2; color: #dc2626; border: 2px solid #dc2626;">
-          <span class="material-icons" style="font-size: 18px;">delete</span>
-          Elimina Prenotazione
-        </button>
-        
-        <div style="display: flex; gap: 12px;">
-          <button type="button" class="btn-secondary" onclick="chiudiModifica()">
-            <span class="material-icons" style="font-size: 18px;">close</span>
-            Annulla
-          </button>
-          <button type="submit" class="btn-main">
-            <span class="material-icons" style="font-size: 18px;">save</span>
-            Salva Modifiche
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
+    </section>
 
-  <!-- DASHBOARD -->
-  <div id="dashboardContent" style="display: none;">
-    <div class="header">
-      <div>
-        <h1>🚐 Dashboard Amministrativa</h1>
-        <p>Gestione prenotazioni Imbriani Noleggio v2.7 - Stati Dinamici</p>
-      </div>
-      <div class="header-actions">
-        <button class="logout-btn" onclick="logout()">
-          <span class="material-icons">logout</span>
-          Esci
-        </button>
-      </div>
-    </div>
+    <!-- FILTRI -->
+    <section class="admin-filters">
+      <select id="filter-stato" class="form-control">
+        <option value="">🔄 Tutti gli Stati</option>
+        <option value="Da confermare">⏳ Da Confermare</option>
+        <option value="Futura">📅 Future</option>
+        <option value="In corso">🚐 In Corso</option>
+        <option value="Completata">✅ Completate</option>
+      </select>
+      <button id="refresh-btn" class="btn btn-info">🔄 Aggiorna</button>
+      <button id="export-btn" class="btn btn-secondary">📥 Esporta CSV</button>
+    </section>
 
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-card active" id="filter-totali" onclick="applicaFiltroDashboard('totali')">
-          <div class="stat-icon blue">📋</div>
-          <div class="stat-content">
-            <h3 id="stat-totali">0</h3>
-            <p>Prenotazioni Totali</p>
-          </div>
-        </div>
-        <div class="stat-card" id="filter-completate" onclick="applicaFiltroDashboard('completate')">
-          <div class="stat-icon green">✅</div>
-          <div class="stat-content">
-            <h3 id="stat-completate">0</h3>
-            <p>Completate</p>
-          </div>
-        </div>
-        <div class="stat-card" id="filter-daconfermare" onclick="applicaFiltroDashboard('daconfermare')">
-          <div class="stat-icon orange">⏳</div>
-          <div class="stat-content">
-            <h3 id="stat-daconfermare">0</h3>
-            <p>Da Confermare</p>
-          </div>
-        </div>
-        <div class="stat-card" id="filter-corso" onclick="applicaFiltroDashboard('corso')">
-          <div class="stat-icon orange">🚐</div>
-          <div class="stat-content">
-            <h3 id="stat-corso">0</h3>
-            <p>In Corso</p>
-          </div>
-        </div>
-        <div class="stat-card" id="filter-future" onclick="applicaFiltroDashboard('future')">
-          <div class="stat-icon purple">📅</div>
-          <div class="stat-content">
-            <h3 id="stat-future">0</h3>
-            <p>Future</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="filters">
-        <input type="date" id="filter-data-inizio" placeholder="Data inizio" />
-        <input type="date" id="filter-data-fine" placeholder="Data fine" />
-        <select id="filter-pulmino">
-          <option value="">Tutti i pulmini</option>
-          <option value="EC787NM">Ducato Lungo</option>
-          <option value="DN391FW">Ducato Corto</option>
-          <option value="DL291XZ">Peugeot</option>
-        </select>
-        <select id="filter-stato">
-          <option value="">Tutti gli stati</option>
-          <option value="Da confermare">Da confermare</option>
-          <option value="Futura">Futura</option>
-          <option value="In corso">In corso</option>
-          <option value="Completato">Completato</option>
-        </select>
-        <button onclick="applicaFiltri()">
-          <span class="material-icons">filter_list</span>
-          Applica Filtri
-        </button>
-        <button onclick="esportaCSV()" style="background: #22c55e;">
-          <span class="material-icons">download</span>
-          Esporta CSV
-        </button>
-      </div>
-
-      <div class="table-container">
-        <table>
+    <!-- TABELLA PRENOTAZIONI -->
+    <section class="admin-bookings">
+      <h2>📋 Prenotazioni</h2>
+      <div class="table-wrapper">
+        <table class="prenotazioni-table">
           <thead>
             <tr>
-              <th onclick="ordinaPer('nome')">Cliente</th>
-              <th onclick="ordinaPer('targa')">Pulmino</th>
-              <th onclick="ordinaPer('giornoInizio')">Dal</th>
-              <th onclick="ordinaPer('giornoFine')">Al</th>
-              <th onclick="ordinaPer('cellulare')">Cellulare</th>
-              <th onclick="ordinaPer('stato')">Stato</th>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Targa</th>
+              <th>Ritiro</th>
+              <th>Arrivo</th>
+              <th>Importo</th>
+              <th>Stato</th>
               <th>Azioni</th>
             </tr>
           </thead>
-          <tbody id="table-body">
-            <tr>
-              <td colspan="7" style="text-align: center; padding: 40px;">
-                Caricamento in corso...
-              </td>
-            </tr>
+          <tbody id="bookings-tbody">
+            <tr><td colspan="8" class="text-center">Caricamento prenotazioni...</td></tr>
           </tbody>
         </table>
       </div>
+    </section>
+  </div>
+
+  <!-- MODAL CONFERMA PRENOTAZIONE -->
+  <div id="modal-conferma" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✅ Conferma Prenotazione</h2>
+        <button class="modal-close" onclick="closeModal('modal-conferma')">&times;</button>
+      </div>
+      <form id="form-conferma" class="form">
+        <div class="form-group">
+          <label>ID Prenotazione:</label>
+          <input type="text" id="conferma-id" readonly>
+        </div>
+        <div class="form-group">
+          <label>Cliente:</label>
+          <input type="text" id="conferma-cliente" readonly>
+        </div>
+        <div class="form-group">
+          <label>Targa:</label>
+          <input type="text" id="conferma-targa" readonly>
+        </div>
+        <div class="form-group">
+          <label>Periodo:</label>
+          <input type="text" id="conferma-periodo" readonly>
+        </div>
+        <div class="form-group">
+          <label for="conferma-importo">💰 Importo (€):</label>
+          <input 
+            type="number" 
+            id="conferma-importo" 
+            readonly
+            placeholder="Calcolato automaticamente"
+          >
+          <span class="form-hint">⚠️ Campo calcolato automaticamente</span>
+        </div>
+        <div class="form-group">
+          <label for="conferma-note">Note Interne:</label>
+          <textarea id="conferma-note" placeholder="Note opzionali (non visibili al cliente)"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-success btn-block">
+            📄 Conferma e Genera PDF
+          </button>
+          <button type="button" class="btn btn-secondary btn-block" onclick="closeModal('modal-conferma')">
+            ❌ Annulla
+          </button>
+        </div>
+      </form>
+      <div id="conferma-message" class="alert hidden"></div>
     </div>
   </div>
 
-  <!-- LOADER -->
-  <div class="loader" id="loader">
-    <div class="spinner"></div>
+  <!-- MODAL MODIFICA PRENOTAZIONE -->
+  <div id="modal-modifica" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✏️ Modifica Prenotazione</h2>
+        <button class="modal-close" onclick="closeModal('modal-modifica')">&times;</button>
+      </div>
+      <form id="form-modifica" class="form">
+        <div class="form-group">
+          <label>ID:</label>
+          <input type="text" id="modifica-id" readonly>
+        </div>
+        <div class="form-group">
+          <label for="modifica-stato">Stato:</label>
+          <select id="modifica-stato" required>
+            <option value="Da confermare">⏳ Da Confermare</option>
+            <option value="Futura">📅 Futura</option>
+            <option value="In corso">🚐 In Corso</option>
+            <option value="Completata">✅ Completata</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="modifica-nota">Note:</label>
+          <textarea id="modifica-nota" placeholder="Note prenotazione"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary btn-block">💾 Salva</button>
+          <button type="button" class="btn btn-secondary btn-block" onclick="closeModal('modal-modifica')">❌ Annulla</button>
+        </div>
+      </form>
+      <div id="modifica-message" class="alert hidden"></div>
+    </div>
   </div>
 
-  <!-- SCRIPTS -->
+  <!-- INFOBOX -->
+  <div class="infobox">
+    <h3>ℹ️ Gestione stato automatica:</h3>
+    <ul>
+      <li>✅ Usa il pulsante "Conferma e genera PDF" per confermare prenotazioni</li>
+      <li>✅ Lo stato viene calcolato automaticamente: Futura, In corso o Completato</li>
+      <li>✅ Puoi solo riportare manualmente a "Da confermare"</li>
+    </ul>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- SCRIPTS - CONFIG FIRST! -->
+  <script src="config.js"></script>
+  <script src="shared-utils.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

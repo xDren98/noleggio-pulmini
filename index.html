@@ -1,251 +1,93 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Imbriani Noleggio v5.3.8</title>
-  
-  <!-- Font & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet" />
-  
-  <!-- Stili -->
-  <link rel="stylesheet" href="styles.css?v=5.3.8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imbriani Noleggio - Prenota il tuo Pulmino</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Prenota pulmini a Roma con Imbriani Noleggio. Facile, veloce e sicuro!">
 </head>
 <body>
-  <header>
-    <h1 id="site-title">
-      <span class="material-icons" aria-hidden="true">directions_bus</span>
-      Imbriani Noleggio
-    </h1>
-    <p class="slogan">Dividi i costi, moltiplica il divertimento!</p>
-  </header>
-
-  <main>
-    <!-- HOME PAGE -->
-    <section id="homepage" data-section class="card" aria-labelledby="home-title">
-      <h2 id="home-title">Hai già prenotato con noi?</h2>
-      <p>Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
-
-      <form id="form-login" novalidate>
-        <div class="input-with-icon">
-          <span class="material-icons" aria-hidden="true">person</span>
-          <input 
-            type="text" 
-            id="cf-login" 
-            placeholder="Codice fiscale" 
-            required 
-            maxlength="16" 
-            aria-describedby="cfHelp" 
-            style="text-transform: uppercase;" 
-          />
-        </div>
-        <div id="cfHelp" class="help-text">Inserisci 16 caratteri, saranno convertiti in maiuscolo.</div>
-        <button type="submit" class="btn btn--primary">Accedi</button>
-      </form>
-
-      <hr />
-
-      <h2>Prima volta con noi?</h2>
-      <p>Prenota ora il tuo pulmino.</p>
-      <button id="btnNewBooking" class="btn btn--secondary">
-        <span class="material-icons" aria-hidden="true">add_circle</span>
-        Prenota ora il tuo pulmino
-      </button>
-    </section>
-
-    <!-- AREA PERSONALE -->
-    <section id="area-personale" data-section class="card" aria-labelledby="area-title">
-      <h2 id="area-title">Area personale</h2>
-      <div id="area-personale-content"></div>
-    </section>
-
-    <!-- MODIFICA PRENOTAZIONE -->
-    <section id="modifica-prenotazione" data-section class="card hidden" aria-labelledby="modifica-title">
-      <button class="btn-back" aria-label="Torna all'area personale">← Indietro</button>
-      <h2 id="modifica-title">Modifica prenotazione</h2>
-      <div id="modifica-form-content"></div>
-    </section>
-
-    <!-- WIZARD PRENOTAZIONE -->
-    <section id="mainbox" data-section class="card hidden" aria-labelledby="wizard-title">
-      <h2 id="wizard-title">Nuova prenotazione</h2>
-
-      <!-- STEP 1: Date e orari -->
-      <div id="step1" class="step" data-step aria-labelledby="s1-title">
-        <h3 id="s1-title">Seleziona date e orari</h3>
-
-        <label for="data_ritiro">
-          <span class="material-icons" aria-hidden="true">event</span>
-          Data ritiro
-        </label>
-        <input type="date" id="data_ritiro" required />
-
-        <label for="ora_partenza">
-          <span class="material-icons" aria-hidden="true">schedule</span>
-          Ora ritiro
-        </label>
-        <select id="ora_partenza" required>
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
-
-        <label for="data_arrivo">
-          <span class="material-icons" aria-hidden="true">event_available</span>
-          Data arrivo
-        </label>
-        <input type="date" id="data_arrivo" required />
-
-        <label for="ora_arrivo">
-          <span class="material-icons" aria-hidden="true">schedule</span>
-          Ora arrivo
-        </label>
-        <select id="ora_arrivo" required>
-          <option value="08:00">08:00</option>
-          <option value="12:00">12:00</option>
-          <option value="16:00">16:00</option>
-          <option value="20:00">20:00</option>
-        </select>
-
-        <div class="actions">
-          <button id="btn-controlla-disponibilita" class="btn btn--primary">Controlla disponibilità</button>
-        </div>
-      </div>
-
-      <!-- STEP 2: Scelta pulmino -->
-      <div id="step2" class="step hidden" data-step aria-labelledby="s2-title">
-        <button class="btn-back" data-target="step1" aria-label="Torna a selezione date">← Indietro</button>
-        <h3 id="s2-title">Scegli il pulmino</h3>
-        <div id="lista-pulmini" class="pulmini-grid" role="group" aria-label="Lista veicoli disponibili"></div>
-        <div class="actions">
-          <button id="btn-step2-continua" class="btn btn--primary" disabled>Continua</button>
-        </div>
-      </div>
-
-      <!-- STEP 2.5: Richiesta Preventivo -->
-      <div id="step2-5" class="step hidden" data-step aria-labelledby="s25-title">
-        <button class="btn-back" data-target="step2" aria-label="Torna a disponibilità">← Indietro</button>
-        <h3 id="s25-title">Richiedi un preventivo</h3>
-        
-        <div class="preventivo-box">
-          <div class="preventivo-icon">💰</div>
-          <h4>Contattaci per conoscere il prezzo</h4>
-          <p>Prima di procedere con la prenotazione, contattaci per ricevere un preventivo personalizzato in base alle tue esigenze.</p>
-          
-          <div class="form-destinazione">
-            <label for="destinazione-viaggio">
-              <span class="material-icons" aria-hidden="true">place</span>
-              Destinazione del viaggio
-            </label>
-            <input 
-              type="text" 
-              id="destinazione-viaggio" 
-              placeholder="Es. Roma, Napoli, Salento..." 
-              required 
-              maxlength="100"
-            />
-            <div class="help-text">Inserisci la destinazione principale del tuo viaggio</div>
-          </div>
-          
-          <div class="contact-buttons">
-            <button 
-              id="btn-whatsapp-preventivo"
-              class="btn-contact btn-contact--whatsapp"
-              disabled>
-              <span class="material-icons">chat</span>
-              WhatsApp
-            </button>
-            
-            <a href="tel:+393286589618" class="btn-contact btn-contact--phone">
-              <span class="material-icons">phone</span>
-              Chiama ora
-            </a>
-          </div>
-          
-          <div class="preventivo-confirm">
-            <label class="checkbox-label">
-              <input type="checkbox" id="conferma-preventivo" />
-              <span>Ho ricevuto il preventivo e voglio procedere con la prenotazione</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="actions">
-          <button id="btn-step25-continua" class="btn btn--primary" disabled>Continua con la prenotazione</button>
-        </div>
-      </div>
-
-      <!-- STEP 3: Dati autisti -->
-      <div id="step3" class="step hidden" data-step aria-labelledby="s3-title">
-        <button class="btn-back" data-target="step2-5" aria-label="Torna a preventivo">← Indietro</button>
-        <h3 id="s3-title">Dati autista/i</h3>
-
-        <label for="numero-autisti">
-          <span class="material-icons" aria-hidden="true">groups</span>
-          Numero autisti
-        </label>
-        <select id="numero-autisti">
-          <option value="1" selected>1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-
-        <label for="cellulare">
-          <span class="material-icons" aria-hidden="true">call</span>
-          Cellulare
-        </label>
-        <input 
-          type="tel" 
-          id="cellulare" 
-          placeholder="Es. 320 123 4567" 
-          pattern="[0-9]{9,15}"
-          aria-describedby="cellHelp"
-          required 
-        />
-        <div id="cellHelp" class="help-text">Inserisci da 9 a 15 cifre senza spazi.</div>
-
-        <div id="autisti-container"></div>
-
-        <div class="actions">
-          <button id="btn-step3-continua" class="btn btn--primary">Continua</button>
-        </div>
-      </div>
-
-      <!-- STEP 4: Riepilogo -->
-      <div id="step4" class="step hidden" data-step aria-labelledby="s4-title">
-        <button class="btn-back" data-target="step3" aria-label="Torna a dati autisti">← Indietro</button>
-        <h3 id="s4-title">Riepilogo</h3>
-        <div id="riepilogo-content" role="region" aria-label="Riepilogo prenotazione"></div>
-        <div class="actions">
-          <button id="btn-invia-prenotazione" class="btn btn--primary">Invia prenotazione</button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Loading Overlay -->
-  <div id="loading-overlay" class="loader-overlay" aria-live="polite" aria-busy="false">
-    <div class="loader-spinner">
-      <div class="spinner"></div>
-      <p class="loader-text">Caricamento...</p>
-    </div>
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+    <p>Caricamento...</p>
   </div>
 
-  <!-- Toast Container -->
-  <div id="toast-container" aria-live="assertive" role="alert"></div>
+  <!-- CONTAINER PRINCIPALE -->
+  <div class="container">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-content">
+        <h1 class="logo">🚐 Imbriani Noleggio</h1>
+        <p class="tagline">Noleggio Pulmini a Roma</p>
+      </div>
+    </header>
 
-  <!-- WhatsApp Floating Button -->
-  <a href="https://wa.me/393286589618?text=Ciao%2C%20vorrei%20informazioni%20sul%20noleggio%20pulmini" 
-     class="whatsapp-float" 
-     target="_blank"
-     rel="noopener noreferrer"
-     aria-label="Contattaci su WhatsApp">
-    <span class="material-icons">chat</span>
-  </a>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- LOGIN SECTION -->
+      <div id="login-section" class="section">
+        <div class="login-container">
+          <div class="login-card">
+            <h2>👤 Hai già prenotato con noi?</h2>
+            <p class="description">Inserisci il codice fiscale per visualizzare le tue prenotazioni e prenotarne di nuove senza reinserire i dati.</p>
+            
+            <form id="login-form" class="form">
+              <div class="form-group">
+                <label for="cf-input">Codice Fiscale:</label>
+                <input 
+                  type="text" 
+                  id="cf-input" 
+                  placeholder="Es: RSSMRA90A01H501L"
+                  maxlength="16"
+                  autocomplete="off"
+                  required
+                >
+                <span class="form-hint">16 caratteri (lettere maiuscole)</span>
+              </div>
 
-  <!-- Script v5.3.8 -->
-  <script src="scripts.js?v=5.3.8"></script>
+              <button type="submit" class="btn btn-primary">
+                ✅ Accedi
+              </button>
+            </form>
+
+            <div id="login-error" class="alert alert-error hidden"></div>
+          </div>
+
+          <div class="login-card new-customer">
+            <h2>🆕 Prima volta con noi?</h2>
+            <p class="description">Prenota ora il tuo pulmino. I tuoi dati verranno salvati per le prossime prenotazioni.</p>
+            <button id="new-booking-btn" class="btn btn-success">
+              📅 Prenota ora il tuo pulmino
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WIZARD SECTION (Hidden initially) -->
+      <div id="wizard-section" class="section hidden">
+        <!-- Wizard steps inserite dinamicamente da scripts.js -->
+      </div>
+
+      <!-- PERSONAL AREA SECTION (Hidden initially) -->
+      <div id="personal-area-section" class="section hidden">
+        <!-- Area personale inserita dinamicamente da scripts.js -->
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p>&copy; 2025 Imbriani Noleggio. Tutti i diritti riservati. | <a href="#privacy">Privacy Policy</a></p>
+    </footer>
+  </div>
+
+  <!-- MODALS -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- SCRIPTS - CONFIG FIRST! -->
+  <script src="config.js"></script>
+  <script src="shared-utils.js"></script>
+  <script src="scripts.js"></script>
 </body>
 </html>
